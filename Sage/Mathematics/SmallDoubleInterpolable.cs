@@ -67,7 +67,8 @@ namespace Highpoint.Sage.Mathematics
             if (xVals.Length != yVals.Length)
                 throw new ArgumentException("SmallDoubleInterpolable being initialized with unequal-length arrays.");
             if (xVals.Length < 2)
-                throw new ArgumentException(string.Format("Illegal attempt to configure an interpolator on {0} data points.", xVals.Length));
+                throw new ArgumentException(
+                    $"Illegal attempt to configure an interpolator on {xVals.Length} data points.");
             for (int i = 0; i < xVals.Length; i++)
                 SetYValue(xVals[i], yVals[i]);
             // Faster, but depends on values occurring in increasing order.

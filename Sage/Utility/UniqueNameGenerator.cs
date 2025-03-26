@@ -38,11 +38,12 @@ namespace Highpoint.Sage.Utility
         public string GetNextName(string seed, int nPlaces, bool zeroBased = false)
         {
             string key = seed + nPlaces;
-            if (!_uniqueNameData.ContainsKey(key))
+            if (!_uniqueNameData.TryGetValue(key, out UniqueNameData und))
             {
-                _uniqueNameData.Add(key, new UniqueNameData(nPlaces, zeroBased));
+                und = new UniqueNameData(nPlaces, zeroBased);
+                _uniqueNameData.Add(key, und);
             }
-            UniqueNameData und = _uniqueNameData[key];
+
             return seed + und.NextSuffix();
         }
 
@@ -53,7 +54,7 @@ namespace Highpoint.Sage.Utility
 
             public UniqueNameData(int nPlaces, bool zeroBased)
             {
-                _formatString = string.Format("{{0:D{0}}}", nPlaces);
+                _formatString = $"{{0:D{nPlaces}}}";
                 _nextIndex = zeroBased ? 0 : 1;
             }
 

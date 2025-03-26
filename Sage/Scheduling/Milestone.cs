@@ -240,7 +240,6 @@ namespace Highpoint.Sage.Scheduling
 
         public class MilestoneMovementManager
         {
-            private static object _lock = new object();
             public static void Adjust(Milestone prospectiveMover, DateTime newValue)
             {
                 if (!prospectiveMover._dateTime.Equals(newValue))

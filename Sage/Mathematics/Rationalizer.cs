@@ -65,9 +65,9 @@ namespace Highpoint.Sage.Mathematics
             double floor = Math.Floor(val);
             double fractional = val - floor;
             double key = Math.Truncate(fractional * Math.Pow(10, _numPlaces)) / Math.Pow(10, _numPlaces);
-            if (_ratios.ContainsKey(key))
+            if (_ratios.TryGetValue(key, out double ratio))
             {
-                fractional = _ratios[key];
+                fractional = ratio;
                 valArg = sgn * (floor + fractional);
             }
             return valArg;

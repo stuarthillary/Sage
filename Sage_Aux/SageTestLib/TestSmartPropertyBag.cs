@@ -12,9 +12,6 @@ namespace Highpoint.Sage.SimCore
     [TestClass]
     public class SmartPropertyBagTester
     {
-
-        private readonly Random _random = new Random();
-
         public SmartPropertyBagTester()
         {
             Init();
@@ -296,19 +293,19 @@ namespace Highpoint.Sage.SimCore
             Highpoint.Sage.Utility.Mementos.IMemento mem1 = spb0.Memento;
 
             spb1["Hot"] = false;
-            spb1["Name"] = "Habañero";
+            spb1["Name"] = "HabaÃ±ero";
             spb1["Scovilles"] = 32000;
 
             spb2["Hot"] = true;
-            spb2["Name"] = "Jalapeño";
+            spb2["Name"] = "JalapeÃ±o";
             spb2["Scovilles"] = 16000;
 
             Assert.IsTrue(!(bool)spb0["Habanero.Hot"], "Habanero.Hot is hot");
-            Assert.IsTrue("Habañero".Equals((string)spb0["Habanero.Name"], StringComparison.Ordinal), "Habanero.Name is not Habañero");
+            Assert.IsTrue("HabaÃ±ero".Equals((string)spb0["Habanero.Name"], StringComparison.Ordinal), "Habanero.Name is not HabaÃ±ero");
             Assert.IsTrue((double)spb0["Habanero.Scovilles"] == 32000, "Habanero.Scovilles is not 32000");
 
             Assert.IsTrue((bool)spb0["Jalapeno.Hot"], "Jalapeno.Hot is not hot");
-            Assert.IsTrue("Jalapeño".Equals((string)spb0["Jalapeno.Name"], StringComparison.Ordinal), "Jalapeno.Name is not Jalapeño");
+            Assert.IsTrue("JalapeÃ±o".Equals((string)spb0["Jalapeno.Name"], StringComparison.Ordinal), "Jalapeno.Name is not JalapeÃ±o");
             Assert.IsTrue((double)spb0["Jalapeno.Scovilles"] == 16000, "Jalapeno.Scovilles is not 16000");
 
             Highpoint.Sage.Utility.Mementos.IMemento mem2 = spb0.Memento;

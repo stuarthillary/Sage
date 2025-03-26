@@ -16,11 +16,42 @@ namespace Highpoint.Sage.Randoms
         {
             RunGoldTest(0);
         }
+
         [TestMethod]
         public void RunIntervalTest()
         {
-            _RunIntervalTest();
+            RandomServer rs = new RandomServer();
+            Randoms.IRandomChannel rc = rs.GetRandomChannel();
+
+            foreach (double[] da in new double[][] { new double[] { 0.0, 1.0 }, new double[] { 0.3, 0.6 }, new double[] { 0.5, 0.5 } })
+            {
+                double min = da[0];
+                double max = da[1];
+                List<double> doubles = new List<double>();
+                for (int i = 0; i < 1000; i++)
+                {
+                    doubles.Add(rc.NextDouble(min, max));
+                }
+
+                doubles.Sort();
+
+                foreach (double d in doubles)
+                {
+                    if (min < max)
+                    {
+                        Console.WriteLine("Validating that " + d + " is on the interval [" + min + ", " + max + ")");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Validating that " + d + " is on the interval [" + min + ", " + max + "]");
+                    }
+                    Assert.IsTrue((min == max && d == min) || (d >= min && d < max), String.Format("{0} was not in the interval {1} to {2}.", d, min, max));
+                }
+            }
+
+            rc.Dispose();
         }
+
         [TestMethod]
         public void TestMersenneAgainstMatumotosGoldWithBuffering()
         {
@@ -85,41 +116,6 @@ namespace Highpoint.Sage.Randoms
             }
             rc.Dispose();
         }
-
-        private void _RunIntervalTest()
-        {
-            RandomServer rs = new RandomServer();
-            Randoms.IRandomChannel rc = rs.GetRandomChannel();
-
-            foreach (double[] da in new double[][] { new double[] { 0.0, 1.0 }, new double[] { 0.3, 0.6 }, new double[] { 0.5, 0.5 } })
-            {
-                double min = da[0];
-                double max = da[1];
-                List<double> doubles = new List<double>();
-                for (int i = 0; i < 1000; i++)
-                {
-                    doubles.Add(rc.NextDouble(min, max));
-                }
-
-                doubles.Sort();
-
-                foreach (double d in doubles)
-                {
-                    if (min < max)
-                    {
-                        Console.WriteLine("Validating that " + d + " is on the interval [" + min + ", " + max + ")");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Validating that " + d + " is on the interval [" + min + ", " + max + "]");
-                    }
-                    Assert.IsTrue((min == max && d == min) || (d >= min && d < max), String.Format("{0} was not in the interval {1} to {2}.", d, min, max));
-                }
-            }
-
-            rc.Dispose();
-        }
-
 
         // Known-good data from http://www.math.keio.ac.jp/matumoto/CODES/MT2002/mt19937ar.out
         readonly uint[] _int32Gold = new uint[]{

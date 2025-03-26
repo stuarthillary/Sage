@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Graphs.Analysis
                 return int.MaxValue;
 
             if (_diagnostics)
-                _Debug.WriteLine(String.Format("\t\tProbing outward from {0}, looking for {1}.", from, to));
+                _Debug.WriteLine($"\t\tProbing outward from {from}, looking for {to}.");
             if (from == to)
             {
                 if (_diagnostics)
@@ -62,14 +62,14 @@ namespace Highpoint.Sage.Graphs.Analysis
             if (_diagnostics)
             {
                 /***************************************************************************************/
-                _Debug.WriteLine(String.Format("\t\t{0} has {1} successor edges...", from, from.SuccessorEdges.Count));
+                _Debug.WriteLine($"\t\t{from} has {from.SuccessorEdges.Count} successor edges...");
                 _Debug.Write("\t\t");
                 foreach (Edge edge in from.SuccessorEdges)
                 {
                     _Debug.Write("\t" + edge);
                 }
                 _Debug.WriteLine("");
-                _Debug.WriteLine(String.Format("\t\t{0} has {1} predecessor edges...", from, from.PredecessorEdges.Count));
+                _Debug.WriteLine($"\t\t{from} has {from.PredecessorEdges.Count} predecessor edges...");
                 _Debug.Write("\t\t");
                 foreach (Edge edge in from.PredecessorEdges)
                 {

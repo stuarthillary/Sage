@@ -50,7 +50,6 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         #region Private Fields
         private IPfcStepNode _myStep = null;
         private List<TransitionStateMachine> _successorStateMachines;
-        private static Guid _leafLevelActionMask = new Guid("067769d2-573b-475e-bffe-4a8a8a04cd01");
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("PfcStepStateMachine");
         #endregion
 

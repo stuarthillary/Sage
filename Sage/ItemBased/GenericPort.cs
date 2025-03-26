@@ -75,7 +75,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 if (port.Name.StartsWith(PortPrefix, StringComparison.Ordinal))
                 {
                     int tmp = 0;
-                    if (int.TryParse(port.Name.Substring(PortPrefix.Length), out tmp))
+                    if (int.TryParse(port.Name.AsSpan(PortPrefix.Length), out tmp))
                     {
                         i = Math.Max(i, tmp);
                     }

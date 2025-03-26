@@ -55,8 +55,8 @@ namespace Highpoint.Sage.Dependencies
             _serviceSequenceList = null;
             if (_vertices.Contains(vertex))
             {
-                string msg = string.Format("Dependency sequencer error: Attempt to register a dependency vertex, {0}, that already exists in the list.",
-                    vertex);
+                string msg =
+                    $"Dependency sequencer error: Attempt to register a dependency vertex, {vertex}, that already exists in the list.";
                 throw new ApplicationException(msg);
             }
             _vertices.Add((IDependencyVertex)vertex);
@@ -103,7 +103,7 @@ namespace Highpoint.Sage.Dependencies
                 lstVerts.Add(v);
                 htVerts.Add(idv, v);
                 if (_diagnostics)
-                    _Debug.WriteLine(String.Format("New vertex, {0} with {1} dependents.", idv, idv.PredecessorList.Count));
+                    _Debug.WriteLine($"New vertex, {idv} with {idv.PredecessorList.Count} dependents.");
             }
 
             // Each underlying knows who it depends on - we need each vertex to
@@ -203,7 +203,7 @@ namespace Highpoint.Sage.Dependencies
                     int depct = 1;
                     foreach (IDependencyVertex idv in (object[])stack.ToArray())
                     {
-                        msg += string.Format("{0}.) {1} depends on {2}.\r\n", (depct++), thisDv, idv);
+                        msg += $"{(depct++)}.) {thisDv} depends on {idv}.\r\n";
                         thisDv = idv;
                     }
                     throw new ApplicationException(msg);

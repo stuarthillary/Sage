@@ -9,23 +9,22 @@ namespace Highpoint.Sage.ItemBased
     internal class SimplePortActivityLogger
     {
         private readonly StringBuilder _contents = new StringBuilder();
-        private readonly ArrayList _arrayList = new ArrayList();
         private readonly IPort _port;
         public SimplePortActivityLogger(IPort port)
         {
             _port = port;
-            port.PortDataPresented += new PortDataEvent(PortDataPresented);
-            port.PortDataAccepted += new PortDataEvent(PortDataAccepted);
-            port.PortDataRejected += new PortDataEvent(PortDataRejected);
+            port.PortDataPresented += PortDataPresented;
+            port.PortDataAccepted += PortDataAccepted;
+            port.PortDataRejected += PortDataRejected;
         }
 
         public SimplePortActivityLogger(IPortSet portSet)
         {
             foreach (IPort port in portSet)
             {
-                port.PortDataPresented += new PortDataEvent(PortDataPresented);
-                port.PortDataAccepted += new PortDataEvent(PortDataAccepted);
-                port.PortDataRejected += new PortDataEvent(PortDataRejected);
+                port.PortDataPresented += PortDataPresented;
+                port.PortDataAccepted += PortDataAccepted;
+                port.PortDataRejected += PortDataRejected;
             }
         }
 

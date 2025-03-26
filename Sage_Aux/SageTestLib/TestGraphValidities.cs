@@ -14,13 +14,11 @@ namespace Highpoint.Sage.Tasks
     [TestClass]
     public class GraphValidityTester
     {
-
-        private Random _random = new Random();
         private Model _model;
         private Task _t, _t1, _t2, _t3, _t11, _t12, _t13, _t21, _t22, _t23, _t31, _t32, _t33;
         private TaskList _tL1, _tL2, _tL3, _tLnew;
         private TaskProcessor _tp;
-        private static readonly bool VERBOSE = true;
+        private const bool _verbose = true;
 
         public GraphValidityTester()
         {
@@ -31,8 +29,9 @@ namespace Highpoint.Sage.Tasks
         public void Init()
         {
         }
+
         [TestCleanup]
-        public void destroy()
+        public void Destroy()
         {
             Debug.WriteLine("Done.");
         }
@@ -641,14 +640,14 @@ namespace Highpoint.Sage.Tasks
             _model.StateMachine.DoTransition(_model.GetIdleEnum());
             _model.Executive.Reset();
 
-            if (VERBOSE)
+            if (_verbose)
                 Debug.WriteLine(testName + " pre-execution state");
-            if (VERBOSE)
+            if (_verbose)
                 Debug.WriteLine(Diagnostics.DiagnosticAids.ReportOnTaskValidity(_t, true));
             _model.Start();
-            if (VERBOSE)
+            if (_verbose)
                 Debug.WriteLine(testName + " post-execution state");
-            if (VERBOSE)
+            if (_verbose)
                 Debug.WriteLine(Diagnostics.DiagnosticAids.ReportOnTaskValidity(_t, true));
             Assert.IsTrue(_t.ValidityState, testName + " failed.");
         }
@@ -662,7 +661,7 @@ namespace Highpoint.Sage.Tasks
             return false;
         }
 
-        class TestTask : Highpoint.Sage.Graphs.Tasks.Task
+        sealed class TestTask : Highpoint.Sage.Graphs.Tasks.Task
         {
             private bool _svs = true;
             public TestTask(IModel model, string name) : base(model, name, Guid.NewGuid())
@@ -679,13 +678,13 @@ namespace Highpoint.Sage.Tasks
 
             private void OnTaskBeginning(IDictionary graphContext, Edge edge)
             {
-                if (VERBOSE)
+                if (_verbose)
                     Debug.WriteLine(Model.Executive.Now + " : " + Name + " is beginning.");
             }
 
             private void OnTaskCompleting(IDictionary graphContext, Edge edge)
             {
-                if (VERBOSE)
+                if (_verbose)
                     Debug.WriteLine(Model.Executive.Now + " : " + Name + " is completing.");
             }
         }

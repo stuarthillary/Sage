@@ -256,9 +256,7 @@ namespace Highpoint.Sage.Graphs
         {
             #region Private Fields
             private static readonly Node[] _emptyArray = new Node[] { };
-            private bool _onPath;
-            private bool _visited;
-            private object _element;
+            private readonly object _element;
             private Node[] _successors;
             #endregion
 
@@ -266,7 +264,7 @@ namespace Highpoint.Sage.Graphs
             {
                 _element = element;
                 _successors = _emptyArray;
-                _onPath = false;
+                OnPath = false;
             }
 
             public object Element
@@ -278,26 +276,16 @@ namespace Highpoint.Sage.Graphs
             }
             public bool OnPath
             {
-                get
-                {
-                    return _onPath;
-                }
-                set
-                {
-                    _onPath = value;
-                }
+                get;
+                set;
             }
+
             public bool Visited
             {
-                get
-                {
-                    return _visited;
-                }
-                set
-                {
-                    _visited = value;
-                }
+                get;
+                set;
             }
+
             public Node[] Successors
             {
                 get

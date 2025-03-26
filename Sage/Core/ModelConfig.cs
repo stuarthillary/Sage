@@ -22,7 +22,8 @@ namespace Highpoint.Sage.SimCore
             if (_nvc == null)
             {
                 // TODO: Add this to an Errors & Warnings collection instead of dumping it to Trace.
-                _Debug.WriteLine(string.Format("Warning - <{0}> section missing from config file for {1}.", sectionName, Process.GetCurrentProcess().ProcessName));
+                _Debug.WriteLine(
+                    $"Warning - <{sectionName}> section missing from config file for {Process.GetCurrentProcess().ProcessName}.");
             }
         }
 

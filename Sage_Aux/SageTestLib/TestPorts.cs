@@ -358,7 +358,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
     }
 
-    internal class OnePullValue : ManagementFacadeBlock
+    internal sealed class OnePullValue : ManagementFacadeBlock
     {
 
         private readonly SimpleOutputPort _output = null;
@@ -447,7 +447,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         protected abstract void ComputeFuction();
     }
 
-    class DLog : OneInOneOutPushPullTransform
+    sealed class DLog : OneInOneOutPushPullTransform
     {
 
         public DLog(IModel model, string name, string description, Guid guid) : base(model, name, description, guid) { }
@@ -458,7 +458,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
     }
 
-    class SimplePassThroughPortOwner : IPortOwner, IHasName
+    sealed class SimplePassThroughPortOwner : IPortOwner, IHasName
     {
         public IInputPort In
         {
@@ -636,7 +636,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         #endregion
     }
 
-    class SimpleProxyPortOwner : IPortOwner
+    sealed class SimpleProxyPortOwner : IPortOwner
     {
         private readonly string _name;
         private readonly SimplePassThroughPortOwner _sptpo;

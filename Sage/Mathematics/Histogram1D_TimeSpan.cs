@@ -7,155 +7,22 @@ namespace Highpoint.Sage.Mathematics
     /// <summary>
     /// Summary description for Histogram1D.
     /// </summary>
-    public class Histogram1D_TimeSpan : Histogram1D_Base
+    public class Histogram1D_TimeSpan : Histogram1D_Base<long>
     {
-        #region >>> Local Private Variables. <<<
-        private long[] _binsSum;
-        private long[] _binsSumSquares;
-        //private long m_lowSum;
-        //private long m_lowSumSquares;
-        //private long m_highSum;
-        //private long m_highSumSquares;
-        #endregion
-
-        public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, int nBins, string name, Guid guid)
-            : base(rawData, lowBound, highBound, nBins, name, guid) { }
-        public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, int nBins, string name) : this(rawData, lowBound, highBound, nBins, name, Guid.Empty) { }
-        public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, int nBins) : this(rawData, lowBound, highBound, nBins, "", Guid.Empty) { }
-        public Histogram1D_TimeSpan(TimeSpan lowBound, TimeSpan highBound, int nBins, string name, Guid guid) : this(null, lowBound, highBound, nBins, name, guid) { }
-        public Histogram1D_TimeSpan(TimeSpan lowBound, TimeSpan highBound, int nBins, string name) : this(null, lowBound, highBound, nBins, name, Guid.Empty) { }
-        public Histogram1D_TimeSpan(TimeSpan lowBound, TimeSpan highBound, int nBins) : this(null, lowBound, highBound, nBins, "", Guid.Empty) { }
+        public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, uint nBins, string name, Guid guid)
+            : base(rawData.Select(x => x.Ticks).ToArray(), lowBound.Ticks, highBound.Ticks, nBins, name, guid) { }
+        public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, uint nBins, string name) : this(rawData, lowBound, highBound, nBins, name, Guid.Empty) { }
+        public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, uint nBins) : this(rawData, lowBound, highBound, nBins, "", Guid.Empty) { }
+        public Histogram1D_TimeSpan(TimeSpan lowBound, TimeSpan highBound, uint nBins, string name, Guid guid) : this(null, lowBound, highBound, nBins, name, guid) { }
+        public Histogram1D_TimeSpan(TimeSpan lowBound, TimeSpan highBound, uint nBins, string name) : this(null, lowBound, highBound, nBins, name, Guid.Empty) { }
+        public Histogram1D_TimeSpan(TimeSpan lowBound, TimeSpan highBound, uint nBins) : this(null, lowBound, highBound, nBins, "", Guid.Empty) { }
 
 
-        #region IHistogram Members
-        public override void Clear()
+        public override string DefaultLabelProvider(int coords)
         {
-            base.Clear();
-            _binsSum = null;
-            _binsSumSquares = null;
-            //m_lowSum = 0;
-            //m_lowSumSquares = 0;
-            //m_highSum = 0;
-            //m_highSumSquares = 0;
-        }
-
-        public override object SumEntries(HistogramBinCategory hbc)
-        {
-            long sumEntries = 0;
-            bool sumLow = false;
-            bool sumHigh = false;
-            bool inRange = hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All;
-            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
-                sumLow = true;
-            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
-                sumHigh = true;
-
-            TimeSpan[] data = (TimeSpan[])rawData;
-            TimeSpan lowerBound = (TimeSpan)lowBound;
-            TimeSpan higherBound = (TimeSpan)highBound;
-
-            foreach (TimeSpan val in data)
-            {
-                if (val < lowerBound)
-                {
-                    if (sumLow)
-                        sumEntries += val.Ticks;
-                }
-                else if (val >= higherBound)
-                {
-                    if (sumHigh)
-                        sumEntries += val.Ticks;
-                }
-                else
-                {
-                    if (inRange)
-                        sumEntries += val.Ticks;
-                }
-            }
-            return TimeSpan.FromTicks(sumEntries);
-        }
-
-        public override object SumEntries(int[] lowBounds, int[] highBounds)
-        {
-            TimeSpan lowBound = (TimeSpan)LowBound;
-            TimeSpan highBound = (TimeSpan)HighBound;
-            long binIncrement = (highBound - lowBound).Ticks / NumBins;
-
-            TimeSpan lowThreshold = TimeSpan.FromTicks(lowBound.Ticks + (lowBounds[0] * binIncrement));
-            TimeSpan highThreshold = TimeSpan.FromTicks(lowBound.Ticks + (highBounds[0] * binIncrement));
-
-            TimeSpan[] data = (TimeSpan[])rawData;
-            long sumEntries = data.Select(t => t.Ticks).Where(val => val >= lowThreshold.Ticks && val < highThreshold.Ticks).Sum();
-            return TimeSpan.FromTicks(sumEntries);
-        }
-
-        public override object Error(int[] coordinates)
-        {
-            if (coordinates.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-            int whichBin = coordinates[0];
-            long binSum = _binsSum[whichBin];
-            long binSumSquared = _binsSumSquares[whichBin];
-            return ((binSum * binSum) / binSumSquared);
-        }
-
-        public override void Recalculate()
-        {
-            bins = new int[NumBins];
-            _binsSum = new long[NumBins];
-            _binsSumSquares = new long[NumBins];
-            TimeSpan[] raw = (TimeSpan[])rawData;
-            long lowBound = ((TimeSpan)LowBound).Ticks;
-            long highBound = ((TimeSpan)HighBound).Ticks;
-            if (highBound.Equals(lowBound))
-                throw new ApplicationException("Histogram has low bound equal to high bound. This is an error.");
-            double binIncrement = (highBound - lowBound) / ((double)NumBins);
-            foreach (TimeSpan t in raw)
-            {
-                long dataPoint = t.Ticks;
-                if (dataPoint < lowBound)
-                {
-                    LowBin++;
-                    // TODO: Add Mean and Standard Deviation of low & high bins.
-                    //m_lowSum += dataPoint;
-                    //m_lowSumSquares += (dataPoint*dataPoint);
-                }
-                else if (dataPoint >= highBound)
-                {
-                    HighBin++;
-                    //m_highSum += dataPoint;
-                    //m_highSumSquares += (dataPoint*dataPoint);
-                }
-                else
-                {
-                    int whichBin = (int)((dataPoint - lowBound) / binIncrement);
-                    bins[whichBin]++;
-                    _binsSum[whichBin] += dataPoint;
-                    _binsSumSquares[whichBin] += (dataPoint * dataPoint);
-                }
-            }
-        }
-        public override void Recalculate(Array lowBounds, Array highBounds, int nBins)
-        {
-            if (lowBounds.Rank != 1 || highBounds.Rank != 1)
-            {
-                throw new ArgumentException("Boundary data set into a Histogram1D must be of rank 1.");
-            }
-            lowBound = lowBounds.GetValue(new[] { 0 });
-            highBound = highBounds.GetValue(new[] { 0 });
-            NumBins = nBins;
-            Recalculate();
-        }
-        #endregion
-
-        public override string DefaultLabelProvider(int[] coords)
-        {
-            if (coords.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-
-            int whichBin = coords[0];
-            long highBound = ((TimeSpan)HighBound).Ticks;
-            long lowBound = ((TimeSpan)LowBound).Ticks;
+            int whichBin = coords;
+            long highBound = HighBound;
+            long lowBound = LowBound;
             long binIncrement = (highBound - lowBound) / NumBins;
             long lowBoundThisBin = lowBound + (whichBin * binIncrement);
             long highBoundThisBin = lowBound + ((whichBin + 1) * binIncrement);
@@ -172,11 +39,11 @@ namespace Highpoint.Sage.Mathematics
         {
             if (ts.TotalDays < 1.0)
             {
-                return string.Format("{0:d2}:{1:d2}:{2:d2}", ts.Hours, ts.Minutes, ts.Seconds);
+                return $"{ts.Hours:d2}:{ts.Minutes:d2}:{ts.Seconds:d2}";
             }
             else
             {
-                return string.Format("{0:d2}:{1:d2}:{2:d2}:{3:d2}", ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
+                return $"{ts.Days:d2}:{ts.Hours:d2}:{ts.Minutes:d2}:{ts.Seconds:d2}";
             }
         }
     }

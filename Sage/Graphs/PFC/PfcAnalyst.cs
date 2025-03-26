@@ -597,9 +597,9 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private static int GetDepth(IPfcNode node, ref Dictionary<IPfcNode, int> depths)
         {
-            if (depths.ContainsKey(node))
+            if (depths.TryGetValue(node, out int value))
             {
-                return depths[node];
+                return value;
             }
             else if (node.PredecessorNodes.Count == 0)
             {

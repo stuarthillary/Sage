@@ -186,7 +186,7 @@ namespace Highpoint.Sage.Resources
         }
 
         #region Support Classes 
-        class PriRscReqTester
+        sealed class PriRscReqTester
         {
             private readonly ResourceUser[] _users;
             private readonly SelfManagingResource _smr;
@@ -263,7 +263,7 @@ namespace Highpoint.Sage.Resources
             }
         }
 
-        class ResourceUser : IModelObject
+        sealed class ResourceUser : IModelObject
         {
             private readonly IResourceRequest _irr;
             public ResourceUser(IModel model, string name, Guid guid, SelfManagingResource smr)

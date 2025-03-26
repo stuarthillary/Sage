@@ -7,163 +7,28 @@ namespace Highpoint.Sage.Mathematics
     /// <summary>
     /// Summary description for Histogram1D.
     /// </summary>
-    public class Histogram1D_Double : Histogram1D_Base
+    public sealed class Histogram1D_Double : Histogram1D_Base<double>
     {
         #region >>> Local Private Variables. <<<
-        private double[] _binsSum;
-        private double[] _binsSumSquares;
+        
         //private double m_lowSum;
         //private double m_lowSumSquares;
         //private double m_highSum;
         //private double m_highSumSquares;
         #endregion
 
-        public Histogram1D_Double(double[] rawData, double lowBound, double highBound, int nBins, string name, Guid guid)
+        public Histogram1D_Double(double[] rawData, double lowBound, double highBound, uint nBins, string name, Guid guid)
             : base(rawData, lowBound, highBound, nBins, name, guid) { }
-        public Histogram1D_Double(double[] rawData, double lowBound, double highBound, int nBins, string name) : this(rawData, lowBound, highBound, nBins, name, Guid.Empty) { }
-        public Histogram1D_Double(double[] rawData, double lowBound, double highBound, int nBins) : this(rawData, lowBound, highBound, nBins, "", Guid.Empty) { }
-        public Histogram1D_Double(double lowBound, double highBound, int nBins, string name, Guid guid) : this(null, lowBound, highBound, nBins, name, guid) { }
-        public Histogram1D_Double(double lowBound, double highBound, int nBins, string name) : this(null, lowBound, highBound, nBins, name, Guid.Empty) { }
-        public Histogram1D_Double(double lowBound, double highBound, int nBins) : this(null, lowBound, highBound, nBins, "", Guid.Empty) { }
+        public Histogram1D_Double(double[] rawData, double lowBound, double highBound, uint nBins, string name) : this(rawData, lowBound, highBound, nBins, name, Guid.Empty) { }
+        public Histogram1D_Double(double[] rawData, double lowBound, double highBound, uint nBins) : this(rawData, lowBound, highBound, nBins, "", Guid.Empty) { }
+        public Histogram1D_Double(double lowBound, double highBound, uint nBins, string name, Guid guid) : this(null, lowBound, highBound, nBins, name, guid) { }
+        public Histogram1D_Double(double lowBound, double highBound, uint nBins, string name) : this(null, lowBound, highBound, nBins, name, Guid.Empty) { }
+        public Histogram1D_Double(double lowBound, double highBound, uint nBins) : this(null, lowBound, highBound, nBins, "", Guid.Empty) { }
 
 
-        #region IHistogram Members
-        public override void Clear()
+        public override string DefaultLabelProvider(int coords)
         {
-            base.Clear();
-            _binsSum = null;
-            _binsSumSquares = null;
-            //m_lowSum = 0.0;
-            //m_lowSumSquares = 0.0;
-            //m_highSum = 0.0;
-            //m_highSumSquares = 0.0;
-        }
-
-        public override object SumEntries(HistogramBinCategory hbc)
-        {
-            double sumEntries = 0.0;
-            bool sumLow = false;
-            bool sumHigh = false;
-            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
-                sumLow = true;
-            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
-                sumHigh = true;
-            bool inRange = hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All;
-
-            double[] data = (double[])rawData;
-            double lowBound = (double)base.lowBound;
-            double highBound = (double)base.highBound;
-
-            foreach (double val in data)
-            {
-                if (val < lowBound)
-                {
-                    if (sumLow)
-                        sumEntries += val;
-                }
-                else if (val >= highBound)
-                {
-                    if (sumHigh)
-                        sumEntries += val;
-                }
-                else
-                {
-                    if (inRange)
-                        sumEntries += val;
-                }
-            }
-            return sumEntries;
-        }
-
-        public override object SumEntries(int[] lowBounds, int[] highBounds)
-        {
-            double lowBound = (double)LowBound;
-            double highBound = (double)HighBound;
-            double binIncrement = (highBound - lowBound) / NumBins;
-
-            double lowThreshold = lowBound + (lowBounds[0] * binIncrement);
-            double highThreshold = lowBound + (highBounds[0] * binIncrement);
-
-            double[] data = (double[])rawData;
-            return data.Where(val => val >= lowThreshold && val < highThreshold).Sum();
-        }
-
-        /// <summary>
-        /// This returns a double that indicates how far a specified bin's count
-        /// deviates from the 'expected' count - note that it is only relevant if
-        /// the histogram was expected to have been uniform.
-        /// </summary>
-        /// <param name="coordinates">An integer array that specifies the coordinates of
-        /// the bin of interest. Histogram analysis of a Histogram1D_&lt;anything&gt; must be
-        /// on a 1 dimensional array, therefore, this array must be of rank 1.
-        /// </param>
-        /// <returns> a double that indicates how far a specified bin's count
-        /// deviates from the 'expected' count.</returns>
-        public override object Error(int[] coordinates)
-        {
-            if (coordinates.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-            int whichBin = coordinates[0];
-            double binSum = _binsSum[whichBin];
-            double binSumSquared = _binsSumSquares[whichBin];
-            return ((binSum * binSum) / binSumSquared);
-        }
-
-        public override void Recalculate()
-        {
-            bins = new int[NumBins];
-            _binsSum = new double[NumBins];
-            _binsSumSquares = new double[NumBins];
-            double[] rawData = (double[])base.rawData;
-            double lowBound = (double)LowBound;
-            double highBound = (double)HighBound;
-            double binIncrement = (highBound - lowBound) / NumBins;
-            foreach (double dataPoint in rawData)
-            {
-                if (double.IsInfinity(dataPoint) || double.IsNaN(dataPoint))
-                {
-                    throw new ApplicationException("Datapoint was " + dataPoint + " in histogram analysis.");
-                }
-                if (dataPoint < lowBound)
-                {
-                    LowBin++;
-                    //m_lowSum += dataPoint;
-                    //m_lowSumSquares += (dataPoint*dataPoint);
-                }
-                else if (dataPoint >= highBound)
-                {
-                    HighBin++;
-                    //m_highSum += dataPoint;
-                    //m_highSumSquares += (dataPoint*dataPoint);
-                }
-                else
-                {
-                    int whichBin = (int)((dataPoint - lowBound) / binIncrement);
-                    bins[whichBin]++;
-                    _binsSum[whichBin] += dataPoint;
-                    _binsSumSquares[whichBin] += (dataPoint * dataPoint);
-                }
-            }
-        }
-        public override void Recalculate(Array lowBounds, Array highBounds, int nBins)
-        {
-            if (lowBounds.Rank != 1 || highBounds.Rank != 1)
-            {
-                throw new ArgumentException("Boundary data set into a Histogram1D must be of rank 1.");
-            }
-            lowBound = lowBounds.GetValue(new[] { 0 });
-            highBound = highBounds.GetValue(new[] { 0 });
-            NumBins = nBins;
-            Recalculate();
-        }
-        #endregion
-
-        public override string DefaultLabelProvider(int[] coords)
-        {
-            if (coords.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-
-            int whichBin = coords[0];
+            int whichBin = coords;
             double highBound = (double)HighBound;
             double lowBound = (double)LowBound;
             double binIncrement = (highBound - lowBound) / NumBins;
@@ -175,11 +40,11 @@ namespace Highpoint.Sage.Mathematics
             return string.Format(fmtString, lowBoundThisBin, highBoundThisBin);
         }
 
-        public string DefaultLabelProviderWithError(int[] coords)
+        public string DefaultLabelProviderWithError(int coords)
         {
             string fmtSpecifier = "f2";
             string fmtString = " - Err({0:" + fmtSpecifier + "})";
-            return DefaultLabelProvider(coords) + string.Format(fmtString, Error(coords));
+            return DefaultLabelProvider(coords);
         }
 
 

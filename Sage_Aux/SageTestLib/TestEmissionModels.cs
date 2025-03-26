@@ -564,11 +564,11 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
         }
 
 
-        private void EvaluateResults(string knownGood, string testName, Mixture emission)
+        private static void EvaluateResults(string knownGood, string testName, Mixture emission)
         {
             string result = emission.ToString("F2", "F4");
             Assert.AreEqual(knownGood, result,
-                String.Format("{0} test failed - result was {1} but should have been {2}.", testName, result, knownGood));
+                $"{testName} test failed - result was {result} but should have been {knownGood}.");
         }
 
 

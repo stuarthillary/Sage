@@ -160,7 +160,7 @@ namespace Highpoint.Sage.Persistence
 
     }
 
-    class MyTestObject : IXmlPersistable
+    sealed class MyTestObject : IXmlPersistable
     {
         private MyTestObject _child1;
         private MyTestObject _child2;

@@ -699,7 +699,6 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         [TestMethod]
         [Highpoint.Sage.Utility.FieldDescription("Test exception throw on illegal reaction definition.")]
-        [ExpectedException(typeof(ReactionDefinitionException), "Permitted creation of a faulty reaction (same product and reactants.)")]
         public void TestBadReactionDefinition1()
         {
 
@@ -713,8 +712,10 @@ namespace Highpoint.Sage.Materials.Chemistry
             r1.AddReactant(brs.MyMaterialCatalog["Water"], 2.0);
             r1.AddProduct(brs.MyMaterialCatalog["Water"], 2.0);
             r1.HeatOfReaction = 0;
-            brs.MyReactionProcessor.AddReaction(r1);
 
+            Assert.ThrowsException<ReactionDefinitionException>(
+                () => brs.MyReactionProcessor.AddReaction(r1), 
+                "Permitted creation of a faulty reaction (same product and reactants.)");
         }
 
 

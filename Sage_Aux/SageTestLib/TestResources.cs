@@ -409,7 +409,7 @@ namespace Highpoint.Sage.Resources
         }
 
 
-        class ResourceRequest : Highpoint.Sage.Resources.ResourceRequest
+        sealed class ResourceRequest : Highpoint.Sage.Resources.ResourceRequest
         {
 
             public ResourceRequest(double quantity) : base(quantity) { }
@@ -426,7 +426,7 @@ namespace Highpoint.Sage.Resources
                 return new ResourceRequestSource(DefaultReplicator);
             }
 
-            private IResourceRequest DefaultReplicator()
+            private ResourceRequest DefaultReplicator()
             {
                 ResourceRequest irr = new ResourceRequest(QuantityDesired);
                 irr.DefaultResourceManager = DefaultResourceManager;

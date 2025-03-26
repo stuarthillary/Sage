@@ -667,8 +667,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 if (!node.PredecessorNodes.TrueForAll(n => GetValidationData(n).ValidationToken == null))
                 {
-                    string narrative = string.Format("Node {0}, along with others that follow it, is unreachable.",
-                        node.Name);
+                    string narrative = $"Node {node.Name}, along with others that follow it, is unreachable.";
                     _errorList.Add(new PfcValidationError("Unreachable PFC Node", narrative, node));
                     sb.AppendLine(narrative);
                 }
@@ -678,7 +677,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 if (!node.PredecessorNodes.TrueForAll(n => GetValidationData(n).ValidationToken == null))
                 {
-                    string narrative = string.Format("Node {0} failed to run.", node.Name);
+                    string narrative = $"Node {node.Name} failed to run.";
                     _errorList.Add(new PfcValidationError("Unexecuted PFC Node", narrative, node));
                     sb.AppendLine(narrative);
                 }
@@ -689,9 +688,7 @@ namespace Highpoint.Sage.Graphs.PFC
             foreach (IPfcStepNode node in inconsistentSerialConvergences)
             {
                 string narrative =
-                    string.Format(
-                        "Branch paths (serial convergences) into {0} do not all have the same validation token, meaning they came from different branches (serial divergences).",
-                        node.Name);
+                    $"Branch paths (serial convergences) into {node.Name} do not all have the same validation token, meaning they came from different branches (serial divergences).";
                 _errorList.Add(new PfcValidationError("Serial Di/Convergence Mismatch", narrative, node));
                 sb.AppendLine(narrative);
             }
@@ -708,15 +705,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 int nParallelsOpen = vt.ChildNodes.Count();
 
                 string narrative =
-                    string.Format(
-                        "Under {0}, there {1} {2} parallel branch{3} that did not complete - {4} began at {5}.",
-                        vt.Origin.Name,
-                        nParallelsOpen == 1 ? "is" : "are",
-                        nParallelsOpen,
-                        nParallelsOpen == 1 ? "" : "es",
-                        nParallelsOpen == 1 ? "it" : "they",
-                        StringOperations.ToCommasAndAndedList<IPfcNode>(liveNodes, n => n.Name)
-                        );
+                    $"Under {vt.Origin.Name}, there {(nParallelsOpen == 1 ? "is" : "are")} {nParallelsOpen} parallel branch{(nParallelsOpen == 1 ? "" : "es")} that did not complete - {(nParallelsOpen == 1 ? "it" : "they")} began at {StringOperations.ToCommasAndAndedList<IPfcNode>(liveNodes, n => n.Name)}.";
 
                 _errorList.Add(new PfcValidationError("Uncompleted Parallel Branches", narrative, vt.Origin));
                 sb.AppendLine();
@@ -896,7 +885,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 string before;
                 if (nodesAfter.Count > 0)
                 {
-                    before = string.Format("is before {0}", StringOperations.ToCommasAndAndedList(nodesAfter));
+                    before = $"is before {StringOperations.ToCommasAndAndedList(nodesAfter)}";
                 }
                 else
                 {
@@ -905,13 +894,13 @@ namespace Highpoint.Sage.Graphs.PFC
                 string after;
                 if (nodesBefore.Count > 0)
                 {
-                    after = string.Format("is after {0}", StringOperations.ToCommasAndAndedList(nodesBefore));
+                    after = $"is after {StringOperations.ToCommasAndAndedList(nodesBefore)}";
                 }
                 else
                 {
                     after = "has no recognizable predecessors";
                 }
-                string retval = string.Format("The node {0} {1} and {2}.", _subject.Name, before, after);
+                string retval = $"The node {_subject.Name} {before} and {after}.";
                 return retval;
             }
         }
@@ -1155,7 +1144,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             public override string ToString()
             {
-                return string.Format("{0} -> {1}", From.Name, To.Name);
+                return $"{From.Name} -> {To.Name}";
             }
         }
 

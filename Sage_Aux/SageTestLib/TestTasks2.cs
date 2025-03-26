@@ -14,13 +14,6 @@ namespace SchedulerDemoMaterial
     [TestClass]
     public class TaskTester
     {
-
-        private readonly Random _random = new Random();
-
-        public TaskTester()
-        {
-        }
-
         [TestMethod]
         public void TestBaseFunctionality()
         {
@@ -46,31 +39,31 @@ namespace SchedulerDemoMaterial
                 Task taskA = (Task)((Edge)childTasks[from[ndx]]);
                 Task taskB = (Task)((Edge)childTasks[to[ndx]]);
 
-                Debug.WriteLine(String.Format("Considering a connection between {0} and {1}.", taskA.Name, taskB.Name));
+                Debug.WriteLine($"Considering a connection between {taskA.Name} and {taskB.Name}.");
 
                 int forward = PathLength.ShortestPathLength(taskA, taskB);
                 int backward = PathLength.ShortestPathLength(taskB, taskA);
 
-                Debug.WriteLine(String.Format("Forward path length is {0}, and reverse path length is {1}.", forward, backward));
+                Debug.WriteLine($"Forward path length is {forward}, and reverse path length is {backward}.");
 
                 if ((forward == int.MaxValue) && (backward == int.MaxValue))
                 {
                     taskA.AddSuccessor(taskB);
-                    Debug.WriteLine(String.Format("{0} will follow {1}.", taskB.Name, taskA.Name));
+                    Debug.WriteLine($"{taskB.Name} will follow {taskA.Name}.");
                 }
                 else if ((forward != int.MaxValue) && (backward == int.MaxValue))
                 {
                     taskA.AddSuccessor(taskB);
-                    Debug.WriteLine(String.Format("{0} will follow {1}.", taskB.Name, taskA.Name));
+                    Debug.WriteLine($"{taskB.Name} will follow {taskA.Name}.");
                 }
                 else if ((forward == int.MaxValue) && (backward != int.MaxValue))
                 {
                     taskB.AddSuccessor(taskA);
-                    Debug.WriteLine(String.Format("{1} will follow {0}.", taskB.Name, taskA.Name));
+                    Debug.WriteLine("{1} will follow {0}.", taskB.Name, taskA.Name);
                 }
                 else
                 {
-                    throw new ApplicationException("Cycle exists between " + taskA.Name + " and " + taskB.Name + ".");
+                    throw new ApplicationException($"Cycle exists between {taskA.Name} and {taskB.Name}.");
                 }
             }
 
@@ -91,11 +84,11 @@ namespace SchedulerDemoMaterial
 
         void OnModelStarting(IModel model, object userData)
         {
-            Debug.WriteLine("Model " + model.Name + " starting.");
+            Debug.WriteLine($"Model {model.Name} starting.");
         }
 
 
-        class MyTask : Highpoint.Sage.Graphs.Tasks.Task
+        sealed class MyTask : Highpoint.Sage.Graphs.Tasks.Task
         {
 
             public MyTask(IModel model, int i) : base(model, "Task #" + i, Guid.NewGuid()) { }
@@ -107,7 +100,7 @@ namespace SchedulerDemoMaterial
 
         }
 
-        class DelayTask : Highpoint.Sage.Graphs.Tasks.Task
+        sealed class DelayTask : Highpoint.Sage.Graphs.Tasks.Task
         {
             long _delay;
 

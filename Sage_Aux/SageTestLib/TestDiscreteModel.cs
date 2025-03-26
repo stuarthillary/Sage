@@ -10,9 +10,6 @@ namespace Highpoint.Sage.SimCore
     [TestClass]
     public class DiscreteTester
     {
-
-        private Random _random = new Random();
-
         public DiscreteTester()
         {
             Init();
@@ -39,7 +36,7 @@ namespace Highpoint.Sage.SimCore
             Model model = new Model();
 
             SimpleMetronome sm = SimpleMetronome.CreateMetronome(model.Executive, DateTime.Now, DateTime.Now + TimeSpan.FromHours(5), _timedifference);
-            sm.TickEvent += new ExecEventReceiver(sm_TickEvent);
+            sm.TickEvent += sm_TickEvent;
 
             model.Start();
 
@@ -48,7 +45,7 @@ namespace Highpoint.Sage.SimCore
 
         private void sm_TickEvent(IExecutive exec, object userData)
         {
-            Console.WriteLine(exec.Now.ToString() + ", " + _timelast.ToString() + ", " + _timedifference.ToString());
+            Console.WriteLine($"{exec.Now}, {_timelast}, {_timedifference}");
             if (_timelast > DateTime.MinValue)
             {
                 Assert.IsTrue(_timelast + _timedifference == exec.Now, "Tick does not happen at correct time difference");

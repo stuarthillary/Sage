@@ -159,7 +159,7 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (_diagnostics)
-                _Debug.WriteLine(String.Format("{0} adding preEdge {1}.", Name, preEdge.Name));
+                _Debug.WriteLine($"{Name} adding preEdge {preEdge.Name}.");
             PreEdges.Add(preEdge);
             System.Threading.Interlocked.Increment(ref NumPreEdges);
             if (PreEdgeAddedEvent != null)
@@ -178,7 +178,7 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (_diagnostics)
-                _Debug.WriteLine(String.Format("{0} removing preEdge {1}.", Name, preEdge.Name));
+                _Debug.WriteLine($"{Name} removing preEdge {preEdge.Name}.");
             PreEdges.Remove(preEdge);
             System.Threading.Interlocked.Decrement(ref NumPreEdges);
             if (PreEdgeRemovedEvent != null)
@@ -197,7 +197,7 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (_diagnostics)
-                _Debug.WriteLine(String.Format("{0} adding postEdge {1}.", Name, postEdge.Name));
+                _Debug.WriteLine($"{Name} adding postEdge {postEdge.Name}.");
             PostEdges.Add(postEdge);
             System.Threading.Interlocked.Increment(ref NumPostEdges);
             if (PostEdgeAddedEvent != null)
@@ -216,7 +216,7 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (_diagnostics)
-                _Debug.WriteLine(String.Format("{0} removing postEdge {1}.", Name, postEdge.Name));
+                _Debug.WriteLine($"{Name} removing postEdge {postEdge.Name}.");
             PostEdges.Remove(postEdge);
             System.Threading.Interlocked.Decrement(ref NumPostEdges);
             if (PostEdgeRemovedEvent != null)

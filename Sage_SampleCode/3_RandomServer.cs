@@ -118,7 +118,8 @@ and allow another to change."
             exec.Start();
 
         }
-        class Activity
+
+        sealed class Activity
         {
 
             private static readonly int _defaultBufferSize = 100;

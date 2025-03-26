@@ -791,7 +791,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #endregion Delegated test methods
 
-        class Selector
+        sealed class Selector
         {
             private IPfcTransitionNode[] _outbounds = null;
             private int i;
@@ -811,7 +811,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        class TestEvaluator
+        sealed class TestEvaluator
         {
             private Queue _nextExpected;
             private ArrayList _linkablesToMonitor;

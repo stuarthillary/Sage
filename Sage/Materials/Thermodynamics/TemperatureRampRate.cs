@@ -56,7 +56,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
 
         public override string ToString()
         {
-            return string.Format("{0} degrees K per second", _degreesKelvin / _perTimePeriod.TotalSeconds);
+            return $"{_degreesKelvin / _perTimePeriod.TotalSeconds} degrees K per second";
         }
     }
 }

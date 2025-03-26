@@ -299,14 +299,16 @@ namespace Highpoint.Sage.Utility
         /// <param name="item">The value of the element to add.</param>
         public void Add(TKey key, TValue item)
         {
-            if (!_dictOfLists.ContainsKey(key))
+            if (!_dictOfLists.TryGetValue(key, out List<TValue> value))
             {
-                _dictOfLists.Add(key, new List<TValue>());
+                value = new List<TValue>();
+                _dictOfLists.Add(key, value);
             }
-            _dictOfLists[key].Add(item);
+
+            value.Add(item);
             if (_comparer != null)
             {
-                _dictOfLists[key].Sort(_comparer);
+                value.Sort(_comparer);
             }
         }
 

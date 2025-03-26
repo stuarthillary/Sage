@@ -137,7 +137,7 @@ namespace Highpoint.Sage.Graphs.PFC {
                     }
                 }
 
-                _Debug.Assert(false, string.Format("Unable to determine the aggregate link type of {0}.",ToString()));
+                _Debug.Assert(false, $"Unable to determine the aggregate link type of {ToString()}.");
 
                 return AggregateLinkType.Unknown;
             }

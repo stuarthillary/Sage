@@ -377,7 +377,7 @@ Dingus";
             Assert.AreEqual(StripCRLF(sb.ToString()), StripCRLF(REQUIRED_ITERATIONSTRING2), "Expected \"" + REQUIRED_ITERATIONSTRING2 + "\", but got \"" + sb.ToString() + "\" instead.");
         }
 
-        private string StripCRLF(string structureString) => structureString.Replace("\r", "", StringComparison.Ordinal).Replace("\n", "", StringComparison.Ordinal);
+        private static string StripCRLF(string structureString) => structureString.Replace("\r", "", StringComparison.Ordinal).Replace("\n", "", StringComparison.Ordinal);
 
         #region REQUIRED_ITERATIONSTRING2
         private static string REQUIRED_ITERATIONSTRING2 =
@@ -409,7 +409,7 @@ Dingus
 
         #endregion    
 
-        class StringWrapper
+        sealed class StringWrapper
         {
             private readonly string _string = null;
             public StringWrapper(string s)
@@ -422,7 +422,7 @@ Dingus
             }
         }
 
-        class Activity : TreeNode<Activity>, IComparable<Activity>
+        sealed class Activity : TreeNode<Activity>, IComparable<Activity>
         {
 
             private readonly string _name = null;
@@ -453,7 +453,7 @@ Dingus
             #endregion
         }
 
-        class Activity2 : ITreeNode<Activity2>
+        sealed class Activity2 : ITreeNode<Activity2>
         {
             private readonly TreeNode<Activity2> _treeNode;
             private readonly string _name = null;

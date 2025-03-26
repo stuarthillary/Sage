@@ -161,7 +161,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         }
         #endregion
 
-        class Item : IModelObject
+        sealed class Item : IModelObject
         {
 
             private Item(Model model, string name, Guid guid)
@@ -240,7 +240,7 @@ namespace Highpoint.Sage.ItemBased.Queues
 
             #endregion
 
-            public class ItemFactory : IModelObject
+            public sealed class ItemFactory : IModelObject
             {
                 private int _itemNumber = 0;
                 public ItemFactory(Model model, string name, Guid guid)
@@ -252,7 +252,7 @@ namespace Highpoint.Sage.ItemBased.Queues
                         _model.ModelObjects.Add(guid, this);
                 }
 
-                public object NewItem()
+                public Item NewItem()
                 {
                     return new Item(_model, _name + (_itemNumber++), Guid.NewGuid());
                 }
@@ -480,7 +480,7 @@ namespace Highpoint.Sage.ItemBased.Queues
                 _modelErrors = new ArrayList();
                 _errorHandlers = new ArrayList();
                 _stateMachine = CreateStateMachine();
-                _stateMachine.InboundTransitionHandler(State.Complete).AddCommitEvent(new CommitTransitionEvent(OnModelCompleted), Double.MaxValue);
+                _stateMachine.InboundTransitionHandler(State.Complete).AddCommitEvent(double.MaxValue, OnModelCompleted);
                 AddService(new InitializationManager(DIModel.State.Raw, DIModel.State.Initialized));
             }
 
@@ -589,7 +589,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             }
 
             /// <summary>
-            /// The ModelConfig is an object that holds the contents of the Sage® section of the
+            /// The ModelConfig is an object that holds the contents of the Sageï¿½ section of the
             /// app.config file.
             /// </summary>
             /// <value></value>

@@ -68,14 +68,13 @@ namespace Highpoint.Sage.Thermodynamics
 
         [TestMethod]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 20 degreesC to 60 degrees C using CONST TSRC and src==setpoint")]
-        [ExpectedException(typeof(Highpoint.Sage.Materials.Thermodynamics.TemperatureController.IncalculableTimeToSetpointException))]
         public void TestTCConstTSrcTargetingLevel()
         {
             Debug.WriteLine("\r\nTesting temperature drive up from constant TSrc.");
             //                           SRC  MIX  AMB  SET  RMP ERR  MODE       ENBL
             TCTestJig tj = new TCTestJig(60.0, 20.0, 34.0, 60.0, 5.0, 01.0, CONST_TSRC, true);
 
-            testTargeting(tj);
+            Assert.ThrowsException<TemperatureController.IncalculableTimeToSetpointException>(() => testTargeting(tj));
         }
 
         [TestMethod]
@@ -318,7 +317,7 @@ namespace Highpoint.Sage.Thermodynamics
 
         }
 
-        internal class TCTestJig
+        sealed class TCTestJig
         {
             private readonly Mixture _mixture;
             private readonly double _err;
@@ -433,7 +432,7 @@ namespace Highpoint.Sage.Thermodynamics
         }
     }
 
-    internal class Container : IContainer
+    internal sealed class Container : IContainer
     {
         private readonly double _volume;
         private readonly Mixture _mixture;

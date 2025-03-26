@@ -28,7 +28,8 @@ namespace Highpoint.Sage.Mathematics
             if (_xVals.Length != _yVals.Length)
                 throw new ArgumentException("XValue and YValue arrays are of unequal length.");
             if (_xVals.Length < 2)
-                throw new ArgumentException(string.Format("Illegal attempt to configure an interpolator on {0} data points.", _xVals.Length));
+                throw new ArgumentException(
+                    $"Illegal attempt to configure an interpolator on {_xVals.Length} data points.");
 
         }
 

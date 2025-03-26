@@ -51,7 +51,6 @@ namespace Highpoint.Sage.SimCore
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Model");
         private static readonly bool _dumpWarnings = Diagnostics.DiagnosticAids.Diagnostics("ModelWarnings");
         private static readonly bool _dumpErrors = Diagnostics.DiagnosticAids.Diagnostics("ModelErrors");
-        private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
         private ulong _randomSeed = ulong.MaxValue;
         private bool _randomSeedSpecified = false;
         private Randoms.RandomServer _randomServer = null;
@@ -87,7 +86,7 @@ namespace Highpoint.Sage.SimCore
             IsCompleted = false;
             IsReady = false;
 
-            m_services = new Dictionary<Type, Dictionary<string, object>>();
+            _services = new Dictionary<Type, Dictionary<string, object>>();
 
             Exec = CreateModelExecutive();
             _stateMachine = CreateStateMachine();
@@ -193,7 +192,7 @@ namespace Highpoint.Sage.SimCore
         #endregion
 
         /// <summary>
-        /// The ModelConfig is an object that holds the contents of the Sage® section of the
+        /// The ModelConfig is an object that holds the contents of the Sageï¿½ section of the
         /// app.config file.
         /// </summary>
         public ModelConfig ModelConfig
@@ -493,7 +492,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="onTransitionToWhichState">The model state in which the model is to be checked for errors.</param>
         public void AddErrorCheckHandlerWithModelAbortOnFailure(Enum onTransitionToWhichState)
         {
-            _stateMachine.InboundTransitionHandler(onTransitionToWhichState).AddCommitEvent(new CommitTransitionEvent(AbortIfErrors), double.MaxValue);
+            _stateMachine.InboundTransitionHandler(onTransitionToWhichState).AddCommitEvent(double.MaxValue, AbortIfErrors);
         }
 
         private void AbortIfErrors(IModel model, object userData)
@@ -756,14 +755,14 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         public event ModelEvent Completed;
 
-        private readonly Dictionary<Type, Dictionary<string, object>> m_services;
+        private readonly Dictionary<Type, Dictionary<string, object>> _services;
         public void AddService<T>(T service, string name = null) where T : IModelService
         {
             Dictionary<string, object> typedServices;
-            if (!m_services.TryGetValue(typeof(T), out typedServices))
+            if (!_services.TryGetValue(typeof(T), out typedServices))
             {
                 typedServices = new Dictionary<string, object>();
-                m_services.Add(typeof(T), typedServices);
+                _services.Add(typeof(T), typedServices);
             }
             typedServices.Add((name ?? ""), service);
 
@@ -785,14 +784,14 @@ namespace Highpoint.Sage.SimCore
             bool retvalFound; // is false.
             object retval;
             Dictionary<string, object> typedServices;
-            if (!m_services.TryGetValue(typeof(T), out typedServices))
+            if (!_services.TryGetValue(typeof(T), out typedServices))
             {
                 exactTypeMatch = false;
-                foreach (Type type in m_services.Keys)
+                foreach (Type type in _services.Keys)
                 {
                     if (typeof(T).IsAssignableFrom(type))
                     {
-                        typedServices = m_services[type];
+                        typedServices = _services[type];
                         break;
                     }
                 }

@@ -59,7 +59,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                 case ExpressionType.Hostile:
                     return Guid.ToString();
                 default:
-                    throw new ApplicationException(string.Format("Unknown string format, {0}, was requested.", t));
+                    throw new ApplicationException($"Unknown string format, {t}, was requested.");
             }
         }
 

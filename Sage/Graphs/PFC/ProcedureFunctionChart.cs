@@ -74,8 +74,6 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private IProcedureFunctionChart _source = null;
 
-        private static ExpressionElement _defaultExpression = new PredecessorsComplete();
-
         private ExecutionEngine _executionEngine = null;
 
         private ExecutionEngineConfiguration _executionEngineConfiguration = null;
@@ -206,12 +204,14 @@ namespace Highpoint.Sage.Graphs.PFC
 
             if (step.Actions == null)
             {
-                throw new ApplicationException(string.Format("Deriving a Pfc from a step ({0}) that has no Actions is not possible.", step.Name));
+                throw new ApplicationException(
+                    $"Deriving a Pfc from a step ({step.Name}) that has no Actions is not possible.");
             }
 
             if (step.Actions.Count > 1)
             {
-                throw new NotSupportedException(string.Format("Deriving a single Pfc from a step ({0}) that has more than one Action is not yet supported.", step.Name));
+                throw new NotSupportedException(
+                    $"Deriving a single Pfc from a step ({step.Name}) that has more than one Action is not yet supported.");
             }
 
             ProcedureFunctionChart pfc = null;

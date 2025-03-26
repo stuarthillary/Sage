@@ -77,7 +77,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
                 }
                 if (min == max)
                     max += TimeSpan.FromMinutes(_nBins);
-                _hist = new Histogram1D_TimeSpan(rawdata, min, max, _nBins, _name);
+                _hist = new Histogram1D_TimeSpan(rawdata, min, max, (uint)_nBins, _name);
                 _hist.Recalculate();
                 return _hist;
             }

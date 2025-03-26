@@ -40,7 +40,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             get
             {
                 if (_valueComputeMethod == null)
-                    throw new ApplicationException(string.Format("Unspecified ComputeFunction on port {0} of {1}.", _sop.Name, _sop.Owner));
+                    throw new ApplicationException($"Unspecified ComputeFunction on port {_sop.Name} of {_sop.Owner}.");
                 return _valueComputeMethod;
             }
             set
@@ -87,7 +87,8 @@ namespace Highpoint.Sage.ItemBased.Ports
             get
             {
                 if (Diagnostics)
-                    _Debug.WriteLine(string.Format("Block {0}, port {1} being asked to give its value - the buffer {2} valid.", ((IHasIdentity)_sop.Owner).Name, _sop.Name, BufferValid ? "is" : "is not"));
+                    _Debug.WriteLine(
+                        $"Block {((IHasIdentity)_sop.Owner).Name}, port {_sop.Name} being asked to give its value - the buffer {(BufferValid ? "is" : "is not")} valid.");
                 if (!BufferValid)
                 {
                     try

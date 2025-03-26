@@ -205,7 +205,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         }*/
 
 
-        class TestGraph1
+        sealed class TestGraph1
         {
             public TestTask Ta, Tb, Tc, Td;
             public TestTask Parent, Follow;
@@ -316,7 +316,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         }
 
 
-        class TestTask : Highpoint.Sage.Graphs.Tasks.Task
+        sealed class TestTask : Highpoint.Sage.Graphs.Tasks.Task
         {
             private TimeSpan _delay = TimeSpan.Zero;
             private bool _svs = true;

@@ -97,7 +97,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             Assert.IsTrue(true == TimeSpan.FromTicks(Math.Abs(msbm.Duration.Ticks - expectedDuration.Ticks)) < TimeSpan.FromMilliseconds(50), "Duration is bigger then the expeced one.");
         }
 
-        internal class TSTestJig
+        sealed class TSTestJig
         {
             private readonly Mixture _mixture;
             private readonly BasicReactionSupporter _brs;

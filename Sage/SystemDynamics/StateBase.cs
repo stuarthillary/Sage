@@ -59,31 +59,31 @@ namespace Highpoint.Sage.SystemDynamics
 
         protected double ExponentialDist(double mean, long seed = long.MaxValue)
         {
-            return getDistro(string.Format("Exponential{0}", seed),
+            return getDistro($"Exponential{seed}",
                 () => new ExponentialDistribution(mean, 1)).GetNext();
         }
 
         protected double LogNormalDist(double mean, double stdev, long seed = long.MaxValue)
         {
-            return getDistro(string.Format("Exponential{0}", seed),
+            return getDistro($"Exponential{seed}",
                 () => new LognormalDistribution(mean, stdev)).GetNext();
         }
 
         protected double NormalDist(double mean, double stdev, long seed = long.MaxValue)
         {
-            return getDistro(string.Format("Exponential{0}", seed),
+            return getDistro($"Exponential{seed}",
                 () => new NormalDistribution(mean, stdev)).GetNext();
         }
 
         protected double PoissonDist(double mean, long seed = long.MaxValue)
         {
-            return getDistro(string.Format("Exponential{0}", seed),
+            return getDistro($"Exponential{seed}",
                 () => new PoissonDistribution(mean)).GetNext();
         }
 
         protected double UniformDist(double min, double max, long seed = long.MaxValue)
         {
-            return getDistro(string.Format("Exponential{0}", seed),
+            return getDistro($"Exponential{seed}",
                 () => new UniformDistribution(min, max)).GetNext();
         }
 
@@ -339,7 +339,7 @@ namespace Highpoint.Sage.SystemDynamics
 
             public Delay(double dt, double delay, double initVal = Double.NegativeInfinity)
             {
-                _myString = String.Format("Delay({0},{1},{2});", delay, dt, initVal);
+                _myString = $"Delay({delay},{dt},{initVal});";
                 _hasInitialValue = !Double.IsNegativeInfinity(initVal);
                 _nBins = (int)(delay / dt);
                 if (!_hasInitialValue)

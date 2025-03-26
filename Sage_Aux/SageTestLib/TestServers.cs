@@ -236,7 +236,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
         #endregion
 
-        class CSVDumper
+        sealed class CSVDumper
         {
             private readonly System.Collections.IComparer _comparer;
             private readonly System.Collections.ArrayList _arer;
@@ -262,7 +262,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
 
 
-        class Patient : IModelObject
+        sealed class Patient : IModelObject
         {
 
             private Patient(IModel model, string name, Guid guid)
@@ -323,7 +323,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
             #endregion
 
-            public class PatientFactory : IModelObject
+            public sealed class PatientFactory : IModelObject
             {
                 private int _patientNumber = 0;
                 public PatientFactory(IModel model, string name, Guid guid)
@@ -334,7 +334,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
                 }
 
-                public object NewPatient()
+                public Patient NewPatient()
                 {
                     return new Patient(_model, _name + (_patientNumber++), Guid.NewGuid());
                 }

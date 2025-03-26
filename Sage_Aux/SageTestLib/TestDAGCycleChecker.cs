@@ -58,36 +58,31 @@ namespace Highpoint.Sage.Graphs
 
         }
 
-        class MyDAGCycleChecker : Highpoint.Sage.Graphs.DAGCycleChecker
+        sealed class MyDagCycleChecker : Highpoint.Sage.Graphs.DAGCycleChecker
         {
-            private Edge _root;
-            private Edge _loopback;
-            private bool _enableLoopback = false;
+            private readonly Edge _root;
+            private readonly Edge _loopback;
 
-            public MyDAGCycleChecker(Edge root) : base(root)
+            public MyDagCycleChecker(Edge root) : base(root)
             {
                 _loopback = new Edge("Loopback");
                 _root = root;
             }
+
             public bool EnableLoopback
             {
-                get
-                {
-                    return _enableLoopback;
-                }
-                set
-                {
-                    _enableLoopback = value;
-                }
+                get;
+                set;
             }
+
             protected override ArrayList GetSuccessors(object element)
             {
                 ArrayList retval = base.GetSuccessors(element);
-                if (_enableLoopback && element.Equals(_root.PostVertex))
+                if (EnableLoopback && element.Equals(_root.PostVertex))
                 {
                     retval.Add(_loopback);
                 }
-                if (_enableLoopback && element.Equals(_loopback))
+                if (EnableLoopback && element.Equals(_loopback))
                 {
                     retval.Add(_root.PreVertex);
                 }
@@ -106,7 +101,7 @@ namespace Highpoint.Sage.Graphs
             start = DateTime.Now;
             Edge root = CreateGraph(500, "Foo");
             Console.WriteLine("Creating the graph took " + (DateTime.Now - start));
-            MyDAGCycleChecker mdcc = new MyDAGCycleChecker(root);
+            MyDagCycleChecker mdcc = new MyDagCycleChecker(root);
             //Console.WriteLine(Highpoint.Sage.Diagnostics.DiagnosticAids.GraphToString(root));
 
             start = DateTime.Now;
@@ -142,7 +137,7 @@ namespace Highpoint.Sage.Graphs
                 {
                     _random = new Random(seedGenerator.Next());
                     Edge root = CreateGraph(i, "Foo");
-                    MyDAGCycleChecker mdcc = new MyDAGCycleChecker(root);
+                    MyDagCycleChecker mdcc = new MyDagCycleChecker(root);
                     //Console.WriteLine(Highpoint.Sage.Diagnostics.DiagnosticAids.GraphToString(root));
 
                     DateTime dt = DateTime.Now;
@@ -181,7 +176,7 @@ namespace Highpoint.Sage.Graphs
                     _random = new Random(seedGenerator.Next());
                     Edge randomInnerEdge;
                     Edge root = CreateGraph(i, "Foo", out randomInnerEdge);
-                    MyDAGCycleChecker mdcc = new MyDAGCycleChecker(root);
+                    MyDagCycleChecker mdcc = new MyDagCycleChecker(root);
 
                     dt = DateTime.Now;
                     mdcc.Check(false);

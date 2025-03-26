@@ -31,7 +31,6 @@ namespace Highpoint.Sage.Scheduling
         }
 
         #region Private Fields
-        private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("TimePeriod");
         private readonly bool _supportsReactiveAdjustment = true;
         private readonly Milestone _startMilestone;
         private readonly Milestone _endMilestone;

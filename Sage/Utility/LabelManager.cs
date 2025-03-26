@@ -61,9 +61,9 @@ namespace Highpoint.Sage.Utility
         {
             get
             {
-                if (_labels.ContainsKey(Key))
+                if (_labels.TryGetValue(Key, out string value))
                 {
-                    return _labels[Key];
+                    return value;
                 }
                 else
                 {

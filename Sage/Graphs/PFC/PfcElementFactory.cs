@@ -214,7 +214,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <returns>The new IPfcStepNode.</returns>
         public virtual IPfcStepNode CreateStepNode(string name, Guid guid, string description)
         {
-            if (name == null || name.Length == 0)
+            if (string.IsNullOrEmpty(name))
             {
                 name = NextStepName();
             }
@@ -247,7 +247,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <returns>The new IPfcTransitionNode.</returns>
         public virtual IPfcTransitionNode CreateTransitionNode(string name, Guid guid, string description)
         {
-            if (name == null || name.Length == 0)
+            if (string.IsNullOrEmpty(name))
             {
                 name = NextTransitionName();
             }
@@ -280,7 +280,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <returns>The new IPfcLinkElement.</returns>
         public virtual IPfcLinkElement CreateLinkElement(string name, Guid guid, string description)
         {
-            if (name == null || name.Length == 0)
+            if (string.IsNullOrEmpty(name))
             {
                 name = NextLinkName();
             }
@@ -324,7 +324,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 if (link.Name.StartsWith(_linkPrefix, StringComparison.Ordinal))
                 {
                     int linkNum;
-                    if (int.TryParse(link.Name.Substring(_linkPrefix.Length), out linkNum))
+                    if (int.TryParse(link.Name.AsSpan(_linkPrefix.Length), out linkNum))
                     {
                         if (linkNum > _nextLinkNumber)
                         {
@@ -339,7 +339,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 if (step.Name.StartsWith(_stepPrefix, StringComparison.Ordinal))
                 {
                     int stepNum;
-                    if (int.TryParse(step.Name.Substring(_stepPrefix.Length), out stepNum))
+                    if (int.TryParse(step.Name.AsSpan(_stepPrefix.Length), out stepNum))
                     {
                         if (stepNum > _nextStepNumber)
                         {
@@ -354,7 +354,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 if (transition.Name.StartsWith(_transitionPrefix, StringComparison.Ordinal))
                 {
                     int transitionNum;
-                    if (int.TryParse(transition.Name.Substring(_transitionPrefix.Length), out transitionNum))
+                    if (int.TryParse(transition.Name.AsSpan(_transitionPrefix.Length), out transitionNum))
                     {
                         if (transitionNum > _nextTransitionNumber)
                         {
@@ -382,7 +382,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 case PfcElementType.Step:
                     return _stepCanonicality(element.Name);
                 default:
-                    throw new ApplicationException("Element of type " + element.ElementType + " encountered but unknown.");
+                    throw new ApplicationException($"Element of type {element.ElementType} encountered but unknown.");
             }
         }
 

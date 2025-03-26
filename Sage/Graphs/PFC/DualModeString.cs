@@ -44,9 +44,9 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                 case ExpressionType.Friendly:
                     return _name;
                 case ExpressionType.Hostile:
-                    return string.Format("{0}", _guid);
+                    return $"{_guid}";
                 default:
-                    throw new ApplicationException(string.Format("Unknown string format, {0}, was requested.", t));
+                    throw new ApplicationException($"Unknown string format, {t}, was requested.");
             }
         }
 

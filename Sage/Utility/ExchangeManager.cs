@@ -52,12 +52,13 @@ namespace Highpoint.Sage.Utility
                 }
             }
 
-            if (!_exchanges.ContainsKey(exchangeIdentifier))
+            if (!_exchanges.TryGetValue(exchangeIdentifier, out ITupleSpace value))
             {
-                _exchanges.Add(exchangeIdentifier, new Exchange(_exec));
+                value = new Exchange(_exec);
+                _exchanges.Add(exchangeIdentifier, value);
             }
 
-            return _exchanges[exchangeIdentifier];
+            return value;
         }
 
         /// <summary>

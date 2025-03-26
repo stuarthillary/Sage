@@ -35,12 +35,12 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
         public class Constants : Highpoint.Sage.Materials.Chemistry.Constants
         {
-            public static double kgPerPound = 0.453592;
-            public static double pascalsPer_mmHg = 133.322;
-            public static double pascalsPerAtmosphere = 101325.0;
-            public static double cubicFtPerGallon = 0.134;
-            public static double litersPerGallon = 3.7854118;
-            public static double cubicFtPerCubicMeter = 35.314667;
+            public const double KgPerPound = 0.453592;
+            public const double PascalsPer_mmHg = 133.322;
+            public const double PascalsPerAtmosphere = 101325.0;
+            public const double CubicFtPerGallon = 0.134;
+            public const double LitersPerGallon = 3.7854118;
+            public const double CubicFtPerCubicMeter = 35.314667;
         }
 
         public Tester(BasicReactionSupporter brs, bool lateBound)
@@ -96,7 +96,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
         public void AddGallons(string name, double numGallons)
         {
-            double liters = K.litersPerGallon * numGallons;
+            double liters = K.LitersPerGallon * numGallons;
             MaterialType mt = _brs.MyMaterialCatalog[name];
             double kg = liters * mt.SpecificGravity;
 

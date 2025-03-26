@@ -49,7 +49,7 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="pte">The handler for the Prepare event.</param>
         /// <param name="sequence">The sequence number for the handler.</param>
-        void AddPrepareEvent(PrepareTransitionEvent pte, double sequence);
+        void AddPrepareEvent(double sequence, PrepareTransitionEvent pte);
         /// <summary>
         /// Removes a handler from the set of handlers that are registered
         /// for the prepare event.
@@ -63,7 +63,7 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="cte">The handler for the CommitTransitionEvent</param>
         /// <param name="sequence">The sequence number for the handler.</param>
-        void AddCommitEvent(CommitTransitionEvent cte, double sequence);
+        void AddCommitEvent(double sequence, CommitTransitionEvent cte);
         /// <summary>
         /// Removes a handler from the set of handlers that are registered
         /// for the commit event.
@@ -77,7 +77,7 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="rte">The handler for the Rollback event.</param>
         /// <param name="sequence">The sequence number for the handler.</param>
-        void AddRollbackEvent(RollbackTransitionEvent rte, double sequence);
+        void AddRollbackEvent(double sequence, RollbackTransitionEvent rte);
         /// <summary>
         /// Removes a handler from the set of handlers that are registered
         /// for the rollback event.

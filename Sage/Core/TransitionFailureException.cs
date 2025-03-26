@@ -2,6 +2,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Highpoint.Sage.SimCore
 {
@@ -13,63 +16,34 @@ namespace Highpoint.Sage.SimCore
     public class TransitionFailureException : Exception
     {
 
-        private readonly IList _reasons;
-        private readonly string _message;
+        private readonly List<ITransitionFailureReason> _reasons;
 
-        private static string MessageFromReasons(IList reasons)
+        private static string MessageFromReasons(IReadOnlyList<ITransitionFailureReason> reasons)
         {
-            string message = "";
-            foreach (ITransitionFailureReason itfr in reasons)
-            {
-                message += itfr.Reason + Environment.NewLine;
-            }
-            return message;
-        }
-        private static string MessageFromReason(ITransitionFailureReason reason)
-        {
-            ArrayList reasons = new ArrayList { reason };
-            return MessageFromReasons(reasons);
+            return string.Join(Environment.NewLine, reasons.Select(r => r.Reason));
         }
 
         /// <summary>
         /// Creates a TransitionFailureException around a list of failure reasons.
         /// </summary>
         /// <param name="reasons">A list of failure reasons.</param>
-        public TransitionFailureException(IList reasons) : base(MessageFromReasons(reasons))
+        public TransitionFailureException(IReadOnlyList<ITransitionFailureReason> reasons) : base(MessageFromReasons(reasons))
         {
-            _message = MessageFromReasons(reasons);
+            _reasons = new List<ITransitionFailureReason>(reasons);
         }
-
-
 
         /// <summary>
         /// Creates a TransitionFailureException around a single reason.
         /// </summary>
         /// <param name="reason">The TransitionFailureReason.</param>
-        public TransitionFailureException(ITransitionFailureReason reason) : base(MessageFromReason(reason))
+        public TransitionFailureException(ITransitionFailureReason reason) : this(new List<ITransitionFailureReason>(){reason})
         {
-            _reasons = new ArrayList();
-            _reasons.Add(reason);
-            _message = MessageFromReason(reason);
         }
 
         /// <summary>
-        /// Gets a message that describes the current exception.
+        /// Gives the caller access to the list of failure reasons.
         /// </summary>
-        /// <value></value>
-        /// <returns>The error message that explains the reason for the exception, or an empty string("").</returns>
-        public override string Message
-        {
-            get
-            {
-                return _message;
-            }
-        }
-
-        /// <summary>
-        /// Gives the caller access to the list (collection) of failure reasons.
-        /// </summary>
-        public ICollection Reasons
+        public IReadOnlyList<ITransitionFailureReason> Reasons
         {
             get
             {
@@ -105,5 +79,4 @@ namespace Highpoint.Sage.SimCore
             return sb.ToString();
         }
     }
-
 }

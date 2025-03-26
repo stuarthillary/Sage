@@ -116,7 +116,7 @@ namespace Highpoint.Sage.Scheduling.Cost
             }
         }
 
-        class Thing : TreeNode<Thing>, IHasCost<Thing>, IHasName
+        sealed class Thing : TreeNode<Thing>, IHasCost<Thing>, IHasName
         {
             public static List<CostCategory<Thing>> COST_CATEGORIES = new List<CostCategory<Thing>>()
             {   new CostCategory<Thing>("Personnel",true, true, n=>1.0/n.Children.Count()),

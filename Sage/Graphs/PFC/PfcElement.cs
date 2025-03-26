@@ -68,8 +68,8 @@ namespace Highpoint.Sage.Graphs.PFC
 
             if (Parent.ParticipantDirectory.Contains(newName))
             {
-                string msg = string.Format("Trying to set a {0} name from \"{1}\" to \"{2}\" - but the name \"{2}\" is already in use in this PFC.",
-                    ElementType, Name, newName, Parent.ParticipantDirectory[newName].Type);
+                string msg =
+                    $"Trying to set a {ElementType} name from \"{Name}\" to \"{newName}\" - but the name \"{newName}\" is already in use in this PFC.";
 
                 throw new ApplicationException(msg);
             }

@@ -13,7 +13,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
     {
 
         private static string _prefix = "Connector_";
-        private static Dictionary<Guid, ConnectorFactory> _connectorFactories = new Dictionary<Guid, ConnectorFactory>();
+        private static readonly Dictionary<Guid, ConnectorFactory> _connectorFactories = new Dictionary<Guid, ConnectorFactory>();
 
         // private IModel m_model;
         private int _nextConnectorNumber = -1;
@@ -21,16 +21,17 @@ namespace Highpoint.Sage.ItemBased.Connectors
         private static ConnectorFactory ForModel(IModel model)
         {
             Guid key = GuidForModel(model);
-            if (!_connectorFactories.ContainsKey(key))
+            if (!_connectorFactories.TryGetValue(key, out ConnectorFactory value))
             {
-                _connectorFactories.Add(key, new ConnectorFactory(model));
+                value = new ConnectorFactory(model);
+                _connectorFactories.Add(key, value);
             }
-            return _connectorFactories[key];
+            return value;
         }
 
         private static Guid GuidForModel(IModel model)
         {
-            return (model == null ? Guid.Empty : model.Guid);
+            return model?.Guid ?? Guid.Empty;
         }
 
         private ConnectorFactory(IModel model)
@@ -58,7 +59,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
             foreach (string nm in names)
             {
                 int connNum;
-                if (int.TryParse(nm.Substring(_prefix.Length), out connNum))
+                if (int.TryParse(nm.AsSpan(_prefix.Length), out connNum))
                 {
                     _nextConnectorNumber = Math.Max(_nextConnectorNumber, connNum);
                 }
@@ -84,7 +85,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         {
             if (p1 == null || p2 == null)
             {
-                throw new ApplicationException("Attempt to connect " + GetName(p1) + " to " + GetName(p2));
+                throw new ApplicationException($"Attempt to connect {GetName(p1)} to {GetName(p2)}");
             }
 
             Debug.Assert(p1.Model == p2.Model);

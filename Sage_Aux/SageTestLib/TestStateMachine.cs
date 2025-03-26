@@ -1,8 +1,10 @@
 /* This source code licensed under the GNU Affero General Public License */
 
+using Highpoint.Sage.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.SimCore
@@ -11,11 +13,9 @@ namespace Highpoint.Sage.SimCore
     [TestClass]
     public class StateMachineTester
     {
-
-        private readonly Random _random = new Random();
-        public static int _testCounter = 0;
-        public static Hashtable _batch;
-        public static bool _outputEnabled = true;
+        private static int _testCounter;
+        private static Hashtable _batch;
+        private static bool _outputEnabled = true;
 
         public StateMachineTester()
         {
@@ -34,8 +34,9 @@ namespace Highpoint.Sage.SimCore
             _testCounter = 0;
             _batch.Add("Batch", _testCounter);
         }
+
         [TestCleanup]
-        public void destroy()
+        public void Destroy()
         {
             Debug.WriteLine("Done.");
         }
@@ -59,9 +60,9 @@ namespace Highpoint.Sage.SimCore
         {
 
             StateMachine sm = Initialize();
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitiontoValid);
-            sm.TransitionHandler(States.Idle, States.Validated).Rollback += new RollbackTransitionEvent(RollbackTransitiontoValid);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitiontoValid;
+            sm.TransitionHandler(States.Idle, States.Validated).Rollback += RollbackTransitiontoValid;
 #if DEBUG
             Debug.WriteLine("Idle state is " + sm._TestGetStateNumber(States.Idle));
             Debug.WriteLine("Validated state is " + sm._TestGetStateNumber(States.Validated));
@@ -119,9 +120,9 @@ namespace Highpoint.Sage.SimCore
         public void TestTransitionSuccessWithFollowon()
         {
             StateMachine sm = Initialize(true);
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitiontoValid);
-            sm.TransitionHandler(States.Idle, States.Validated).Rollback += new RollbackTransitionEvent(RollbackTransitiontoValid);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitiontoValid;
+            sm.TransitionHandler(States.Idle, States.Validated).Rollback += RollbackTransitiontoValid;
 
             sm.DoTransition(States.Validated, _batch);
 
@@ -137,9 +138,9 @@ namespace Highpoint.Sage.SimCore
         public void TestTransitionSuccessWithoutFollowon()
         {
             StateMachine sm = Initialize(false);
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitiontoValid);
-            sm.TransitionHandler(States.Idle, States.Validated).Rollback += new RollbackTransitionEvent(RollbackTransitiontoValid);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitiontoValid;
+            sm.TransitionHandler(States.Idle, States.Validated).Rollback += RollbackTransitiontoValid;
 
             sm.DoTransition(States.Validated, _batch);
 
@@ -156,9 +157,9 @@ namespace Highpoint.Sage.SimCore
         public void TestTransitionFailure()
         {
             StateMachine sm = Initialize();
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithFailure);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitiontoValid);
-            sm.TransitionHandler(States.Idle, States.Validated).Rollback += new RollbackTransitionEvent(RollbackTransitiontoValid);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithFailure;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitiontoValid;
+            sm.TransitionHandler(States.Idle, States.Validated).Rollback += RollbackTransitiontoValid;
 
             try
             {
@@ -182,9 +183,9 @@ namespace Highpoint.Sage.SimCore
         public void TestTransitionIllegal()
         {
             StateMachine sm = Initialize();
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitiontoValid);
-            sm.TransitionHandler(States.Idle, States.Validated).Rollback += new RollbackTransitionEvent(RollbackTransitiontoValid);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitiontoValid;
+            sm.TransitionHandler(States.Idle, States.Validated).Rollback += RollbackTransitiontoValid;
 
             try
             {
@@ -205,12 +206,11 @@ namespace Highpoint.Sage.SimCore
         [TestMethod]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that we attempt to set up an illegal TransitionHandler from 'Idle' to 'Paused', "
                     + "which means the state machine has to throw an ApplicationException.")]
-        [ExpectedException(typeof(TransitionFailureException))]
         public void TestTransitionIllegalToo()
         {
             StateMachine sm = Initialize();
-            sm.TransitionHandler(States.Idle, States.Paused).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess);
-            sm.DoTransition(States.Paused, _batch);
+            sm.TransitionHandler(States.Idle, States.Paused).Prepare += PrepareToTransitiontoValidWithSuccess;
+            Assert.ThrowsException<TransitionFailureException>(() => sm.DoTransition(States.Paused, _batch));
         }
 
         /// <summary>
@@ -222,29 +222,29 @@ namespace Highpoint.Sage.SimCore
         {
 
             StateMachine sm = Initialize(false);
-            sm.TransitionHandler(States.Finished, States.Idle).Prepare += new PrepareTransitionEvent(PrepareToTransitionToIdleWithSuccess);
-            sm.TransitionHandler(States.Finished, States.Idle).Commit += new CommitTransitionEvent(CommitTransitionToIdle);
-            sm.TransitionHandler(States.Finished, States.Idle).Rollback += new RollbackTransitionEvent(RollbackTransitionToIdle);
+            sm.TransitionHandler(States.Finished, States.Idle).Prepare += PrepareToTransitionToIdleWithSuccess;
+            sm.TransitionHandler(States.Finished, States.Idle).Commit += CommitTransitionToIdle;
+            sm.TransitionHandler(States.Finished, States.Idle).Rollback += RollbackTransitionToIdle;
 
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitiontoValid);
-            sm.TransitionHandler(States.Idle, States.Validated).Rollback += new RollbackTransitionEvent(RollbackTransitiontoValid);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitiontoValid;
+            sm.TransitionHandler(States.Idle, States.Validated).Rollback += RollbackTransitiontoValid;
 
-            sm.TransitionHandler(States.Validated, States.Running).Prepare += new PrepareTransitionEvent(PrepareToTransitionToRunningWithSuccess);
-            sm.TransitionHandler(States.Validated, States.Running).Commit += new CommitTransitionEvent(CommitTransitionToRunning);
-            sm.TransitionHandler(States.Validated, States.Running).Rollback += new RollbackTransitionEvent(RollbackTransitionToRunning);
+            sm.TransitionHandler(States.Validated, States.Running).Prepare += PrepareToTransitionToRunningWithSuccess;
+            sm.TransitionHandler(States.Validated, States.Running).Commit += CommitTransitionToRunning;
+            sm.TransitionHandler(States.Validated, States.Running).Rollback += RollbackTransitionToRunning;
 
-            sm.TransitionHandler(States.Paused, States.Running).Prepare += new PrepareTransitionEvent(PrepareToTransitionToRunningWithSuccess);
-            sm.TransitionHandler(States.Paused, States.Running).Commit += new CommitTransitionEvent(CommitTransitionToRunning);
-            sm.TransitionHandler(States.Paused, States.Running).Rollback += new RollbackTransitionEvent(RollbackTransitionToRunning);
+            sm.TransitionHandler(States.Paused, States.Running).Prepare += PrepareToTransitionToRunningWithSuccess;
+            sm.TransitionHandler(States.Paused, States.Running).Commit += CommitTransitionToRunning;
+            sm.TransitionHandler(States.Paused, States.Running).Rollback += RollbackTransitionToRunning;
 
-            sm.TransitionHandler(States.Running, States.Paused).Prepare += new PrepareTransitionEvent(PrepareToTransitionToPausedWithSuccess);
-            sm.TransitionHandler(States.Running, States.Paused).Commit += new CommitTransitionEvent(CommitTransitionToPaused);
-            sm.TransitionHandler(States.Running, States.Paused).Rollback += new RollbackTransitionEvent(RollbackTransitionToPaused);
+            sm.TransitionHandler(States.Running, States.Paused).Prepare += PrepareToTransitionToPausedWithSuccess;
+            sm.TransitionHandler(States.Running, States.Paused).Commit += CommitTransitionToPaused;
+            sm.TransitionHandler(States.Running, States.Paused).Rollback += RollbackTransitionToPaused;
 
-            sm.TransitionHandler(States.Running, States.Finished).Prepare += new PrepareTransitionEvent(PrepareToTransitionToFinishedWithSuccess);
-            sm.TransitionHandler(States.Running, States.Finished).Commit += new CommitTransitionEvent(CommitTransitionToFinished);
-            sm.TransitionHandler(States.Running, States.Finished).Rollback += new RollbackTransitionEvent(RollbackTransitionToFinished);
+            sm.TransitionHandler(States.Running, States.Finished).Prepare += PrepareToTransitionToFinishedWithSuccess;
+            sm.TransitionHandler(States.Running, States.Finished).Commit += CommitTransitionToFinished;
+            sm.TransitionHandler(States.Running, States.Finished).Rollback += RollbackTransitionToFinished;
 
             sm.DoTransition(States.Validated, _batch);
             Assert.IsTrue(States.Validated.Equals(sm.State), "Transition chain did not move to the 'Validated' state.");
@@ -263,47 +263,47 @@ namespace Highpoint.Sage.SimCore
         /// This test has been set up to see if multiple TransitionHandler can be defined successfully.
         /// </summary>
         [TestMethod]
-        [Highpoint.Sage.Utility.FieldDescription("This test has been set up to see if multiple TransitionHandler can be defined successfully.")]
+        [FieldDescription("This test has been set up to see if multiple TransitionHandler can be defined successfully.")]
         public void TestTransitionMultipleHandlers()
         {
 
             StateMachine sm = Initialize(false);
 
             // Set up Prepare handlers.
-            sm.UniversalTransitionHandler().Prepare += new PrepareTransitionEvent(UniversalPrepareToTransition);
+            sm.UniversalTransitionHandler().Prepare += UniversalPrepareToTransition;
 
-            sm.OutboundTransitionHandler(States.Idle).Prepare += new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_1);
-            sm.OutboundTransitionHandler(States.Idle).Prepare += new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_2);
-            sm.OutboundTransitionHandler(States.Idle).Prepare += new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_3);
-            sm.OutboundTransitionHandler(States.Idle).Prepare += new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_4);
+            sm.OutboundTransitionHandler(States.Idle).Prepare += PrepareToTransitionOutOfIdleWithSuccess_1;
+            sm.OutboundTransitionHandler(States.Idle).Prepare += PrepareToTransitionOutOfIdleWithSuccess_2;
+            sm.OutboundTransitionHandler(States.Idle).Prepare += PrepareToTransitionOutOfIdleWithSuccess_3;
+            sm.OutboundTransitionHandler(States.Idle).Prepare += PrepareToTransitionOutOfIdleWithSuccess_4;
 
-            sm.InboundTransitionHandler(States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_1);
-            sm.InboundTransitionHandler(States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_2);
-            sm.InboundTransitionHandler(States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_3);
-            sm.InboundTransitionHandler(States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_4);
+            sm.InboundTransitionHandler(States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess_1;
+            sm.InboundTransitionHandler(States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess_2;
+            sm.InboundTransitionHandler(States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess_3;
+            sm.InboundTransitionHandler(States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess_4;
 
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_1);
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_2);
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_3);
-            sm.TransitionHandler(States.Idle, States.Validated).Prepare += new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_4);
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitionIdletoValidWithSuccess_1;
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitionIdletoValidWithSuccess_2;
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitionIdletoValidWithSuccess_3;
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitionIdletoValidWithSuccess_4;
 
             // Set up Commit handlers.
-            sm.UniversalTransitionHandler().Commit += new CommitTransitionEvent(UniversalCommitTransition);
+            sm.UniversalTransitionHandler().Commit += UniversalCommitTransition;
 
-            sm.OutboundTransitionHandler(States.Idle).Commit += new CommitTransitionEvent(CommitTransitionOutOfIdle_1);
-            sm.OutboundTransitionHandler(States.Idle).Commit += new CommitTransitionEvent(CommitTransitionOutOfIdle_2);
-            sm.OutboundTransitionHandler(States.Idle).Commit += new CommitTransitionEvent(CommitTransitionOutOfIdle_3);
-            sm.OutboundTransitionHandler(States.Idle).Commit += new CommitTransitionEvent(CommitTransitionOutOfIdle_4);
+            sm.OutboundTransitionHandler(States.Idle).Commit += CommitTransitionOutOfIdle_1;
+            sm.OutboundTransitionHandler(States.Idle).Commit += CommitTransitionOutOfIdle_2;
+            sm.OutboundTransitionHandler(States.Idle).Commit += CommitTransitionOutOfIdle_3;
+            sm.OutboundTransitionHandler(States.Idle).Commit += CommitTransitionOutOfIdle_4;
 
-            sm.InboundTransitionHandler(States.Validated).Commit += new CommitTransitionEvent(CommitTransitionToValid_1);
-            sm.InboundTransitionHandler(States.Validated).Commit += new CommitTransitionEvent(CommitTransitionToValid_2);
-            sm.InboundTransitionHandler(States.Validated).Commit += new CommitTransitionEvent(CommitTransitionToValid_3);
-            sm.InboundTransitionHandler(States.Validated).Commit += new CommitTransitionEvent(CommitTransitionToValid_4);
+            sm.InboundTransitionHandler(States.Validated).Commit += CommitTransitionToValid_1;
+            sm.InboundTransitionHandler(States.Validated).Commit += CommitTransitionToValid_2;
+            sm.InboundTransitionHandler(States.Validated).Commit += CommitTransitionToValid_3;
+            sm.InboundTransitionHandler(States.Validated).Commit += CommitTransitionToValid_4;
 
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitionIdleToValid_1);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitionIdleToValid_2);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitionIdleToValid_3);
-            sm.TransitionHandler(States.Idle, States.Validated).Commit += new CommitTransitionEvent(CommitTransitionIdleToValid_4);
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitionIdleToValid_1;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitionIdleToValid_2;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitionIdleToValid_3;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit += CommitTransitionIdleToValid_4;
 
             sm.DoTransition(States.Validated, _batch);
 
@@ -322,40 +322,40 @@ namespace Highpoint.Sage.SimCore
             StateMachine sm = Initialize(false);
 
             // Set up Prepare handlers.
-            sm.UniversalTransitionHandler().AddPrepareEvent(new PrepareTransitionEvent(UniversalPrepareToTransition), -2);
+            sm.UniversalTransitionHandler().AddPrepareEvent(-2, UniversalPrepareToTransition);
 
-            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_1), 4);
-            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_2), 3);
-            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_3), 2);
-            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionOutOfIdleWithSuccess_4), 1);
+            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(4, PrepareToTransitionOutOfIdleWithSuccess_1);
+            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(3, PrepareToTransitionOutOfIdleWithSuccess_2);
+            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(2, PrepareToTransitionOutOfIdleWithSuccess_3);
+            sm.OutboundTransitionHandler(States.Idle).AddPrepareEvent(1, PrepareToTransitionOutOfIdleWithSuccess_4);
 
-            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_1), 4);
-            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_2), 3);
-            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_3), 2);
-            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitiontoValidWithSuccess_4), 1);
+            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(4, PrepareToTransitiontoValidWithSuccess_1);
+            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(3, PrepareToTransitiontoValidWithSuccess_2);
+            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(2, PrepareToTransitiontoValidWithSuccess_3);
+            sm.InboundTransitionHandler(States.Validated).AddPrepareEvent(1, PrepareToTransitiontoValidWithSuccess_4);
 
-            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_1), 4);
-            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_2), 3);
-            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_3), 2);
-            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(new PrepareTransitionEvent(PrepareToTransitionIdletoValidWithSuccess_4), 1);
+            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(4, PrepareToTransitionIdletoValidWithSuccess_1);
+            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(3, PrepareToTransitionIdletoValidWithSuccess_2);
+            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(2, PrepareToTransitionIdletoValidWithSuccess_3);
+            sm.TransitionHandler(States.Idle, States.Validated).AddPrepareEvent(1, PrepareToTransitionIdletoValidWithSuccess_4);
 
             // Set up Commit handlers.
-            sm.UniversalTransitionHandler().AddCommitEvent(new CommitTransitionEvent(UniversalCommitTransition), -2);
+            sm.UniversalTransitionHandler().AddCommitEvent(-2, UniversalCommitTransition);
 
-            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(new CommitTransitionEvent(CommitTransitionOutOfIdle_1), 4);
-            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(new CommitTransitionEvent(CommitTransitionOutOfIdle_2), 3);
-            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(new CommitTransitionEvent(CommitTransitionOutOfIdle_3), 2);
-            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(new CommitTransitionEvent(CommitTransitionOutOfIdle_4), 1);
+            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(4, CommitTransitionOutOfIdle_1);
+            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(3, CommitTransitionOutOfIdle_2);
+            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(2, CommitTransitionOutOfIdle_3);
+            sm.OutboundTransitionHandler(States.Idle).AddCommitEvent(1, CommitTransitionOutOfIdle_4);
 
-            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionToValid_1), 4);
-            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionToValid_2), 3);
-            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionToValid_3), 2);
-            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionToValid_4), 1);
+            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(4, CommitTransitionToValid_1);
+            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(3, CommitTransitionToValid_2);
+            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(2, CommitTransitionToValid_3);
+            sm.InboundTransitionHandler(States.Validated).AddCommitEvent(1, CommitTransitionToValid_4);
 
-            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionIdleToValid_1), 4);
-            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionIdleToValid_2), 3);
-            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionIdleToValid_3), 2);
-            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(new CommitTransitionEvent(CommitTransitionIdleToValid_4), 1);
+            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(4, CommitTransitionIdleToValid_1);
+            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(3, CommitTransitionIdleToValid_2);
+            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(2, CommitTransitionIdleToValid_3);
+            sm.TransitionHandler(States.Idle, States.Validated).AddCommitEvent(1, CommitTransitionIdleToValid_4);
 
             sm.DoTransition(States.Validated, _batch);
 
@@ -376,16 +376,16 @@ namespace Highpoint.Sage.SimCore
             StateMachineTestModel.EnableAutoFollowOnStates = enableAutoFollowOnStates;
             Model model = new StateMachineTestModel("SMTestModel");
 
-            model.StateMachine.SetStateMethod(new StateMethod(StateHandler), States.Idle);
-            model.StateMachine.SetStateMethod(new StateMethod(StateHandler), States.Validated);
-            model.StateMachine.SetStateMethod(new StateMethod(StateHandler), States.Running);
-            model.StateMachine.SetStateMethod(new StateMethod(StateHandler), States.Paused);
-            model.StateMachine.SetStateMethod(new StateMethod(StateHandler), States.Finished);
+            model.StateMachine.SetStateMethod(StateHandler, States.Idle);
+            model.StateMachine.SetStateMethod(StateHandler, States.Validated);
+            model.StateMachine.SetStateMethod(StateHandler, States.Running);
+            model.StateMachine.SetStateMethod(StateHandler, States.Paused);
+            model.StateMachine.SetStateMethod(StateHandler, States.Finished);
 
             return model.StateMachine;
         }
 
-        class StateMachineTestModel : Model
+        sealed class StateMachineTestModel : Model
         {
 
             public static bool EnableAutoFollowOnStates = true;
@@ -409,7 +409,7 @@ namespace Highpoint.Sage.SimCore
                 Enum[] followOnStates = null;
                 if (EnableAutoFollowOnStates)
                 {
-                    followOnStates = new Enum[] { States.Idle, States.Running, States.Finished, States.Paused, States.Finished };
+                    followOnStates = [States.Idle, States.Running, States.Finished, States.Paused, States.Finished];
                 }
 
                 return new StateMachine(this, transitionMatrix, followOnStates, States.Idle);
@@ -453,7 +453,7 @@ namespace Highpoint.Sage.SimCore
             CheckBatch(userData);
         }
 
-        public void RollbackTransitionToIdle(IModel model, object userData, IList reasonsForFailure)
+        public void RollbackTransitionToIdle(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Idle transition.");
@@ -490,7 +490,7 @@ namespace Highpoint.Sage.SimCore
             CheckBatch(userData);
         }
 
-        public void RollbackTransitiontoValid(IModel model, object userData, IList reasonsForFailure)
+        public void RollbackTransitiontoValid(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Valid transition.");
@@ -527,7 +527,7 @@ namespace Highpoint.Sage.SimCore
             CheckBatch(userData);
         }
 
-        public void RollbackTransitionToRunning(IModel model, object userData, IList reasonsForFailure)
+        public void RollbackTransitionToRunning(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Running transition.");
@@ -563,7 +563,7 @@ namespace Highpoint.Sage.SimCore
             CheckBatch(userData);
         }
 
-        public void RollbackTransitionToPaused(IModel model, object userData, IList reasonsForFailure)
+        public void RollbackTransitionToPaused(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Paused transition.");
@@ -599,7 +599,7 @@ namespace Highpoint.Sage.SimCore
                 Debug.WriteLine("Committing to Finished transition.");
         }
 
-        public void RollbackTransitionToFinished(IModel model, object userData, IList reasonsForFailure)
+        public void RollbackTransitionToFinished(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Finished transition.");
@@ -820,15 +820,5 @@ namespace Highpoint.Sage.SimCore
 
 
         #endregion
-    }
-
-    internal class DescriptionAttribute : Attribute
-    {
-        private string _v;
-
-        public DescriptionAttribute(string v)
-        {
-            this._v = v;
-        }
     }
 }

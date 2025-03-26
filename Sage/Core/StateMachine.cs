@@ -2,7 +2,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using _Debug = System.Diagnostics.Debug;
 
 namespace Highpoint.Sage.SimCore
@@ -25,7 +27,7 @@ namespace Highpoint.Sage.SimCore
     /// of the unsuccessful attempt to perform a transition, and to take part in
     /// the rollback of that transition attempt. 
     /// </summary>
-    public delegate void RollbackTransitionEvent(IModel model, object userData, IList reasons);
+    public delegate void RollbackTransitionEvent(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasons);
 
     /// <summary>
     /// Implemented by a method that is to be called once the state machine
@@ -313,7 +315,7 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="toWhatState">The desired new state of the State Machine.</param>
         /// <returns>A  list of ITransitionFailureReasons. (Empty if successful.)</returns>
-        public IList DoTransition(Enum toWhatState)
+        public IReadOnlyList<ITransitionFailureReason> DoTransition(Enum toWhatState)
         {
             return DoTransition(toWhatState, null);
         }
@@ -340,7 +342,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A  list of ITransitionFailureReasons. (Empty if successful.)
         /// </returns>
-        public IList DoTransition(Enum toWhatState, object userData)
+        public IReadOnlyList<ITransitionFailureReason> DoTransition(Enum toWhatState, object userData)
         {
             Debug.Assert(_model != null, "Did you forget to set the model on the State Machine?");
             try
@@ -360,7 +362,7 @@ namespace Highpoint.Sage.SimCore
 
                 if (_nextState == _currentState)
                 {
-                    return new ArrayList();
+                    return Array.Empty<ITransitionFailureReason>();
                 }
 
                 MergedTransitionHandler mth = null;
@@ -396,7 +398,7 @@ namespace Highpoint.Sage.SimCore
 
                 if (_diagnostics)
                     _Debug.WriteLine(mth.Dump());
-                IList failureReasons = mth.DoPrepare(_model, userData);
+                IReadOnlyList<ITransitionFailureReason> failureReasons = mth.DoPrepare(_model, userData);
                 if (failureReasons.Count != 0)
                 {
                     mth.DoRollback(_model, userData, failureReasons);
@@ -442,23 +444,19 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="states">The states.</param>
         /// <returns></returns>
-        public IList RunTransitionSequence(params Enum[] states)
+        public IReadOnlyList<ITransitionFailureReason> RunTransitionSequence(params Enum[] states)
         {
-            IList retval = null;
+            List<ITransitionFailureReason> retval = new List<ITransitionFailureReason>();
             try
             {
                 foreach (Enum t in states)
                 {
-                    retval = DoTransition(t);
+                    retval = DoTransition(t).ToList();
                 }
             }
             catch (TransitionFailureException tfe)
             {
-                if (retval == null)
-                {
-                    retval = new ArrayList();
-                }
-                retval.Add(tfe);
+                retval.AddRange(tfe.Reasons);
             }
             return retval;
         }

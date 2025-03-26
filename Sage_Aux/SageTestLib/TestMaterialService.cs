@@ -26,8 +26,9 @@ namespace Highpoint.Sage.Materials
         public void Init()
         {
         }
+
         [TestCleanup]
-        public void destroy()
+        public void Destroy()
         {
             Debug.WriteLine("Done.");
         }
@@ -115,16 +116,21 @@ namespace Highpoint.Sage.Materials
             return mcat;
         }
 
-        class TestClient : IPortOwner, IHasIdentity
+        sealed class TestClient : IPortOwner, IHasIdentity
         {
 
-            public IInputPort Input;
-            public IOutputPort Output;
+            SimpleInputPort Input
+            {
+                get;
+            }
+
+            SimpleOutputPort Output
+            {
+                get;
+            }
 
             #region Private Fields
             private readonly PortSet _portSet;
-            private readonly SimpleInputPort _input;
-            private readonly IOutputPort _output;
             private readonly IModel _model;
             private readonly MaterialService _source;
 
@@ -134,31 +140,25 @@ namespace Highpoint.Sage.Materials
             private readonly MaterialType _sendThat;
             private readonly double _sendHowMuch;
             private readonly MaterialService _sink;
-            private Guid _guid = Guid.NewGuid();
+            private readonly Guid _guid = Guid.NewGuid();
 
             private readonly Mixture _mixture;
             #endregion Private Fields
 
             public TestClient(IModel model, MaterialService source, MaterialService sink, MaterialType getThis, double getHowMuch, MaterialType sendThat, double sendHowMuch)
             {
-
                 _portSet = new PortSet();
-
-                _input = new SimpleInputPort(source.Model, "In", Guid.NewGuid(), this, null);
-                Input = _input;
+                Input = new SimpleInputPort(source.Model, "In", Guid.NewGuid(), this, null);
                 _source = source;
                 _getThis = getThis;
                 _getHowMuch = getHowMuch;
-
-                _output = new SimpleOutputPort(source.Model, "Out", Guid.NewGuid(), this, null, null);
-                Output = _output;
+                Output = new SimpleOutputPort(source.Model, "Out", Guid.NewGuid(), this, null, null);
                 _sink = sink;
                 _sendThat = sendThat;
                 _sendHowMuch = sendHowMuch;
 
                 _model = model;
                 _mixture = new Mixture(model, "Test client's mixture");
-
             }
 
             public void Run(IExecutive exec, object userData)
@@ -218,15 +218,15 @@ namespace Highpoint.Sage.Materials
                 List<string> compartments = new List<string>();
                 foreach (MaterialResourceItem mri in matlSvc.Compartments)
                 {
-                    compartments.Add(string.Format("{0} kg of {1}", mri.Available, mri.MaterialType.Name));
+                    compartments.Add($"{mri.Available} kg of {mri.MaterialType.Name}");
                 }
-                sb.Append(string.Format(" has {0} compartment{1} with {2}. ",
-                    compartments.Count, (compartments.Count == 1 ? "" : "s"),
-                    StringOperations.ToCommasAndAndedList(compartments)));
+                sb.Append(
+                    $" has {compartments.Count} compartment{(compartments.Count == 1 ? "" : "s")} with {StringOperations.ToCommasAndAndedList(compartments)}. ");
 
                 foreach (IPort port in matlSvc.Ports)
                 {
-                    sb.Append(string.Format(" Port {0} is connected to {1}. ", port.Name, (port.Peer == null ? "<null>" : ((IHasName)port.Peer.Owner).Name)));
+                    sb.Append(
+                        $" Port {port.Name} is connected to {(port.Peer == null ? "<null>" : ((IHasName)port.Peer.Owner).Name)}. ");
                 }
                 return sb.ToString();
             }

@@ -116,7 +116,7 @@ namespace Highpoint.Sage.Utility
 
         }
 
-        class Thingy : Highpoint.Sage.SimCore.IHasName
+        sealed class Thingy : Highpoint.Sage.SimCore.IHasName
         {
             private string _name;
             public Thingy(string name)
@@ -239,7 +239,7 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        class Thingy
+        sealed class Thingy
         {
             private string _val;
             private double _dblval;

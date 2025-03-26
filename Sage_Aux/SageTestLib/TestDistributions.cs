@@ -57,14 +57,14 @@ namespace Highpoint.Sage.Mathematics
 
             Debug.WriteLine("Performing histogram analysis.");
             Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 7.5, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
+            hist.LabelProvider = new LabelProvider1d(((Histogram1D_Double)hist).DefaultLabelProvider);
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
             tw.Flush();
             tw.Close();
@@ -108,16 +108,16 @@ namespace Highpoint.Sage.Mathematics
             }
 
             Debug.WriteLine("Performing histogram analysis.");
-            Histogram1D_Double hist = new Histogram1D_Double(rawData, 4, 14, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
+            var hist = new Histogram1D_Double(rawData, 4, 14, 100, "distribution");
+            hist.LabelProvider = new LabelProvider1d(hist.DefaultLabelProvider);
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
             tw.Flush();
             tw.Close();
@@ -128,7 +128,7 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        class testCdf : ICDF
+        sealed class TestCdf : ICDF
         {
             public double GetVariate(double linear)
             {
@@ -142,7 +142,7 @@ namespace Highpoint.Sage.Mathematics
         public void TestUniversalDistribution()
         {
             double delta = 0.002;
-            UniversalDistribution ud = new UniversalDistribution(_model, "UniversalDistribution", Guid.NewGuid(), new testCdf());
+            UniversalDistribution ud = new UniversalDistribution(_model, "UniversalDistribution", Guid.NewGuid(), new TestCdf());
             Assert.IsTrue(ud.GetValueWithCumulativeProbability(0.50) == 5.0);
             ud.SetCDFInterval(0.5, 0.5);
             Assert.IsTrue(ud.GetNext() == 5.0);
@@ -196,15 +196,15 @@ namespace Highpoint.Sage.Mathematics
 
             Debug.WriteLine("Performing histogram analysis.");
             Histogram1D_Double hist = new Histogram1D_Double(rawData, 1.0, 10.0, 450, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
+            hist.LabelProvider = new LabelProvider1d(hist.DefaultLabelProvider);
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
             tw.Flush();
             tw.Close();
@@ -236,16 +236,15 @@ namespace Highpoint.Sage.Mathematics
             }
 
             Debug.WriteLine("Performing histogram analysis.");
-            Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 7.5, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
+            var hist = new Histogram1D_Double(rawData, 0, 7.5, 100, "distribution");
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
             tw.Flush();
             tw.Close();
@@ -278,19 +277,18 @@ namespace Highpoint.Sage.Mathematics
 
             Debug.WriteLine("Performing histogram analysis.");
             Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 30.0, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
 
-            tw.WriteLine("Sum of off-scale-high : " + (((double)hist.SumEntries(HistogramBinCategory.OffScaleHigh))));
-            tw.WriteLine("Average value : " + (((double)hist.SumEntries(HistogramBinCategory.All)) / ((double)hist.RawData.Length)));
+            tw.WriteLine("Sum of off-scale-high : " + hist.SumEntries(HistogramBinCategory.OffScaleHigh));
+            tw.WriteLine("Average value : " + (hist.SumEntries(HistogramBinCategory.All) / hist.RawData.Length));
             tw.Flush();
             tw.Close();
 
@@ -304,8 +302,8 @@ namespace Highpoint.Sage.Mathematics
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this timespan distribution equals a exponential distribution")]
         public void TestDistributionTimeSpanExponential()
         {
-            IDoubleDistribution dist = new ExponentialDistribution(_model, "ExponentialDistribution", Guid.NewGuid(), 3.0, 3.0);
-            ITimeSpanDistribution tsd = new TimeSpanDistribution(_model, "TSD:" + dist.Name, Guid.NewGuid(), dist, TimeSpanDistribution.Units.Minutes);
+            var dist = new ExponentialDistribution(_model, "ExponentialDistribution", Guid.NewGuid(), 3.0, 3.0);
+            var tsd = new TimeSpanDistribution(_model, "TSD:" + dist.Name, Guid.NewGuid(), dist, TimeSpanDistribution.Units.Minutes);
             tsd.SetCDFInterval(0.5, 0.5);
             Assert.IsTrue(tsd.GetNext().Equals(TimeSpan.FromMinutes(5.0794415416798362)));
             tsd.SetCDFInterval(0.0, 1.0);
@@ -313,7 +311,7 @@ namespace Highpoint.Sage.Mathematics
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\TimeSpanDistributionExponential.csv");
             Debug.WriteLine("Generating raw data.");
             int DATASETSIZE = 1500000;
-            double[] rawData = new double[DATASETSIZE];
+            var rawData = new double[DATASETSIZE];
             for (int x = 0; x < DATASETSIZE; x++)
             {
                 rawData[x] = tsd.GetNext().TotalMinutes;
@@ -322,19 +320,18 @@ namespace Highpoint.Sage.Mathematics
 
             Debug.WriteLine("Performing histogram analysis.");
             Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 120.0, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
 
-            tw.WriteLine("Sum of off-scale-high : " + (((double)hist.SumEntries(HistogramBinCategory.OffScaleHigh))));
-            tw.WriteLine("Average value : " + (((double)hist.SumEntries(HistogramBinCategory.All)) / ((double)hist.RawData.Length)));
+            tw.WriteLine("Sum of off-scale-high : " + hist.SumEntries(HistogramBinCategory.OffScaleHigh));
+            tw.WriteLine("Average value : " + (hist.SumEntries(HistogramBinCategory.All) / hist.RawData.Length));
             tw.Flush();
             tw.Close();
 
@@ -348,7 +345,7 @@ namespace Highpoint.Sage.Mathematics
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a weibull distribution")]
         public void TestDistributionWeibull()
         {
-            IDoubleDistribution dist = new WeibullDistribution(_model, "WeibullDistribution", Guid.NewGuid(), 2, 0, 2.0);
+            var dist = new WeibullDistribution(_model, "WeibullDistribution", Guid.NewGuid(), 2, 0, 2.0);
             Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 1.6651092223153954);
             dist.SetCDFInterval(0.5, 0.5);
             Assert.IsTrue(dist.GetNext() == 1.6651092223153954);
@@ -366,15 +363,14 @@ namespace Highpoint.Sage.Mathematics
 
             Debug.WriteLine("Performing histogram analysis.");
             Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 7.5, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
             tw.Flush();
             tw.Close();
@@ -389,13 +385,13 @@ namespace Highpoint.Sage.Mathematics
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a cauchy distribution")]
         public void TestDistributionCauchy()
         {
-            IDoubleDistribution dist = new CauchyDistribution(_model, "CauchyDistribution", Guid.NewGuid(), 3.0, 3.0);
+            var dist = new CauchyDistribution(_model, "CauchyDistribution", Guid.NewGuid(), 3.0, 3.0);
             Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 3.0);
             dist.SetCDFInterval(0.5, 0.5);
             Assert.IsTrue(dist.GetNext() == 3.0);
             dist.SetCDFInterval(0.0, 1.0);
 
-            System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionCauchy.csv");
+            var tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionCauchy.csv");
             Debug.WriteLine("Generating raw data.");
             int DATASETSIZE = 1500000;
             double[] rawData = new double[DATASETSIZE];
@@ -406,16 +402,15 @@ namespace Highpoint.Sage.Mathematics
             }
 
             Debug.WriteLine("Performing histogram analysis.");
-            Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 7.5, 100, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
+            var hist = new Histogram1D_Double(rawData, 0, 7.5, 100, "distribution");
             hist.Recalculate();
 
             Debug.WriteLine("Writing data dump file.");
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
                 //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                tw.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
             tw.Flush();
             tw.Close();
@@ -431,13 +426,13 @@ namespace Highpoint.Sage.Mathematics
         public void TestDistributionPoisson()
         {
             const double EPSILON = 0.000001;
-            IDoubleDistribution dist = new PoissonDistribution(_model, "PoissonDistribution", Guid.NewGuid(), 5.0);
+            var dist = new PoissonDistribution(_model, "PoissonDistribution", Guid.NewGuid(), 5.0);
             Assert.AreEqual(5.0, dist.GetValueWithCumulativeProbability(0.50), EPSILON);
             dist.SetCDFInterval(0.5, 0.5);
             Assert.AreEqual(5.0, dist.GetNext(), EPSILON);
             dist.SetCDFInterval(0.0, 1.0);
 
-            System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionPoisson.csv");
+            var tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionPoisson.csv");
             Debug.WriteLine("Generating raw data.");
             const int DATASETSIZE = 1500000;
             double[] rawData = new double[DATASETSIZE];
@@ -448,8 +443,7 @@ namespace Highpoint.Sage.Mathematics
             }
 
             Debug.WriteLine("Performing histogram analysis.");
-            Histogram1D_Double hist = new Histogram1D_Double(rawData, 0, 25, 25, "distribution");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProvider);
+            var hist = new Histogram1D_Double(rawData, 0, 25, 25, "distribution");
             hist.Recalculate();
 
             List<double> expected = new List<double>()// From Excel.
@@ -457,7 +451,7 @@ namespace Highpoint.Sage.Mathematics
                 10107, 50535, 126337, 210561, 263201, 263201, 219334, 156667, 97917, 54398, 27199, 12363, 5151, 1981,
                 708, 236, 74, 22, 6, 2, 0, 0, 0, 0, 0
             };
-            IEnumerable<double> ied = new List<int>((int[])hist.Bins).Select(n => (double)n);
+            IEnumerable<double> ied = hist.BinCounts.Select(n => (double)n);
             List<double> actual = new List<double>((IEnumerable<double>)ied);
             double rmsError = Mathematics.RMSErrorCalculator.Calculate(expected, actual);
             Assert.IsTrue(rmsError < 75, "Poisson distribution at lambda = 5 does not follow the expected curve.");
@@ -465,11 +459,11 @@ namespace Highpoint.Sage.Mathematics
             if (_visuallyVerify)
             {
                 Debug.WriteLine("Writing data dump file.");
-                int[] bins = (int[])hist.Bins;
-                for (int i = 0; i < bins.Length; i++)
+                var bins = hist.BinCounts;
+                for (int i = 0; i < bins.Count; i++)
                 {
                     //Debug.WriteLine(hist.GetLabel(new int[]{i}) + ", " + bins[i]);
-                    tw.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i] + ", " + expected[i]);
+                    tw.WriteLine(hist.GetLabel(i) + ", " + bins[i] + ", " + expected[i]);
                 }
                 tw.Flush();
                 tw.Close();
@@ -512,7 +506,7 @@ namespace Highpoint.Sage.Mathematics
         [TestMethod]
         public void TestUniformDistTimeSpanPerformance()
         {
-            IDoubleDistribution dist = new NormalDistribution(_model, "NormalDist", Guid.NewGuid(), (double)TimeSpan.FromMinutes(25).Ticks, (double)TimeSpan.FromMinutes(10).Ticks);
+            var dist = new NormalDistribution(_model, "NormalDist", Guid.NewGuid(), (double)TimeSpan.FromMinutes(25).Ticks, (double)TimeSpan.FromMinutes(10).Ticks);
 
             for (int i = 0; i < 30000 * 600; i++)
             {
@@ -520,7 +514,7 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        private void _TestDoubleHistogram(IDoubleDistribution dist, int nDataPoints, double low, double high, int nBins)
+        private void _TestDoubleHistogram(IDoubleDistribution dist, int nDataPoints, double low, double high, uint nBins)
         {
             double[] rawData = new double[nDataPoints];
             for (int x = 0; x < nDataPoints; x++)
@@ -528,18 +522,18 @@ namespace Highpoint.Sage.Mathematics
                 rawData[x] = dist.GetNext();
             }
 
-            IHistogram hist = new Histogram1D_Double(rawData, low, high, nBins, "Test Histogram");
-            hist.LabelProvider = new LabelProvider(((Histogram1D_Double)hist).DefaultLabelProviderWithError);
+            var hist = new Histogram1D_Double(rawData, low, high, nBins, "Test Histogram");
+            hist.LabelProvider = new LabelProvider1d(hist.DefaultLabelProviderWithError);
             hist.Recalculate();
 
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
-                Debug.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                Debug.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
         }
 
-        private void _TestTimeSpanHistogram(IDoubleDistribution dist, int nDataPoints, long low, long high, int nBins)
+        private void _TestTimeSpanHistogram(IDoubleDistribution dist, int nDataPoints, long low, long high, uint nBins)
         {
             TimeSpan[] rawData = new TimeSpan[nDataPoints];
             for (int x = 0; x < nDataPoints; x++)
@@ -547,13 +541,13 @@ namespace Highpoint.Sage.Mathematics
                 rawData[x] = TimeSpan.FromTicks((long)dist.GetNext());
             }
 
-            IHistogram hist = new Histogram1D_TimeSpan(rawData, TimeSpan.FromTicks(low), TimeSpan.FromTicks(high), nBins, "Test Histogram");
+            var hist = new Histogram1D_TimeSpan(rawData, TimeSpan.FromTicks(low), TimeSpan.FromTicks(high), nBins, "Test Histogram");
             hist.Recalculate();
 
-            int[] bins = (int[])hist.Bins;
-            for (int i = 0; i < bins.Length; i++)
+            var bins = hist.BinCounts;
+            for (int i = 0; i < bins.Count; i++)
             {
-                Debug.WriteLine(hist.GetLabel(new int[] { i }) + ", " + bins[i]);
+                Debug.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
         }
     }

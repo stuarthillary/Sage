@@ -15,6 +15,7 @@ namespace Highpoint.Sage.SimCore
         {
             get;
         }
+
         /// <summary>
         /// Where the problem arose.
         /// </summary>

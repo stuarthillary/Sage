@@ -2,41 +2,45 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.SimCore
 {
     internal class TransitionHandler : ITransitionHandler
     {
-
         #region Prepare Event
-        protected SortedList prepareHandlers = new SortedList();
+        protected SortedList<double, PrepareTransitionEvent> prepareHandlers = new SortedList<double, PrepareTransitionEvent>();
         private double _nextPreparePriority = 0.0;
+
         public event PrepareTransitionEvent Prepare
         {
             add
             {
-                AddPrepareEvent(value, (_nextPreparePriority += double.Epsilon));
+                AddPrepareEvent(_nextPreparePriority += double.Epsilon, value);
             }
             remove
             {
                 RemovePrepareEvent(value);
             }
         }
-        public void AddPrepareEvent(PrepareTransitionEvent pte, double priority)
+
+        public void AddPrepareEvent(double priority, PrepareTransitionEvent pte)
         {
             if (!prepareHandlers.ContainsValue(pte))
             {
                 prepareHandlers.Add(priority, pte);
             }
         }
+
         public void RemovePrepareEvent(PrepareTransitionEvent pte)
         {
             if (prepareHandlers.ContainsValue(pte))
             {
-                prepareHandlers.Remove(commitHandlers.GetKey(commitHandlers.IndexOfValue(pte)));
+                prepareHandlers.Remove(prepareHandlers.GetKeyAtIndex(prepareHandlers.IndexOfValue(pte)));
             }
         }
-        internal SortedList PrepareHandlers
+
+        internal SortedList<double, PrepareTransitionEvent> PrepareHandlers
         {
             get
             {
@@ -46,35 +50,39 @@ namespace Highpoint.Sage.SimCore
         #endregion Prepare Event
 
         #region Commit Event
-        protected SortedList commitHandlers = new SortedList();
+        protected SortedList<double, CommitTransitionEvent> commitHandlers = new SortedList<double, CommitTransitionEvent>();
         private double _nextCommitPriority = 0.0;
+
         public event CommitTransitionEvent Commit
         {
             add
             {
-                AddCommitEvent(value, (_nextCommitPriority += double.Epsilon));
+                AddCommitEvent(_nextCommitPriority += double.Epsilon, value);
             }
             remove
             {
                 RemoveCommitEvent(value);
             }
         }
-        public void AddCommitEvent(CommitTransitionEvent cte, double priority)
+
+        public void AddCommitEvent(double priority, CommitTransitionEvent cte)
         {
             if (!commitHandlers.ContainsValue(cte))
             {
                 commitHandlers.Add(priority, cte);
             }
         }
+
         public void RemoveCommitEvent(CommitTransitionEvent cte)
         {
             if (commitHandlers.ContainsValue(cte))
             {
-                commitHandlers.Remove(commitHandlers.GetKey(commitHandlers.IndexOfValue(cte)));
+                commitHandlers.Remove(commitHandlers.GetKeyAtIndex(commitHandlers.IndexOfValue(cte)));
             }
 
         }
-        internal SortedList CommitHandlers
+
+        internal SortedList<double, CommitTransitionEvent> CommitHandlers
         {
             get
             {
@@ -84,34 +92,38 @@ namespace Highpoint.Sage.SimCore
         #endregion
 
         #region Rollback Event
-        protected SortedList rollbackHandlers = new SortedList();
+        protected SortedList<double, RollbackTransitionEvent> rollbackHandlers = new SortedList<double, RollbackTransitionEvent>();
         private double _nextRollbackPriority = 0.0;
+
         public event RollbackTransitionEvent Rollback
         {
             add
             {
-                AddRollbackEvent(value, (_nextRollbackPriority += double.Epsilon));
+                AddRollbackEvent(_nextRollbackPriority += double.Epsilon, value);
             }
             remove
             {
                 RemoveRollbackEvent(value);
             }
         }
-        public void AddRollbackEvent(RollbackTransitionEvent rte, double priority)
+
+        public void AddRollbackEvent(double priority, RollbackTransitionEvent rte)
         {
             if (!rollbackHandlers.ContainsValue(rte))
             {
                 rollbackHandlers.Add(priority, rte);
             }
         }
+
         public void RemoveRollbackEvent(RollbackTransitionEvent rte)
         {
             if (rollbackHandlers.ContainsValue(rte))
             {
-                rollbackHandlers.Remove(commitHandlers.GetKey(commitHandlers.IndexOfValue(rte)));
+                rollbackHandlers.Remove(rollbackHandlers.GetKeyAtIndex(rollbackHandlers.IndexOfValue(rte)));
             }
         }
-        internal SortedList RollbackHandlers
+
+        internal SortedList<double, RollbackTransitionEvent> RollbackHandlers
         {
             get
             {
@@ -128,13 +140,13 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public IList DoPrepare(IModel model, object userData)
+        public IReadOnlyList<ITransitionFailureReason> DoPrepare(IModel model, object userData)
         {
-            ArrayList al = new ArrayList();
+            List<ITransitionFailureReason> al = new List<ITransitionFailureReason>();
             for (int i = 0; i < prepareHandlers.Count; i++)
             {
-                PrepareTransitionEvent pte = (PrepareTransitionEvent)prepareHandlers.GetByIndex(i);
-                object result = pte(model, userData);
+                PrepareTransitionEvent pte = prepareHandlers.GetValueAtIndex(i);
+                ITransitionFailureReason result = pte(model, userData);
                 if (result != null)
                     al.Add(result);
             }
@@ -145,16 +157,16 @@ namespace Highpoint.Sage.SimCore
         {
             for (int i = 0; i < commitHandlers.Count; i++)
             {
-                CommitTransitionEvent cte = (CommitTransitionEvent)commitHandlers.GetByIndex(i);
+                CommitTransitionEvent cte = commitHandlers.GetValueAtIndex(i);
                 cte(model, userData);
             }
         }
 
-        public void DoRollback(IModel model, object userData, IList failureReasons)
+        public void DoRollback(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> failureReasons)
         {
             for (int i = 0; i < rollbackHandlers.Count; i++)
             {
-                RollbackTransitionEvent rte = (RollbackTransitionEvent)rollbackHandlers.GetByIndex(i);
+                RollbackTransitionEvent rte = rollbackHandlers.GetValueAtIndex(i);
                 rte(model, userData, failureReasons);
             }
         }
@@ -182,14 +194,14 @@ namespace Highpoint.Sage.SimCore
             return sb.ToString();
         }
 
-        private string DumpHandlers(SortedList handlers)
+        private string DumpHandlers<TValue>(SortedList<double, TValue> handlers) where TValue: Delegate
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             int i = 0;
-            foreach (DictionaryEntry de in handlers)
+            foreach (var de in handlers)
             {
-                double pri = Convert.ToDouble(de.Key);
-                Delegate del = (Delegate)de.Value;
+                double pri = de.Key;
+                Delegate del = de.Value;
                 sb.Append("\t" + i + ".)\t[" + del.Target + "].[" + del.Method + "] @ pri = " + pri + "\r\n");
                 i++;
             }

@@ -72,11 +72,11 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
             }
             else
             {
-                if (!_nameMap.ContainsKey(name))
+                if (!_nameMap.TryGetValue(name, out ExpressionElement mapping))
                 {
                     throw new ApplicationException(Msg_NameMapDoesntContainKey(name));
                 }
-                return _nameMap[name];
+                return mapping;
             }
         }
 
@@ -185,11 +185,11 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <param name="to">The name to which the caller wants to remap the expression element.</param>
         public void ChangeName(string from, string to)
         {
-            if (!_nameMap.ContainsKey(from))
+            if (!_nameMap.TryGetValue(from, out ExpressionElement expressionElement))
             {
                 throw new ApplicationException(Msg_NameMapDoesntContainKey(from));
             }
-            ExpressionElement expressionElement = _nameMap[from];
+
             if (expressionElement != null)
             {
                 DualModeString dms = expressionElement as DualModeString;
@@ -234,9 +234,9 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         {
             get
             {
-                if (_nameMap.ContainsKey(name))
+                if (_nameMap.TryGetValue(name, out ExpressionElement item))
                 {
-                    return _nameMap[name];
+                    return item;
                 }
                 else
                 {
@@ -276,9 +276,9 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         {
             get
             {
-                if (_guidMap.ContainsKey(guid))
+                if (_guidMap.TryGetValue(guid, out ExpressionElement item))
                 {
-                    return _guidMap[guid];
+                    return item;
                 }
                 else
                 {
@@ -367,11 +367,11 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                 _Debug.Assert(_nameMap.ContainsValue(ee));
             }
 
-            foreach (IPfcNode node in pfc.Steps)
+            foreach (IPfcStepNode node in pfc.Steps)
             {
-                if (_nameMap.ContainsKey(node.Name))
+                if (_nameMap.TryGetValue(node.Name, out ExpressionElement value))
                 {
-                    _nameMap[node.Name].Marked = true;
+                    value.Marked = true;
                 }
             }
 
@@ -390,7 +390,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                     {
                         _nameMap[ee.Name.Trim('\'')].Marked = true;
                     }
-                    else if (ee.Name != string.Empty)
+                    else if (!string.IsNullOrEmpty(ee.Name))
                     {
                         _nameMap[ee.Name].Marked = true;
                     }

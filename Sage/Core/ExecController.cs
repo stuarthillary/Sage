@@ -210,16 +210,16 @@ namespace Highpoint.Sage.SimCore
 
                     if (_logScale >= 0)
                     {
-                        return string.Format("Up to {0:f2} {1} of simulation time per second of user time.", num, units);
+                        return $"Up to {num:f2} {units} of simulation time per second of user time.";
                     }
                     else
                     {
-                        return string.Format("Up to {0:f2} {1} of user time per second of simulation time.", num, units);
+                        return $"Up to {num:f2} {units} of user time per second of simulation time.";
                     }
                 }
                 catch
                 {
-                    return string.Format("{0}.", (_logScale < 0 ? "Controller scale is out of range low" : "Simulation speed is unconstrained"));
+                    return $"{(_logScale < 0 ? "Controller scale is out of range low" : "Simulation speed is unconstrained")}.";
                 }
             }
         }

@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Creates a new instance of this class.
         /// </summary>
-        public ReactionDefinitionException(Reaction reaction) : base(string.Format("{0} is not valid.", reaction.ToString()))
+        public ReactionDefinitionException(Reaction reaction) : base($"{reaction.ToString()} is not valid.")
         {
             _reaction = reaction;
         }

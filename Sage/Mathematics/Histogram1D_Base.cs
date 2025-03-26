@@ -1,9 +1,10 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
+using System.Collections.Generic;
+using System.Numerics;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBeProtected.Global
-
-// TODO: Convert this to Tempated types.
 
 namespace Highpoint.Sage.Mathematics
 {
@@ -16,39 +17,20 @@ namespace Highpoint.Sage.Mathematics
     /// be and'ed together. Most queries can be applied to a range of bins, or to a full category or
     /// set of categories.
     /// </summary>
-    public abstract class Histogram1D_Base : IHistogram
+    public abstract class Histogram1D_Base<T> : IHistogram1D<T>
+        where T : INumber<T>
     {
 
         #region >>> Local Private Variables. <<<
         /// <summary>
         /// The raw data array that provides the underlying histogram data.
         /// </summary>
-        protected Array rawData;
-        /// <summary>
-        /// The bins that contain the count of points in each bin.
-        /// </summary>
-        protected int[] bins;
-        /// <summary>
-        /// The count of data points whose values were less than the low bound.
-        /// </summary>
-		protected int LowBin;
-        /// <summary>
-        /// The count of data points whose values were greater than the high bound.
-        /// </summary>
-        protected int HighBin;
-        /// <summary>
-        /// The number of bins in this Histogram.
-        /// </summary>
-		protected int NumBins;
-        /// <summary>
-        /// The value of the low boundary. All data points that are less than this value are tallied into the m_lowBin bin.
-        /// </summary>
-		protected object lowBound;
-        /// <summary>
-        /// The value of the high boundary. All data points that are greater than this value are tallied into the m_highBin bin.
-        /// </summary>
-        protected object highBound;
-        private LabelProvider m_labelProvider;
+        private T[] _rawData;
+
+        protected uint[] _bins = [];
+
+
+        private LabelProvider1d _labelProvider;
         #endregion
 
         /// <summary>
@@ -61,201 +43,68 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The name of the histogram.</param>
         /// <param name="guid">The guid of the histogram.</param>
         // ReSharper disable once PublicConstructorInAbstractClass
-        public Histogram1D_Base(Array rawData, object lowBound, object highBound, int nBins, string name, Guid guid)
+        public Histogram1D_Base(T[] rawData, T lowBound, T highBound, uint nBins, string name, Guid guid)
         {
-            this.rawData = rawData;
-            this.lowBound = lowBound;
-            this.highBound = highBound;
+            _rawData = rawData;
+            LowBound = lowBound;
+            HighBound = highBound;
             _name = name;
             Guid = guid;
             NumBins = nBins;
-            m_labelProvider = DefaultLabelProvider;
+            _labelProvider = DefaultLabelProvider;
         }
 
         #region IHistogram Members
-        /// <summary>
-        /// Counts the number of entries in a given range (low bin, in-band bins or high bin.)
-        /// </summary>
-        /// <param name="hbc">An enumerator that describes whether the count is for low, in-band, or high bins.</param>
-        /// <returns>The number of entries that fall in the specified range.</returns>
-        public int CountEntries(HistogramBinCategory hbc)
-        {
-            int nEntries = 0;
-            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
-                nEntries += LowBin;
-            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
-                nEntries += HighBin;
-            if (hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All)
-                nEntries += CountEntries(new[] { 0 }, new[] { NumBins });
-            return nEntries;
-        }
 
-        /// <summary>
-        /// Counts the number of entries in a given range of bins.
-        /// </summary>
-        /// <param name="lowBounds">The index of the lowest bin to count.</param>
-        /// <param name="highbounds">The index of the highest bin to count.</param>
-        /// <returns>The number of entries that fall in the specified range.</returns>
-        public int CountEntries(int[] lowBounds, int[] highbounds)
-        {
-            if (lowBounds.Rank != 1 || highbounds.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-            int low = lowBounds[0];
-            int high = highbounds[0];
-            int nEntries = 0;
-            for (int i = low; i < high; i++)
-            {
-                nEntries += bins[i];
-            }
-            return nEntries;
-        }
 
+        
         /// <summary>
         /// The data that represents the low bound of the in-band range.
+        /// All data points that are less than this value are tallied into the m_lowBin bin.
         /// </summary>
-        public object LowBound => lowBound;
+        public T LowBound
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// The data that represents the high bound of the in-band range.
+        /// All data points that are greater than this value are tallied into the m_highBin bin.
         /// </summary>
-        public object HighBound => highBound;
-
-        /// <summary>
-        /// Returns the index of the bin that contains the most entries, selected from
-        /// a specified set of bins.
-        /// </summary>
-        /// <param name="hbc">The <see cref="HistogramBinCategory"/> that specifies the bins of interest.</param>
-        /// <returns>The index of the bin that contains the most entries.</returns>
-        public int[] BiggestBin(HistogramBinCategory hbc)
+        public T HighBound
         {
-            int biggestBinNum = 0;
-            int biggestBinCount = int.MaxValue;
-            if (hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All)
-            {
-                biggestBinNum = BiggestBin(new[] { 0 }, new[] { bins.Length })[0];
-                biggestBinCount = bins[biggestBinNum];
-            }
-
-            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
-            {
-                if (LowBin > biggestBinCount)
-                {
-                    biggestBinNum = int.MinValue;
-                    biggestBinCount = LowBin;
-                }
-            }
-            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
-            {
-                if (HighBin > biggestBinCount)
-                {
-                    biggestBinNum = int.MaxValue;
-                }
-            }
-            return new[] { biggestBinNum };
+            get;
+            private set;
         }
 
-        /// <summary>
-        /// Returns the index of the bin that contains the most entries, selected from
-        /// the bins between the requested low and high index bins.
-        /// </summary>
-        /// <param name="lowBounds">The low bounds.</param>
-        /// <param name="highbounds">The highbounds.</param>
-        /// <returns>
-        /// The indexes of the bin that contains the most entries.
-        /// </returns>
-        public int[] BiggestBin(int[] lowBounds, int[] highbounds)
+        public uint LowBinCount
         {
-            if (lowBounds.Rank != 1 || highbounds.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-            int low = lowBounds[0];
-            int high = highbounds[0];
-            int biggestBinNum = 0;
-            int biggestBinCount = int.MinValue;
-            for (int i = low; i < high; i++)
-            {
-                if (bins[i] >= biggestBinCount)
-                    continue;
-                biggestBinCount = bins[i];
-                biggestBinNum = i;
-            }
-            return new[] { biggestBinNum };
+            get;
+            protected set;
         }
 
-        /// <summary>
-        /// Returns the index of the bin that contains the most entries, selected from
-        /// a specified set of bins.
-        /// </summary>
-        /// <param name="hbc">The <see cref="HistogramBinCategory"/> that specifies the bins of interest.</param>
-        /// <returns>The indexes of the bin that contains the fewest entries.</returns>
-        public int[] SmallestBin(HistogramBinCategory hbc)
+        public uint HighBinCount
         {
-            int smallestBinNum = 0;
-            int smallestBinCount = int.MaxValue;
-            if (hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All)
-            {
-                smallestBinNum = SmallestBin(new[] { 0 }, new[] { bins.Length })[0];
-                smallestBinCount = bins[smallestBinNum];
-            }
-
-            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
-            {
-                if (LowBin < smallestBinCount)
-                {
-                    smallestBinNum = int.MinValue;
-                    smallestBinCount = LowBin;
-                }
-            }
-            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
-            {
-                if (HighBin < smallestBinCount)
-                {
-                    smallestBinNum = int.MaxValue;
-                }
-            }
-            return new[] { smallestBinNum };
+            get;
+            protected set;
         }
 
-        /// <summary>
-        /// Returns the index of the bin that contains the fewest entries, selected from
-        /// the bins between the requested low and high index bins.
-        /// </summary>
-        /// <param name="lowBounds">The low bounds.</param>
-        /// <param name="highbounds">The highbounds.</param>
-        /// <returns>
-        /// The indexes of the bin that contains the fewest entries.
-        /// </returns>
-        public int[] SmallestBin(int[] lowBounds, int[] highbounds)
-        {
-            if (lowBounds.Rank != 1 || highbounds.Rank != 1)
-                throw new ArgumentException("coordinate data provided to a Histogram1D must be of rank 1.");
-            int low = lowBounds[0];
-            int high = highbounds[0];
-            int smallestBinNum = 0;
-            int smallestBinCount = int.MaxValue;
-            for (int i = low; i < high; i++)
-            {
-                if (bins[i] >= smallestBinCount)
-                    continue;
-                smallestBinCount = bins[i];
-                smallestBinNum = i;
-            }
-            return new[] { smallestBinNum };
-        }
 
 
         /// <summary>
         /// Gets and sets the object that provides the name of a specified bin.
         /// </summary>
         /// <value>The label provider.</value>
-		public LabelProvider LabelProvider
+        public LabelProvider1d LabelProvider
         {
             get
             {
-                return m_labelProvider;
+                return _labelProvider;
             }
             set
             {
-                m_labelProvider = value;
+                _labelProvider = value;
             }
         }
 
@@ -264,27 +113,25 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="coords">The coordinates of the desired bin.</param>
         /// <returns>The label for the bin at the specified coordiantes.</returns>
-		public string GetLabel(int[] coords)
+        public string GetLabel(int coords)
         {
-            return m_labelProvider(coords);
+            return _labelProvider(coords);
         }
 
         /// <summary>
         /// Gets or sets the raw data that comprises this Histogram.
         /// </summary>
         /// <value>The raw data.</value>
-		public Array RawData
+        public T[] RawData
         {
             get
             {
-                return rawData;
+                return _rawData;
             }
             set
             {
-                if (value.Rank != 1)
-                    throw new ArgumentException("Raw data set into a Histogram1D must be of rank 1.");
                 Clear();
-                rawData = value;
+                _rawData = value;
                 Recalculate();
             }
         }
@@ -293,22 +140,29 @@ namespace Highpoint.Sage.Mathematics
         /// Gets the bins that are a part of this Histogram.
         /// </summary>
         /// <value>The bins.</value>
-		public Array Bins => bins;
+        public IReadOnlyList<uint> BinCounts => _bins;
+
+        public uint NumBins
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// Gets the number of dimensions in this Histogram (a linear histogram is 1-dimensional).
         /// </summary>
         /// <value>The dimension.</value>
-        public int Dimension => 1;
+        public uint Dimension => 1;
 
         /// <summary>
         /// Clears this Histogram.
         /// </summary>
-        public virtual void Clear()
+        public void Clear()
         {
-            bins = null;
-            LowBin = 0;
-            LowBin = 0;
+            _bins = [];
+            NumBins = 0;
+            LowBinCount = 0;
+            HighBinCount = 0;
         }
 
         /// <summary>
@@ -316,45 +170,104 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="hbc">The HistogramBinCategory.</param>
         /// <returns>The sum of values.</returns>
-		public abstract object SumEntries(HistogramBinCategory hbc);
+        public T SumEntries(HistogramBinCategory hbc)
+        {
+            T sumEntries = default(T);
+            bool sumLow = false;
+            bool sumHigh = false;
+            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
+                sumLow = true;
+            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
+                sumHigh = true;
+            bool inRange = hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All;
+
+            foreach (var val in RawData)
+            {
+                if (Operations<T>.LessThan(val, LowBound))
+                {
+                    if (sumLow)
+                        sumEntries = Operations<T>.Add(sumEntries, val);
+                }
+                else if (Operations<T>.GreaterThanOrEqual(val, HighBound))
+                {
+                    if (sumHigh)
+                        sumEntries = Operations<T>.Add(sumEntries, val);
+                }
+                else
+                {
+                    if (inRange)
+                        sumEntries = Operations<T>.Add(sumEntries, val);
+                }
+            }
+            return sumEntries;
+        }
+
         /// <summary>
-        /// Returns the sum of values in all of the bins identified by the given low and high bounds.
+        /// Counts the number of entries in a given range (low bin, in-band bins or high bin.)
         /// </summary>
-        /// <param name="lowBounds">The low bounds.</param>
-        /// <param name="highbounds">The high bounds.</param>
-        /// <returns>The sum of values.</returns>
-		public abstract object SumEntries(int[] lowBounds, int[] highbounds);
-        /// <summary>
-        /// This returns a value that indicates how far a specified bin's count
-        /// deviates from the 'expected' count - note that it is only relevant if
-        /// the histogram was expected to have been uniform.
-        /// </summary>
-        /// <param name="coordinates">An integer array that specifies the coordinates of
-        /// the bin of interest. Histogram analysis of a Histogram1D_&lt;anything&gt; must be
-        /// on a 1 dimensional array, therefore, this array must be of rank 1.</param>
-        /// <returns>
-        /// a value that indicates how far a specified bin's count
-        /// deviates from the 'expected' count.
-        /// </returns>
-		public abstract object Error(int[] coordinates);
+        /// <param name="hbc">An enumerator that describes whether the count is for low, in-band, or high bins.</param>
+        /// <returns>The number of entries that fall in the specified range.</returns>
+        public uint CountEntries(HistogramBinCategory hbc)
+        {
+            uint nEntries = 0;
+            if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)
+                nEntries += LowBinCount;
+            if (hbc == HistogramBinCategory.OffScaleHigh || hbc == HistogramBinCategory.All)
+                nEntries += HighBinCount;
+            if (hbc == HistogramBinCategory.InRange || hbc == HistogramBinCategory.All)
+                nEntries += ((IHistogram1D<T>)this).CountEntries(0 , NumBins );
+            
+            return nEntries;
+        }
+
 
         /// <summary>
         /// Recalculates this Histogram, resulting in new bins and counts.
         /// </summary>
-        public abstract void Recalculate();
+        public void Recalculate()
+        {
+            _bins = new uint[NumBins];
+            T lowBound = LowBound;
+            T highBound = HighBound;
+            T binIncrement = (Operations<T>.DivideByUInt32(Operations<T>.Subtract(highBound, lowBound), NumBins));
+            foreach (var dataPoint in RawData)
+            {
+                if (Operations<T>.LessThan(dataPoint, lowBound))
+                {
+                    LowBinCount++;
+                }
+                else if (Operations<T>.GreaterThanOrEqual(dataPoint, highBound))
+                {
+                    HighBinCount++;
+                }
+                else
+                {
+                    int whichBin = Converter<T>.ToInt32(Operations<T>.Divide(Operations<T>.Subtract(dataPoint, lowBound), binIncrement));
+                    _bins[whichBin]++;
+                }
+            }
+        }
+
         /// <summary>
         /// Recalculates the Histogram with new high &amp; low bounds, resulting in new bins and counts.
         /// </summary>
         /// <param name="lowBounds">The low bounds of the Histogram.</param>
         /// <param name="highBounds">The high bounds of the Histogram.</param>
         /// <param name="nBins">The number of bins.</param>
-		public abstract void Recalculate(Array lowBounds, Array highBounds, int nBins);
+        public void Recalculate(T lowBounds, T highBounds, uint nBins)
+        {
+            LowBound = lowBounds;
+            HighBound = highBounds;
+            NumBins = nBins;
+            Recalculate();
+        }
+
         /// <summary>
         /// Provides the default label provider for the specified coordinates.
         /// </summary>
         /// <param name="coords">The specified coordinates.</param>
         /// <returns></returns>
-		public abstract string DefaultLabelProvider(int[] coords);
+        public abstract string DefaultLabelProvider(int coords);
         #endregion
 
         #region IHasIdentity Members
@@ -364,7 +277,7 @@ namespace Highpoint.Sage.Mathematics
         /// The name for this object. Not typically required to be unique.
         /// </summary>
         /// <value>The object's name.</value>
-		public string Name => _name;
+        public string Name => _name;
 
         private readonly string _description = null;
         /// <summary>

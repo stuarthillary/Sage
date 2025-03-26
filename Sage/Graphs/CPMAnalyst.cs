@@ -216,7 +216,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 //			}
 			if ( s_diagnostics ) {
 				Trace.Write(new DateTime(elapsedTime) + " : Probing backward from " + fromVertexName + " to vertex " + vertex.Name + " at " 
-					+ string.Format("{0:f2}",TimeSpan.FromTicks(elapsedTime).TotalMinutes));
+					+ $"{TimeSpan.FromTicks(elapsedTime).TotalMinutes:f2}");
 			}
             
 			if ( VertexPegs != null && VertexPegs.Contains(vertex) )  elapsedTime = (long)VertexPegs[vertex];
@@ -234,7 +234,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 				if ( s_diagnostics ) _Debug.WriteLine(nextEdges.Count>0?" - synchronizer authorized us to proceed.":" - this vertex has a synchronizer that is not yet satisfied.");
 			}
 
-			if ( s_diagnostics ) _Debug.WriteLine("Setting " + vertex.Name + " latest to " + string.Format("{0:f2}",TimeSpan.FromTicks(elapsedTime).TotalMinutes));
+			if ( s_diagnostics ) _Debug.WriteLine("Setting " + vertex.Name + " latest to " +
+                                                  $"{TimeSpan.FromTicks(elapsedTime).TotalMinutes:f2}");
 
 			m_traceStack.Push(vertex);
 			foreach ( Edge edge in nextEdges ) {
@@ -295,9 +296,9 @@ namespace Highpoint.Sage.Graphs.Analysis {
 					
 					if ( s_diagnostics ) {
 						_Debug.WriteLine("Resetting " + post.Name + " latest time to " + pre.Name + "'s latest (" 
-							+ string.Format("{0:f2}",TimeSpan.FromTicks(preData.Latest)) + ") + "
+							+ $"{TimeSpan.FromTicks(preData.Latest):f2}" + ") + "
 							+ pre.PrincipalEdge.Name + "'s nominal duration of " 
-							+ string.Format("{0:f2}",TimeSpan.FromTicks(ed.NominalDuration))); 
+							+ $"{TimeSpan.FromTicks(ed.NominalDuration):f2}"); 
 					}
 				}
 			}
@@ -353,10 +354,10 @@ namespace Highpoint.Sage.Graphs.Analysis {
 					VertexData vdPost = (VertexData)Vertices[edge.PostVertex];
 
 					if ( vdPre != null && vdPost != null && ed != null ) {
-						string svdPreEarliest = string.Format("{0:F2}",TimeSpan.FromTicks(vdPre.Earliest).TotalMinutes);
-						string svdPreLatest = string.Format("{0:F2}",TimeSpan.FromTicks(vdPre.Latest).TotalMinutes);
-						string svdPostEarliest = string.Format("{0:F2}",TimeSpan.FromTicks(vdPost.Earliest).TotalMinutes);
-						string svdPostLatest = string.Format("{0:F2}",TimeSpan.FromTicks(vdPost.Latest).TotalMinutes);
+						string svdPreEarliest = $"{TimeSpan.FromTicks(vdPre.Earliest).TotalMinutes:F2}";
+						string svdPreLatest = $"{TimeSpan.FromTicks(vdPre.Latest).TotalMinutes:F2}";
+						string svdPostEarliest = $"{TimeSpan.FromTicks(vdPost.Earliest).TotalMinutes:F2}";
+						string svdPostLatest = $"{TimeSpan.FromTicks(vdPost.Latest).TotalMinutes:F2}";
 						// Apply heuristics.
 						if ( vdPre.Earliest + ed.NominalDuration - vdPost.Earliest > .001 ) {
 							m_errorCount++;
@@ -619,8 +620,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			}
 
 			public override string ToString(){
-				return "Earliest = " + string.Format("{0:f2}",(new TimeSpan(m_earliest)).TotalMinutes) 
-					+ ", and Latest = " +  string.Format("{0:f2}",(new TimeSpan(m_latest)).TotalMinutes);
+				return "Earliest = " + $"{(new TimeSpan(m_earliest)).TotalMinutes:f2}"
+                                     + ", and Latest = " + $"{(new TimeSpan(m_latest)).TotalMinutes:f2}";
 			}
 
 			public string Name { get { return m_vertex.Name; } }
@@ -674,9 +675,9 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			public double Variance2 { get { return m_variance2; } set { m_variance2 = value; } }
         
 			public override string ToString(){
-				return "[" + (string.Format("{0:f2}",new TimeSpan(OptimisticDuration).TotalMinutes))  
-					+ "/" + (string.Format("{0:f2}",new TimeSpan(NominalDuration).TotalMinutes))
-					+ "/" + (string.Format("{0:f2}",new TimeSpan(PessimisticDuration).TotalMinutes))  + "]";
+				return "[" + ($"{new TimeSpan(OptimisticDuration).TotalMinutes:f2}")  
+					+ "/" + ($"{new TimeSpan(NominalDuration).TotalMinutes:f2}")
+					+ "/" + ($"{new TimeSpan(PessimisticDuration).TotalMinutes:f2}")  + "]";
 			}
 
 			public string Name { get { return m_edge.Name; } }

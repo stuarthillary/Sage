@@ -109,7 +109,7 @@ namespace Highpoint.Sage.Graphs
             to.EdgeReceiptManager = new MultiChannelEdgeReceiptManager(to);
         }
 
-        class MyEdge : Edge
+        sealed class MyEdge : Edge
         {
             private System.Text.StringBuilder _out;
             public MyEdge(string name, System.Text.StringBuilder _out) : base(name)

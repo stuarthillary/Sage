@@ -115,8 +115,8 @@ namespace Highpoint.Sage.SimCore
                 }
                 catch (System.Runtime.InteropServices.COMException ce)
                 {
-                    string msg = string.Format("Failed attempt to set CLR Threadpool Working Threads [{0},{1}] and IO Completion Threads [{2},{3}].\r\n{4}",
-                        desiredMinWorkerThreads, desiredMaxWorkerThreads, desiredMinIocThreads, desiredMaxIocThreads, ce);
+                    string msg =
+                        $"Failed attempt to set CLR Threadpool Working Threads [{desiredMinWorkerThreads},{desiredMaxWorkerThreads}] and IO Completion Threads [{desiredMinIocThreads},{desiredMaxIocThreads}].\r\n{ce}";
                     _Debug.WriteLine(msg);
                 }
             }

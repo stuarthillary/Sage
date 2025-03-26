@@ -87,7 +87,7 @@ namespace Highpoint.Sage.Utility
         /// <returns>A string representation of this DoubleTracker, of the form [initial/minimum/maximum/final]</returns>
         public override string ToString()
         {
-            return string.Format("[{0}/{1}/{2}/{3}]", _initial.ToString("r"), _min.ToString("r"), _max.ToString("r"), _final.ToString("r"));
+            return $"[{_initial.ToString("r")}/{_min.ToString("r")}/{_max.ToString("r")}/{_final.ToString("r")}]";
         }
 
         /// <summary>

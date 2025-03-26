@@ -77,20 +77,13 @@ namespace Highpoint.Sage.SimCore
             {
                 m_model = model;
                 m_name = name;
-                if (string.IsNullOrEmpty(description))
-                {
-                    m_description = name;
-                }
-                else
-                {
-                    m_description = description;
-                }
+                m_description = string.IsNullOrEmpty(description) ? name : description;
                 m_guid = guid;
             }
             else
             {
-                string identity = "Model=" + (m_model == null ? "<null>" : (m_model.Name == null ? m_model.Guid.ToString() : m_model.Name)) +
-                    ", Name=" + (m_name == null ? "<null>" : m_name) + ", Description=" + (m_description == null ? "<null>" : m_description) +
+                string identity = "Model=" + (m_model == null ? "<null>" : m_model.Name ?? m_model.Guid.ToString()) +
+                    ", Name=" + (m_name ?? "<null>") + ", Description=" + (m_description ?? "<null>") +
                     ", Guid=" + m_guid;
 
                 throw new ApplicationException("Cannot call InitializeIdentity(...) on an IModelObject that is already initialized. " +

@@ -94,7 +94,8 @@ namespace Highpoint.Sage.ItemBased.Ports
             get
             {
                 if (Diagnostics)
-                    _Debug.WriteLine(string.Format("Block {0}, port {1} being asked to give its value.", ((IHasIdentity)_sip.Owner).Name, _sip.Name));
+                    _Debug.WriteLine(
+                        $"Block {((IHasIdentity)_sip.Owner).Name}, port {_sip.Name} being asked to give its value.");
                 object retval;
                 switch (_readSource)
                 {
@@ -118,7 +119,8 @@ namespace Highpoint.Sage.ItemBased.Ports
                         retval = _buffer;
                         break;
                     default:
-                        throw new ApplicationException(String.Format("Unhandled value {0} of InputSource enumeration in an InputPortManager.", _readSource));
+                        throw new ApplicationException(
+                            $"Unhandled value {_readSource} of InputSource enumeration in an InputPortManager.");
                 }
 
                 switch (bufferPersistence)
@@ -151,7 +153,8 @@ namespace Highpoint.Sage.ItemBased.Ports
                         if (_dependents == null)
                         {
                             // TODO: Make this universal. (I.E. Require developer always to set values.)
-                            throw new ApplicationException(string.Format("Block type {0} forgot to set dependents for input port {1}.", _sip.Owner.GetType().Name, _sip.Name));
+                            throw new ApplicationException(
+                                $"Block type {_sip.Owner.GetType().Name} forgot to set dependents for input port {_sip.Name}.");
                         }
                         _dependents.ForEach(n => n.BufferValid = false);
                         break;
@@ -159,7 +162,8 @@ namespace Highpoint.Sage.ItemBased.Ports
                         _buffer = value;
                         if (_dependents == null)
                         {
-                            throw new ApplicationException(string.Format("Push-on-write specified on a port with no dependents. Specify dependents for {0}", _sip.Name));
+                            throw new ApplicationException(
+                                $"Push-on-write specified on a port with no dependents. Specify dependents for {_sip.Name}");
                         }
                         else
                         {
