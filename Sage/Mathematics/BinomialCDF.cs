@@ -1,7 +1,6 @@
 ﻿/* This source code licensed under the GNU Affero General Public License */
 
 using System;
-using System.Collections;
 
 namespace Highpoint.Sage.Mathematics
 {
@@ -15,6 +14,7 @@ namespace Highpoint.Sage.Mathematics
         /// The m CDF
         /// </summary>
         private readonly SmallDoubleInterpolable _cdf;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BinomialCDF"/> class.
         /// </summary>
@@ -24,12 +24,8 @@ namespace Highpoint.Sage.Mathematics
         {
             double p = probability;
             int n = numberOfOpps;
-
-            //			double[] xVals = new double[n+1]; // This will be [0,1];
-            //			double[] yVals = new double[n+1]; // This will be [0,numberOfOpps];
-            ArrayList xVals = new ArrayList();
-            ArrayList yVals = new ArrayList();
-
+            double[] xVals = new double[numberOfOpps];
+            double[] yVals = new double[numberOfOpps];
 
             InitFactorials(numberOfOpps);
             double cumP = 0.0; // cumulative probability.
@@ -38,21 +34,19 @@ namespace Highpoint.Sage.Mathematics
                 double tmp = cumP + (Factorial(n) / (Factorial(x) * Factorial(n - x))) * Math.Pow(p, x) * Math.Pow(1 - p, n - x);
                 if (tmp != cumP && tmp != 1.0)
                 {
-                    yVals.Add((double)x);
+                    yVals[x] = x;
                     cumP = tmp;
-                    xVals.Add(cumP);
+                    xVals[x] = cumP;
                 }
                 else
                 {
-                    yVals.Add((double)n);
-                    xVals.Add(1.0);
+                    yVals[x] = n;
+                    xVals[x] = 1.0;
                     break;
                 }
             }
 
-            double[] xvals = (double[])xVals.ToArray(typeof(double));
-            double[] yvals = (double[])yVals.ToArray(typeof(double));
-            _cdf = new SmallDoubleInterpolable(xvals, yvals);
+            _cdf = new SmallDoubleInterpolable(xVals, yVals);
 
         }
 
@@ -60,6 +54,7 @@ namespace Highpoint.Sage.Mathematics
         /// The m factorials
         /// </summary>
         private double[] _factorials;
+
         /// <summary>
         /// Initializes the factorials.
         /// </summary>

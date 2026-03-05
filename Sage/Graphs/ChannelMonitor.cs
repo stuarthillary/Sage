@@ -1,6 +1,7 @@
 ﻿/* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs
 {
@@ -8,15 +9,15 @@ namespace Highpoint.Sage.Graphs
     {
         private readonly IVertex _vertex;
         private readonly object _channelMarker;
-        private readonly ArrayList _myEdges;
-        private readonly ArrayList _preEdgesSatisfied;
+        private readonly List<Edge> _myEdges;
+        private readonly List<Edge> _preEdgesSatisfied;
 
         public ChannelMonitor(Vertex vertex, object channelMarker)
         {
             _vertex = vertex;
             _channelMarker = channelMarker;
-            _myEdges = new ArrayList();
-            _preEdgesSatisfied = new ArrayList();
+            _myEdges = new List<Edge>();
+            _preEdgesSatisfied = new List<Edge>();
             foreach (Edge e in vertex.PredecessorEdges)
             {
                 if (channelMarker.Equals(e.Channel))

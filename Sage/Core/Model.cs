@@ -79,7 +79,7 @@ namespace Highpoint.Sage.SimCore
         public Model(string name, Guid guid)
         {
             _name = name;
-            m_guid = guid;
+            _guid = guid;
 
             IsRunning = false;
             IsPaused = false;
@@ -344,7 +344,7 @@ namespace Highpoint.Sage.SimCore
 
         #region >>> Error and Warning Management <<<
 
-        private ArrayList _warnings = new ArrayList();
+        private List<IModelWarning> _warnings = new List<IModelWarning>();
         /// <summary>
         /// Fired when a warning is added to the model.
         /// </summary>
@@ -352,7 +352,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// An enumeration of all of the warnings currently applicable to this model.
         /// </summary>
-        public ICollection Warnings
+        public IReadOnlyList<IModelWarning> Warnings
         {
             get
             {
@@ -385,7 +385,7 @@ namespace Highpoint.Sage.SimCore
             _warnings.Clear();
         }
 
-        protected HashtableOfLists errors = new HashtableOfLists();
+        protected HashtableOfLists<object, IModelError> errors = new HashtableOfLists<object, IModelError>();
         protected ArrayList ErrorHandlers = new ArrayList();
 
         /// <summary>
@@ -429,11 +429,11 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// An enumeration over all of the errors in the model.
         /// </summary>
-        public ICollection Errors
+        public IReadOnlyList<IModelError> Errors
         {
             get
             {
-                ArrayList retval = new ArrayList();
+                List<IModelError> retval = new List<IModelError>();
                 foreach (IModelError ime in errors)
                     retval.Add(ime);
                 return retval;
@@ -525,7 +525,6 @@ namespace Highpoint.Sage.SimCore
 
             foreach (object key in keysToClear)
                 errors.Remove(key);
-
         }
 
         /// <summary>
@@ -537,8 +536,7 @@ namespace Highpoint.Sage.SimCore
             if (_diagnostics)
                 _Debug.WriteLine("Removing error " + theError.Narrative);
             errors.Remove(theError.Target, theError);
-            if (ErrorCleared != null)
-                ErrorCleared(theError);
+            ErrorCleared?.Invoke(theError);
         }
 
         /// <summary>
@@ -929,7 +927,7 @@ namespace Highpoint.Sage.SimCore
                 _description = value;
             }
         }
-        private Guid m_guid = Guid.Empty;
+        private Guid _guid = Guid.Empty;
         /// <summary>
         /// The Guid by which this model will be known.
         /// </summary>
@@ -938,11 +936,11 @@ namespace Highpoint.Sage.SimCore
             [DebuggerStepThrough]
             get
             {
-                return m_guid;
+                return _guid;
             }
             protected set
             {
-                m_guid = value;
+                _guid = value;
             }
         }
         #endregion
@@ -962,7 +960,7 @@ namespace Highpoint.Sage.SimCore
         {
             Debug.Assert(model == this);
             IModel m_model = null; // To fake out the call below, since Model doesn't have this member field.
-            IMOHelper.Initialize(ref m_model, model, ref _name, name, ref _description, description, ref m_guid, guid);
+            IMOHelper.Initialize(ref m_model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
 
         #endregion

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 
 namespace Highpoint.Sage.SimCore
@@ -94,7 +95,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// An collection of all of the warnings currently applicable to this model.
         /// </summary>
-        ICollection Warnings
+        IReadOnlyList<IModelWarning> Warnings
         {
             get;
         }
@@ -145,7 +146,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// An enumeration over all of the errors in the model.
         /// </summary>
-        ICollection Errors
+        IReadOnlyList<IModelError> Errors
         {
             get;
         }

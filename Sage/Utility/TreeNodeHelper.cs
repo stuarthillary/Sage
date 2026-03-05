@@ -1,6 +1,7 @@
 ﻿/* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
@@ -15,9 +16,9 @@ namespace Highpoint.Sage.Utility
     {
 
         #region >>> Private Fields <<<
-        private static readonly ArrayList _empty_List = ArrayList.ReadOnly(new ArrayList());
+        private static readonly List<ITreeNodeProxy> _empty_List = new List<ITreeNodeProxy>();
         private TreeNodeHelper _parent;
-        private ArrayList _children;
+        private List<ITreeNodeProxy> _children;
         private Hashtable _childFinder;
         private readonly bool _autoIndex;
         #endregion
@@ -163,28 +164,14 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// The children of this object.
         /// </summary>
-        public IList Children
+        public IReadOnlyList<ITreeNode> Children
         {
             get
             {
                 if (_children == null)
-                    return ArrayList.ReadOnly(_empty_List);
-                return ArrayList.ReadOnly(CreateChildList());
+                    return _empty_List;
+                return _children;
             }
-        }
-
-        private ArrayList CreateChildList()
-        {
-            ArrayList al = new ArrayList();
-            foreach (object obj in _children)
-            {
-                //				if ( obj is ITreeNodeProxy) {
-                //					al.Add(((ITreeNodeProxy)obj).Ward);
-                //				} else {
-                al.Add(obj);
-                //				}
-            }
-            return al;
         }
 
         /// <summary>
@@ -195,12 +182,12 @@ namespace Highpoint.Sage.Utility
         /// <returns>The TreeNodeHelper that wraps the new child.</returns>
         public ITreeNode AddChild(object newChild)
         {
-            ITreeNode node = CreateNodeWrapper(newChild);
+            ITreeNodeProxy node = CreateNodeWrapper(newChild);
             if (!IsReadOnly)
             {
                 OnAboutToGainChild?.Invoke(this, node);
                 if (_children == null)
-                    _children = new ArrayList();
+                    _children = new List<ITreeNodeProxy>();
                 _children.Add(node);
                 node.Parent = this;
                 if (_autoIndex)
@@ -209,7 +196,7 @@ namespace Highpoint.Sage.Utility
                     {
                         _childFinder = new Hashtable();
                     }
-                    ITreeNodeProxy tnp = (ITreeNodeProxy)node;
+                    ITreeNodeProxy tnp = node;
                     SimCore.IHasIdentity ihi = (SimCore.IHasIdentity)tnp.Ward;
 
                     //if ( m_childFinder.Contains(ihi.Guid) ) Console.WriteLine();
@@ -231,7 +218,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="child">The child to be removed from this parent.</param>
         public void RemoveChild(object child)
         {
-            ITreeNode node = CreateNodeWrapper(child); // TODO: This might not remove correctly.
+            ITreeNodeProxy node = CreateNodeWrapper(child); // TODO: This might not remove correctly.
             if (!IsReadOnly)
             {
                 if (_children == null || (!_children.Contains(node)))
@@ -241,7 +228,7 @@ namespace Highpoint.Sage.Utility
                 _children.Remove(node);
                 if (_autoIndex)
                 {
-                    ITreeNodeProxy tnp = (ITreeNodeProxy)node;
+                    ITreeNodeProxy tnp = node;
                     SimCore.IHasIdentity ihi = (SimCore.IHasIdentity)tnp.Ward;
                     _childFinder.Remove(ihi.Guid);
                 }
@@ -261,7 +248,7 @@ namespace Highpoint.Sage.Utility
         {
             if (!IsReadOnly)
             {
-                foreach (TreeNodeHelper tnh in _children)
+                foreach (ITreeNodeProxy tnh in _children)
                     RemoveChild(tnh);
             }
             else
@@ -276,7 +263,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="sequencer">The supplied IComparer.</param>
         public void ResequenceChildren(IComparer sequencer)
         {
-            IComparer tnhWrapper = new TnhComparerWrapper(sequencer);
+            var tnhWrapper = new TnhComparerWrapper(sequencer);
             if (!IsReadOnly)
             {
                 _children.Sort(tnhWrapper);
@@ -388,9 +375,9 @@ namespace Highpoint.Sage.Utility
                 Dump(ref sb, levels + 1, child);
         }
 
-        class TnhComparerWrapper : IComparer
+        class TnhComparerWrapper : IComparer, IComparer<ITreeNodeProxy>
         {
-            readonly IComparer _comparer;
+            private readonly IComparer _comparer;
 
             public TnhComparerWrapper(IComparer comparer)
             {
@@ -402,11 +389,17 @@ namespace Highpoint.Sage.Utility
             {
                 TreeNodeHelper tnhx = (TreeNodeHelper)x;
                 TreeNodeHelper tnhy = (TreeNodeHelper)y;
-                return _comparer.Compare(tnhx.Ward, tnhy.Ward);
+                return Compare(tnhx, tnhy);
             }
 
             #endregion
 
+            public int Compare(ITreeNodeProxy x, ITreeNodeProxy y)
+            {
+                TreeNodeHelper tnhx = (TreeNodeHelper)x;
+                TreeNodeHelper tnhy = (TreeNodeHelper)y;
+                return _comparer.Compare(tnhx.Ward, tnhy.Ward);
+            }
         }
     }
 }

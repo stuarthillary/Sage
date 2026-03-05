@@ -19,8 +19,8 @@ namespace Highpoint.Sage.Utility
         private static readonly double _postPriority = _takePriority - double.Epsilon;
         private readonly IExecutive _exec;
         private readonly Hashtable _ts;
-        private readonly HashtableOfLists _waitersToRead;
-        private readonly HashtableOfLists _waitersToTake;
+        private readonly HashtableOfLists<object, IDetachableEventController> _waitersToRead;
+        private readonly HashtableOfLists<object, IDetachableEventController> _waitersToTake;
         private readonly Hashtable _blockedPosters;
         #endregion
 
@@ -34,8 +34,8 @@ namespace Highpoint.Sage.Utility
             // TODO: Add a GracefulAbort(...) to IDetachableEventController. 
             // exec.ExecutiveFinished +=new ExecutiveEvent(exec_ExecutiveFinished);
             _ts = Hashtable.Synchronized(new Hashtable());
-            _waitersToRead = new HashtableOfLists();
-            _waitersToTake = new HashtableOfLists();
+            _waitersToRead = new HashtableOfLists<object, IDetachableEventController>();
+            _waitersToTake = new HashtableOfLists<object, IDetachableEventController>();
             _blockedPosters = new Hashtable();
         }
 

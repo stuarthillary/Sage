@@ -1,6 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
@@ -60,7 +61,7 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// The children of this object.
         /// </summary>
-        IList Children
+        IReadOnlyList<ITreeNode> Children
         {
             get;
         }

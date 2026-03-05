@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs
 {
@@ -19,7 +20,7 @@ namespace Highpoint.Sage.Graphs
         #region Private Fields
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("DAGCycleChecker");
         private readonly IEdge _rootEdge;
-        private readonly ArrayList _errors;
+        private readonly List<DagStructureError> _errors;
         private bool _haltOnError;
         private readonly Stack _currentPath;
         private int _level = 0;
@@ -39,7 +40,7 @@ namespace Highpoint.Sage.Graphs
             _rootEdge = rootEdge;
             _haltOnError = true;
             _currentPath = new Stack();
-            _errors = new ArrayList();
+            _errors = new List<DagStructureError>();
             _nodes = new Hashtable();
             _collapse = collapse;
         }
@@ -235,11 +236,11 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// A collection of the errors that the DAGCycleChecker found in the DAG, during its last check.
         /// </summary>
-        public ICollection Errors
+        public IReadOnlyList<DagStructureError> Errors
         {
             get
             {
-                return ArrayList.ReadOnly(_errors);
+                return _errors;
             }
         }
 
@@ -255,7 +256,7 @@ namespace Highpoint.Sage.Graphs
         class Node
         {
             #region Private Fields
-            private static readonly Node[] _emptyArray = new Node[] { };
+            private static readonly Node[] _emptyArray = [];
             private readonly object _element;
             private Node[] _successors;
             #endregion

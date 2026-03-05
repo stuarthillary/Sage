@@ -394,9 +394,9 @@ namespace Highpoint.Sage.ItemBased.Queues
             private ModelObjectDictionary _modelObjectDictionary;
             private ModelConfig _modelConfig;
             private IExecutive _executive;
-            private ArrayList _modelWarnings;
-            private ArrayList _modelErrors;
-            private ArrayList _errorHandlers;
+            private List<IModelWarning> _modelWarnings;
+            private List<IModelError> _modelErrors;
+            private List<IErrorHandler> _errorHandlers;
             private StateMachine _stateMachine;
             #endregion
 
@@ -476,9 +476,9 @@ namespace Highpoint.Sage.ItemBased.Queues
                 _modelObjectDictionary = new ModelObjectDictionary();
                 _modelConfig = new ModelConfig("Sage");
                 _executive = ExecFactory.Instance.CreateExecutive();
-                _modelWarnings = new ArrayList();
-                _modelErrors = new ArrayList();
-                _errorHandlers = new ArrayList();
+                _modelWarnings = new List<IModelWarning>();
+                _modelErrors = new List<IModelError>();
+                _errorHandlers = new List<IErrorHandler>();
                 _stateMachine = CreateStateMachine();
                 _stateMachine.InboundTransitionHandler(State.Complete).AddCommitEvent(double.MaxValue, OnModelCompleted);
                 AddService(new InitializationManager(DIModel.State.Raw, DIModel.State.Initialized));
@@ -619,7 +619,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             /// An collection of all of the warnings currently applicable to this model.
             /// </summary>
             /// <value></value>
-            public System.Collections.ICollection Warnings
+            public IReadOnlyList<IModelWarning> Warnings
             {
                 [DebuggerStepThrough]
                 get
@@ -691,11 +691,11 @@ namespace Highpoint.Sage.ItemBased.Queues
             /// A collection of the errors in the model.
             /// </summary>
             /// <value></value>
-            public System.Collections.ICollection Errors
+            public IReadOnlyList<IModelError> Errors
             {
                 get
                 {
-                    return ArrayList.ReadOnly(_modelErrors);
+                    return _modelErrors;
                 }
             }
 

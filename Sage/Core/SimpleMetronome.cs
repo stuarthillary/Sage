@@ -15,7 +15,7 @@ namespace Highpoint.Sage.SimCore
     public class SimpleMetronome : MetronomeBase
     {
 
-        private static readonly HashtableOfLists _channels = new HashtableOfLists();
+        private static readonly HashtableOfLists<IExecutive, SimpleMetronome> _channels = new HashtableOfLists<IExecutive, SimpleMetronome>();
 
         /// <summary>
         /// Creates a metronome with the specified parameters. It uses a static factory method 
