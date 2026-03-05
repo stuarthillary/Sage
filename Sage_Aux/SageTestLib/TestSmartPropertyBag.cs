@@ -54,7 +54,7 @@ namespace Highpoint.Sage.SimCore
             labs.AddString("Temperament", "Mellow");
             labs.AddBoolean("Faithful", false);
             dogs.AddChildSPB("Labs", labs);
-            Debug.WriteLine(DiagnosticAids.DumpDictionary("", (IDictionary)animals.Memento.GetDictionary()));
+            Debug.WriteLine(DiagnosticAids.DumpDictionary("", animals.Memento.GetDictionary()));
 
             Assert.IsTrue((double)animals["Dogs.Labs.Black"] == 4, "Black Lab is not 4");
             Assert.IsTrue((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
@@ -72,7 +72,7 @@ namespace Highpoint.Sage.SimCore
             animals["Dogs.Labs.Black"] = 19;
             animals["Dogs.Labs.Temperament"] = "Lovable";
             animals["Dogs.Labs.Faithful"] = true;
-            Debug.WriteLine(DiagnosticAids.DumpDictionary("", (IDictionary)animals.Memento.GetDictionary()));
+            Debug.WriteLine(DiagnosticAids.DumpDictionary("", animals.Memento.GetDictionary()));
 
             Assert.IsTrue((double)animals["Dogs.Labs.Black"] == 19, "Black Lab is not 19");
             Assert.IsTrue((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
@@ -86,7 +86,7 @@ namespace Highpoint.Sage.SimCore
         }
 
         [TestMethod]
-        [Highpoint.Sage.Utility.FieldDescription("Checks the base functionality of Name/Value, Name/String, Name/SPB, and set a value in a referenced SPB")]
+        [Utility.FieldDescription("Checks the base functionality of Name/Value, Name/String, Name/SPB, and set a value in a referenced SPB")]
         public void TestRepeatedSnapshottingAndRestoration()
         {
             SmartPropertyBag animals = new SmartPropertyBag();
@@ -113,7 +113,7 @@ namespace Highpoint.Sage.SimCore
             labs.AddBoolean("Faithful", true);
             dogs.AddChildSPB("Labs", labs);
 
-            Highpoint.Sage.Utility.Mementos.IMemento mem = dogs.Memento;
+            Utility.Mementos.IMemento mem = dogs.Memento;
             DateTime start = DateTime.Now;
             for (int i = 0; i < 10000; i++)
             {
@@ -139,7 +139,7 @@ namespace Highpoint.Sage.SimCore
                 labs["Faithful"] = true;
                 if ((i % 100) == 0)
                 {
-                    Debug.WriteLine(((TimeSpan)(DateTime.Now - start)).TotalSeconds);
+                    Debug.WriteLine((DateTime.Now - start).TotalSeconds);
                     start = DateTime.Now;
                     //if ( i > 7500 ) System.Diagnostics.Debugger.Break();
                 }
@@ -240,7 +240,7 @@ namespace Highpoint.Sage.SimCore
             SmartPropertyBag spb1 = new SmartPropertyBag();
             spb1.AddValue("Fred", 12);
             //spb1.AddExpression("Bill","Math.Max(Fred,17)",new string[]{"Fred"});
-            spb1.AddDelegate("Steve", new SmartPropertyBag.SPBDoubleDelegate(ComputeSteve));
+            spb1.AddDelegate("Steve", ComputeSteve);
             spb1.AddString("Donkey", "Kong");
             spb1.AddBoolean("HabaneroHot", true);
 
@@ -355,7 +355,7 @@ namespace Highpoint.Sage.SimCore
 
             DumpEnumerable(animals, 0);
 
-            Assert.IsTrue(true, "Visual test not successfull");
+            Assert.IsTrue(true, "Visual test not successful");
 
         }
 

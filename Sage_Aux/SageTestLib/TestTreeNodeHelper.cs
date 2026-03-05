@@ -121,8 +121,6 @@ namespace Highpoint.Sage.Utility
         [TestMethod]
         public void TestTreeNodeHelperChildSequencing()
         {
-
-
             string ja0 = "Joseph Adams 1654-1736";
             string ja1 = "John Adams Sr, 1690-1761";
             string ja2 = "John Adams, Jr 1735-1826";
