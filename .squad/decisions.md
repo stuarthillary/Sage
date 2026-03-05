@@ -2,6 +2,28 @@
 
 ## Active Decisions
 
+### Upgrade Sage to .NET 10
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2025-07-15  
+**Branch:** `feature/dotnet10`  
+**Status:** Ready for review  
+**Requested by:** Stuart Hillary
+
+**Decision:** Upgrade target framework from `net8.0` to `net10.0`.
+
+**What Changed:**
+- `Directory.Build.props`: `<TargetFramework>net8.0</TargetFramework>` → `<TargetFramework>net10.0</TargetFramework>`
+
+**Build Outcome:** ✅ Build succeeded — 0 errors, 2826 pre-existing warnings (all CA1xxx/CA5xxx Roslyn diagnostics, none new).
+
+**Next Steps:**
+1. Upgrade stale test NuGet packages (Microsoft.NET.Test.Sdk 16.7.1→17.x+, MSTest 2.1.1→3.x, coverlet.collector 1.3.0→6.x)
+2. Run test suite on .NET 10
+3. Address pre-existing CA analyzer warnings (technical debt)
+
+---
+
 ### Architectural Modernization: Executive Event Queue (Priority 1)
 
 **Author:** Ripley (Lead / Architect)  
