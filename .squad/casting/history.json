@@ -1,0 +1,19 @@
+{
+  "assignments": [
+    {
+      "assignment_id": "sage-2026-03-05",
+      "universe": "Alien",
+      "created_at": "2026-03-05T22:45:44Z",
+      "project": "Sage\u00ae Simulation and Modeling Libraries",
+      "snapshot": [
+        { "name": "Ripley", "role": "Lead / Architect" },
+        { "name": "Parker", "role": ".NET Developer" },
+        { "name": "Hicks", "role": "Performance Engineer" },
+        { "name": "Lambert", "role": "Visualization Developer" },
+        { "name": "Hudson", "role": "Tester / QA" },
+        { "name": "Bishop", "role": "DevOps Engineer" },
+        { "name": "Vasquez", "role": "Technical Writer / Docs" }
+      ]
+    }
+  ]
+}
