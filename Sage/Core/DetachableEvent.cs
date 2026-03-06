@@ -187,7 +187,6 @@ namespace Highpoint.Sage.SimCore
         private void resume(IExecutive exec, object userData)
         {
             // This method is always called on the Executive's event service thread.
-            //_Debug.WriteLine(this.m_currEvent.m_eer.Target+"."+this.m_currEvent.m_eer.Method + "de is resuming." + GetHashCode());
 
             Debug.Assert(Thread.CurrentThread.ManagedThreadId == _exec.ThreadId,
                     $"DetachableEvent.resume running on thread {Thread.CurrentThread.ManagedThreadId}, which should be same as Executive {_exec.ThreadId}");
@@ -195,7 +194,6 @@ namespace Highpoint.Sage.SimCore
             if (_diagnostics)
                 _suspendedStackTrace = null;
 
-            //_Debug.WriteLine(DateTime.Now.Ticks + "Task Resume is Pulsing " + m_lock);Trace.Out.Flush();
             _exec.SetCurrentEventController(this);
             _resumeResetEvent = new ManualResetEventSlim(false);
             _suspendResetEvent.Set();
@@ -208,7 +206,6 @@ namespace Highpoint.Sage.SimCore
             try
             {
                 _exec.RunningDetachables.Remove(this);
-                //_Debug.WriteLine(this.m_currEvent.m_eer.Target+"."+this.m_currEvent.m_eer.Method + "de is finishing." + GetHashCode());
                 _currEvent.OnServiceCompleted();
                 if (_suspendResetEvent != null)
                     _suspendResetEvent.Set();
@@ -216,7 +213,6 @@ namespace Highpoint.Sage.SimCore
                     _resumeResetEvent.Set();
                 if (_beginResetEvent != null)
                     _beginResetEvent.Set();
-                //_Debug.WriteLine(this.m_currEvent.m_eer.Target+"."+this.m_currEvent.m_eer.Method + "de is really finishing." + GetHashCode());
             }
             catch (Exception e)
             {
