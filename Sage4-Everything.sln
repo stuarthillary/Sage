@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestDriver", "Sage_Aux\Sage
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SageTestLib", "Sage_Aux\SageTestLib\SageTestLib.csproj", "{36127A0C-D659-4834-937B-8E16FAA8C4D4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SageBenchmarks", "Sage_Aux\SageBenchmarks\SageBenchmarks.csproj", "{B7E3A2F1-C4D5-4E6F-9A0B-123456789ABC}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "License", "License", "{A3DD86B8-EDC2-41EB-94A4-29E7016D6412}"
 	ProjectSection(SolutionItems) = preProject
 		_LICENSE.txt = _LICENSE.txt
@@ -38,6 +40,10 @@ Global
 		{36127A0C-D659-4834-937B-8E16FAA8C4D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36127A0C-D659-4834-937B-8E16FAA8C4D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36127A0C-D659-4834-937B-8E16FAA8C4D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E3A2F1-C4D5-4E6F-9A0B-123456789ABC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E3A2F1-C4D5-4E6F-9A0B-123456789ABC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E3A2F1-C4D5-4E6F-9A0B-123456789ABC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E3A2F1-C4D5-4E6F-9A0B-123456789ABC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
