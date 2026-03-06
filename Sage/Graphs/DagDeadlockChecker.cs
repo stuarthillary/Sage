@@ -4,6 +4,7 @@ using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs
 {
@@ -21,9 +22,9 @@ namespace Highpoint.Sage.Graphs
         #region Private Fields
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("DAGDeadlockChecker");
         private IEdge _rootEdge;
-        private Hashtable _nodes;
+        private Dictionary<object, Node> _nodes;
         protected ArrayList _errors;
-        private ArrayList _frontier;
+        private List<Node> _frontier;
         #endregion
 
         /// <summary>
@@ -44,8 +45,8 @@ namespace Highpoint.Sage.Graphs
         public virtual bool Check()
         {
             _errors = new ArrayList();
-            _nodes = new Hashtable();
-            _frontier = new ArrayList();
+            _nodes = new Dictionary<object, Node>();
+            _frontier = new List<Node>();
 
             Build(_rootEdge.PreVertex);
 
@@ -59,7 +60,7 @@ namespace Highpoint.Sage.Graphs
 
             if (_frontier.Count > 0)
             {
-                ArrayList removees = new ArrayList();
+                List<Node> removees = new List<Node>();
                 foreach (Node n in _frontier)
                 {
                     foreach (Node pred in AnyPredecessorsOf(n))
@@ -80,7 +81,7 @@ namespace Highpoint.Sage.Graphs
                     _frontier.Remove(r);
                 }
 
-                ArrayList targets = new ArrayList();
+                List<object> targets = new List<object>();
                 foreach (Node n in _frontier)
                     targets.Add(n.Element);
                 DagStructureError dse = new DagStructureError(_rootEdge, targets, "A deadlock was detected in the graph.");
@@ -121,11 +122,11 @@ namespace Highpoint.Sage.Graphs
             bool success = false;
             if (_frontier.Count > 0)
             {
-                ArrayList tmpFrontier = new ArrayList();
+                List<Node> tmpFrontier = new List<Node>();
                 Node node;
                 for (int i = _frontier.Count - 1; i >= 0; i--)
                 {
-                    node = (Node)_frontier[i];
+                    node = _frontier[i];
                     if (_diagnostics)
                         Console.Write("Evaluating " + node.Name);
                     if (PrecursorsAreSatisfied(node))
@@ -177,8 +178,7 @@ namespace Highpoint.Sage.Graphs
 
         private Node _Build(object element)
         {
-            Node node = (Node)_nodes[element];
-            if (node == null)
+            if (!_nodes.TryGetValue(element, out Node node))
             {
                 node = new Node(element);
                 _nodes.Add(element, node);

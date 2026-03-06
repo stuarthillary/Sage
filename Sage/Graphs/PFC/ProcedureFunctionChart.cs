@@ -2591,7 +2591,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
                 ApplyNamingCosmetics();
 
-                HashtableOfLists htol = new HashtableOfLists();
+                HashtableOfLists<string, IPfcElement> htol = new HashtableOfLists<string, IPfcElement>();
                 foreach (IPfcNode node in Steps)
                 {
                     htol.Add(node.Name, node);

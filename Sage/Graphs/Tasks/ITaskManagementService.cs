@@ -2,6 +2,7 @@
 using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs.Tasks
 {
@@ -33,7 +34,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <summary>
         /// The collection of task processors being managed by this model.
         /// </summary>
-        ArrayList TaskProcessors
+        IReadOnlyList<TaskProcessor> TaskProcessors
         {
             get;
         }

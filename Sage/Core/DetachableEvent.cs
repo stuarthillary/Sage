@@ -16,7 +16,7 @@ namespace Highpoint.Sage.SimCore
     /// <param name="args">The arguments that were to have been provided to the ExecEventReceiver.</param>
     public delegate void DetachableEventAbortHandler(IExecutive exec, IDetachableEventController idec, params object[] args);
 
-    internal class DetachableEvent : IDetachableEventController
+    public class DetachableEvent : IDetachableEventController
     {
 
         #region >>> Private Fields <<<
@@ -56,7 +56,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public DetachableEvent(Executive exec, ExecEvent currentEvent)
+        internal DetachableEvent(Executive exec, ExecEvent currentEvent)
         {
             _exec = exec;
             _currEvent = currentEvent;

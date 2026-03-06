@@ -3,6 +3,7 @@
 using Highpoint.Sage.Persistence;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Materials.Chemistry
 {
@@ -19,8 +20,8 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         #region Private Fields
 
-        private Hashtable _materialTypesByName = new Hashtable();
-        private Hashtable _materialTypesByGuid = new Hashtable();
+        private Dictionary<string, MaterialType> _materialTypesByName = new Dictionary<string, MaterialType>();
+        private Dictionary<Guid, MaterialType> _materialTypesByGuid = new Dictionary<Guid, MaterialType>();
 
         #endregion
 
@@ -37,7 +38,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             if (_materialTypesByName.ContainsKey(mt.Name))
             {
-                MaterialType mtPre = (MaterialType)_materialTypesByName[mt.Name];
+                MaterialType mtPre = _materialTypesByName[mt.Name];
                 throw new ApplicationException("SiteScheduleModelBuilder reports creating " + mt +
                                                ", when there is already a material type, " + mtPre +
                                                " of the same name in the model.");
@@ -47,9 +48,9 @@ namespace Highpoint.Sage.Materials.Chemistry
                 _materialTypesByName.Add(mt.Name, mt);
             }
 
-            if (_materialTypesByGuid.Contains(mt.Guid))
+            if (_materialTypesByGuid.ContainsKey(mt.Guid))
             {
-                MaterialType mtPre = (MaterialType)_materialTypesByGuid[mt.Guid];
+                MaterialType mtPre = _materialTypesByGuid[mt.Guid];
                 throw new ApplicationException("SiteScheduleModelBuilder reports creating " + mt +
                                                ", when there is already a material type, " + mtPre +
                                                " of the same guid in the model.");
@@ -96,14 +97,14 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         /// <param name="guid">The unique identifier.</param>
         /// <returns>MaterialType.</returns>
-        public MaterialType this[Guid guid] => (MaterialType)_materialTypesByGuid[guid];
+        public MaterialType this[Guid guid] => _materialTypesByGuid[guid];
 
         /// <summary>
         /// Gets the <see cref="MaterialType"/> with the specified name.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns>MaterialType.</returns>
-        public MaterialType this[string name] => (MaterialType)_materialTypesByName[name];
+        public MaterialType this[string name] => _materialTypesByName[name];
 
         /// <summary>
         /// Gets the collection of material types contained in this MaterialCatalog.
@@ -126,7 +127,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="name">The name.</param>
         public void Remove(string name)
         {
-            Guid guid = ((MaterialType)_materialTypesByName[name]).Guid;
+            Guid guid = _materialTypesByName[name].Guid;
             _materialTypesByGuid.Remove(guid);
             _materialTypesByName.Remove(name);
         }
@@ -137,7 +138,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="guid">The specified Guid.</param>
         public void Remove(Guid guid)
         {
-            string name = ((MaterialType)_materialTypesByName[guid]).Name;
+            string name = _materialTypesByGuid[guid].Name;
             _materialTypesByGuid.Remove(guid);
             _materialTypesByName.Remove(name);
         }
@@ -150,8 +151,8 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="xmlsc">The specified XmlSerializationContext.</param>
         public void SerializeTo(XmlSerializationContext xmlsc)
         {
-            xmlsc.StoreObject("MaterialTypesByName", _materialTypesByName);
-            xmlsc.StoreObject("MaterialTypesByGuid", _materialTypesByGuid);
+            xmlsc.StoreObject("MaterialTypesByName", new Hashtable(_materialTypesByName));
+            xmlsc.StoreObject("MaterialTypesByGuid", new Hashtable(_materialTypesByGuid));
         }
 
         /// <summary>
@@ -160,8 +161,25 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="xmlsc">The specified XmlSerializationContext.</param>
         public void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _materialTypesByName = (Hashtable)xmlsc.LoadObject("MaterialTypesByName");
-            _materialTypesByGuid = (Hashtable)xmlsc.LoadObject("MaterialTypesByGuid");
+            Hashtable typesByName = (Hashtable)xmlsc.LoadObject("MaterialTypesByName");
+            _materialTypesByName = new Dictionary<string, MaterialType>();
+            if (typesByName != null)
+            {
+                foreach (DictionaryEntry entry in typesByName)
+                {
+                    _materialTypesByName.Add((string)entry.Key, (MaterialType)entry.Value);
+                }
+            }
+
+            Hashtable typesByGuid = (Hashtable)xmlsc.LoadObject("MaterialTypesByGuid");
+            _materialTypesByGuid = new Dictionary<Guid, MaterialType>();
+            if (typesByGuid != null)
+            {
+                foreach (DictionaryEntry entry in typesByGuid)
+                {
+                    _materialTypesByGuid.Add((Guid)entry.Key, (MaterialType)entry.Value);
+                }
+            }
         }
 
         #endregion

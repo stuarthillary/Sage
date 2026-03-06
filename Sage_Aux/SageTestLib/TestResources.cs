@@ -409,6 +409,62 @@ namespace Highpoint.Sage.Resources
         }
 
 
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies ResourceManager.Add and Remove correctly update the resource pool — guards against ArrayList→List migration regressions.")]
+        public void TestResourceManagerAddRemoveAndCount()
+        {
+            Model model = new Model("RM Test Model");
+            ResourceManager rm = new ResourceManager(model, "TestPool", Guid.NewGuid());
+
+            Resource rsc1 = new Resource(model, "Resource A", Guid.NewGuid(), 1.0, 1.0, true, true, true);
+            Resource rsc2 = new Resource(model, "Resource B", Guid.NewGuid(), 1.0, 1.0, true, true, true);
+            Resource rsc3 = new Resource(model, "Resource C", Guid.NewGuid(), 1.0, 1.0, true, true, true);
+
+            Assert.AreEqual(0, rm.Resources.Count, "Pool should start empty");
+
+            rm.Add(rsc1);
+            rm.Add(rsc2);
+            Assert.AreEqual(2, rm.Resources.Count, "Pool should have 2 resources after adding two");
+
+            rm.Add(rsc3);
+            Assert.AreEqual(3, rm.Resources.Count, "Pool should have 3 resources after adding a third");
+
+            rm.Remove(rsc2);
+            Assert.AreEqual(2, rm.Resources.Count, "Pool should have 2 resources after removing one");
+            Assert.IsFalse(rm.Resources.Contains(rsc2), "Removed resource should not appear in Resources list");
+            Assert.IsTrue(rm.Resources.Contains(rsc1),  "Remaining resource rsc1 should still be in pool");
+            Assert.IsTrue(rm.Resources.Contains(rsc3),  "Remaining resource rsc3 should still be in pool");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies ResourceManager resources can be enumerated via foreach and looked up by Guid — guards against ArrayList→List migration regressions.")]
+        public void TestResourceManagerEnumeration()
+        {
+            Model model = new Model("RM Enum Test Model");
+            ResourceManager rm = new ResourceManager(model, "EnumPool", Guid.NewGuid());
+
+            Guid guid0 = Guid.NewGuid(), guid1 = Guid.NewGuid(), guid2 = Guid.NewGuid();
+            rm.Add(new Resource(model, "R1", guid0, 1.0, 1.0, true, true, true));
+            rm.Add(new Resource(model, "R2", guid1, 1.0, 1.0, true, true, true));
+            rm.Add(new Resource(model, "R3", guid2, 1.0, 1.0, true, true, true));
+
+            Assert.AreEqual(3, rm.Resources.Count, "ResourceManager should hold 3 resources");
+
+            // Verify foreach enumeration (IEnumerable path)
+            int count = 0;
+            foreach (IResource r in rm)
+            {
+                Assert.IsNotNull(r, "Enumerated resource should not be null");
+                count++;
+            }
+            Assert.AreEqual(3, count, "foreach should iterate exactly 3 resources");
+
+            // Verify Guid-based indexer
+            Assert.IsNotNull(rm[guid0], "Lookup by Guid[0] should succeed");
+            Assert.IsNotNull(rm[guid1], "Lookup by Guid[1] should succeed");
+            Assert.IsNotNull(rm[guid2], "Lookup by Guid[2] should succeed");
+        }
+
         sealed class ResourceRequest : Highpoint.Sage.Resources.ResourceRequest
         {
 

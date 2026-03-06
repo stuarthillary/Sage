@@ -25,9 +25,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         #region Private Fields
 
         private static readonly bool breakOnIsNaNTemp = Diagnostics.DiagnosticAids.Diagnostics("TemperatureIsNaNBreak");
-        private static readonly ArrayList _emptyList = ArrayList.ReadOnly(new ArrayList());
+        private static readonly ICollection _emptyList = Array.Empty<DictionaryEntry>();
         private MaterialType _type;
-        private Hashtable _materialSpecs;
+        private Dictionary<Guid, double> _materialSpecs;
         private double _mass = 0.0;       // Kilograms
         private readonly WriteLock _writeLock = new WriteLock(true);
         private readonly MementoHelper _ssh;
@@ -90,9 +90,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             retval.State = State;
             if (_materialSpecs != null)
             {
-                retval._materialSpecs = new Hashtable();
-                foreach (DictionaryEntry de in _materialSpecs)
-                    retval._materialSpecs.Add(de.Key, de.Value);
+                retval._materialSpecs = new Dictionary<Guid, double>(_materialSpecs);
             }
             return retval;
         }
@@ -115,16 +113,20 @@ namespace Highpoint.Sage.Materials.Chemistry
             {
                 if (otherSubstance._materialSpecs != null && _materialSpecs.Count != otherSubstance._materialSpecs.Count)
                     return false;
-                foreach (DictionaryEntry de in _materialSpecs)
+                foreach (KeyValuePair<Guid, double> entry in _materialSpecs)
                 {
-                    if (otherSubstance._materialSpecs != null && !otherSubstance._materialSpecs.Contains(de.Key))
+                    if (otherSubstance._materialSpecs == null)
                         return false;
-                    if (otherSubstance._materialSpecs != null && !de.Value.Equals(otherSubstance._materialSpecs[de.Key]))
+                    if (!otherSubstance._materialSpecs.TryGetValue(entry.Key, out double otherValue))
+                        return false;
+                    if (!entry.Value.Equals(otherValue))
                         return false;
                 }
             }
             else if (otherSubstance._materialSpecs != null)
+            {
                 return false;
+            }
 
             return (_mass.Equals(otherSubstance._mass) && Temp.Equals(otherSubstance.Temp) && _type.Equals(otherSubstance._type));
         }
@@ -173,7 +175,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 return;
             if (_materialSpecs == null)
             {
-                _materialSpecs = new Hashtable { { identity, amount } };
+                _materialSpecs = new Dictionary<Guid, double> { { identity, amount } };
             }
             else
             {
@@ -200,26 +202,35 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="specs"></param>
         public void SetMaterialSpecs(ICollection specs)
         {
-            _materialSpecs = new Hashtable();
+            _materialSpecs = new Dictionary<Guid, double>();
             foreach (object obj in specs)
             {
-                if (obj is Guid)
+                if (obj is Guid guid)
                 {
-                    if (!Guid.Empty.Equals(obj))
+                    if (!Guid.Empty.Equals(guid))
                     {
-                        if (_materialSpecs.ContainsKey((Guid)obj))
-                            DuplicateSpec((Guid)obj);
-                        _materialSpecs.Add((Guid)obj, _mass);
+                        if (_materialSpecs.ContainsKey(guid))
+                            DuplicateSpec(guid);
+                        _materialSpecs.Add(guid, _mass);
                     }
                 }
-                else if (obj is DictionaryEntry)
+                else if (obj is DictionaryEntry de)
                 {
-                    DictionaryEntry de = (DictionaryEntry)obj;
                     if (!Guid.Empty.Equals(de.Key))
                     {
-                        if (_materialSpecs.ContainsKey(de.Key))
-                            DuplicateSpec(de.Key);
-                        _materialSpecs.Add(de.Key, de.Value);
+                        Guid key = (Guid)de.Key;
+                        if (_materialSpecs.ContainsKey(key))
+                            DuplicateSpec(key);
+                        _materialSpecs.Add(key, (double)de.Value);
+                    }
+                }
+                else if (obj is KeyValuePair<Guid, double> pair)
+                {
+                    if (!Guid.Empty.Equals(pair.Key))
+                    {
+                        if (_materialSpecs.ContainsKey(pair.Key))
+                            DuplicateSpec(pair.Key);
+                        _materialSpecs.Add(pair.Key, pair.Value);
                     }
                 }
                 else
@@ -245,8 +256,12 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             if (_materialSpecs == null)
                 return _emptyList;
-            ArrayList al = new ArrayList(_materialSpecs);
-            return al;
+            List<DictionaryEntry> specs = new List<DictionaryEntry>(_materialSpecs.Count);
+            foreach (KeyValuePair<Guid, double> entry in _materialSpecs)
+            {
+                specs.Add(new DictionaryEntry(entry.Key, entry.Value));
+            }
+            return specs;
         }
 
         /// <summary>
@@ -258,9 +273,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             if (_materialSpecs == null)
                 return 0.0;
-            if (!_materialSpecs.Contains(identity))
+            if (!_materialSpecs.ContainsKey(identity))
                 return 0.0;
-            return (double)_materialSpecs[identity];
+            return _materialSpecs[identity];
         }
 
         /// <summary>
@@ -280,11 +295,11 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             if (_materialSpecs == null)
                 return;
-            if (!_materialSpecs.Contains(fromWhichMs))
+            if (!_materialSpecs.ContainsKey(fromWhichMs))
                 return;
-            double fromValue = (double)_materialSpecs[fromWhichMs];
+            double fromValue = _materialSpecs[fromWhichMs];
 
-            double toValue = (_materialSpecs.Contains(toWhichMs) ? (double)_materialSpecs[toWhichMs] : 0.0);
+            double toValue = (_materialSpecs.ContainsKey(toWhichMs) ? _materialSpecs[toWhichMs] : 0.0);
             _materialSpecs.Remove(fromWhichMs);
             _materialSpecs.Remove(toWhichMs);
             if (!Guid.Empty.Equals(toWhichMs))
@@ -300,7 +315,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             _Debug.Assert(emitted.MaterialType.Equals(original.MaterialType));
 
-            ArrayList emittedSpecs = new ArrayList();
+            List<DictionaryEntry> emittedSpecs = new List<DictionaryEntry>();
             foreach (DictionaryEntry de in original.GetMaterialSpecs())
             {
                 Guid specGuid = (Guid)de.Key;
@@ -483,25 +498,23 @@ namespace Highpoint.Sage.Materials.Chemistry
 
                 // If the incoming has materialSpecs and we don't, then we must create them.
                 if (_materialSpecs == null)
-                    _materialSpecs = new Hashtable();
-                foreach (DictionaryEntry de in substance._materialSpecs)
+                    _materialSpecs = new Dictionary<Guid, double>();
+                foreach (KeyValuePair<Guid, double> entry in substance._materialSpecs)
                 {
-                    if (!_materialSpecs.ContainsKey(de.Key))
-                        _materialSpecs.Add(de.Key, 0.0);
+                    if (!_materialSpecs.ContainsKey(entry.Key))
+                        _materialSpecs.Add(entry.Key, 0.0);
                 }
 
-                foreach (DictionaryEntry de in substance._materialSpecs)
+                foreach (KeyValuePair<Guid, double> entry in substance._materialSpecs)
                 {
-                    if (_materialSpecs.Contains(de.Key))
+                    if (_materialSpecs.TryGetValue(entry.Key, out double old))
                     {
-                        double old = (double)_materialSpecs[de.Key];
-                        _materialSpecs.Remove(de.Key);
-                        _materialSpecs.Add(de.Key, (old + (double)de.Value));
+                        _materialSpecs[entry.Key] = old + entry.Value;
                     }
                     else
                     {
-                        if (!Guid.Empty.Equals(de.Key))
-                            _materialSpecs.Add(de.Key, de.Value);
+                        if (!Guid.Empty.Equals(entry.Key))
+                            _materialSpecs.Add(entry.Key, entry.Value);
                     }
                 }
             }
@@ -551,15 +564,15 @@ namespace Highpoint.Sage.Materials.Chemistry
                 if (_materialSpecs != null)
                 {
                     // First figure out the total mass...
-                    double totalMass = _materialSpecs.Cast<DictionaryEntry>().Sum(de => (double)de.Value);
+                    double totalMass = _materialSpecs.Sum(entry => entry.Value);
 
                     if (totalMass > 0.0)
                     {
-                        foreach (DictionaryEntry de in _materialSpecs)
+                        foreach (KeyValuePair<Guid, double> entry in _materialSpecs)
                         {
                             if (s._materialSpecs == null)
-                                s._materialSpecs = new Hashtable();
-                            s._materialSpecs.Add(de.Key, mass * ((double)de.Value) / totalMass);
+                                s._materialSpecs = new Dictionary<Guid, double>();
+                            s._materialSpecs.Add(entry.Key, mass * entry.Value / totalMass);
                         }
                     }
                 }
@@ -568,23 +581,23 @@ namespace Highpoint.Sage.Materials.Chemistry
             else
             {
                 double pctRemoved = mass / _mass;
-                Hashtable ht = new Hashtable();
+                Dictionary<Guid, double> ht = new Dictionary<Guid, double>();
                 if (_materialSpecs != null)
                 {
-                    foreach (DictionaryEntry de in _materialSpecs)
+                    foreach (KeyValuePair<Guid, double> entry in _materialSpecs)
                     {
                         if (s._materialSpecs == null)
-                            s._materialSpecs = new Hashtable();
-                        if (s._materialSpecs.ContainsKey(de.Key))
+                            s._materialSpecs = new Dictionary<Guid, double>();
+                        if (s._materialSpecs.ContainsKey(entry.Key))
                         {
-                            s._materialSpecs[de.Key] = pctRemoved * ((double)de.Value);
+                            s._materialSpecs[entry.Key] = pctRemoved * entry.Value;
                         }
                         else
                         {
-                            s._materialSpecs.Add(de.Key, pctRemoved * ((double)de.Value));
+                            s._materialSpecs.Add(entry.Key, pctRemoved * entry.Value);
                         }
                         if (pctRemoved < 1.0)
-                            ht.Add(de.Key, (1.0 - pctRemoved) * ((double)de.Value));
+                            ht.Add(entry.Key, (1.0 - pctRemoved) * entry.Value);
                     }
                 }
                 _materialSpecs = ht;
@@ -754,7 +767,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// <summary>
             /// The material specs
             /// </summary>
-            private readonly Hashtable _matlSpecs;
+            private readonly Dictionary<Guid, double> _matlSpecs;
 
             #endregion
 
@@ -770,11 +783,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
                 if (substance._materialSpecs != null && substance._materialSpecs.Count > 0)
                 {
-                    _matlSpecs = new Hashtable();
-                    foreach (DictionaryEntry de in substance._materialSpecs)
-                    {
-                        _matlSpecs.Add(de.Key, de.Value);
-                    }
+                    _matlSpecs = new Dictionary<Guid, double>(substance._materialSpecs);
                 }
             }
 
@@ -833,7 +842,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 if (_matlSpecs != null)
                 {
                     int i = 0;
-                    foreach (DictionaryEntry de in _matlSpecs)
+                    foreach (KeyValuePair<Guid, double> de in _matlSpecs)
                     {
                         retval.Add("MatlSpec_" + (i++), "Guid:" + de.Key + ", Amt:" + de.Value);
                     }
@@ -864,11 +873,11 @@ namespace Highpoint.Sage.Materials.Chemistry
 
                 if (_matlSpecs != null)
                 {
-                    foreach (DictionaryEntry de in _matlSpecs)
+                    foreach (KeyValuePair<Guid, double> de in _matlSpecs)
                     {
                         if (smog._matlSpecs == null)
                             return false;
-                        if (!smog._matlSpecs.Contains(de.Key))
+                        if (!smog._matlSpecs.ContainsKey(de.Key))
                             return false;
                         if (!smog._matlSpecs[de.Key].Equals(de.Value))
                             return false;

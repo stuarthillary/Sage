@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Resources;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Materials.Chemistry
 {
@@ -19,8 +19,8 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         #region Private Fields
         private readonly IResourceManager _myResourceManager;
-        private readonly Hashtable _conduits;
-        private Hashtable _resources;
+        private readonly Dictionary<MaterialType, IResourceManager> _conduits;
+        private Dictionary<MaterialType, MaterialResourceItem> _resources;
         #endregion
 
 
@@ -30,7 +30,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="mustHaveMaterialsInIt">The must have materials in it.</param>
         public MaterialConduitManager(IResourceManager mustHaveMaterialsInIt)
         {
-            _conduits = new Hashtable();
+            _conduits = new Dictionary<MaterialType, IResourceManager>();
             _myResourceManager = mustHaveMaterialsInIt;
             _myResourceManager.ResourceRequested += myResourceManager_ResourceRequested;
             _myResourceManager.ResourceAdded += IndexResources;
@@ -58,13 +58,12 @@ namespace Highpoint.Sage.Materials.Chemistry
             {
                 MaterialResourceRequest mrr = resourceRequest;
                 //_Debug.WriteLine("I am taking care of a request for " + mrr.QuantityDesired + " kg of " + mrr.MaterialType.Name);
-                IResourceManager rm = (IResourceManager)_conduits[mrr.MaterialType];
-                if (rm != null)
-                {
-                    //_Debug.WriteLine("There is a conduit specified for " + mrr.MaterialType.Name + ", and it is " + rm);
-                    HandleRequest(mrr, rm);
-                }
-                else
+            if (_conduits.TryGetValue(mrr.MaterialType, out IResourceManager rm))
+            {
+                //_Debug.WriteLine("There is a conduit specified for " + mrr.MaterialType.Name + ", and it is " + rm);
+                HandleRequest(mrr, rm);
+            }
+            else
                 {
                     //_Debug.WriteLine("There is no conduit specified for " + mrr.MaterialType.Name);
                 }
@@ -77,8 +76,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private void HandleRequest(MaterialResourceRequest mrr, IResourceManager secondary)
         {
-            MaterialResourceItem mri = (MaterialResourceItem)_resources[mrr.MaterialType];
-            if (mri == null)
+            if (!_resources.TryGetValue(mrr.MaterialType, out MaterialResourceItem mri))
                 return;
 
             if (mrr.QuantityDesired > 0)
@@ -116,12 +114,13 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private void IndexResources(IResourceManager irm, IResource resource)
         {
-            _resources = new Hashtable();
+            _resources = new Dictionary<MaterialType, MaterialResourceItem>();
             foreach (IResource rsc in _myResourceManager.Resources)
             {
                 if (!(rsc is MaterialResourceItem))
                     continue;
-                _resources.Add(((MaterialResourceItem)rsc).MaterialType, rsc);
+                MaterialResourceItem item = (MaterialResourceItem)rsc;
+                _resources.Add(item.MaterialType, item);
             }
         }
     }

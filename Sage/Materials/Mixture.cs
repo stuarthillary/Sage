@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public event ReactionHappenedEvent OnReactionHappened;
 
         #region Private Fields
-        private Hashtable _constituentSubstances = new Hashtable();
+        private Dictionary<string, Substance> _constituentSubstances = new Dictionary<string, Substance>();
         private string _name;
         private double _temp = double.NaN;
         private readonly WriteLock _writeLock = new WriteLock(true);
@@ -201,12 +201,12 @@ namespace Highpoint.Sage.Materials.Chemistry
             if (_constituentSubstances.Count != otherMixture?._constituentSubstances.Count)
                 return false;
             Update();
-            foreach (DictionaryEntry de in _constituentSubstances)
+            foreach (KeyValuePair<string, Substance> entry in _constituentSubstances)
             {
-                if (!otherMixture._constituentSubstances.Contains(de.Key))
+                if (!otherMixture._constituentSubstances.ContainsKey(entry.Key))
                     return false;
-                Substance hisSubstance = (Substance)otherMixture._constituentSubstances[de.Key];
-                if (!hisSubstance.Equals((Substance)de.Value))
+                Substance hisSubstance = otherMixture._constituentSubstances[entry.Key];
+                if (!hisSubstance.Equals(entry.Value))
                     return false;
             }
             return true;
@@ -220,8 +220,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public double ContainedMassOf(MaterialType type)
         {
             Update();
-            Substance sub = (Substance)_constituentSubstances[type.Name];
-            if (sub == null)
+            if (!_constituentSubstances.TryGetValue(type.Name, out Substance sub))
                 return 0.0;
             return sub.Mass;
         }
@@ -303,7 +302,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             get
             { // cache this.
                 Update();
-                return _constituentSubstances.Values.Cast<Substance>().Sum(substance => substance.Mass);
+                return _constituentSubstances.Values.Sum(substance => substance.Mass);
             }
         }
 
@@ -448,7 +447,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             // where
             // 
             // deltaTb = (molality * i) * Kb ,
-            // (Kb = ebullioscopic constant, which is 0.51°C kg/mol for the boiling point of water; i = Van 't Hoff factor)
+            // (Kb = ebullioscopic constant, which is 0.51ï¿½C kg/mol for the boiling point of water; i = Van 't Hoff factor)
             // 
             double totalMassOfLiquid = 0.0;
             double totalMolesOfLiquid = 0.0;
@@ -595,7 +594,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 // TODO: Figure out how to deal with this!
                 return;
             }
-            Substance s = (Substance)_constituentSubstances[substanceToAdd.Name];
+            _constituentSubstances.TryGetValue(substanceToAdd.Name, out Substance s);
             double temperature = Temperature;
             if (s != null)
             {                      //Augment an existing substance.
@@ -844,7 +843,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
             else
             {
-                Substance s = (Substance)_constituentSubstances[requestedSubstance.Name];
+                _constituentSubstances.TryGetValue(requestedSubstance.Name, out Substance s);
                 if (s != null)
                 {
                     requestedSubstance = s.Remove(requestedSubstance);
@@ -885,7 +884,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             Update();
             if (!_writeLock.IsWritable)
                 throw new WriteProtectionViolationException(this, _writeLock);
-            if (_constituentSubstances.Values.Count.Equals(0))
+            if (_constituentSubstances.Count.Equals(0))
             {
                 _temp = K.CELSIUS_TO_KELVIN + 20.0;
                 return;
@@ -1158,7 +1157,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public string ToStringWithoutTemperature(string massFmt)
         {
             Update();
-            List<Substance> subs = _constituentSubstances.Values.Cast<Substance>().ToList();
+            List<Substance> subs = _constituentSubstances.Values.ToList();
 
             subs.Sort(Substance.ByMassThenName);
             subs.Reverse(); // Want decreasing mass.
@@ -1240,7 +1239,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             xmlsc.StoreObject("Name", _name);
             xmlsc.StoreObject("Guid", Guid);
-            xmlsc.StoreObject("Substances", _constituentSubstances);
+            xmlsc.StoreObject("Substances", new Hashtable(_constituentSubstances));
         }
         /// <summary>
         /// Reconstitutes this object from the specified XmlSerializationContext.
@@ -1250,7 +1249,15 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             _name = (string)xmlsc.LoadObject("Name");
             Guid = (Guid)xmlsc.LoadObject("Guid");
-            _constituentSubstances = (Hashtable)xmlsc.LoadObject("Substances");
+            Hashtable substances = (Hashtable)xmlsc.LoadObject("Substances");
+            _constituentSubstances = new Dictionary<string, Substance>();
+            if (substances != null)
+            {
+                foreach (DictionaryEntry entry in substances)
+                {
+                    _constituentSubstances.Add((string)entry.Key, (Substance)entry.Value);
+                }
+            }
         }
         #endregion
 
@@ -1438,7 +1445,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <returns>Substance.</returns>
         public Substance GetSubstance(MaterialType materialType)
         {
-            return _constituentSubstances[materialType.Name] as Substance;
+            return _constituentSubstances.TryGetValue(materialType.Name, out Substance substance)
+                ? substance
+                : null;
         }
     }
 }

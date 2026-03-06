@@ -99,7 +99,7 @@ namespace Highpoint.Sage.SimCore
         private readonly Array _enumValues;
         private readonly StateMethod[] _stateMethods;
         private readonly Enum[] _followOnStates;
-        private Hashtable _stateTranslationTable;
+        private Dictionary<Enum, int> _stateTranslationTable;
         private Enum[] _equivalentStates;
 
         private bool _stateMachineStructureLocked = false;
@@ -516,12 +516,12 @@ namespace Highpoint.Sage.SimCore
         /// <param name="state">Provides the enum type that contains the various states</param>
         private void InitializeStateTranslationTable(Enum state)
         {
-            _stateTranslationTable = new Hashtable();
+            _stateTranslationTable = new Dictionary<Enum, int>();
             Array values = Enum.GetValues(state.GetType());
             _numStates = values.GetLength(0);
             for (int i = 0; i < _numStates; i++)
             {
-                _stateTranslationTable.Add(values.GetValue(i), i);
+                _stateTranslationTable.Add((Enum)values.GetValue(i), i);
             }
 
             if (_diagnostics)
@@ -529,7 +529,8 @@ namespace Highpoint.Sage.SimCore
                 _Debug.WriteLine("Initializing state machine table to the following states");
                 foreach (object val in Enum.GetValues(state.GetType()))
                 {
-                    _Debug.WriteLine(_stateTranslationTable[val] + ", " + val + " : " + val.GetType());
+                    if (_stateTranslationTable.TryGetValue((Enum)val, out int index))
+                        _Debug.WriteLine(index + ", " + val + " : " + val.GetType());
                 }
             }
         }
@@ -541,13 +542,11 @@ namespace Highpoint.Sage.SimCore
         /// <returns>The state number.</returns>
         internal int GetStateNumber(Enum stateEnum)
         {
-            object tmp = _stateTranslationTable[stateEnum];
-
-            if (tmp == null)
+            if (!_stateTranslationTable.TryGetValue(stateEnum, out int num))
             {
-                IEnumerator enumerator = _stateTranslationTable.Keys.GetEnumerator();
+                IEnumerator<Enum> enumerator = _stateTranslationTable.Keys.GetEnumerator();
                 enumerator.MoveNext();
-                object firstEnum = enumerator.Current;
+                Enum firstEnum = enumerator.Current;
 
                 string msg = "Cannot translate " + stateEnum + " to an index. It is of type " +
                     stateEnum.GetType() + " and this state machine is running on states of type " +
@@ -559,8 +558,6 @@ namespace Highpoint.Sage.SimCore
                 }
                 throw new ApplicationException(msg);
             }
-
-            int num = (int)tmp;
 
             if (num < 0 || num >= _numStates)
             {

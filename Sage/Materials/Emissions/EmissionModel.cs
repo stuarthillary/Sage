@@ -1,5 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
+using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;
 using K = Highpoint.Sage.Materials.Chemistry.Emissions.EmissionModel.Constants;
 using PN = Highpoint.Sage.Materials.Chemistry.Emissions.EmissionModel.ParamNames;
@@ -208,8 +209,8 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
         #region Private Fields
         private static readonly bool diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Emissions.ModelParameterDumps");
-        private readonly ArrayList _errMsgs = new ArrayList();
-        protected ArrayList ErrorMessages => _errMsgs;
+        private readonly List<string> _errMsgs = new List<string>();
+        protected ArrayList ErrorMessages => ArrayList.Adapter(_errMsgs);
 
         #endregion
 

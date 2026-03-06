@@ -169,16 +169,16 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
             }
         }
 
-        internal ArrayList RunningDetachables = new ArrayList();
+        internal List<DetachableEvent> RunningDetachables = new List<DetachableEvent>();
 
         /// <summary>
         /// Returns a read-only list of the detachable events that are currently running.
         /// </summary>
-        public ArrayList LiveDetachableEvents
+        public IReadOnlyList<DetachableEvent> LiveDetachableEvents
         {
             get
             {
-                return ArrayList.ReadOnly(RunningDetachables);
+                return RunningDetachables.AsReadOnly();
             }
         }
 
@@ -186,14 +186,14 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
         /// Returns a read-only list of the ExecEvents currently in queue for execution.
         /// Cast the elements in the list to IExecEvent to access the items' field values.
         /// </summary>
-        public IList EventList
+        public IReadOnlyList<IExecEvent> EventList
         {
             get
             {
                 lock (_eventLock)
                 {
                     List<ExecEvent> snapshot = GetSortedEventSnapshot();
-                    return ArrayList.ReadOnly(new ArrayList(snapshot));
+                    return snapshot.AsReadOnly();
                 }
             }
         }
@@ -829,7 +829,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                 if (RunningDetachables.Count > 0)
                 {
                     // TODO: Move this error reporting into a StringBuilder, and report it upward, rather than just to Console.
-                    ArrayList tmp = new ArrayList(RunningDetachables);
+                    List<DetachableEvent> tmp = new List<DetachableEvent>(RunningDetachables);
                     foreach (DetachableEvent de in tmp)
                     {
                         bool issuedError = false;

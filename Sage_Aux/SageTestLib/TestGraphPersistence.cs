@@ -224,7 +224,7 @@ namespace Highpoint.Sage.Graphs.Tasks {
 				tc.AddSuccessor(td);
 			}
 
-			public IDictionary GraphContext { get { return (IDictionary)tp.GraphContexts[0]; } }
+			public IDictionary GraphContext { get { return tp.GraphContexts[0]; } }
 
 			#region IXmlPersistable Members
 			/// <summary>

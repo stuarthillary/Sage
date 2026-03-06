@@ -4,6 +4,7 @@ using Highpoint.Sage.Persistence;
 using Highpoint.Sage.SimCore; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using _Debug = System.Diagnostics.Debug;
 
@@ -49,12 +50,12 @@ namespace Highpoint.Sage.Graphs
 
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Edge");
         private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
-        private ArrayList _childEdges = null;      // My children - all of them.
-        private ArrayList _childLigatures = null;  // Ligatures that connect me, the task, to my children.
-        private static readonly ArrayList _emptyCollection = ArrayList.ReadOnly(new ArrayList());
+        private List<Edge> _childEdges = null;      // My children - all of them.
+        private List<Ligature> _childLigatures = null;  // Ligatures that connect me, the task, to my children.
+        private static readonly IList _emptyCollection = Array.Empty<Edge>();
         private EdgeExecutionCompletionSignaler _eecs;
         private object _channel;
-        private ArrayList _activeContexts = null;
+        private List<IDictionary> _activeContexts = null;
         private StaticEdgeEvent _onChildGainedPredecessorHandler;
         private StaticEdgeEvent _onChildGainedSuccessorHandler;
         private StaticEdgeEvent _onChildLostPredecessorHandler;
@@ -137,7 +138,7 @@ namespace Highpoint.Sage.Graphs
             CreateVertices();
             _eecs = new EdgeExecutionCompletionSignaler(OnExecutionComplete);
             _channel = NULL_CHANNEL_MARKER;
-            _activeContexts = new ArrayList();
+            _activeContexts = new List<IDictionary>();
 
             _onChildGainedPredecessorHandler = new StaticEdgeEvent(OnChildGainedPredecessor);
             _onChildGainedSuccessorHandler = new StaticEdgeEvent(OnChildGainedSuccessor);
@@ -631,12 +632,12 @@ namespace Highpoint.Sage.Graphs
         /// in an order according to their vertices' relationships to each other and their parents.
         /// </summary>
         /// <value>The child edges.</value>
-		public IList ChildEdges
+        public IList ChildEdges
         {
             get
             {
                 if (_childEdges != null)
-                    return ArrayList.ReadOnly(_childEdges);
+                    return ArrayList.ReadOnly(ArrayList.Adapter(_childEdges));
                 else
                     return _emptyCollection;
             }
@@ -678,8 +679,8 @@ namespace Highpoint.Sage.Graphs
             bool hasVm = (_vm != null);
             if (hasVm)
                 _vm.Suspend();
-            _childEdges = new ArrayList(edges.Count);
-            _childLigatures = new ArrayList();
+            _childEdges = new List<Edge>(edges.Count);
+            _childLigatures = new List<Ligature>();
             foreach (Edge edge in edges)
             {
                 edge.Parent = this;
@@ -703,9 +704,9 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (_childEdges == null)
-                _childEdges = new ArrayList();
+                _childEdges = new List<Edge>();
             if (_childLigatures == null)
-                _childLigatures = new ArrayList();
+                _childLigatures = new List<Ligature>();
             _childEdges.Add(child);
             child.ParentEdge = this;
             child.GainedPredecessorEvent += _onChildGainedPredecessorHandler;
@@ -713,10 +714,10 @@ namespace Highpoint.Sage.Graphs
             child.LostPredecessorEvent += _onChildLostPredecessorHandler;
             child.LostSuccessorEvent += _onChildLostSuccessorHandler;
             if (child.PredecessorEdges.Count == 0)
-                _childLigatures.Add(AddCostart(child));
+                _childLigatures.Add((Ligature)AddCostart(child));
             // Was, until 1/25/2004 : if ( child.SuccessorEdges.Count == 0 )   m_childLigatures.Add(AddCofinish(child));
             if (child.SuccessorEdges.Count == 0)
-                _childLigatures.Add(child.AddCofinish(this));
+                _childLigatures.Add((Ligature)child.AddCofinish(this));
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddChildEdge, false);
             if (hasVm)
@@ -736,8 +737,8 @@ namespace Highpoint.Sage.Graphs
             bool hasVm = (_vm != null);
             if (hasVm)
                 _vm.Suspend();
-            ArrayList childEdgeBuffer = new ArrayList(_childEdges);
-            ArrayList childLigBuffer = new ArrayList(_childLigatures);
+            List<Edge> childEdgeBuffer = new List<Edge>(_childEdges);
+            List<Ligature> childLigBuffer = new List<Ligature>(_childLigatures);
 
             foreach (Edge child in childEdgeBuffer)
             {
@@ -814,7 +815,7 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (child.PredecessorEdges.Count == 0)
-                _childLigatures.Add(AddCostart(child));
+                _childLigatures.Add((Ligature)AddCostart(child));
             if (hasVm)
                 _vm.Resume();
         }
@@ -827,7 +828,7 @@ namespace Highpoint.Sage.Graphs
             if (hasVm)
                 _vm.Suspend();
             if (child.SuccessorEdges.Count == 0)
-                _childLigatures.Add(child.AddCofinish(this));
+                _childLigatures.Add((Ligature)child.AddCofinish(this));
             if (hasVm)
                 _vm.Resume();
         }
@@ -1359,8 +1360,8 @@ namespace Highpoint.Sage.Graphs
         public virtual void SerializeTo(XmlSerializationContext xmlsc)
         {
             xmlsc.StoreObject("Name", _name);
-            xmlsc.StoreObject("ChildEdges", _childEdges);
-            xmlsc.StoreObject("ChildLigatures", _childLigatures);
+            xmlsc.StoreObject("ChildEdges", _childEdges == null ? null : new ArrayList(_childEdges));
+            xmlsc.StoreObject("ChildLigatures", _childLigatures == null ? null : new ArrayList(_childLigatures));
             xmlsc.StoreObject("ParentEdge", ParentEdge);
             xmlsc.StoreObject("PostVertex", Post);
             xmlsc.StoreObject("PreVertex", Pre);
@@ -1378,9 +1379,27 @@ namespace Highpoint.Sage.Graphs
 		public virtual void DeserializeFrom(XmlSerializationContext xmlsc)
         {
             _name = (string)xmlsc.LoadObject("Name");
-            _childEdges = (ArrayList)xmlsc.LoadObject("ChildEdges");
+            ArrayList childEdges = (ArrayList)xmlsc.LoadObject("ChildEdges");
             //_Debug.WriteLine("Just deserialized " + m_name + ", and it has " + ChildEdges.Count + " child edges.");
-            _childLigatures = (ArrayList)xmlsc.LoadObject("ChildLigatures");
+            _childEdges = null;
+            if (childEdges != null)
+            {
+                _childEdges = new List<Edge>(childEdges.Count);
+                foreach (Edge edge in childEdges)
+                {
+                    _childEdges.Add(edge);
+                }
+            }
+            ArrayList childLigatures = (ArrayList)xmlsc.LoadObject("ChildLigatures");
+            _childLigatures = null;
+            if (childLigatures != null)
+            {
+                _childLigatures = new List<Ligature>(childLigatures.Count);
+                foreach (Ligature ligature in childLigatures)
+                {
+                    _childLigatures.Add(ligature);
+                }
+            }
             ParentEdge = (Edge)xmlsc.LoadObject("ParentEdge");
             Post = (Vertex)xmlsc.LoadObject("PostVertex");
             //_Debug.WriteLine("Assigning " + m_post.Name + "(" + m_post.GetHashCode()+ ") into " + this.Name +"(" + this.GetHashCode()+ ").");

@@ -5,6 +5,7 @@ using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 
@@ -29,8 +30,8 @@ namespace Highpoint.Sage.Materials.Chemistry
     /// </summary>
     public class Reaction : IModelObject, IXmlPersistable
     {
-        private ArrayList _reactants = new ArrayList();
-        private ArrayList _products = new ArrayList();
+        private readonly List<ReactionParticipant> _reactants = new List<ReactionParticipant>();
+        private readonly List<ReactionParticipant> _products = new List<ReactionParticipant>();
         private double _rxPct = 1.0;
         private double _energy;
 
@@ -131,13 +132,13 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Gets the reactants of this reaction.
         /// </summary>
         /// <value>The reactants.</value>
-        public IList Reactants => ArrayList.ReadOnly(_reactants);
+        public IList Reactants => ArrayList.ReadOnly(ArrayList.Adapter(_reactants));
 
         /// <summary>
         /// Gets the products of this reaction.
         /// </summary>
         /// <value>The products.</value>
-        public IList Products => ArrayList.ReadOnly(_products);
+        public IList Products => ArrayList.ReadOnly(ArrayList.Adapter(_products));
 
         /// <summary>
         /// Gets or sets the expected percent completion of this reaction.
@@ -303,7 +304,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="from">The <see cref="Highpoint.Sage.Materials.Chemistry.Reaction.ReactionParticipant"/>s that are eliminated.</param>
         /// <param name="to">The <see cref="Highpoint.Sage.Materials.Chemistry.Reaction.ReactionParticipant"/>s that are created.</param>
         /// <param name="scale">The scale of the reaction.</param>
-        protected void React(Mixture mix, ArrayList from, ArrayList to, double scale)
+        protected void React(Mixture mix, IList<ReactionParticipant> from, IList<ReactionParticipant> to, double scale)
         {
 
             foreach (ReactionParticipant rp in from)
@@ -416,8 +417,8 @@ namespace Highpoint.Sage.Materials.Chemistry
             xmlsc.StoreObject("Name", _name);
             xmlsc.StoreObject("Guid", _guid);
             xmlsc.StoreObject("Energy", _energy);
-            xmlsc.StoreObject("Products", _products);
-            xmlsc.StoreObject("Reactants", _reactants);
+            xmlsc.StoreObject("Products", new ArrayList(_products));
+            xmlsc.StoreObject("Reactants", new ArrayList(_reactants));
             xmlsc.StoreObject("ReactionPercentage", _rxPct);
         }
         /// <summary>
@@ -429,8 +430,24 @@ namespace Highpoint.Sage.Materials.Chemistry
             _name = (string)xmlsc.LoadObject("Name");
             _guid = (Guid)xmlsc.LoadObject("Guid");
             _energy = (double)xmlsc.LoadObject("Energy");
-            _products = (ArrayList)xmlsc.LoadObject("Products");
-            _reactants = (ArrayList)xmlsc.LoadObject("Reactants");
+            ArrayList products = (ArrayList)xmlsc.LoadObject("Products");
+            ArrayList reactants = (ArrayList)xmlsc.LoadObject("Reactants");
+            _products.Clear();
+            _reactants.Clear();
+            if (products != null)
+            {
+                foreach (ReactionParticipant participant in products)
+                {
+                    _products.Add(participant);
+                }
+            }
+            if (reactants != null)
+            {
+                foreach (ReactionParticipant participant in reactants)
+                {
+                    _reactants.Add(participant);
+                }
+            }
             _rxPct = (double)xmlsc.LoadObject("ReactionPercentage");
         }
         #endregion

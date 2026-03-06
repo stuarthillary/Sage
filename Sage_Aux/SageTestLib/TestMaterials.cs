@@ -847,6 +847,80 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         }
 
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that Mixture.Constituents correctly enumerates all added substances — guards against Hashtable→Dictionary migration regressions.")]
+        public void TestMixtureConstituentsIteration()
+        {
+            BasicReactionSupporter brs = new BasicReactionSupporter();
+            InitializeForTesting(brs);
+            MaterialCatalog cat = brs.MyMaterialCatalog;
+            Model model = new Model("Test Model", Guid.NewGuid());
+
+            Mixture mixture = new Mixture(model, "Test Mixture", Guid.NewGuid());
+            mixture.AddMaterial(cat["Acetone"].CreateMass(50, 20));
+            mixture.AddMaterial(cat["Water"].CreateMass(100, 20));
+            mixture.AddMaterial(cat["Ethanol"].CreateMass(75, 20));
+
+            ICollection constituents = mixture.Constituents;
+            Assert.AreEqual(3, constituents.Count, "Mixture should have exactly 3 constituent substances");
+
+            var names = new System.Collections.Generic.HashSet<string>();
+            foreach (Substance s in constituents)
+                names.Add(s.MaterialType.Name);
+
+            Assert.IsTrue(names.Contains("Acetone"), "Constituents should include Acetone");
+            Assert.IsTrue(names.Contains("Water"), "Constituents should include Water");
+            Assert.IsTrue(names.Contains("Ethanol"), "Constituents should include Ethanol");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies MaterialCatalog Add, name lookup, Guid lookup, Contains, and Remove — guards against Hashtable→Dictionary migration regressions.")]
+        public void TestMaterialCatalogCRUD()
+        {
+            MaterialCatalog catalog = new MaterialCatalog();
+            Guid acetoneGuid = Guid.NewGuid();
+            Guid waterGuid   = Guid.NewGuid();
+
+            MaterialType acetone = new MaterialType(null, "Acetone", acetoneGuid, 0.7899, 4.1800, MaterialState.Liquid);
+            MaterialType water   = new MaterialType(null, "Water",   waterGuid,   1.0000, 4.1800, MaterialState.Liquid);
+
+            catalog.Add(acetone);
+            catalog.Add(water);
+
+            Assert.AreSame(acetone, catalog["Acetone"],    "Lookup by name 'Acetone' should return the acetone type");
+            Assert.AreSame(water,   catalog["Water"],      "Lookup by name 'Water' should return the water type");
+            Assert.AreSame(acetone, catalog[acetoneGuid],  "Lookup by Guid should return acetone type");
+            Assert.AreSame(water,   catalog[waterGuid],    "Lookup by Guid should return water type");
+
+            Assert.IsTrue(catalog.Contains("Acetone"),  "Catalog should contain 'Acetone'");
+            Assert.IsFalse(catalog.Contains("Hexane"),  "Catalog should not contain 'Hexane'");
+
+            catalog.Remove("Acetone");
+            Assert.IsFalse(catalog.Contains("Acetone"), "Catalog should no longer contain 'Acetone' after removal");
+            Assert.IsTrue(catalog.Contains("Water"),    "Catalog should still contain 'Water' after removing Acetone");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that MaterialCatalog.MaterialTypes enumerates all added material types — guards against Hashtable→Dictionary migration regressions.")]
+        public void TestMaterialCatalogEnumeration()
+        {
+            MaterialCatalog catalog = new MaterialCatalog();
+            catalog.Add(new MaterialType(null, "Alpha", Guid.NewGuid(), 1.0, 4.18, MaterialState.Liquid));
+            catalog.Add(new MaterialType(null, "Beta",  Guid.NewGuid(), 1.0, 4.18, MaterialState.Liquid));
+            catalog.Add(new MaterialType(null, "Gamma", Guid.NewGuid(), 1.0, 4.18, MaterialState.Liquid));
+
+            ICollection types = catalog.MaterialTypes;
+            Assert.AreEqual(3, types.Count, "MaterialTypes should enumerate exactly 3 entries");
+
+            var names = new System.Collections.Generic.HashSet<string>();
+            foreach (MaterialType mt in types)
+                names.Add(mt.Name);
+
+            Assert.IsTrue(names.Contains("Alpha"),  "MaterialTypes should contain 'Alpha'");
+            Assert.IsTrue(names.Contains("Beta"),   "MaterialTypes should contain 'Beta'");
+            Assert.IsTrue(names.Contains("Gamma"),  "MaterialTypes should contain 'Gamma'");
+        }
+
         private void DumpMaterialSpecs(Substance s)
         {
             Debug.WriteLine(s.ToString());

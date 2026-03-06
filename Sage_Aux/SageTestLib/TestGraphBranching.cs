@@ -5,6 +5,7 @@ using Highpoint.Sage.SimCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 
@@ -107,6 +108,67 @@ namespace Highpoint.Sage.Graphs
             loopback.Channel = channelMarker;
             from.EdgeFiringManager = new CountedBranchManager(model, new object[] { channelMarker, Edge.NULL_CHANNEL_MARKER }, new int[] { howManyTimes, 1 });
             to.EdgeReceiptManager = new MultiChannelEdgeReceiptManager(to);
+        }
+
+        // ── Vertex edge-collection tests ─────────────────────────────────────────
+        // These tests guard against regressions in the Vertex.PreEdges/PostEdges
+        // ArrayList→List<Edge> Phase 2 migration.
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that PreEdges and PostEdges contain the correct edges after graph construction — guards against ArrayList→List migration regressions.")]
+        public void TestVertexPreAndPostEdgesAfterConstruction()
+        {
+            // Each Edge creates Pre and Post vertices automatically, then wires them.
+            // Edge.AddSuccessor / Edge.Connect creates ligature edges between vertices.
+            Edge e1 = new Edge("E1");
+            Edge e2 = new Edge("E2");
+
+            // Connect e1's post-vertex to e2's pre-vertex: e1 → e2
+            e2.AddPredecessor(e1);
+
+            // e1.PostVertex should have e2 in its successor edges (PostEdges)
+            IList e1PostSuccessors = e1.PostVertex.SuccessorEdges;
+            Assert.IsTrue(e1PostSuccessors.Count > 0, "E1.PostVertex should have at least one successor edge after connecting E2 as successor");
+
+            // e2.PreVertex should have e1's post-vertex's outgoing edge in its predecessor edges (PreEdges)
+            IList e2PrePredecessors = e2.PreVertex.PredecessorEdges;
+            Assert.IsTrue(e2PrePredecessors.Count > 0, "E2.PreVertex should have at least one predecessor edge after connecting E1 as predecessor");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that edges can be directly added to and removed from a Vertex's PreEdges and PostEdges.")]
+        public void TestVertexAddAndRemoveEdges()
+        {
+            Edge principal = new Edge("Principal");
+            Vertex v = principal.PreVertex; // Use the auto-created pre-vertex
+
+            Edge extra1 = new Edge("Extra1");
+            Edge extra2 = new Edge("Extra2");
+
+            int initialPostCount = v.SuccessorEdges.Count;
+
+            v.AddPostEdge(extra1);
+            v.AddPostEdge(extra2);
+            Assert.AreEqual(initialPostCount + 2, v.SuccessorEdges.Count,
+                "SuccessorEdges count should increase by 2 after adding two post-edges");
+
+            v.RemovePostEdge(extra1);
+            Assert.AreEqual(initialPostCount + 1, v.SuccessorEdges.Count,
+                "SuccessorEdges count should decrease by 1 after removing one post-edge");
+            Assert.IsFalse(v.SuccessorEdges.Contains(extra1), "extra1 should no longer appear in SuccessorEdges");
+            Assert.IsTrue(v.SuccessorEdges.Contains(extra2),  "extra2 should still appear in SuccessorEdges");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that Vertex.PredecessorEdges and SuccessorEdges are typed as IReadOnlyList<Edge>.")]
+        public void TestVertexEdgesTypedAsList()
+        {
+            Edge e = new Edge("TypeCheck");
+            // After Phase 2 migration these must be IReadOnlyList<Edge>, not IList (ArrayList-backed).
+            Assert.IsInstanceOfType(e.PreVertex.PredecessorEdges, typeof(IReadOnlyList<Edge>),
+                "PredecessorEdges should be IReadOnlyList<Edge> after Phase 2 migration");
+            Assert.IsInstanceOfType(e.PreVertex.SuccessorEdges, typeof(IReadOnlyList<Edge>),
+                "SuccessorEdges should be IReadOnlyList<Edge> after Phase 2 migration");
         }
 
         sealed class MyEdge : Edge

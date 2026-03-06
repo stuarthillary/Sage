@@ -54,7 +54,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
             model.Start();
 
-            IDictionary gc = (IDictionary)tp.GraphContexts[0];
+            IDictionary gc = tp.GraphContexts[0];
             Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), parent.GetStartTime(gc), "Parent task did't start at the correct time.");
             Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), children[0].GetStartTime(gc), "Child task 1 did't start at the correct time.");
             Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), children[1].GetStartTime(gc), "Child task 2 did't start at the correct time.");
@@ -241,7 +241,7 @@ namespace Highpoint.Sage.Graphs.Tasks
             {
                 get
                 {
-                    return (IDictionary)Tp.GraphContexts[0];
+                    return Tp.GraphContexts[0];
                 }
             }
         }

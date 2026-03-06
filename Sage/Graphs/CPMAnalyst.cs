@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using _Debug = System.Diagnostics.Debug;
@@ -54,7 +55,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		private static readonly bool s_diagnostics = Diagnostics.DiagnosticAids.Diagnostics("CPMAnalyst");
 		private static readonly bool s_logEdgeNotFoundError = Diagnostics.DiagnosticAids.Diagnostics("CPMAnalyst.LogEdgeNotFoundError");
 		private static readonly bool s_diagnosticsValidation = Diagnostics.DiagnosticAids.Diagnostics("CPMAnalyst.PerformValidation");
-		private static readonly ArrayList s_emptylist = new ArrayList();
+		private static readonly IList s_emptylist = Array.Empty<Edge>();
 
 		private bool m_analyzed = false;
 		private Stack m_traceStack;
@@ -318,7 +319,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			}
 		}
 
-		private Hashtable m_verifiedEdges;
+		private HashSet<Edge> m_verifiedEdges;
 		private StringBuilder m_sb;
 		private int m_errorCount;
 		private void ValidateResults(Vertex startVertex){
@@ -328,7 +329,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 				
 				m_errorCount = 0;
 				m_sb = new StringBuilder();
-				m_verifiedEdges = new Hashtable();
+				m_verifiedEdges = new HashSet<Edge>();
 				
 				_ValidateResults(startVertex);
 
@@ -347,8 +348,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			//_Debug.WriteLine("Validating from vertex " + startVertex.Name);
 			foreach ( Edge edge in startVertex.SuccessorEdges ) {
 				//_Debug.WriteLine("\tValidating edge " + edge.Name);
-				if ( !m_verifiedEdges.Contains(edge) ) {
-					m_verifiedEdges.Add(edge,edge);
+				if ( m_verifiedEdges.Add(edge) ) {
 					VertexData vdPre  = (VertexData)Vertices[startVertex];
 					EdgeData   ed     = (EdgeData)Edges[edge];
 					VertexData vdPost = (VertexData)Vertices[edge.PostVertex];
@@ -686,17 +686,17 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		
 		protected class SynchronizerData {
 			private VertexSynchronizer m_vs;
-			private ArrayList m_fwdVisits;
-			private ArrayList m_revVisits;
-			private ArrayList m_members;
+			private List<Vertex> m_fwdVisits;
+			private List<Vertex> m_revVisits;
+			private List<Vertex> m_members;
 			private long m_earliest;
 			private long m_latest;
 
 			public SynchronizerData(VertexSynchronizer vs) {
 				m_vs        = vs;
-				m_fwdVisits = new ArrayList();
-				m_revVisits = new ArrayList();
-				m_members   = new ArrayList();
+				m_fwdVisits = new List<Vertex>();
+				m_revVisits = new List<Vertex>();
+				m_members   = new List<Vertex>();
 				m_earliest  = long.MinValue;
 				m_latest    = long.MaxValue;
 
@@ -722,27 +722,31 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			}
 
 			public IList NextEdgesForward(Hashtable vertexDataHashtable, ref long elapsedTime){
-				ArrayList retval = s_emptylist;
+				IList retval = s_emptylist;
 				if ( m_members.Count == m_fwdVisits.Count ) {
-					retval = new ArrayList();
+					List<Edge> edges = new List<Edge>();
 					foreach ( Vertex peer in m_members ) {
 						((VertexData)vertexDataHashtable[peer]).Earliest = m_earliest;
-						retval.AddRange(peer.SuccessorEdges);
+						foreach (Edge edge in peer.SuccessorEdges)
+							edges.Add(edge);
 					}
 					elapsedTime = m_earliest;
+					retval = edges;
 				}
 				return retval;
 			}
 
 			public IList NextEdgesBackward(Hashtable vertexDataHashtable, ref long elapsedTime){
-				ArrayList retval = s_emptylist;
+				IList retval = s_emptylist;
 				if ( m_members.Count == m_revVisits.Count ) {
-					retval = new ArrayList();
+					List<Edge> edges = new List<Edge>();
 					foreach ( Vertex peer in m_members ) {
 						((VertexData)vertexDataHashtable[peer]).Latest = m_latest;
-						retval.AddRange(peer.PredecessorEdges);
+						foreach (Edge edge in peer.PredecessorEdges)
+							edges.Add(edge);
 					}
 					elapsedTime = m_latest;
+					retval = edges;
 				}
 				return retval;
 			}

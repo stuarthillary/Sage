@@ -5,6 +5,7 @@ using Highpoint.Sage.Persistence;
 using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using _Debug = System.Diagnostics.Debug;
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Global
@@ -29,7 +30,7 @@ namespace Highpoint.Sage.Resources
         private readonly RscWaiterList _waiters;
         private readonly ResourceRequestAbortEvent _onResourceRequestAborting;
         private IAccessRegulator _accessRegulator;
-        private ArrayList _resources;
+        private List<IResource> _resources;
         private IModel _model;
         #endregion
 
@@ -72,7 +73,7 @@ namespace Highpoint.Sage.Resources
             SupportsPrioritizedRequests = priorityEnabled;
             _onResourceRequestAborting = OnResourceRequestAborting;
             _waiters = new RscWaiterList(SupportsPrioritizedRequests);
-            _resources = new ArrayList();
+            _resources = new List<IResource>();
 
             IMOHelper.RegisterWithModel(this);
         }
@@ -150,7 +151,7 @@ namespace Highpoint.Sage.Resources
                 _Debug.WriteLine(Name + " clearing its resource pool.");
             while (_resources.Count > 0)
             {
-                Remove((IResource)_resources[0]);
+                Remove(_resources[0]);
             }
         }
 
@@ -171,14 +172,14 @@ namespace Highpoint.Sage.Resources
             get
             {
                 //TODO: Remove linear search, replace with Hashtable.
-                return _resources.Cast<IResource>().FirstOrDefault(rsc => rsc.Guid.Equals(guid));
+                return _resources.FirstOrDefault(rsc => rsc.Guid.Equals(guid));
             }
         }
 
         /// <summary>
         /// Returns a read-only list of the resources in this pool.
         /// </summary>
-        public IList Resources => ArrayList.ReadOnly(_resources);
+        public IList Resources => ArrayList.ReadOnly(ArrayList.Adapter(_resources));
 
         #region Implementation of IResourceManager
         /// <summary>
@@ -506,7 +507,7 @@ namespace Highpoint.Sage.Resources
         {
             xmlsc.StoreObject("Name", _name);
             xmlsc.StoreObject("Guid", _guid);
-            xmlsc.StoreObject("Resources", _resources);
+            xmlsc.StoreObject("Resources", new ArrayList(_resources));
         }
 
         /// <summary>
@@ -518,7 +519,15 @@ namespace Highpoint.Sage.Resources
             _model = (Model)xmlsc.ContextEntities["Model"];
             _name = (string)xmlsc.LoadObject("Name");
             _guid = (Guid)xmlsc.LoadObject("Guid");
-            _resources = (ArrayList)xmlsc.LoadObject("Resources");
+            ArrayList resources = (ArrayList)xmlsc.LoadObject("Resources");
+            _resources = new List<IResource>();
+            if (resources != null)
+            {
+                foreach (IResource resource in resources)
+                {
+                    _resources.Add(resource);
+                }
+            }
             foreach (IResource resource in _resources)
                 resource.Manager = this;
 

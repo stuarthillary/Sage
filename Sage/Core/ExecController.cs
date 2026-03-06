@@ -1,6 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using _Debug = System.Diagnostics.Debug;
 // ReSharper disable UnusedParameter.Global
@@ -266,11 +267,11 @@ namespace Highpoint.Sage.SimCore
         {
             if (Math.Abs(_linearScale) > double.Epsilon)
             {
-                IList events = _executive.EventList;
+                IReadOnlyList<IExecEvent> events = _executive.EventList;
                 if (events.Count > 0)
                 {
                     long realWorldElapsedTicks = DateTime.Now.Ticks - _realWorldStartTime.Ticks;
-                    DateTime timeOfNextEvent = ((IExecEvent)events[0]).When;
+                    DateTime timeOfNextEvent = events[0].When;
                     long simElapsedTicks = timeOfNextEvent.Ticks - _simWorldStartTime.Ticks;
                     long targetRealWorldElapsedTicks = simElapsedTicks / (long)_linearScale;
 

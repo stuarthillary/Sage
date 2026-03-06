@@ -5,6 +5,7 @@ using Highpoint.Sage.Persistence;
 using Highpoint.Sage.SimCore; // For executive.
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;
 
 namespace Highpoint.Sage.Graphs
@@ -31,13 +32,13 @@ namespace Highpoint.Sage.Graphs
         internal int NumPostEdges = 0;
 
         // TODO: Tune this implementation for efficiency. Clarity is key, now.
-        protected ArrayList PreEdges = new ArrayList(2);
-        protected ArrayList PostEdges = new ArrayList(2);
+        protected List<Edge> PreEdges = new List<Edge>(2);
+        protected List<Edge> PostEdges = new List<Edge>(2);
 
         #region Private Fields
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Vertex");
         private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
-        private static readonly ArrayList _emptyCollection = ArrayList.ReadOnly(new ArrayList());
+        private static readonly IList _emptyCollection = Array.Empty<Edge>();
 
         private string _name;
         private Edge _principalEdge;
@@ -139,7 +140,7 @@ namespace Highpoint.Sage.Graphs
         {
             get
             {
-                return ArrayList.ReadOnly(PreEdges);
+                return PreEdges.AsReadOnly();
             }
         }
 
@@ -147,7 +148,7 @@ namespace Highpoint.Sage.Graphs
         {
             get
             {
-                return ArrayList.ReadOnly(PostEdges);
+                return PostEdges.AsReadOnly();
             }
         }
 
@@ -440,14 +441,14 @@ namespace Highpoint.Sage.Graphs
         public virtual void DeserializeFrom(XmlSerializationContext xmlsc)
         {
             _name = (string)xmlsc.LoadObject("Name");
-            ArrayList tmpPostEdges = (ArrayList)xmlsc.LoadObject("PostEdges");
+            IList tmpPostEdges = (IList)xmlsc.LoadObject("PostEdges");
             foreach (Edge edge in tmpPostEdges)
             {
                 if (!PostEdges.Contains(edge))
                     PostEdges.Add(edge);
                 NumPostEdges++;
             }
-            ArrayList tmpPreEdges = (ArrayList)xmlsc.LoadObject("PreEdges");
+            IList tmpPreEdges = (IList)xmlsc.LoadObject("PreEdges");
             foreach (Edge edge in tmpPreEdges)
             {
                 if (!PreEdges.Contains(edge))
@@ -521,7 +522,7 @@ namespace Highpoint.Sage.Graphs
 
         public IList GetSuccessors()
         {
-            ArrayList retval = new ArrayList(PostEdges);
+            List<object> retval = new List<object>(PostEdges);
             if (_synchronizer != null)
             {
                 bool vrtxComesAfterMe = false;

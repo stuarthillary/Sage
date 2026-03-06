@@ -2,6 +2,7 @@
 using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using _Debug = System.Diagnostics.Debug;
 
@@ -12,11 +13,11 @@ namespace Highpoint.Sage.Graphs.Tasks
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("TaskManagementService");
         private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
 
-        private readonly Hashtable _taskProcessors;
+        private readonly Dictionary<Guid, TaskProcessor> _taskProcessors;
         private IModel _model;
         public TaskManagementService()
         {
-            _taskProcessors = new Hashtable();
+            _taskProcessors = new Dictionary<Guid, TaskProcessor>();
         }
 
 
@@ -47,7 +48,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         public void AddTaskProcessor(TaskProcessor taskProcessor)
         {
             // TODO: Add this to an Errors & Warnings collection instead of dumping it to Trace.
-            if (_taskProcessors.Contains(taskProcessor.Guid))
+            if (_taskProcessors.ContainsKey(taskProcessor.Guid))
             {
                 _Debug.WriteLine("Model already contains task processor being added at:");
                 _Debug.WriteLine((new StackTrace()).ToString());
@@ -71,12 +72,11 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <summary>
         /// The collection of task processors being managed by this model.
         /// </summary>
-        public ArrayList TaskProcessors
+        public IReadOnlyList<TaskProcessor> TaskProcessors
         {
             get
             {
-                ArrayList tps = new ArrayList(_taskProcessors.Values);
-                return ArrayList.ReadOnly(tps);
+                return new List<TaskProcessor>(_taskProcessors.Values).AsReadOnly();
             }
         }
 
@@ -87,7 +87,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <returns>The task processor, if found, otherwise null.</returns>
         public TaskProcessor GetTaskProcessor(Guid guid)
         {
-            return (TaskProcessor)_taskProcessors[guid];
+            return _taskProcessors.TryGetValue(guid, out TaskProcessor taskProcessor) ? taskProcessor : null;
         }
 
         /// <summary>

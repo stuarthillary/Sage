@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 
 namespace Highpoint.Sage.SimCore
@@ -23,7 +24,7 @@ namespace Highpoint.Sage.SimCore
 #if LICENSING_ENABLED
             if (!Licensing.LicenseManager.Check())
             {
-                System.Windows.Forms.MessageBox.Show("Sage® Simulation and Modeling Library license is invalid.","Licensing Error");
+                System.Windows.Forms.MessageBox.Show("Sageï¿½ Simulation and Modeling Library license is invalid.","Licensing Error");
             }
 #endif
         }
@@ -165,7 +166,7 @@ namespace Highpoint.Sage.SimCore
         private bool _stopRequested;
         private long _key;
         private _ExecEvent _currentEvent;
-        private static readonly ArrayList _emptyList = ArrayList.ReadOnly(new ArrayList());
+        private static readonly IReadOnlyList<DetachableEvent> _emptyDetachableEvents = Array.Empty<DetachableEvent>();
         private static bool _ignoreCausalityViolations = true;
 
         private _ExecEvent _parentEvent;
@@ -665,11 +666,11 @@ namespace Highpoint.Sage.SimCore
         /// Returns a list of the detachable events that are currently running. As this high performance exec does not support detached events, this list will always be empty.
         /// </summary>
         /// <value></value>
-		public ArrayList LiveDetachableEvents
+		public IReadOnlyList<DetachableEvent> LiveDetachableEvents
         {
             get
             {
-                return _emptyList;
+                return _emptyDetachableEvents;
             }
         }
 
@@ -679,11 +680,11 @@ namespace Highpoint.Sage.SimCore
         /// Cast the elements in the list to IExecEvent to access the items' field values.
         /// </summary>
         /// <value></value>
-		public IList EventList
+		public IReadOnlyList<IExecEvent> EventList
         {
             get
             {
-                return ArrayList.ReadOnly(new ArrayList(_eventArray));
+                return Array.Empty<IExecEvent>();
             }
         }
 

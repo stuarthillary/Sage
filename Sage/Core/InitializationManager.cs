@@ -2,6 +2,7 @@
 using Highpoint.Sage.Dependencies;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.SimCore
 {
@@ -24,9 +25,9 @@ namespace Highpoint.Sage.SimCore
         #region Private Fields
 
         private static readonly object _token = new object();
-        private ArrayList _zeroDependencyInitializers;
+        private List<object[]> _zeroDependencyInitializers;
         private GraphSequencer _gs;
-        private Hashtable _verts;
+        private Dictionary<Guid, Dv> _verts;
         private IModel _model;
         private int _generation = -1;
         private readonly Action<IModel> _initAction;
@@ -95,8 +96,8 @@ namespace Highpoint.Sage.SimCore
         public void Clear()
         {
             _gs = new GraphSequencer();
-            _verts = new Hashtable();
-            _zeroDependencyInitializers = new ArrayList();
+            _verts = new Dictionary<Guid, Dv>();
+            _zeroDependencyInitializers = new List<object[]>();
         }
 
         public int Generation
@@ -144,8 +145,7 @@ namespace Highpoint.Sage.SimCore
                     throw new InitializationException(REGISTERING_GUID_EMPTY);
                 }
 
-                Dv myDv = (Dv)_verts[myGuid];
-                if (myDv == null)
+                if (!_verts.TryGetValue(myGuid, out Dv myDv))
                 {
                     myDv = new Dv(myGuid);
                     _verts.Add(myGuid, myDv);
@@ -185,8 +185,7 @@ namespace Highpoint.Sage.SimCore
 
         private Dv GetDvForGuid(Guid guid)
         {
-            Dv dv = (Dv)_verts[guid];
-            if (dv == null)
+            if (!_verts.TryGetValue(guid, out Dv dv))
             {
                 dv = new Dv(guid);
                 _verts.Add(dv.MyGuid, dv);

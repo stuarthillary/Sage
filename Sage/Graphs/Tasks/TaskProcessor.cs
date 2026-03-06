@@ -4,6 +4,7 @@ using Highpoint.Sage.Persistence;
 using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;
 
 namespace Highpoint.Sage.Graphs.Tasks
@@ -37,7 +38,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
         #region Protected Fields
         protected IDictionary GraphContext;
-        protected ArrayList _graphContexts = new ArrayList();
+        protected List<IDictionary> _graphContexts = new List<IDictionary>();
         #endregion
 
         #region Constructors
@@ -153,11 +154,11 @@ namespace Highpoint.Sage.Graphs.Tasks
                 _keepGraphContexts = value;
             }
         }
-        public ArrayList GraphContexts
+        public IReadOnlyList<IDictionary> GraphContexts
         {
             get
             {
-                return ArrayList.ReadOnly(_graphContexts);
+                return _graphContexts.AsReadOnly();
             }
         }
         public IDictionary CurrentGraphContext

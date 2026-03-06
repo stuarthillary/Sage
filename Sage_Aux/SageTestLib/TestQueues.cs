@@ -883,7 +883,6 @@ namespace Highpoint.Sage.ItemBased.Queues
             /// </summary>
             public void Abort()
             {
-                _executive.EventList.Clear();
             }
 
             /// <summary>

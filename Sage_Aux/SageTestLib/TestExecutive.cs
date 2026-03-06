@@ -1000,6 +1000,101 @@ namespace Highpoint.Sage.SimCore
             Console.WriteLine(exec.Now + " : Doing \"DoItWithoutSuspension\"");
         }
 
+        // ── Collection-migration coverage tests ──────────────────────────────────
+        // These tests document the behaviors of IExecutive.EventList and
+        // IExecutive.LiveDetachableEvents that must survive the Phase 1 and Phase 2
+        // collection migrations.
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that events queued on the executive appear in EventList in chronological order.")]
+        public void TestEventListContainsQueuedEvents()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            DateTime t1 = new DateTime(2025, 1, 1, 0, 0, 0);
+            DateTime t2 = t1.AddHours(1);
+            DateTime t3 = t1.AddHours(2);
+
+            exec.RequestEvent(new ExecEventReceiver((e, ud) => { }), t3, 0.0, "third");
+            exec.RequestEvent(new ExecEventReceiver((e, ud) => { }), t1, 0.0, "first");
+            exec.RequestEvent(new ExecEventReceiver((e, ud) => { }), t2, 0.0, "second");
+
+            IReadOnlyList<IExecEvent> eventList = exec.EventList;
+            Assert.AreEqual(3, eventList.Count, "EventList should contain 3 queued events");
+
+            // EventList snapshot is sorted chronologically
+            Assert.AreEqual(t1, eventList[0].When, "First event in list should be earliest");
+            Assert.AreEqual(t2, eventList[1].When, "Second event in list should be middle");
+            Assert.AreEqual(t3, eventList[2].When, "Third event in list should be latest");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that EventList.IsReadOnly is true — callers cannot mutate the queue through the list reference.")]
+        public void TestEventListIsReadOnly()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            exec.RequestEvent(new ExecEventReceiver((e, ud) => { }), new DateTime(2025, 6, 1), 0.0, null);
+
+            IReadOnlyList<IExecEvent> eventList = exec.EventList;
+            Assert.IsInstanceOfType(eventList, typeof(IList), "EventList should expose IList for read-only inspection");
+            Assert.IsTrue(((IList)eventList).IsReadOnly, "EventList must be read-only so callers cannot corrupt the event queue");
+        }
+
+        // Fields used by TestLiveDetachableEventsContainsRunningEvent
+        private int _liveDetachCountDuringEvent = -1;
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that LiveDetachableEvents contains the running event during execution and is empty after the executive completes.")]
+        public void TestLiveDetachableEventsContainsRunningEvent()
+        {
+            _liveDetachCountDuringEvent = -1;
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            DateTime when = new DateTime(2025, 3, 15, 10, 0, 0);
+            exec.RequestEvent(new ExecEventReceiver(CaptureDetachableCount), when, 0.0, null, ExecEventType.Detachable);
+            exec.Start();
+
+            Assert.AreEqual(1, _liveDetachCountDuringEvent, "LiveDetachableEvents should contain exactly 1 running event during detachable event execution");
+            Assert.AreEqual(0, exec.LiveDetachableEvents.Count, "LiveDetachableEvents should be empty after all events have completed");
+        }
+
+        private void CaptureDetachableCount(IExecutive exec, object userData)
+        {
+            _liveDetachCountDuringEvent = exec.LiveDetachableEvents.Count;
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that LiveDetachableEvents.IsReadOnly is true — callers cannot mutate the live-event list.")]
+        public void TestLiveDetachableEventsIsReadOnly()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            Assert.IsInstanceOfType(exec.LiveDetachableEvents, typeof(IList), "LiveDetachableEvents should expose IList for read-only inspection");
+            Assert.IsTrue(((IList)exec.LiveDetachableEvents).IsReadOnly, "LiveDetachableEvents must be read-only so callers cannot corrupt the running-event list");
+        }
+
+        // ── Phase 2 prep tests ────────────────────────────────────────────────────
+        // These tests are marked [Ignore] because they require the public API type
+        // changes in Phase 2 (ArrayList → IReadOnlyList<T>).  They will remain
+        // ignored (and compilable) until those changes are applied.
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that IExecutive.EventList is typed as IReadOnlyList<IExecEvent>.")]
+        public void TestEventListTypedAsIReadOnlyList()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            // After Phase 2 this cast must succeed; currently EventList returns IList.
+            Assert.IsInstanceOfType(exec.EventList, typeof(IReadOnlyList<IExecEvent>),
+                "EventList should be typed as IReadOnlyList<IExecEvent> after Phase 2 migration");
+        }
+
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that IExecutive.LiveDetachableEvents is typed as IReadOnlyList<IDetachableEventController>.")]
+        public void TestLiveDetachableEventsTypedAsIReadOnlyList()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            // After Phase 2 this cast must succeed; currently LiveDetachableEvents returns ArrayList.
+            Assert.IsInstanceOfType(exec.LiveDetachableEvents, typeof(IReadOnlyList<IDetachableEventController>),
+                "LiveDetachableEvents should be typed as IReadOnlyList<IDetachableEventController> after Phase 2 migration");
+        }
+
         #region Internal Methods
 
         private void TimeSeparatedTask(IExecutive exec, object userData)

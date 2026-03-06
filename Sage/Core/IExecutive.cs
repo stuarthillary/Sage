@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.SimCore
 {
@@ -214,7 +215,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Returns a list of the detachable events that are currently running.
         /// </summary>
-        ArrayList LiveDetachableEvents
+        IReadOnlyList<DetachableEvent> LiveDetachableEvents
         {
             get;
         }
@@ -223,7 +224,7 @@ namespace Highpoint.Sage.SimCore
         /// Returns a read-only list of the ExecEvents currently in queue for execution.
         /// Cast the elements in the list to IExecEvent to access the items' field values.
         /// </summary>
-        IList EventList
+        IReadOnlyList<IExecEvent> EventList
         {
             get;
         }

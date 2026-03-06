@@ -46,8 +46,8 @@ namespace Highpoint.Sage.SimCore
         #region Private fields
         private static int _modelCounter = 0;
         private StateMachine _stateMachine;
-        private readonly Hashtable _taskProcessors;
-        private readonly IDictionary _parameters;
+        private readonly Dictionary<string, TaskProcessor> _taskProcessors;
+        private readonly Dictionary<string, object> _parameters;
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Model");
         private static readonly bool _dumpWarnings = Diagnostics.DiagnosticAids.Diagnostics("ModelWarnings");
         private static readonly bool _dumpErrors = Diagnostics.DiagnosticAids.Diagnostics("ModelErrors");
@@ -91,11 +91,11 @@ namespace Highpoint.Sage.SimCore
             Exec = CreateModelExecutive();
             _stateMachine = CreateStateMachine();
 
-            _taskProcessors = new Hashtable();
+            _taskProcessors = new Dictionary<string, TaskProcessor>();
 #if CREATION_CONTEXTS
             m_creationContexts = new WeakList();
 #endif
-            _parameters = new Hashtable();
+            _parameters = new Dictionary<string, object>();
 
             if (_dumpErrors)
             {

@@ -363,6 +363,43 @@ namespace Highpoint.Sage.SimCore
 
         }
 
+        [TestMethod]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that all states in the transition matrix are accessible via TransitionHandler and that valid/invalid transitions behave correctly — guards against Hashtable→Dictionary migration regressions in StateMachine._stateTranslationTable.")]
+        public void TestStateMachineAllStatesAccessibleViaDictionary()
+        {
+            StateMachine sm = Initialize(false);
+
+            // Every valid TransitionHandler lookup must succeed without throwing.
+            // This exercises the full internal state-translation dictionary for all 5 states.
+            _ = sm.TransitionHandler(States.Idle,      States.Validated);
+            _ = sm.TransitionHandler(States.Idle,      States.Finished);
+            _ = sm.TransitionHandler(States.Validated, States.Idle);
+            _ = sm.TransitionHandler(States.Validated, States.Running);
+            _ = sm.TransitionHandler(States.Validated, States.Finished);
+            _ = sm.TransitionHandler(States.Running,   States.Idle);
+            _ = sm.TransitionHandler(States.Running,   States.Paused);
+            _ = sm.TransitionHandler(States.Running,   States.Finished);
+            _ = sm.TransitionHandler(States.Paused,    States.Idle);
+            _ = sm.TransitionHandler(States.Paused,    States.Running);
+            _ = sm.TransitionHandler(States.Paused,    States.Finished);
+            _ = sm.TransitionHandler(States.Finished,  States.Idle);
+
+            // Illegal transitions must throw TransitionFailureException when attempted.
+            Assert.ThrowsException<TransitionFailureException>(
+                () => sm.DoTransition(States.Paused, _batch),
+                "DoTransition from Idle to Paused (illegal) should throw TransitionFailureException");
+
+            // After a failed illegal transition the machine must remain in Idle.
+            Assert.IsTrue(States.Idle.Equals(sm.State), "State should remain Idle after failed illegal transition");
+
+            // A valid transition must succeed and update the state.
+            sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
+            sm.TransitionHandler(States.Idle, States.Validated).Commit  += CommitTransitiontoValid;
+            sm.DoTransition(States.Validated, _batch);
+            Assert.IsTrue(States.Validated.Equals(sm.State),
+                "State should be Validated after successful Idle→Validated transition — dictionary lookup must work for all states");
+        }
+
         #region Internal Methods
 
         private StateMachine Initialize()
