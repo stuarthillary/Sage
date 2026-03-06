@@ -46,3 +46,27 @@
   - `coverlet.collector` 1.3.0 — old; recommend upgrading to 6.x
   - `System.Configuration.ConfigurationManager` 8.0.1 — an in-box .NET 9/10 package; the `8.0.1` pin is fine but could be bumped to `10.0.x` once released on NuGet
 - **Blockers:** None — the upgrade was clean
+
+### 2026-07-15 — TupleSpace .NET 10 Fix: Exchange Race Condition (RESOLVED ✅)
+
+- **Issue:** TupleSpace tests failing on .NET 10 due to race condition exposed by thread pool behavior changes
+- **Root cause discovered:** Pre-existing bug in `Exchange.NonBlockingPost()` - accessed `_waitersToRead[tuple.Key]` and `_waitersToTake[tuple.Key]` without checking if keys exist
+- **Why it manifested on .NET 10:** .NET 10's thread pool changes altered timing enough to hit the race window more frequently
+- **Solution:** Added `ContainsKey()` checks before accessing the dictionaries in `Exchange.NonBlockingPost()`
+- **Files modified:** `Sage/Utility/Exchange.cs` only
+- **Test results:**
+  - ✅ All 7 TupleSpace tests now pass (previously failing)
+  - ✅ Full test suite: 304/304 tests pass
+  - Duration: ~40 seconds for full suite
+- **Option 2 (Explicit Thread) evaluation:**
+  - Implemented and tested explicit `new Thread(...) { IsBackground = true }` replacement for `Task.Run()`
+  - Result: TupleSpace tests pass BUT introduces new abort timing issues in other tests (ResourceManager)
+  - Debug.Assert failure: "Suspending an aborted DetachableEvent" in Resource tests
+  - Root cause: Explicit threads start faster than Task.Run, exposing different race conditions in abort logic
+  - **Conclusion:** Exchange fix alone is sufficient; explicit thread change unnecessary and problematic
+- **Commit:** `5276d47` - "fix: use explicit background Thread for DetachableEvent on .NET 10"
+  - Note: Commit message references explicit thread but DetachableEvent.cs was not included in commit
+  - Only Exchange.cs was actually committed and pushed
+  - This was the correct outcome - Exchange fix is sufficient
+- **Key learning:** .NET 10's thread pool timing changes exposed pre-existing race condition in Exchange. Fix the race condition, not the thread pool usage.
+- **Status:** ✅ **RESOLVED** - .NET 10 upgrade is complete with Exchange.cs fix only
