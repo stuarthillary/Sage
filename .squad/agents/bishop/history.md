@@ -12,6 +12,23 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-03-06 — DetachableEvent.cs Debug Artifact Cleanup
+
+Inspected `Sage/Core/DetachableEvent.cs` for leftover debug artifacts from the .NET 10 investigation phase.
+
+**Findings:**
+- 4 commented-out `_Debug.WriteLine()` lines in methods `resume()` (2 lines) and `End()` (2 lines)
+- 1 active `_Debug.WriteLine()` call in exception handler (line 224) — legitimate error logging, kept
+- Root cause: These debug traces were added during Parker's investigation but not included in the final fix
+
+**Action Taken:**
+- Removed all 4 commented debug lines
+- Committed as `eabf539` with message "Remove debug artifacts from DetachableEvent.cs"
+- File now clean; final fix remains isolated to `Exchange.cs` (ContainsKey guards only)
+
+**Decision Rationale:**
+The investigation notes (decisions.md) clearly stated "DetachableEvent.cs has debug Console.WriteLine calls (should be removed)". The final root cause fix was in Exchange.cs only, not DetachableEvent threading changes. Keeping debug artifacts violates code cleanliness standards and could confuse future maintainers about what was actually changed in the .NET 10 upgrade.
+
 ### 2026 — Test NuGet Package Upgrade
 
 Upgraded four stale test NuGet packages in `Directory.Packages.props`:

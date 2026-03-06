@@ -337,6 +337,32 @@ Branch `feature/dotnet10` has partial changes from investigation:
 
 ---
 
+### 2026-03-06 — DetachableEvent.cs Debug Cleanup (COMPLETE)
+
+**Agent:** Bishop  
+**Branch:** `feature/dotnet10`  
+**Commit:** `eabf539`
+
+**Decision:** Remove debug artifacts (commented-out `_Debug.WriteLine()` calls) from `DetachableEvent.cs` left over from Parker's .NET 10 investigation.
+
+**Findings:**
+- 4 commented-out debug lines in `Resume()` and `End()` methods
+- All lines were `_Debug.WriteLine()` traces from investigation phase
+- 1 active `_Debug.WriteLine()` in exception handler (line 224) retained as legitimate error logging
+
+**Action:** Removed all 4 commented debug lines and committed.
+
+**Rationale:**
+1. Code cleanliness — commented debug code violates production standards
+2. Clarity — future maintainers see only the changes that actually fixed the issue (Exchange.cs)
+3. Alignment — decisions.md explicitly noted "DetachableEvent debug calls (should be removed)"
+
+**Impact:** `feature/dotnet10` branch is **merge-ready**. No functional changes; debug cleanup only.
+
+**Related to:** TupleSpace .NET 10 fix (commit `5276d47`). Final state: only Exchange.cs changed (ContainsKey guards), DetachableEvent.cs clean.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus

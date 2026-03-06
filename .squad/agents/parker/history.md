@@ -47,6 +47,17 @@
   - `System.Configuration.ConfigurationManager` 8.0.1 — an in-box .NET 9/10 package; the `8.0.1` pin is fine but could be bumped to `10.0.x` once released on NuGet
 - **Blockers:** None — the upgrade was clean
 
+### 2026-03-06 — DetachableEvent.cs Debug Cleanup (COMPLETE)
+
+**Agent:** Bishop  
+**Commit:** `eabf539`
+
+- Debug artifacts in `DetachableEvent.cs` from Parker's .NET 10 investigation have been removed
+- 4 commented-out `_Debug.WriteLine()` lines cleaned
+- File is now production-ready
+- `feature/dotnet10` branch confirmed merge-ready
+- This completes cleanup for the .NET 10 Exchange.cs fix (commit `5276d47`)
+
 ### 2026-07-15 — TupleSpace .NET 10 Fix: Exchange Race Condition (RESOLVED ✅)
 
 - **Issue:** TupleSpace tests failing on .NET 10 due to race condition exposed by thread pool behavior changes
