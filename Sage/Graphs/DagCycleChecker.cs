@@ -22,7 +22,7 @@ namespace Highpoint.Sage.Graphs
         private readonly IEdge _rootEdge;
         private readonly List<DagStructureError> _errors;
         private bool _haltOnError;
-        private readonly Stack _currentPath;
+        private readonly Stack<object> _currentPath;
         private int _level = 0;
         private readonly Hashtable _nodes;
         private bool _collapse;
@@ -39,7 +39,7 @@ namespace Highpoint.Sage.Graphs
         {
             _rootEdge = rootEdge;
             _haltOnError = true;
-            _currentPath = new Stack();
+            _currentPath = new Stack<object>();
             _errors = new List<DagStructureError>();
             _nodes = new Hashtable();
             _collapse = collapse;

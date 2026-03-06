@@ -27,7 +27,7 @@ namespace Highpoint.Sage.Scheduling
         private Guid _guid = Guid.Empty;
         private readonly string _description = null;
         private List<MilestoneRelationship> _relationships;
-        private Stack _activeStack;
+        private Stack<bool> _activeStack;
         private readonly bool _isActive;
         private readonly MilestoneMovementManager _movementManager = null;
         #endregion
@@ -138,13 +138,13 @@ namespace Highpoint.Sage.Scheduling
 
         #region Active state management
 
-        public Stack ActiveStack
+        public Stack<bool> ActiveStack
         {
             get
             {
                 if (_activeStack == null)
                 {
-                    _activeStack = new Stack();
+                    _activeStack = new Stack<bool>();
                     _activeStack.Push(_isActive);
                 }
                 return _activeStack;
@@ -155,12 +155,12 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                return (bool)ActiveStack.Peek();
+                return ActiveStack.Peek();
             }
 
             set
             {
-                bool was = (bool)ActiveStack.Pop();
+                bool was = ActiveStack.Pop();
                 ActiveStack.Push(value);
                 if (was != value)
                     NotifyEnabledChanged();
@@ -170,7 +170,7 @@ namespace Highpoint.Sage.Scheduling
 
         public void PushActiveSetting(bool newSetting)
         {
-            bool was = (bool)ActiveStack.Peek();
+            bool was = ActiveStack.Peek();
             ActiveStack.Push(newSetting);
             if (was != newSetting)
                 NotifyEnabledChanged();
@@ -178,8 +178,8 @@ namespace Highpoint.Sage.Scheduling
 
         public void PopActiveSetting()
         {
-            bool was = (bool)ActiveStack.Pop();
-            bool newSetting = (bool)ActiveStack.Peek();
+            bool was = ActiveStack.Pop();
+            bool newSetting = ActiveStack.Peek();
             if (was != newSetting)
                 NotifyEnabledChanged();
 
@@ -277,8 +277,8 @@ namespace Highpoint.Sage.Scheduling
             #region Private Fields
             private static readonly object _lock = new object();
             private static Hashtable _oldValues = new Hashtable();
-            private static Stack _pushedDisablings = new Stack();
-            private static Queue _changedMilestones = new Queue();
+            private static Stack<MilestoneRelationship> _pushedDisablings = new Stack<MilestoneRelationship>();
+            private static Queue<Milestone> _changedMilestones = new Queue<Milestone>();
             #endregion
 
             public static void Adjust(Milestone prospectiveMover, DateTime newValue)
@@ -308,7 +308,7 @@ namespace Highpoint.Sage.Scheduling
                     // And reset the data structures for the next use.
                     _oldValues.Clear();
                     while (_pushedDisablings.Count > 0)
-                        ((MilestoneRelationship)(_pushedDisablings.Pop())).PopEnabled();
+                        _pushedDisablings.Pop().PopEnabled();
                     _changedMilestones.Clear();
                 }
             }
@@ -317,7 +317,7 @@ namespace Highpoint.Sage.Scheduling
             {
                 while (_changedMilestones.Count > 0)
                 {
-                    Milestone ms = (Milestone)_changedMilestones.Dequeue();
+                    Milestone ms = _changedMilestones.Dequeue();
                     if (_debug)
                         _Debug.WriteLine("\tPerforming propagation of change to " + ms.Name);
 
@@ -431,11 +431,11 @@ namespace Highpoint.Sage.Scheduling
 #if UNUSED
 			private static void CheckForCyclicDependencies(Milestone prospectiveMover){
 				Console.WriteLine("******************************************************************************");
-				Stack callStack = new Stack();
+				Stack<object> callStack = new Stack<object>();
 				_CheckForCyclicDependencies(prospectiveMover, ref callStack);
 			}
 
-			private static void _CheckForCyclicDependencies(IMilestone prospectiveMover, ref Stack callStack){
+			private static void _CheckForCyclicDependencies(IMilestone prospectiveMover, ref Stack<object> callStack){
 				if ( !callStack.Contains(prospectiveMover) ) {
 					callStack.Push(prospectiveMover);
 					foreach ( MilestoneRelationship mr in prospectiveMover.Relationships ) {

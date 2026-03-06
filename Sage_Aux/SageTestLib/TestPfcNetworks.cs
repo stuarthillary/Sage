@@ -813,12 +813,12 @@ namespace Highpoint.Sage.Graphs.PFC
 
         sealed class TestEvaluator
         {
-            private Queue _nextExpected;
+            private System.Collections.Generic.Queue<IPfcNode> _nextExpected;
             private ArrayList _linkablesToMonitor;
 
             public TestEvaluator(IPfcNode[] linkablesToMonitor)
             {
-                _nextExpected = new Queue();
+                _nextExpected = new System.Collections.Generic.Queue<IPfcNode>();
                 _linkablesToMonitor = new ArrayList(linkablesToMonitor);
                 foreach (IPfcNode t in linkablesToMonitor)
                 {
@@ -848,7 +848,7 @@ namespace Highpoint.Sage.Graphs.PFC
             private void onActivationHappened(IPfcNode whoActivated)
             {
                 Assert.IsTrue(_nextExpected.Count > 0, "Unexpected activation occurred on " + whoActivated.Name + ".");
-                IPfcNode t = (IPfcNode)_nextExpected.Dequeue();
+                IPfcNode t = _nextExpected.Dequeue();
                 Assert.AreEqual(t, whoActivated, "" + whoActivated.Name + " activated, but we were expecting " + t.Name + " to do so. This is an error.");
                 Console.WriteLine("Activation happened with " + t.Name + ".");
             }

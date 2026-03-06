@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Scheduling
 {
@@ -18,7 +19,7 @@ namespace Highpoint.Sage.Scheduling
     {
 
         #region Private Fields
-        private readonly Stack _enabled;
+        private readonly Stack<bool> _enabled;
         /// <summary>
         /// The dependent milestone affected by this milestone.
         /// </summary>
@@ -43,7 +44,7 @@ namespace Highpoint.Sage.Scheduling
         {
             this.independent = independent;
             this.dependent = dependent;
-            _enabled = new Stack();
+            _enabled = new Stack<bool>();
             _enabled.Push(true);
             if (this.independent != null)
                 this.independent.AddRelationship(this);
@@ -94,7 +95,7 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                return (bool)_enabled.Peek();
+                return _enabled.Peek();
             }
             set
             {

@@ -16,7 +16,7 @@ namespace Highpoint.Sage.ItemBased.Queues
     {
 
         #region Member Variables
-        private System.Collections.Queue _queue;
+        private System.Collections.Generic.Queue<object> _queue;
         private SimpleInputPort _input;
         private SimpleOutputPort _output;
         private int _max;
@@ -46,7 +46,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             InitializeIdentity(model, name, "", guid);
             _max = max;
 
-            _queue = new System.Collections.Queue();
+            _queue = new System.Collections.Generic.Queue<object>();
 
             Guid inGuid = Utility.GuidOps.Increment(guid);
             Guid outGuid = Utility.GuidOps.Increment(inGuid);
@@ -139,7 +139,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             LevelChangedEvent += new QueueLevelChangeEvent(OnQueueLevelChanged);
 
             _max = (int)p[0];
-            _queue = new System.Collections.Queue(_max);
+            _queue = new System.Collections.Generic.Queue<object>(_max);
 
 
         }

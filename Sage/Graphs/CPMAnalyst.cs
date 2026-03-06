@@ -58,7 +58,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		private static readonly IList s_emptylist = Array.Empty<Edge>();
 
 		private bool m_analyzed = false;
-		private Stack m_traceStack;
+		private Stack<Vertex> m_traceStack;
 
 		/// <summary>
 		/// The start vertex for the section of the graph that is to be analyzed.
@@ -92,7 +92,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		public CpmAnalyst(Edge edge){
 			Start = edge.PreVertex;
 			Finish = edge.PostVertex;
-			m_traceStack = new Stack();
+			m_traceStack = new Stack<Vertex>();
 			Reset();
 		}
 
@@ -208,7 +208,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <param name="vertex">The vertex from which the backward probing is to be done.</param>
 		/// <param name="elapsedTime">The time that has elapsed thus far in the backward traversal.</param>
 		protected void ProbeBackward(Vertex vertex, long elapsedTime){
-			string fromVertexName = m_traceStack.Count>0?((Vertex)m_traceStack.Peek()).Name:"<root>";
+			string fromVertexName = m_traceStack.Count > 0 ? m_traceStack.Peek().Name : "<root>";
 //			if ( vertex.Name.Equals("D : Sample4:Post") ) {
 //				Console.WriteLine("Tracing back to " + vertex.Name + " from ... ");
 //				foreach ( Vertex v in m_traceStack ) {

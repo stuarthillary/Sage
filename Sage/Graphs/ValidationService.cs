@@ -33,7 +33,7 @@ namespace Highpoint.Sage.Graphs.Validity
         private bool _dirty;
         private readonly StructureChangeHandler _structureChangeListener;
         private Dictionary<IHasValidity, ValidityNode> _htNodes;
-        private readonly Stack _suspendResumeStack;
+        private readonly Stack<string> _suspendResumeStack;
         private Dictionary<IHasValidity, bool> _oldValidities = null; // For holding pre-refresh validities so that refresh can fire the right change events.
         #endregion
 
@@ -60,7 +60,7 @@ namespace Highpoint.Sage.Graphs.Validity
             _dirty = true;
             _structureChangeListener = new StructureChangeHandler(OnStructureChange);
             if (_diagnostics)
-                _suspendResumeStack = new Stack();
+                _suspendResumeStack = new Stack<string>();
             _knownServices.Add(this);
             Refresh();
 
@@ -116,7 +116,7 @@ namespace Highpoint.Sage.Graphs.Validity
                 System.Diagnostics.StackFrame sf = st.GetFrame(1);
                 string where = sf.GetMethod() + " [" + sf.GetFileName() + ", line " + sf.GetFileLineNumber() + "]";
                 where = where.Split(new char[] { ',' }, 2)[0];
-                string stackThinks = (string)_suspendResumeStack.Pop();
+                string stackThinks = _suspendResumeStack.Pop();
                 stackThinks = stackThinks.Split(new char[] { ',' }, 2)[0];
                 // TODO: Move this into an Errors & Warnings collection on the model.
                 if (!where.Equals(stackThinks, StringComparison.Ordinal))

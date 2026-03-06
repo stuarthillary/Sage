@@ -1,7 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using _Debug = System.Diagnostics.Debug;
-using System.Collections;
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.ItemBased.Ports;
 using System.Collections.Generic;
@@ -22,7 +21,7 @@ namespace Highpoint.Sage.ItemBased.Channels
 		private DateTime _lastEntryAcceptanceTime;
 		private TimeSpan _entryPeriod;
 		private TimeSpan _transitPeriod;
-		private readonly Queue _queue;
+		private readonly Queue<Bin> _queue;
 		private readonly ExecEventReceiver _dequeueEventHandler;
 		#endregion
 
@@ -41,7 +40,7 @@ namespace Highpoint.Sage.ItemBased.Channels
 			_transitPeriod = transitPeriod;
 			_capacity = capacity;
 			_entryPeriod = TimeSpan.FromTicks((long)((double)_transitPeriod.Ticks/_capacity));
-			_queue = new Queue();
+			_queue = new Queue<Bin>();
 			_entry = new SimpleInputPort(model, "Entry", Guid.NewGuid(), this, new DataArrivalHandler(OnEntryAttempted));
             _exit = new SimpleOutputPort(model, "Exit", Guid.NewGuid(), this, new DataProvisionHandler(CantTakeFromChannel), new DataProvisionHandler(CantPeekFromChannel));
             //m_ports.AddPort(m_entry); <-- Done in port's ctor.

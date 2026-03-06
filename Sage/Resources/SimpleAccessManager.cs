@@ -1,6 +1,7 @@
 ﻿/* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Resources
 {
@@ -26,7 +27,7 @@ namespace Highpoint.Sage.Resources
 
         private readonly Hashtable _monitoredObjects;
         private readonly bool _autoDeleteEmptyStacks;
-        private Stack _defaultAccessRegulators;
+        private Stack<IAccessRegulator> _defaultAccessRegulators;
 
         #endregion
 
@@ -46,7 +47,7 @@ namespace Highpoint.Sage.Resources
         {
             _autoDeleteEmptyStacks = autoDeleteEmptyStacks;
             _monitoredObjects = new Hashtable();
-            _defaultAccessRegulators = new Stack();
+            _defaultAccessRegulators = new Stack<IAccessRegulator>();
         }
 
         /// <summary>
@@ -60,15 +61,15 @@ namespace Highpoint.Sage.Resources
             if (subject == null)
             {
                 if (_defaultAccessRegulators == null)
-                    _defaultAccessRegulators = new Stack();
+                    _defaultAccessRegulators = new Stack<IAccessRegulator>();
                 _defaultAccessRegulators.Push(accReg);
             }
             else
             {
-                Stack stack = (Stack)_monitoredObjects[subject];
+                Stack<IAccessRegulator> stack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
                 if (stack == null)
                 {
-                    stack = new Stack();
+                    stack = new Stack<IAccessRegulator>();
                     _monitoredObjects.Add(subject, stack);
                 }
                 stack.Push(accReg);
@@ -92,7 +93,7 @@ namespace Highpoint.Sage.Resources
             }
             else
             {
-                Stack stack = (Stack)_monitoredObjects[subject];
+                Stack<IAccessRegulator> stack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
                 if (stack != null)
                 {
                     retval = (IAccessRegulator)stack.Pop();
@@ -111,10 +112,10 @@ namespace Highpoint.Sage.Resources
         /// <returns>True if the acquire will be allowed, false if not.</returns>
         public bool CanAcquire(object subject, object usingKey)
         {
-            Stack myStack = (Stack)_monitoredObjects[subject];
+            Stack<IAccessRegulator> myStack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
             if (myStack != null)
             {
-                IAccessRegulator iar = (IAccessRegulator)myStack.Peek();
+                IAccessRegulator iar = myStack.Peek();
                 return (iar == null || iar.CanAcquire(subject, usingKey));
             }
             else

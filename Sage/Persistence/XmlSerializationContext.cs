@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
 using _Debug = System.Diagnostics.Debug;
@@ -30,7 +31,7 @@ namespace Highpoint.Sage.Persistence
         private Hashtable _typesByIndex;
         private Hashtable _indexesByType;
         private ISerializer _enumXmlSerializer;
-        private Stack _nodeCursor;
+        private Stack<XmlNode> _nodeCursor;
         private int _typeNum;
         private int _objectNum;
         #endregion
@@ -113,14 +114,14 @@ namespace Highpoint.Sage.Persistence
         /// <returns>XmlNode.</returns>
         public XmlNode PopNode()
         {
-            return (XmlNode)_nodeCursor.Pop();
+            return _nodeCursor.Pop();
         }
 
         /// <summary>
         /// Gets the current node.
         /// </summary>
         /// <value>The current node.</value>
-        public XmlNode CurrentNode => (XmlNode)_nodeCursor.Peek();
+        public XmlNode CurrentNode => _nodeCursor.Peek();
 
         #region ISerializer Members
         /// <summary>
@@ -261,7 +262,7 @@ namespace Highpoint.Sage.Persistence
             _indexesByType = new Hashtable();
             ContextEntities = new Hashtable();
             _enumXmlSerializer = new EnumXmlSerializer(this);
-            _nodeCursor = new Stack();
+            _nodeCursor = new Stack<XmlNode>();
             _nodeCursor.Push(_archive);
             _typeNum = 0;
             _objectNum = 0;

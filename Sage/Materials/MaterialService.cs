@@ -815,7 +815,7 @@ namespace Highpoint.Sage.Materials
             // recently failed is still at the head of the queue, and is the one that
             // is reserved with a wait-lock.
 
-            Queue rscQueue = new Queue();
+            Queue<ReservationPair> rscQueue = new Queue<ReservationPair>();
 
             #region >>> Load the queue with the token request, material requests and capacity request. <<<
             if (ServiceTokens != null && strr != null)
@@ -831,7 +831,7 @@ namespace Highpoint.Sage.Materials
             bool nextIsMaster = true;
             while (true && rscQueue.Count > 0)
             {
-                ReservationPair rp = (ReservationPair)rscQueue.Peek();
+                ReservationPair rp = rscQueue.Peek();
                 if (rp.Succeeded)
                     break; // We've acquired all of them.
                 rp.Succeeded = rp.ResourceManager.Reserve(rp.ResourceRequest, nextIsMaster);

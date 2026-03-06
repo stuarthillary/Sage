@@ -1,6 +1,7 @@
 ﻿/* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
+using System.Collections.Generic;
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -143,7 +144,7 @@ namespace Highpoint.Sage.Resources
             // is reserved with a wait-lock.
 
             Hashtable successes = new Hashtable();
-            Queue rscQueue = new Queue();
+            Queue<IResourceRequest> rscQueue = new Queue<IResourceRequest>();
 
             #region >>> Load the queue with the resource requests. <<< 
             foreach (IResourceRequest irr in requests)
@@ -154,7 +155,7 @@ namespace Highpoint.Sage.Resources
             bool nextIsMaster = true;
             while (rscQueue.Count > 0)
             {
-                IResourceRequest rp = (IResourceRequest)rscQueue.Peek();
+                IResourceRequest rp = rscQueue.Peek();
                 if (successes.Contains(rp))
                     break; // We've acquired all of them.
                 bool rpSucceeded = rp.Reserve(null, nextIsMaster);

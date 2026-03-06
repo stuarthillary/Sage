@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;
 
 namespace Highpoint.Sage.Dependencies
@@ -157,7 +158,7 @@ namespace Highpoint.Sage.Dependencies
                         IDependencyVertex root = next.Underlying;
                         ArrayList members = new ArrayList();
                         members.Add(root);
-                        Stack stack = new Stack();
+                        Stack<IDependencyVertex> stack = new Stack<IDependencyVertex>();
                         foreach (IDependencyVertex parent in root.PredecessorList)
                         {
                             if (!FindCycle(root, parent, ref members, ref stack))
@@ -191,7 +192,7 @@ namespace Highpoint.Sage.Dependencies
 
         }
 
-        private bool FindCycle(IDependencyVertex root, IDependencyVertex next, ref ArrayList members, ref Stack stack)
+        private bool FindCycle(IDependencyVertex root, IDependencyVertex next, ref ArrayList members, ref Stack<IDependencyVertex> stack)
         {
 
             if (_diagnostics_StackCheck)
@@ -201,7 +202,7 @@ namespace Highpoint.Sage.Dependencies
                     string msg = "GraphSequencer has detected a dependency cycle in the initialization sequence of this model.\r\n";
                     IDependencyVertex thisDv = next;
                     int depct = 1;
-                    foreach (IDependencyVertex idv in (object[])stack.ToArray())
+                    foreach (IDependencyVertex idv in stack.ToArray())
                     {
                         msg += $"{(depct++)}.) {thisDv} depends on {idv}.\r\n";
                         thisDv = idv;

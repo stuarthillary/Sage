@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using _Debug = System.Diagnostics.Debug;
 using System.Collections;
+using System.Collections.Generic;
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
 
@@ -287,7 +288,7 @@ namespace Highpoint.Sage.DynamicConstruction {
 
 #region Key Fields
 		Model Model { get; } 
-		Stack ParentObjectStack { get; }
+		Stack<object> ParentObjectStack { get; }
 		Hashtable Whiteboard { get; }
 		Hashtable Specifications { get; }
 #endregion
@@ -323,7 +324,7 @@ namespace Highpoint.Sage.DynamicConstruction {
 		private IModel m_model;
 		private Guid m_guid;
 		private Hashtable m_whiteboard;
-		private Stack m_parentStack;
+		private Stack<object> m_parentStack;
 		/*
 		private Hashtable m_instanceGuids;
 		private Hashtable m_specificationGuids;
@@ -392,7 +393,7 @@ namespace Highpoint.Sage.DynamicConstruction {
 
 			m_requirements = new Hashtable();
 			m_specifications = new Hashtable();
-			m_parentStack = new Stack();
+			m_parentStack = new Stack<object>();
 			m_model = model;
 			m_model.AddCreationContext(this);
 			foreach ( ISpecification spec in rootSpec.GetChildSpecifications(true) ) {
@@ -410,7 +411,7 @@ namespace Highpoint.Sage.DynamicConstruction {
 #region Key Fields
 		public IModel Model => m_model; 
 
-		public Stack ParentObjectStack { get { return m_parentStack; } }
+		public Stack<object> ParentObjectStack { get { return m_parentStack; } }
 
 		public Hashtable Whiteboard { get { return m_whiteboard; } }
 

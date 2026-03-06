@@ -27,7 +27,7 @@ namespace Highpoint.Sage.SimCore
         private const int InitialEventHeapCapacity = 16;
         private ExecEvent[] _eventHeap;
         private int _eventHeapCapacity;
-        private Stack _removals = new Stack();
+        private Stack<ExecEventRemover> _removals = new Stack<ExecEventRemover>();
         private double _currentPriorityLevel = double.MinValue;
         private long _nextReqHashCode = 0;
         private bool _stopRequested = false;
@@ -703,7 +703,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                     #region Process queued-up event removal requests
                     while (_removals.Count > 0)
                     {
-                        ExecEventRemover er = (ExecEventRemover)_removals.Pop();
+                        ExecEventRemover er = _removals.Pop();
                         lock (_eventLock)
                         {
                             List<ExecEvent> remainingEvents = er.Filter(GetEventSnapshot(), CompareEvents);

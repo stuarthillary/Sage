@@ -37,7 +37,7 @@ namespace Highpoint.Sage.Scheduling
         private TimeSpan _duration;
         private bool _hasDuration;
         private TimeAdjustmentMode _adjustmentMode;
-        private Stack _adjustmentModeStack;
+        private Stack<TimeAdjustmentMode> _adjustmentModeStack;
         private ArrayList _adjustmentModeRelationships;
         private readonly string _name;
         private Guid _guid;
@@ -123,7 +123,7 @@ namespace Highpoint.Sage.Scheduling
         {
             if (_supportsReactiveAdjustment)
             {
-                _adjustmentModeStack = new Stack();
+                _adjustmentModeStack = new Stack<TimeAdjustmentMode>();
                 _adjustmentModeRelationships = new ArrayList();
 
                 // These two are always present, and always active, therefore we do not put them in the
@@ -231,7 +231,7 @@ namespace Highpoint.Sage.Scheduling
         /// <returns>The newly-popped time period adjustment mode.</returns>
         public TimeAdjustmentMode PopAdjustmentMode()
         {
-            AdjustmentMode = (TimeAdjustmentMode)_adjustmentModeStack.Pop();
+            AdjustmentMode = _adjustmentModeStack.Pop();
             return AdjustmentMode;
         }
         #endregion
