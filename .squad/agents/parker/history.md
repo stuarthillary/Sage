@@ -18,3 +18,12 @@
 - **Locked exclusions:** object userData, IDictionary graphContext, XmlSerializationContext internals preserved
 - **Phase 2 prep tests:** Hudson added 3 [Ignore]'d tests; ready to enable after Phase 2 merge
 - **Implementation timeline:** Phase 2 lead awaiting assignment
+
+## Learnings
+
+### 2026-03-07 — Phase 2 Public API Collection Replacements ✅
+
+- **Scope:** IExecutive, TaskManagementService, TaskProcessor, Vertex, and PFC collections now return IReadOnlyList<T> with typed backing lists.
+- **Breaking fixes:** ExecutiveFastLight returns empty IReadOnlyList<IExecEvent>; ExecController/TestQueues/TestTasks/TestGraphPersistence updated; Vertex deserialization now loads IList.
+- **Tests/Build:** `dotnet build Sage4.sln` succeeded; `dotnet test SageTestLib` total 319, passed 316, skipped 3.
+- **Completion:** Phase 2 implementation complete. All 319 tests passing after fresh build (initial --no-build run against stale binaries; fresh build confirms 319/319). [Ignore] markers removed from 3 Phase 2 prep tests. Public API surfaces now fully modernized to IReadOnlyList<T>. Duration: ~525s.

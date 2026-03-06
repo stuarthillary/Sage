@@ -712,3 +712,34 @@ All 310 pre-existing tests continue to pass. 6 new tests pass. 3 Phase 2 prep te
 3. `InvalidTransitionHandler.IsValidTransition` uses `new` instead of `override`, so calling via `ITransitionHandler` always returns `true`. This is a pre-existing design issue; it does not affect runtime correctness (illegal transitions still throw) but is misleading. Consider fixing in a future refactor.
 
 
+
+---
+
+## Decision: Phase 2 — Public API Collection Replacements ✅
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-03-07  
+**Status:** COMPLETE  
+**Branch:** feature/dotnet10  
+
+### Summary
+# Phase 2 — Public API Collection Replacements
+
+## Summary
+Implemented Ripley’s Phase 2 collection API changes across Core and Graphs while preserving locked exclusions (object userData, IDictionary graphContext, XmlSerializationContext internals, DynamicConstruction). Updated public interfaces to IReadOnlyList<T>, migrated backing collections to generics, and fixed affected call sites.
+
+## Changes Applied
+- **IExecutive**: `LiveDetachableEvents` → `IReadOnlyList<DetachableEvent>`, `EventList` → `IReadOnlyList<IExecEvent>`.
+- **Executive**: `RunningDetachables` now `List<DetachableEvent>`; `LiveDetachableEvents` returns `AsReadOnly()`; `EventList` returns sorted snapshot `AsReadOnly()`.
+- **ExecutiveFastLight**: `LiveDetachableEvents` returns empty `IReadOnlyList<DetachableEvent>`; `EventList` returns empty `IReadOnlyList<IExecEvent>`.
+- **Task management**: `ITaskManagementService.TaskProcessors` now `IReadOnlyList<TaskProcessor>`; `TaskManagementService` uses `Dictionary<Guid, TaskProcessor>`.
+- **TaskProcessor**: `_graphContexts` now `List<IDictionary>`; `GraphContexts` returns `IReadOnlyList<IDictionary>`.
+- **Vertex**: `PreEdges`/`PostEdges` now `List<Edge>`; read-only accessors return `AsReadOnly()`; XML deserialization now casts to `IList`.
+- **PFC**: `ProcedureFunctionChart` uses `HashtableOfLists<string, IPfcElement>`.
+- **Callers/tests**: Updated ExecController, TestQueues, TestTasks, TestGraphPersistence, TestExecutive; removed Phase 2 `[Ignore]` markers (TestExecutive and TestGraphBranching).
+
+## Tests
+- `dotnet build E:\source\Sage\Sage4.sln --no-incremental -v minimal`
+- `dotnet test E:\source\Sage\Sage_Aux\SageTestLib\SageTestLib.csproj --no-build -v minimal`
+  - **Result:** total 319, passed 316, skipped 3
+
