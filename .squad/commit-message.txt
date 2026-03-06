@@ -1,25 +1,14 @@
-docs: Document Executive heap replacement completion and test coverage enhancements
+docs: log non-generic collection analysis — Ripley strategy + Parker inventory
 
-**Scope:** Executive event queue modernization initiative
-
-**Changes:**
-- Merged 2 completed decisions from inbox into decisions.md:
-  1. Executive Event Queue Heap Replacement (Parker) - Complete & Tested
-  2. Executive Test Coverage Enhancement for Heap Replacement (Hudson) - Complete
-- Updated parker/history.md with heap implementation completion entry
-- Updated hudson/history.md with test coverage completion entry
-- Archived inbox decision files after merge
-
-**Status:**
-- ✅ Heap implementation: 310/310 tests passing (304 existing + 6 new)
-- ✅ Build: Clean, 0 new errors
-- ✅ Test coverage: Comprehensive (tie-breaking, predicates, empty queue, EventList, removal+reinsertion)
-- ✅ Ready for merge to main
-
-**Files Modified:**
-- .squad/decisions.md (added 2 new decisions to Active section)
-- .squad/agents/parker/history.md (added 2026-03-06 completion entry)
-- .squad/agents/hudson/history.md (added 2026-03-06 completion entry)
-- .squad/decisions/inbox/* (deleted 2 files: parker-heap-implementation.md, hudson-test-coverage-heap.md)
+- Orchestration log: documented analysis round with Ripley, Parker, and explorers
+- Session log: brief summary of key findings and decisions
+- Decision log: merged inbox files into decisions.md with complete 3-phase strategy
+  * Phase 1 (60%, non-breaking): internal fields/locals, start immediately
+  * Phase 2 (30%, breaking): public API surface, defer to major release
+  * Phase 3 (10%, intentional): architectural patterns (never replace)
+- Updated Ripley history: strategy analysis complete, merged to decisions
+- Updated Parker history: inventory analysis complete, file-by-file guide provided
+- Key decisions captured: exclude object userData, IDictionary graphContext, XmlSerializationContext
+- Deleted inbox files: ripley-collection-migration-strategy.md, parker-collection-inventory.md
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>

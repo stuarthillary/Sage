@@ -83,3 +83,21 @@
 **Files Modified:** Only `Sage/Utility/Exchange.cs` (2 guard checks)
 
 **Recommendation:** ✅ Merge `feature/dotnet10` to main immediately. No architectural changes needed.
+
+### 2026-03-06 — Collection Modernization Strategy (COMPLETE ✅)
+
+**Status:** Strategy merged to decisions.md
+
+**Deliverable:** `.squad/decisions/decisions.md` → "Decision: Non-Generic Collection Modernization — Three-Phase Strategy" (deduplicated, comprehensive)
+
+**Key decision captured:**
+- 3-phase risk tiering: Phase 1 (60%, internal, non-breaking, low risk), Phase 2 (30%, public API, breaking, medium risk), Phase 3 (10%, intentional, never replace)
+- **Critical exclusions locked:** `object userData` (intentional heterogeneous payloads), `IDictionary graphContext` (intentional polymorphic execution context — 50+ signatures), XmlSerializationContext (serialization contract), DynamicConstruction (WIP code)
+- **Phase 1 greenlit for immediate start:** Private fields/local variables only, zero public API changes, all 310 tests as validation gate
+- **Collection mapping reference** provided (ArrayList→List, Hashtable→Dictionary, etc.)
+- **Risk mitigations** documented (thread safety, ordering differences, casting differences)
+- **Success criteria** established for each phase
+
+**Architectural insight:** Not all non-generic collections are technical debt. `object userData` enables heterogeneous event payloads across any simulation model. `IDictionary graphContext` provides runtime flexibility for graph execution contexts (analogous to ASP.NET ViewData). These are intentional design patterns, not modernization targets.
+
+**Parker's detailed inventory** (.squad/decisions/inbox/parker-collection-inventory.md) provides file-by-file implementation guide with difficulty tiers.

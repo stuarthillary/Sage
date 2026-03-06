@@ -155,3 +155,85 @@
 - **Removal strategy:** `ExecEventRemover` now filters a snapshot and `Executive` rebuilds the heap per removal request; Join uses linear `FindEventByKey`.
 - **Access patterns:** `EventList` and diagnostics return sorted snapshots, while enqueue/dequeue use heap comparisons under `_eventLock`.
 - **Gotcha:** Heap size now drives `_numEventsInQueue`, so dequeue updates counts immediately instead of relying on SortedList counts.
+
+### 2026-03-06 — Non-Generic Collection Inventory (COMPLETE ✅)
+
+**Requested by:** Stuart Hillary  
+**Purpose:** Comprehensive read-only analysis of all non-generic collection usage for modernization planning  
+
+**Key Findings:**
+
+- **Total usages:** 368 non-generic collection usages across ~100 files in Sage\ directory
+- **Primary types:**
+  - ArrayList: 269 usages in 62 files (most prevalent — child collections, public APIs, algorithm working sets)
+  - Hashtable: 158 usages in 58 files (context dictionaries, internal storage, registries)
+  - IList (non-generic): 39 usages (interface abstractions)
+  - IDictionary (non-generic): 97 usages (graph contexts, mementos)
+  - ICollection (non-generic): 40 usages (return type abstractions)
+  - NameValueCollection: 11 usages (configuration)
+  - ListDictionary: 1 usage (SmartPropertyBag memento)
+  - Queue: 3 usages (domain class ItemBased.Queues.Queue, NOT System.Collections.Queue)
+
+**Critical architectural patterns identified:**
+
+1. **IDictionary graphContext (50+ usages)** — ⚠️ DO NOT REPLACE
+   - Used throughout graph execution engine (Edge, Task, Vertex delegates)
+   - Intentional design for runtime flexibility (similar to ASP.NET ViewData)
+   - Replacing with generic would be massive breaking change with zero benefit
+
+2. **object userData (80+ usages)** — ⚠️ DO NOT REPLACE
+   - Executive event system heterogeneous payload pattern
+   - `ExecEventReceiver(IExecutive exec, object userData)`
+   - Making generic would reduce flexibility for polymorphic handlers
+
+3. **ArrayList.ReadOnly() public API pattern (30+ methods)** — High breaking change impact
+   - ReactionProcessor.Reactions, ResourceTracker.EventRecords, Task.GetChildTasks()
+   - Can migrate to IReadOnlyList<T> but requires SemVer major version bump
+
+4. **XmlSerializationContext.ContextEntities** — Defer replacement
+   - Hashtable part of serialization contract, high regression risk
+   - Low ROI for modernization
+
+**Module breakdown:**
+- Graphs: Highest concentration (33 files) — Edge (19), CPMAnalyst (14), ValidationService (15)
+- Materials: 23 files — ReactionProcessor (16), Substance (10), Emissions (23)
+- Persistence: XmlSerializationContext (23+22), DynamicConstruction (22+22)
+- Core: 18 files — mostly config/diagnostics after heap replacement
+- Resources, Scheduling, Utility, SmartPropertyBag, ItemBased: Lower concentrations
+
+**Modernization strategy:**
+
+- **Phase 1 (60% — Internal):** Private ArrayList → List<T>, Hashtable → Dictionary<K,V> (non-breaking)
+  - Graph algorithm working sets, Materials internal storage, SmartPropertyBag
+  - Estimated: 2-3 weeks, low risk
+
+- **Phase 2 (30% — Public API):** Breaking changes to IReadOnlyList<T>, IReadOnlyDictionary<K,V>
+  - Requires SemVer major bump (v6.0.0)
+  - Public ArrayList/Hashtable returns, out parameters
+  - Estimated: 4-6 weeks, medium risk
+
+- **Phase 3 (10% — Keep):** IDictionary graphContext, object userData, ContextEntities
+  - Intentional design patterns — do not replace
+
+**Deliverables:**
+- ✅ Comprehensive 32KB markdown report: `.squad/decisions/inbox/parker-collection-inventory.md`
+- Includes: summary table, detailed findings for each type, usage pattern samples, module breakdown, testing recommendations, modernization roadmap
+
+**Key learning:** Not all non-generic collections are "legacy debt" — IDictionary graphContext and object userData are intentional architectural decisions for runtime flexibility. Distinguish between technical debt (ArrayList/Hashtable in internal storage) and design patterns (execution contexts).
+
+### 2026-03-06 — Collection Inventory (COMPLETE ✅)
+
+**Status:** Inventory merged to decisions.md, reference documents retained in inbox
+
+**Deliverable:** `.squad/decisions/decisions.md` → "Decision: Non-Generic Collection Modernization — Three-Phase Strategy" (includes all inventory findings, deduplicated)
+
+**Key contributions captured:**
+- **Total inventory:** 368 non-generic collection usages across ~100 files
+- **Primary types:** ArrayList (269, 62 files), Hashtable (158, 58 files), IDictionary (97, intentional), IList (39), ICollection (40)
+- **Module breakdown:** Graphs (33 files, highest concentration), Materials (23), Persistence (WIP/dead code), Core/Resources/Scheduling (lower)
+- **File-by-file difficulty tiers** provided for Phase 1 sequencing
+- **Confirmed architectural patterns:** `object userData` (80+ usages, intentional), `IDictionary graphContext` (50+ usages, intentional), `XmlSerializationContext.ContextEntities` (23+, serialization contract)
+- **Recommended Phase 1 sequence:** Dependencies → Graphs algorithms → Resources → Materials → Utility → Edge/Vertex → ValidationService → remaining
+- **Phase 1 gate:** All 310 tests pass
+
+**Critical finding:** Parker identified that this is NOT a homogeneous "modernize everything" task. The codebase contains ~40% intentional design patterns (`object userData` for heterogeneous payloads, `IDictionary graphContext` for polymorphic execution state) that serve architectural requirements. Phase 1 focuses on low-hanging fruit (internal fields/locals). Phase 2 requires major version bump due to public API changes. Phase 3 items should never be modernized.

@@ -342,3 +342,149 @@ FastLight is ~3.6× faster than Executive at N=1000 — consistent with O(N log 
 - The `SageBenchmarks.csproj` itself continues to inherit `TargetFramework`, company metadata, `Optimize=true` for Release, and all other non-path settings from the repo root.
 - Only `BuildOutput\`-routing properties are cleared; no output paths are hardcoded.
 - This pattern (chain parent + reset) is the standard approach for MSBuild tool projects that need shared settings but cannot tolerate output-path redirection.
+
+---
+
+## Decision: Non-Generic Collection Modernization — Three-Phase Strategy
+
+**Authors:** Ripley (Lead Architect), Parker (.NET Developer)  
+**Date:** 2026-03-06  
+**Status:** Analysis Complete — Ready for Phase 1 Execution  
+**Requested by:** Stuart Hillary
+
+### Executive Summary
+
+The Sage DES library contains **~600 non-generic collection usages** across **~100 source files**. Analysis identified three risk tiers enabling phased modernization without disrupting consumers.
+
+| Tier | Phase | Usages | Risk | API Impact | Effort | Timeline |
+|------|-------|--------|------|-----------|--------|----------|
+| 1 | Internal Modernization | ~360 (60%) | LOW | None | 2-3 sessions | Now |
+| 2 | Public API Modernization | ~180 (30%) | MEDIUM | Breaking | 4-6 sessions | Next major release |
+| 3 | Intentional Designs | ~60 (10%) | N/A | Never | — | Never |
+
+### Phase 1: Internal Modernization (Non-Breaking) — Start Now ✅
+
+**Scope:** Replace ~60% of non-generic collection usages with zero public API changes.
+
+**What changes:**
+- Private fields: `ArrayList` → `List<T>`, `Hashtable` → `Dictionary<K,V>`
+- Local variables and internal method signatures
+- Remove unnecessary casts (e.g., `(Edge)edges[i]` → `edges[i]`)
+- Replace `DictionaryEntry` with `KeyValuePair<K,V>` where backing collection changes
+- Replace non-generic `IComparer` with `IComparer<T>` (GraphSequencer)
+- Replace non-generic `Stack` with `Stack<T>` (GraphSequencer)
+
+**What stays:**
+- All `public` method signatures and property types
+- Private `ArrayList` backing public `IList` returns (Phase 2 handles this)
+- All `IDictionary graphContext` patterns
+- All `object userData` patterns
+
+**Recommended sequence:**
+1. `Dependencies/` (2 files, quick win)
+2. Graph algorithm files (DagCheckers, CPMAnalyst, PertAnalyst)
+3. Resources and Materials internal fields
+4. Utility and SmartPropertyBag
+5. Edge.cs and Vertex.cs (largest individual files)
+6. ValidationService and remaining Graphs
+
+**Test gate:** All 310 tests pass after each file or small batch.
+
+**Risk:** LOW — Changes invisible to consumers. Only regression risk from type inference errors.
+
+### Phase 2: Public API Modernization (Breaking) — Defer to Major Release
+
+**Scope:** Modernize remaining ~30% of usages — public return types and parameters.
+
+**What changes:**
+- Public `ArrayList` returns → `IReadOnlyList<T>` (preferred) or `List<T>`
+- Public `Hashtable` returns → `IReadOnlyDictionary<K,V>` or `Dictionary<K,V>`
+- Public `IList` (non-generic) → `IReadOnlyList<T>`
+- Public `ICollection` (non-generic) → `IReadOnlyCollection<T>`
+- `out ArrayList` parameters → `out List<T>`
+- `IExecutive.LiveDetachableEvents` → `IReadOnlyList<IDetachableEventController>`
+- `IExecutive.EventList` → `IReadOnlyList<IExecEvent>`
+- Utility classes: `WeakList : IList` → `WeakList<T> : IList<T>`
+
+**Strategy:** 
+- Batch by module — complete one module's public API before next
+- Start with least-consumed modules (Materials.Chemistry, PertAnalyst)
+- End with IExecutive (highest impact)
+- Update test code in lockstep
+- Document migration guide for consumers
+
+**Risk:** MEDIUM — Requires SemVer major version bump. All consuming code must update simultaneously.
+
+### Phase 3: Intentional Designs — NEVER Replace
+
+**Scope:** ~10% of usages are architectural patterns serving specific design requirements. **Do not touch.**
+
+| Pattern | Count | Why Intentional | Decision |
+|---------|-------|-----------------|----------|
+| `object userData` (event payloads) | 80+ | Executive event system intentionally carries heterogeneous data — any simulation entity passes any payload | **KEEP as `object`** |
+| `IDictionary graphContext` (execution contexts) | 50+ | Graph execution contexts are polymorphic runtime state bags, used across PFC, CPM, PERT, custom models. Analogous to ASP.NET ViewData. | **KEEP as non-generic `IDictionary`** |
+| `IExecEvent.UserData` | Public | Same heterogeneity requirement as userData | **KEEP as `object`** |
+| `IExecutive.ClearVolatiles(IDictionary)` | Part of graphContext pattern | Execution context API | **KEEP as non-generic `IDictionary`** |
+| `XmlSerializationContext.ContextEntities` (Hashtable) | 23+ | Part of serialization contract; 7+ nested classes delegate to it | **DEFER** until persistence modernization |
+| `DynamicConstruction.cs` | 44 | WIP/dead code (`#if INCLUDE_WIP`) | **SKIP** modernization of unused code |
+| `NameValueCollection` in Executive | 11 | Configuration concern, not collection concern | **DEFER** to configuration modernization |
+| `ModelObjectDictionary : IDictionary` | — | When Model.cs is modernized | **DEFER** to core model rework |
+| `ExecutionContext : IDictionary` | — | When execution context model is redesigned | **DEFER** to context rework |
+
+### Collection Mapping Reference
+
+| Non-Generic Type | Generic Replacement | Notes |
+|-----------------|-------------------|-------|
+| `ArrayList` | `List<T>` | Infer T from usage context; use `IReadOnlyList<T>` for public returns (Phase 2) |
+| `ArrayList.ReadOnly(x)` | `x.AsReadOnly()` or `IReadOnlyList<T>` cast | Direct pattern swap |
+| `Hashtable` | `Dictionary<TKey, TValue>` | Infer key/value types from usage; use `IReadOnlyDictionary<K,V>` for public returns (Phase 2) |
+| `SortedList` (non-generic) | `SortedList<TKey, TValue>` | 2 usages in DetachableEventSynchronizer |
+| `Stack` (non-generic) | `Stack<T>` | GraphSequencer cycle detection |
+| `IList` (non-generic) | `IList<T>` or `IReadOnlyList<T>` | Prefer read-only for returns |
+| `ICollection` (non-generic) | `ICollection<T>` or `IReadOnlyCollection<T>` | Prefer read-only for returns |
+| `IDictionary` (non-generic) | **KEEP** for graphContext; `IDictionary<K,V>` elsewhere | See exclusions — graphContext is intentional |
+| `IComparer` (non-generic) | `IComparer<T>` | GraphSequencer.DefaultVertexComparer |
+| `DictionaryEntry` | `KeyValuePair<TKey, TValue>` | Follows from Hashtable → Dictionary replacement |
+| `ListDictionary` | `Dictionary<string, object>` | Single usage in SmartPropertyBag memento |
+
+### Key Findings
+
+**Risk Tiering:**
+- **Tier 1 (60% — LOW):** Private fields and local variables. Invisible to consumers. Safe to modernize now.
+- **Tier 2 (30% — MEDIUM):** Public API surface. Visible to consumers. Requires breaking change + migration guide.
+- **Tier 3 (10% — INTENTIONAL):** Architectural patterns serving flexibility requirements. Do not replace.
+
+**Module Concentration:**
+- Graphs: 33 files (Edge 19, CPMAnalyst 14, ValidationService 15)
+- Materials: 23 files (ReactionProcessor 16, Substance 10)
+- Persistence: XmlSerializationContext (23+22), DynamicConstruction (22+22)
+- Core, Resources, Scheduling, Utility: Lower concentrations
+
+**Critical Architectural Insights:**
+- `object userData` is NOT legacy debt — it enables heterogeneous event payloads across any simulation model
+- `IDictionary graphContext` is NOT legacy debt — it provides runtime flexibility for graph execution contexts (comparable to ASP.NET ViewData or HttpContext.Items)
+- NOT all non-generic collections are modernization targets — distinguish between technical debt (ArrayList/Hashtable in internal storage) and intentional design patterns
+
+### Risk Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Breaking consumer code in Phase 2 | High | Medium | SemVer major bump, migration guide, deprecation warnings |
+| Hashtable → Dictionary ordering changes | Medium | High | Hashtable has no order; Dictionary preserves insertion order. Tests should catch order-dependent code. |
+| Thread safety differences (Hashtable partially thread-safe for reads; Dictionary is not) | Low | High | Review each Hashtable for concurrent access. Executive Hashtables already lock-guarded. |
+| ArrayList.ReadOnly() vs List<T>.AsReadOnly() semantic differences | Low | Medium | Use `IReadOnlyList<T>` interface; mitigates ArrayList-to-List casting breakage. |
+| Regression in graph execution engine | Medium | High | IDictionary graphContext is excluded. Only internal fields change. Run graph tests after each file. |
+
+### Success Criteria
+
+- ✅ **Phase 1 complete:** Zero `ArrayList`/`Hashtable` in private fields/local variables (excluding deferred). All 310 tests pass.
+- ✅ **Phase 2 complete:** Zero non-generic collection types in public API (excluding intentional exclusions). All tests pass. Migration guide written.
+- ✅ **Phase 3 tracked:** Deferred items documented with clear rationale and trigger conditions.
+
+### Recommendation
+
+**Start Phase 1 immediately.** It is low-risk, high-reward work that improves type safety, IntelliSense support, and eliminates boxing overhead. Each file can be done independently and tested in isolation.
+
+**Phase 2 should be batched with the next major version release** to amortize the breaking change cost. It should NOT be done incrementally — consumers absorb all public API changes at once.
+
+**Phase 3 items should remain tracked but unscheduled.** They are intentional designs serving the simulation engine's flexibility requirements. Revisit only when underlying system is being modernized (persistence layer, execution model redesign, etc.).
