@@ -91,3 +91,113 @@ This file is closest in the directory walk for both `SageBenchmarks.csproj` and 
 All 12 benchmark cases completed — no NETSDK1004 error. Sample (N=1000):
 - `Executive_SequentialEvents`: ~287 µs  
 - `ExecutiveFastLight_SequentialEvents`: ~80 µs (3.6× faster — consistent with O(N²) vs O(N log N))
+
+### 2025-01-23 — Executive Queue Replacement Design Spec (COMPLETE)
+
+**Branch:** TBD (awaiting implementation)  
+**Requested by:** Stuart Hillary  
+**Deliverable:** `.squad/decisions/inbox/hicks-executive-queue-replacement-spec.md`
+
+#### Task
+
+Produce a concrete design spec for replacing the O(N²) SortedList-based event queue in `Executive.cs` with an O(N log N) heap-based priority queue, bringing it to performance parity with `ExecutiveFastLight` while preserving full-featured capabilities (rescindable events, detachable events, pause/resume, priority handling).
+
+#### Key Findings
+
+**Current Implementation Analysis:**
+- **Sort Key:** 3-level composite key from `ExecEventComparer.cs`:
+  1. `When` (DateTime) — ascending (earlier events first)
+  2. `Priority` (double) — **descending** (higher priority first — note inverted comparison)
+  3. `Key` (long) — ascending (unique tie-breaker)
+- **Bottleneck:** `SortedList.RemoveAt(0)` shifts all N-1 elements on every dequeue → O(N) per dequeue → O(N²) total
+- **Locking:** All queue operations use `lock(_events)` (locks directly on SortedList instance)
+- **Event Removal:** 4 mechanisms (by ID, by target, by delegate, by selector) all iterate `SortedList` and remove by index
+
+**ExecutiveFastLight Reference:**
+- Binary min-heap backed by `_ExecEvent[]` (1-indexed)
+- Enqueue: O(log N) sift-up; O(1) amortized for ascending input
+- Dequeue: O(log N) sift-down
+- Object pooling: `ExecEventCache` recycles `_ExecEvent` instances (disabled in `Executive.cs`)
+- **Key Difference:** FastLight only compares `When` (ticks); no priority support
+
+**Test Coverage:**
+- `TestExecutive.cs` has 17 test methods covering:
+  - Event ordering (chronological + priority)
+  - Event removal (3 different APIs)
+  - Join handling
+  - Count validation
+- **Critical tests:**
+  - `TestExecutivePriority()` — validates priority ordering at same time
+  - `TestExecutiveWhen()` — validates chronological ordering
+  - `TestExecutiveUnRequest*()` — validates all removal paths
+
+#### Design Decisions
+
+1. **Data Structure:** Custom binary min-heap (adapt from `ExecutiveFastLight`), **NOT** `System.Collections.Generic.PriorityQueue<,>` due to:
+   - Composite 3-level key requires custom comparison logic
+   - Existing proven implementation in codebase
+   - Avoids allocation overhead of wrapper structs
+
+2. **Comparison Logic:** New `CompareEvents(ExecEvent, ExecEvent)` method implementing the 3-level sort:
+   ```csharp
+   if (ee1.When < ee2.When) return -1;
+   if (ee1.When > ee2.When) return 1;
+   if (ee1.Priority > ee2.Priority) return -1;  // Inverted!
+   if (ee1.Priority < ee2.Priority) return 1;
+   if (ee1.Key < ee2.Key) return -1;
+   if (ee1.Key > ee2.Key) return 1;
+   return 0;
+   ```
+
+3. **Event Removal:** Rebuild-heap approach (O(N) scan + O(N log N) rebuild) — acceptable since removal is rare compared to enqueue/dequeue in typical simulations. Introduce `RemoveWhere(Predicate<ExecEvent>)` to replace SortedList iteration.
+
+4. **Object Pooling:** **Out of scope** for initial implementation. `ExecEvent.Get()` already has pooling infrastructure (toggled off). Enable as follow-up if profiling shows allocation pressure.
+
+5. **Thread-Safety:** Change all `lock(_events)` → `lock(_eventLock)` (existing field). Cannot lock on array type.
+
+6. **EventList Property:** Return heap snapshot (unsorted). If tests expect sorted order, sort snapshot before returning (adds O(N log N) overhead to property access).
+
+#### Expected Performance
+
+- **Sequential Events @ 100k:**
+  - Current: ~1,029ms (O(N²))
+  - Target: <50ms (within 3× of ExecutiveFastLight's ~16.75ms)
+- **Chained Events @ 100k:**
+  - Should show similar improvement ratio (2–5× faster)
+
+#### Tricky Parts Flagged for Parker
+
+1. **Event Removal Logic:** Most complex part — requires adapting all `ExecEventRemover` filter methods to work with heap instead of SortedList indexed access. Recommend writing unit tests for all 4 removal paths before modifying.
+
+2. **Join Handling:** Currently uses `_events.IndexOfValue(eventCode)` for O(log N) lookup. Heap requires O(N) linear scan via new `FindEventByKey()` method. Acceptable if `Join` is rare.
+
+3. **Heap Growth Strategy:** Start with 2× growth (standard); FastLight uses 4× but that's aggressive.
+
+#### Recommendations to Parker
+
+- Run existing benchmarks **before** changes to establish baseline
+- Implement heap enqueue/dequeue first, verify with `TestHeap.cs`
+- Tackle event removal last (most complex)
+- Run **full** test suite after implementation — do not skip removal tests
+- Add new benchmark: `Executive_PriorityStress` (10k events at same time, random priorities) to validate priority handling under stress
+
+#### Open Questions for Stuart Hillary
+
+1. Should `EventList` property return sorted events, or is heap order acceptable?
+2. Removal strategy: rebuild-heap (MVP) or maintain auxiliary key→event dictionary (if Join is frequent)?
+3. Pooling timeline: enable immediately after heap, or wait for profiling?
+
+#### Key Files Changed
+
+- **Primary:** `Sage\Core\Executive.cs` (lines 27, 395–396, 595–596, 668, 757, 947)
+- **Reference:** `Sage\Core\ExecutiveFastLight.cs` (lines 877–940 — heap implementation)
+- **Needs Adaptation:** `Sage\Core\ExecEventRemover.cs` (all filter methods)
+
+#### Success Criteria
+
+1. All existing tests pass (no regressions)
+2. `Executive_SequentialEvents` @ 100k: **<50ms** (down from ~1,029ms)
+3. Within **3× of ExecutiveFastLight** on sequential workload
+4. No memory allocation increase (MemoryDiagnoser)
+
+**Spec Status:** Complete and delivered to `.squad/decisions/inbox/`. Ready for Parker's implementation.

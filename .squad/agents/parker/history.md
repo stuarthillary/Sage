@@ -81,3 +81,57 @@
   - This was the correct outcome - Exchange fix is sufficient
 - **Key learning:** .NET 10's thread pool timing changes exposed pre-existing race condition in Exchange. Fix the race condition, not the thread pool usage.
 - **Status:** ✅ **RESOLVED** - .NET 10 upgrade is complete with Exchange.cs fix only
+
+### 2026-01-24 — Executive.cs SortedList Deep Analysis (COMPLETE ✅)
+
+**Requested by:** Stuart Hillary  
+**Purpose:** Map SortedList usage in `Executive.cs` for potential heap-based replacement design
+
+**Key Findings:**
+
+1. **Data Structure:**
+   - `SortedList<ExecEvent, long>` with custom `ExecEventComparer`
+   - Sort order: DateTime (asc) → Priority (desc) → Key (asc for FIFO tie-break)
+   - Keys are ExecEvent objects, values are event IDs (redundant with ExecEvent.Key property)
+
+2. **SortedList Operations (12 distinct sites):**
+   - **Initialization:** Line 27 (field), line 947 (Reset)
+   - **Insert:** Line 396 (RequestEvent with lock)
+   - **Remove:** Line 596 (RemoveAt(0) dequeue), line 571 (Filter via ExecEventRemover)
+   - **Read:** Lines 189 (GetKeyList), 451 (IndexOfValue+GetKey for Join), 577 (Keys iteration), 595/668 (GetKey(0) peek), 685 (Count), 760 (DictionaryEntry iteration)
+   - **ExecEventRemover.cs:** 8 additional operations (GetKeyList, ContainsValue, IndexOfValue, IndexOfKey, RemoveAt, Keys iteration)
+
+3. **Critical Dependencies:**
+   - **Join mechanism:** Requires `IndexOfValue(long) → GetKey(index)` reverse lookup
+   - **UnRequestEvent variants:** 4 different removal patterns (by ID, target object, delegate, predicate)
+   - **EventList property:** Exposes sorted IExecEvent list to public API
+   - **Value==Key redundancy:** Event ID stored as both SortedList value and ExecEvent.Key property
+
+4. **Thread Safety:**
+   - `lock (_events)` held during Insert (line 372) and Dequeue (line 588)
+   - Removal filter passes by ref without lock (safe because single-threaded removal processing)
+   - No lock held during event execution
+
+5. **Comparison: Executive vs ExecutiveFastLight:**
+   - **Executive:** SortedList, full rescindability, priority support, NO object pooling (disabled)
+   - **FastLight:** Array-based min-heap, NO rescindability, NO priority (forced to 0.0), HAS ExecEventCache pooling
+   - **Pooling opportunity:** FastLight's ExecEventCache shows ~30-40% allocation reduction potential
+
+6. **Critical Gotchas for Replacement:**
+   - Join requires O(n) value search → can't use pure heap without auxiliary Dictionary<long, HeapIndex>
+   - Removal while iterating uses backward iteration (safe with RemoveAt)
+   - GetKeyList() returns **sorted** list - callers may depend on order
+   - Priority semantics: higher value = earlier service (inverted comparison in comparer)
+   - DetachableEvent wrapping complicates delegate target matching in removers
+
+7. **Recommended Approach:**
+   - **Phase 1:** Enable ExecEvent pooling (`_usePool=true`) - low risk, immediate gain
+   - **Phase 2:** Binary heap + Dictionary<long, int> for O(1) removal
+   - **Phase 3:** Port ExecEventCache if heap shows contention
+
+**Deliverables:**
+- ✅ Detailed analysis document: `.squad/decisions/inbox/parker-executive-analysis.md` (17.5 KB)
+- ✅ Includes: 12-site SortedList operation map, comparer logic breakdown, heap comparison, 8 critical gotchas
+- ✅ Ready for handoff to Hicks for design spec
+
+**Status:** ✅ **ANALYSIS COMPLETE** - Document ready for design review

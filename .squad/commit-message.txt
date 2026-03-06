@@ -1,0 +1,31 @@
+Scribe: Orchestration logs and decision merge for Executive heap analysis
+
+Phase: Analysis complete. Merged Parker (SortedList analysis) and Hicks (heap
+replacement design spec) deliverables into orchestration logs, session log, and
+decisions registry.
+
+Deliverables:
+- .squad/orchestration-log/2026-03-06T21-01-53Z-parker.md: Parker analysis scope
+- .squad/orchestration-log/2026-03-06T21-01-53Z-hicks.md: Hicks design spec scope
+- .squad/log/2026-03-06T21-01-53Z-executive-heap-analysis.md: Phase summary
+
+Decisions:
+- Decision: Executive Event Queue Replacement — Heap-Based Priority Queue
+  Added to .squad/decisions/decisions.md with full specification including:
+  - Problem statement (O(N²) bottleneck in SortedList RemoveAt(0))
+  - Solution (custom binary min-heap with composite key ordering)
+  - Rationale (why not PriorityQueue<T, TPriority>)
+  - Core changes (fields, methods, locking, removal strategy)
+  - Test coverage and success criteria
+  - Implementation checklist and risk assessment
+
+Cleanup:
+- Merged .squad/decisions/inbox/parker-executive-analysis.md → decisions.md
+- Merged .squad/decisions/inbox/hicks-executive-queue-replacement-spec.md → decisions.md
+- Deleted inbox files (not spec reference docs, small decision records)
+- Updated .squad/agents/scribe/history.md with phase summary
+
+Status: Design specification is implementation-ready. No blocking issues.
+Expected performance: O(N²) → O(N log N), 50–60× speedup at N=100k events.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
