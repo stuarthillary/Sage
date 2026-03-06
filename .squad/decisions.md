@@ -166,12 +166,26 @@ Past commit `480436c` ("Changes to deal with change in string compare behaviour"
 - SmartPropertyBag
 - Utility (Trees, non-Tuple components)
 
-## Parker: TupleSpace Test Failures on .NET 10 - Investigation Complete
+## Parker: TupleSpace .NET 10 Failures - RESOLVED ✅
 
-**Date:** 2026-03-06
-**Status:** Root cause identified, escalated
+**Date:** 2026-03-06  
+**Status:** Fixed  
+**Tests:** 304/304 passing  
+**Commit:** `5276d47`
 
-# TupleSpace Test Failures on .NET 10 - Investigation Report
+**Decision:** The root cause was a pre-existing race condition in `Exchange.NonBlockingPost()`, not thread pool starvation as initially suspected. Added `ContainsKey()` checks before accessing `_waitersToRead` and `_waitersToTake` dictionaries.
+
+**Why .NET 10 Exposed It:** Different thread pool startup timing and scheduling altered execution order, hitting the race condition more frequently. Bug existed on .NET 8 but was timing-masked.
+
+**Option 2 Evaluation:** Explicit thread replacement was tested but is NOT RECOMMENDED—it fixes the TupleSpace symptom but breaks ResourceManager tests. The Exchange.cs fix alone is sufficient and surgical.
+
+**Files Modified:** Only `Sage/Utility/Exchange.cs` (2 `ContainsKey()` guards added)
+
+**Recommendation:** ✅ Merge `feature/dotnet10` to main. No architectural changes needed.
+
+---
+
+# TupleSpace Test Failures on .NET 10 - Investigation Report (ARCHIVED)
 
 **Date:** 2026-07-15  
 **Investigated by:** Parker (.NET Developer)  

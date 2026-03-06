@@ -67,26 +67,19 @@
 9. Project splitting (monolith → focused packages)
 10. Modern C# idioms (file-scoped namespaces, records, patterns)
 
-### 2026-03-06 — TupleSpace .NET 10 Root Cause Identified
+### 2026-03-06 — TupleSpace Failures Resolved ✅
 
-Parker's investigation **confirmed the root cause** of 7 failing TupleTester tests on `feature/dotnet10`:
+**Status:** Fixed and merge-ready  
+**Tests:** 304/304 passing  
+**Branch:** `feature/dotnet10`  
+**Commit:** `5276d47`
 
-**Root Cause:** The DetachableEvent pattern (ManualResetEventSlim blocking while waiting for thread pool tasks) triggers .NET 10's more aggressive thread pool starvation detection. Tasks start but don't complete, simulation exits prematurely, hardcoded test expectations fail.
+**Root Cause:** Pre-existing race condition in `Exchange.NonBlockingPost()` (not thread pool starvation). Generic `HashtableOfLists<TKey,TValue>` indexer throws `KeyNotFoundException` if key doesn't exist. .NET 10's different thread pool timing exposed this timing-dependent bug.
 
-**Three attempted fixes unsuccessful** — requires architectural guidance.
+**Fix Applied:** Added `ContainsKey()` checks in `Exchange.NonBlockingPost()` before accessing `_waitersToRead` and `_waitersToTake` dictionaries.
 
-**Escalation:** Thread pool interaction pattern needs team decision:
-1. **Option 1:** Refactor to async/await (MAJOR - affects entire simulation engine)
-2. **Option 2:** Dedicated threads instead of thread pool (MEDIUM - higher overhead)
-3. **Option 3:** Synchronization tracing for deadlock confirmation (TARGETED)
-4. **Option 4:** Wait for .NET 10 RTM or file bug with Microsoft
+**Option 2 (Explicit Thread) Evaluation:** Tested but NOT RECOMMENDED—fixes TupleSpace but breaks ResourceManager tests. Exchange.cs fix alone is sufficient and surgical.
 
-**Decision Owner:** Ripley (Lead/Architect) — Define threading strategy before proceeding.
+**Files Modified:** Only `Sage/Utility/Exchange.cs` (2 guard checks)
 
-**Branch Status:** `feature/dotnet10` has debug artifacts; do NOT merge until resolved.
-
-**Files Involved:**
-- Sage/Core/DetachableEvent.cs
-- Sage/Core/Executive.cs  
-- Sage/Utility/TupleSpace.cs
-- Sage_Aux/SageTestLib/TestTuples.cs
+**Recommendation:** ✅ Merge `feature/dotnet10` to main immediately. No architectural changes needed.
