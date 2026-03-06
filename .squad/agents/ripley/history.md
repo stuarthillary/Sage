@@ -101,3 +101,27 @@
 **Architectural insight:** Not all non-generic collections are technical debt. `object userData` enables heterogeneous event payloads across any simulation model. `IDictionary graphContext` provides runtime flexibility for graph execution contexts (analogous to ASP.NET ViewData). These are intentional design patterns, not modernization targets.
 
 **Parker's detailed inventory** (.squad/decisions/inbox/parker-collection-inventory.md) provides file-by-file implementation guide with difficulty tiers.
+
+### 2026-07-15 — Phase 2 Public API Spec (COMPLETE ✅)
+
+**Deliverable:** `.squad/decisions/inbox/ripley-phase2-api-spec.md`
+
+**Scope confirmed:** 12 files, 7 change groups covering all public API collection replacements.
+
+**Key findings during analysis:**
+
+- `ExecEvent` is `internal` — confirmed `ExecEvent.cs:9`. The public interface `IExecutive.EventList` must return `IReadOnlyList<IExecEvent>`, NOT `IReadOnlyList<ExecEvent>`. The covariance of `IReadOnlyList<out T>` means `Executive.cs` can return `ReadOnlyCollection<ExecEvent>` (from `snapshot.AsReadOnly()`) and it satisfies the covariant `IReadOnlyList<IExecEvent>` — no casting needed.
+
+- `ExecutiveFastLight._ExecEvent` is a private nested class that does NOT implement `IExecEvent`. The existing `EventList` implementation on `ExecutiveFastLight` is already broken at runtime (elements can't be cast to `IExecEvent`). Phase 2 is an opportunity to fix this by returning an empty `IReadOnlyList<IExecEvent>` from that implementation (the fast executive doesn't support rescindable events anyway).
+
+- `TestQueues.cs:886` calls `_executive.EventList.Clear()` — this was already a `NotSupportedException` at runtime since `EventList` has always returned a `ReadOnly`-wrapped list. Compile-time fix is a bonus of the type change.
+
+- `IVertex.PredecessorEdges` / `IVertex.SuccessorEdges` return `IList` — these are intentionally NOT changed in Phase 2 since they're deep interface contracts with 20+ callers. Only the backing `protected ArrayList` fields in `Vertex.cs` are updated to `List<Edge>`.
+
+- No subclasses of `Vertex` exist in the codebase — the `protected` field change is safe without a broader subclass audit.
+
+- Non-generic `HashtableOfLists` appears in only 1 active production call site (`ProcedureFunctionChart.cs:2594`) — migrates cleanly to `HashtableOfLists<string, IPfcElement>` since both `IPfcNode` and `IPfcLinkElement` inherit `IPfcElement`. The remaining 3 non-generic usages are dead code (`#if NOT_DEFINED` in `TupleSpace.cs`).
+
+- Highest risk item: `Vertex.cs` XML deserialization (`DeserializeFrom`) hardcodes `(ArrayList)xmlsc.LoadObject(...)`. Change the cast to `(IList)` to be resilient. Validate with `TestGraphPersistence`.
+
+**Implementation order spec:** Leaf changes first → implementations → interfaces (forces compile errors) → callers → test files → validate all 310 tests.
