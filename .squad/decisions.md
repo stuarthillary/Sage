@@ -2,6 +2,98 @@
 
 ## Active Decisions
 
+### Executive Event Queue Heap Replacement (COMPLETE ✅)
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-03-06  
+**Status:** Complete & Tested  
+**Requested by:** Stuart Hillary  
+
+**Decision:** Replace `SortedList<ExecEvent, long>` with array-backed binary min-heap in `Executive.cs` and related removal logic in `ExecEventRemover.cs`.
+
+**What Changed:**
+- `Executive.cs`: Replaced `SortedList` with `_eventHeap` (array-backed heap)
+- Added `HeapEnqueue(ExecEvent)` and `HeapDequeue()` operations
+- Implemented `FindEventByKey(long)` for Join reverse lookups (O(N) linear scan)
+- `ExecEventRemover.cs`: Updated to filter snapshots and rebuild heap on removal
+
+**Ordering Preserved:** DateTime asc → Priority desc → Key asc (via `CompareEvents`)
+
+**Removal Strategy:** Full heap rebuild from filtered snapshot (O(N log N) per removal, acceptable for rare removals)
+
+**Thread Safety:** All operations guarded by `_eventLock` (existing pattern)
+
+**Build Outcome:** ✅ Build succeeded — 0 new errors, 2826 pre-existing warnings.
+
+**Test Coverage:**
+- ✅ 310/310 tests passing (304 existing + 6 new)
+- 6 new test methods added by Hudson covering: tie-breaking, predicates, empty queue, EventList ordering, removal+reinsertion
+- No regressions
+- Duration: ~40 seconds
+
+**Key Decisions:**
+1. Heap rebuild per removal request (simple, avoids percolation bugs)
+2. Linear scan for Join (acceptable, Join is rare)
+3. EventList snapshot sorted for backward compatibility
+4. No object pooling (can add in follow-up if profiling warrants)
+
+**Files Modified:**
+- `E:\source\Sage\Sage\Core\Executive.cs`
+- `E:\source\Sage\Sage\Core\ExecEventRemover.cs`
+- `E:\source\Sage\Sage_Aux\SageTestLib\TestExecutive.cs` (6 new test methods added by Hudson)
+
+**Recommendations:**
+- ✅ Ready for merge to main
+- Consider benchmarking against SortedList if performance is critical downstream
+
+---
+
+### Executive Test Coverage Enhancement for Heap Replacement (COMPLETE ✅)
+
+**Author:** Hudson (QA Engineer)  
+**Date:** 2026-03-06  
+**Status:** Complete  
+**Requested by:** Stuart Hillary  
+
+**Decision:** Audit existing test coverage for `Executive.cs` and add tests for heap replacement edge cases and removal mechanics.
+
+**Assessment Results:**
+- Reviewed 16 existing test methods
+- **Found:** Priority ordering already well-tested via `TestExecutivePriority`
+- **Gaps identified:** 5 coverage gaps around tie-breaking, predicates, empty queue, EventList ordering, removal+reinsertion
+
+**New Tests Added (6 total):**
+1. `TestExecutiveKeyTieBreaker` — Key-based tie-breaking (When + Priority identical)
+2. `TestExecutiveRemovalAndReinsertion` — Removal and reinsertion at same time slot
+3. `TestExecutiveUnRequestPredicate` — Predicate-based removal (4th removal variant)
+4. `TestExecutiveEmptyQueueRun` — Running empty executive
+5. `TestExecutiveUnRequestOnEmpty` — Removal from empty queue
+6. `TestExecutiveEventListOrdering` — EventList returns all events in order
+
+**Helper Addition:** `TestExecEventSelector` class for predicate-based filtering
+
+**Test Execution:**
+- ✅ All 310 tests pass (100%)
+- ✅ 6 new tests pass
+- ✅ 304 existing tests pass (no regressions)
+- Duration: ~40 seconds
+
+**Key Findings:**
+- Priority ordering semantics (higher value = later execution) already covered
+- Heap rebuild strategy validated via removal tests
+- Join reverse lookup (O(N)) passes all tests
+- EventList snapshot sorting works correctly
+
+**File Modified:**
+- `E:\source\Sage\Sage_Aux\SageTestLib\TestExecutive.cs`
+
+**Recommendations:**
+- ✅ Test coverage is comprehensive
+- All critical ordering and removal mechanics validated
+- Ready for merge
+
+---
+
 ### Upgrade Sage to .NET 10
 
 **Author:** Parker (.NET Developer)  

@@ -12,6 +12,19 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-03-06 — Executive Heap Implementation Complete ✅
+
+- **Status:** COMPLETE — 310/310 tests passing (304 existing + 6 new from Hudson)
+- **Implementation:** Replaced SortedList with array-backed binary min-heap in Executive.cs
+- **Key deliverables:** HeapEnqueue/HeapDequeue operations, FindEventByKey for Join, snapshot-based removal with rebuild
+- **Thread safety:** All queue operations guarded by _eventLock
+- **Test validation:** All existing tests pass plus 6 new Hudson tests covering tie-breaking, predicates, empty queue, EventList, removal+reinsertion
+- **Build status:** ✅ Clean build (0 new errors)
+- **Removal strategy:** Full heap rebuild per removal (O(N log N)) acceptable for rare removals
+- **Join lookup:** Linear scan FindEventByKey (O(N)) used instead of Dictionary for simplicity
+- **Ordering preserved:** DateTime asc → Priority desc → Key asc via CompareEvents
+- **Decision:** ✅ Ready for merge to main
+
 ### 2026-07-15 — TupleSpace Test Failures on .NET 10
 
 - **Issue:** 7 tests in `TupleTester` fail on `feature/dotnet10` with "Incorrect number of elements in Expected results" and "MODEL FINISHED WITH SOME TASKS STILL WAITING TO COMPLETE!"
@@ -135,3 +148,10 @@
 - ✅ Ready for handoff to Hicks for design spec
 
 **Status:** ✅ **ANALYSIS COMPLETE** - Document ready for design review
+
+### 2026-11-05 — Executive Heap Queue Replacement (COMPLETE ✅)
+
+- **Change:** Replaced `SortedList` in `Executive` with an array-backed binary min-heap to preserve ordering (When asc → Priority desc → Key asc).
+- **Removal strategy:** `ExecEventRemover` now filters a snapshot and `Executive` rebuilds the heap per removal request; Join uses linear `FindEventByKey`.
+- **Access patterns:** `EventList` and diagnostics return sorted snapshots, while enqueue/dequeue use heap comparisons under `_eventLock`.
+- **Gotcha:** Heap size now drives `_numEventsInQueue`, so dequeue updates counts immediately instead of relying on SortedList counts.

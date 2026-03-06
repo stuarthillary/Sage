@@ -12,6 +12,19 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-03-06 — Executive Heap Test Coverage Complete ✅
+
+- **Status:** COMPLETE — 6 new tests added, 310/310 tests passing
+- **Assessment:** Reviewed 16 existing test methods; priority ordering already well-tested
+- **Coverage gaps found:** 5 gaps (tie-breaking, predicates, empty queue, EventList, removal+reinsertion)
+- **New tests added:** TestExecutiveKeyTieBreaker, TestExecutiveRemovalAndReinsertion, TestExecutiveUnRequestPredicate, TestExecutiveEmptyQueueRun, TestExecutiveUnRequestOnEmpty, TestExecutiveEventListOrdering
+- **Helper addition:** TestExecEventSelector class for predicate-based filtering
+- **Build status:** ✅ Test assembly compiled clean
+- **Test execution:** All 310 tests pass (100%), no regressions
+- **Key findings:** Predicate removal (4th variant) now tested, Join reverse lookup works, empty queue edge cases handled
+- **Validation:** Heap rebuild strategy confirmed sufficient; no need for indexed removal
+- **Decision:** ✅ Test coverage comprehensive, ready for merge
+
 ### 2026-03-06 — Test Results on `feature/dotnet10` with TupleSpace Fix ✅
 
 **Branch:** `feature/dotnet10`  
