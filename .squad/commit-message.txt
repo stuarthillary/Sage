@@ -1,31 +1,25 @@
-Scribe: Orchestration logs and decision merge for Executive heap analysis
+docs: Document Executive heap replacement completion and test coverage enhancements
 
-Phase: Analysis complete. Merged Parker (SortedList analysis) and Hicks (heap
-replacement design spec) deliverables into orchestration logs, session log, and
-decisions registry.
+**Scope:** Executive event queue modernization initiative
 
-Deliverables:
-- .squad/orchestration-log/2026-03-06T21-01-53Z-parker.md: Parker analysis scope
-- .squad/orchestration-log/2026-03-06T21-01-53Z-hicks.md: Hicks design spec scope
-- .squad/log/2026-03-06T21-01-53Z-executive-heap-analysis.md: Phase summary
+**Changes:**
+- Merged 2 completed decisions from inbox into decisions.md:
+  1. Executive Event Queue Heap Replacement (Parker) - Complete & Tested
+  2. Executive Test Coverage Enhancement for Heap Replacement (Hudson) - Complete
+- Updated parker/history.md with heap implementation completion entry
+- Updated hudson/history.md with test coverage completion entry
+- Archived inbox decision files after merge
 
-Decisions:
-- Decision: Executive Event Queue Replacement — Heap-Based Priority Queue
-  Added to .squad/decisions/decisions.md with full specification including:
-  - Problem statement (O(N²) bottleneck in SortedList RemoveAt(0))
-  - Solution (custom binary min-heap with composite key ordering)
-  - Rationale (why not PriorityQueue<T, TPriority>)
-  - Core changes (fields, methods, locking, removal strategy)
-  - Test coverage and success criteria
-  - Implementation checklist and risk assessment
+**Status:**
+- ✅ Heap implementation: 310/310 tests passing (304 existing + 6 new)
+- ✅ Build: Clean, 0 new errors
+- ✅ Test coverage: Comprehensive (tie-breaking, predicates, empty queue, EventList, removal+reinsertion)
+- ✅ Ready for merge to main
 
-Cleanup:
-- Merged .squad/decisions/inbox/parker-executive-analysis.md → decisions.md
-- Merged .squad/decisions/inbox/hicks-executive-queue-replacement-spec.md → decisions.md
-- Deleted inbox files (not spec reference docs, small decision records)
-- Updated .squad/agents/scribe/history.md with phase summary
-
-Status: Design specification is implementation-ready. No blocking issues.
-Expected performance: O(N²) → O(N log N), 50–60× speedup at N=100k events.
+**Files Modified:**
+- .squad/decisions.md (added 2 new decisions to Active section)
+- .squad/agents/parker/history.md (added 2026-03-06 completion entry)
+- .squad/agents/hudson/history.md (added 2026-03-06 completion entry)
+- .squad/decisions/inbox/* (deleted 2 files: parker-heap-implementation.md, hudson-test-coverage-heap.md)
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
