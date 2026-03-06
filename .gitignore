@@ -252,3 +252,6 @@ paket-files/
 # UltraEdit
 *.bak
 Sage/Sage\.xml
+# Squad: ignore generated logs
+.squad/orchestration-log/
+.squad/log/

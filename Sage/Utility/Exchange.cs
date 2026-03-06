@@ -156,12 +156,18 @@ namespace Highpoint.Sage.Utility
             _ts.Add(tuple.Key, tuple);
             tuple.OnPosted(this);
             TuplePosted?.Invoke(this, tuple);
-            foreach (IDetachableEventController idec in _waitersToRead[tuple.Key])
-                idec.Resume(_readPriority);
-            foreach (IDetachableEventController idec in _waitersToTake[tuple.Key])
-                idec.Resume(_takePriority);
-            _waitersToRead.Remove(tuple.Key);
-            _waitersToTake.Remove(tuple.Key);
+            if (_waitersToRead.ContainsKey(tuple.Key))
+            {
+                foreach (IDetachableEventController idec in _waitersToRead[tuple.Key])
+                    idec.Resume(_readPriority);
+                _waitersToRead.Remove(tuple.Key);
+            }
+            if (_waitersToTake.ContainsKey(tuple.Key))
+            {
+                foreach (IDetachableEventController idec in _waitersToTake[tuple.Key])
+                    idec.Resume(_takePriority);
+                _waitersToTake.Remove(tuple.Key);
+            }
         }
         private ITuple BlockingRead(object key)
         {

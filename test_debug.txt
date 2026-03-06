@@ -1,0 +1,42 @@
+Test run for E:\source\Sage\BuildOutput\Debug\SageTestLib.dll (.NETCoreApp,Version=v10.0)
+VSTest version 18.0.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+E:\source\Sage\BuildOutput\Debug\SageTestLib.dll
+  Failed TestTupleBasics [35 ms]
+  Error Message:
+   Assert.IsTrue failed. Incorrect number of elements in "Expected" results.
+  Stack Trace:
+     at Highpoint.Sage.Utility.TupleTester.EvaluateTest(String[] expected, Boolean benchmark) in E:\source\Sage\Sage_Aux\SageTestLib\TestTuples.cs:line 232
+   at Highpoint.Sage.Utility.TupleTester.TestTupleBasics() in E:\source\Sage\Sage_Aux\SageTestLib\TestTuples.cs:line 63
+   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+  Standard Output Messages:
+ 07/15/2004 05:23:14 : Reading Tuple w/ prikey of Object 1. Object 1 is an unknown priKey.
+ 07/15/2004 05:23:14 : Posting Tuple w/ prikey of Object 1.
+ 07/15/2004 05:23:14 : Taking Tuple w/ prikey of Object 1. Tuple data = Data:Object 1.
+ 
+ 
+ Debug Trace:
+ Warning - <Sage> section missing from config file for testhost
+ Missing Sage section of config file. Defaulting to maintaining between 100 and 900 execution threads.
+ Add the following two sections to your app.config to fix this issue:
+ <configSections>
+     <section name="Sage" type="System.Configuration.NameValueSectionHandler, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+ </configSections>
+    ...and
+ <Sage>
+     <add key="WorkerThreads" value="100"/>
+     <add key="IgnoreCausalityViolations" value="true"/>
+ </Sage>
+ NOTE - everything will still work fine, we're just defaulting to maintaining between 100 and 900 worker threads for now, and ignoring causality exceptions.
+ Done.
+
+
+
+Test Run Failed.
+Total tests: 1
+     Failed: 1
+ Total time: 0.3660 Seconds
