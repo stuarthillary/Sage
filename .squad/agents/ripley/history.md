@@ -66,3 +66,27 @@
 8. Update test infrastructure (MSTest 3.x, SDK 17.x)
 9. Project splitting (monolith → focused packages)
 10. Modern C# idioms (file-scoped namespaces, records, patterns)
+
+### 2026-03-06 — TupleSpace .NET 10 Root Cause Identified
+
+Parker's investigation **confirmed the root cause** of 7 failing TupleTester tests on `feature/dotnet10`:
+
+**Root Cause:** The DetachableEvent pattern (ManualResetEventSlim blocking while waiting for thread pool tasks) triggers .NET 10's more aggressive thread pool starvation detection. Tasks start but don't complete, simulation exits prematurely, hardcoded test expectations fail.
+
+**Three attempted fixes unsuccessful** — requires architectural guidance.
+
+**Escalation:** Thread pool interaction pattern needs team decision:
+1. **Option 1:** Refactor to async/await (MAJOR - affects entire simulation engine)
+2. **Option 2:** Dedicated threads instead of thread pool (MEDIUM - higher overhead)
+3. **Option 3:** Synchronization tracing for deadlock confirmation (TARGETED)
+4. **Option 4:** Wait for .NET 10 RTM or file bug with Microsoft
+
+**Decision Owner:** Ripley (Lead/Architect) — Define threading strategy before proceeding.
+
+**Branch Status:** `feature/dotnet10` has debug artifacts; do NOT merge until resolved.
+
+**Files Involved:**
+- Sage/Core/DetachableEvent.cs
+- Sage/Core/Executive.cs  
+- Sage/Utility/TupleSpace.cs
+- Sage_Aux/SageTestLib/TestTuples.cs

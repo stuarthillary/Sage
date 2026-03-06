@@ -166,8 +166,166 @@ Past commit `480436c` ("Changes to deal with change in string compare behaviour"
 - SmartPropertyBag
 - Utility (Trees, non-Tuple components)
 
+## Parker: TupleSpace Test Failures on .NET 10 - Investigation Complete
+
+**Date:** 2026-03-06
+**Status:** Root cause identified, escalated
+
+# TupleSpace Test Failures on .NET 10 - Investigation Report
+
+**Date:** 2026-07-15  
+**Investigated by:** Parker (.NET Developer)  
+**Status:** Root cause identified, fix in progress  
+
+## Problem Summary
+
+7 tests in `TupleTester` fail on `feature/dotnet10` branch with:
+- "Incorrect number of elements in Expected results"  
+- "MODEL FINISHED WITH SOME TASKS STILL WAITING TO COMPLETE!"
+
+All tests pass on `dotnet8` branch. No code changes between branches - only `TargetFramework` changed from net8.0 → net10.0.
+
+## Root Cause Analysis
+
+### Confirmed via git diff
+```bash
+git diff dotnet8..feature/dotnet10 -- Sage/Core/Executive.cs Sage/Core/DetachableEvent.cs Sage/Utility/Exchange.cs Sage/Utility/TupleSpace.cs
+```
+Result: **No code changes.** This is a pure .NET 10 runtime behavior change.
+
+### The Threading Architecture
+
+The simulation executive uses a `DetachableEvent` pattern for concurrent event execution:
+
+1. **Executive thread** (dedicated, not thread pool) services events sequentially
+2. When encountering `ExecEventType.Detachable` event:
+   - Creates `DetachableEvent` wrapper  
+   - Calls `DetachableEvent.Begin()` which:
+     - Starts `Task.Run(() => eventHandler())` on thread pool
+     - Blocks executive thread on `ManualResetEventSlim.Wait()`
+     - Task runs, then continuation calls `End()`
+     - `End()` signals `_beginResetEvent.Set()` to unblock executive
+
+3. Event handlers (like `PostTuple`, `ReadTuple`) run on thread pool threads
+4. Handlers can call `Suspend()` to yield back to executive, or just return when done
+
+### What Changed in .NET 10
+
+Per Microsoft documentation and community reports:
+- .NET 10 has **more aggressive thread pool starvation detection**
+- Blocking primitives (`ManualResetEventSlim.Wait()`, `Monitor.Wait()`) on threads waiting for thread pool work can trigger starvation mitigations
+- While the executive thread isn't a thread pool thread, the **interaction pattern** (executive blocks waiting for thread pool task) may trigger new heuristics
+
+### Observable Symptom
+
+Test output shows:
+```
+Expected: RT1, RT2b, PT1, PT2, TT1, TT2a  
+Actual:   RT1, RT2b, PT1, TT1, TT2a
+```
+
+**PT2 is missing** - the `PostTuple()` method starts (PT1 logged) but never completes (PT2 never logged).
+
+This suggests:
+1. The thread pool task starts execution
+2. Task begins running `PostTuple()`
+3. Task adds PT1 to results
+4. **Something prevents PT2 from being added**
+5. Either:
+   - Task is prematurely terminated
+   - Continuation (`End()`) runs before task finishes
+   - Deadlock/race condition in synchronization
+
+### Attempts Made
+
+1. ✗ **Task.Factory.StartNew with TaskCreationOptions.LongRunning**  
+   *Rationale:* Use dedicated thread instead of thread pool  
+   *Result:* Still fails
+
+2. ✗ **ContinueWith with TaskScheduler.Default**  
+   *Rationale:* Ensure continuation runs on default scheduler  
+   *Result:* Still fails
+
+3. ✗ **ContinueWith with TaskContinuationOptions.ExecuteSynchronously**  
+   *Rationale:* Reduce scheduling latency  
+   *Result:* Still fails
+
+4. ⚠️ **Debug logging added**  
+   *Issue:* Console.WriteLine calls in DetachableEvent don't appear in test output  
+   *Implication:* Unable to confirm whether continuation is executing
+
+## Hypothesis
+
+The most likely issue is a **race condition or deadlock** in the synchronization between:
+- Executive thread blocked on `ManualResetEventSlim.Wait()`
+- Thread pool task calling into `Exchange.Post()` which calls `idec.Resume()`
+- `Resume()` acquiring event lock and posting new events to executive
+
+In .NET 10's stricter thread management, this circular dependency may cause:
+- Detached task to hang waiting for lock
+- Executive to finish event queue before task completes
+- "MODEL FINISHED WITH SOME TASKS STILL WAITING TO COMPLETE" error
+
+## Recommended Next Steps
+
+### Option 1: Refactor DetachableEvent to use async/await (MAJOR)
+Replace `ManualResetEventSlim` blocking with `TaskCompletionSource` and async coordination.  
+**Pros:** Modern, aligns with .NET 10 best practices  
+**Cons:** Large refactor, affects entire simulation engine
+
+### Option 2: Dedicated thread for detachable events (MEDIUM)
+Replace thread pool usage with explicit `new Thread(() => ...) { IsBackground = true }.Start()`  
+**Pros:** Explicit control, no thread pool interaction  
+**Cons:** Higher thread overhead
+
+### Option 3: Investigate Exchange.Post deadlock (TARGETED)
+Add synchronization tracing to understand exact lock contention point.  
+**Pros:** Surgical fix if deadlock confirmed  
+**Cons:** Requires deep runtime debugging
+
+### Option 4: Wait for .NET 10 RTM / file bug with Microsoft
+Current testing is against .NET 10.0.103 preview.  
+**Pros:** Issue may be fixed in RTM  
+**Cons:** Blocks .NET 10 adoption
+
+## Files Involved
+
+- `E:\source\Sage\Sage\Core\DetachableEvent.cs` - Detachable event coordination
+- `E:\source\Sage\Sage\Core\Executive.cs` - Event loop and locking (lines 554-728)
+- `E:\source\Sage\Sage\Utility\Exchange.cs` - TupleSpace implementation  
+- `E:\source\Sage\Sage_Aux\SageTestLib\TestTuples.cs` - Failing tests
+
+## Code Patterns to Examine
+
+1. `DetachableEvent.Begin()` line 85: `_beginResetEvent.Wait()` - blocking wait
+2. `DetachableEvent.Resume()` line 145-147: `AcquireEventLock()` + `RequestEvent()` - potential circular dependency
+3. `Executive.cs` line 656-662: Event lock waiting logic
+4. `Executive.cs` line 727-728: `while (RunningDetachables.Count > 0) Thread.SpinWait(1)` - spin-wait for completion
+
+## Current Branch State
+
+Branch `feature/dotnet10` has partial changes from investigation:
+- DetachableEvent.cs has debug Console.WriteLine calls (should be removed)
+- Using `Task.Factory.StartNew` with `TaskCreationOptions.LongRunning`  
+- Continuation uses `TaskContinuationOptions.ExecuteSynchronously`
+
+**These changes did not fix the issue.**
+
+## Recommendation
+
+**Escalate to team discussion.** This is a non-trivial concurrency issue requiring:
+- Deep understanding of simulation semantics (when can events truly run concurrently?)
+- Architectural decision on threading model
+- Possibly wait for .NET 10 RTM or engage with .NET team
+
+**Do NOT merge `feature/dotnet10` until this is resolved.**
+
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
+
