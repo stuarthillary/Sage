@@ -1,12 +1,12 @@
 ﻿/* This source code licensed under the GNU Affero General Public License */
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 // ReSharper disable RedundantDefaultMemberInitializer
 
 namespace Highpoint.Sage.SimCore
 {
-    internal delegate void FilterMethod( ref SortedList events );
+    internal delegate List<ExecEvent> FilterMethod(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison);
 
     internal class ExecEventRemover
     {
@@ -38,108 +38,66 @@ namespace Highpoint.Sage.SimCore
             _filterMethod = new FilterMethod(FilterOnTargetAll);
         }
 
-        public void Filter(ref SortedList events)
+        public List<ExecEvent> Filter(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-            _filterMethod(ref events);
+            return _filterMethod(events, comparison);
         }
 
-        private void FilterOnFullData(ref SortedList events)
+        private List<ExecEvent> FilterOnFullData(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-
-            IList keyList = events.GetKeyList();
-            ExecEvent ee;
-            for (int i = keyList.Count - 1; i >= 0; i--)
+            List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
+            foreach (ExecEvent ee in events)
             {
-                ee = (ExecEvent)keyList[i];
-                if (_ees.SelectThisEvent(ee.ExecEventReceiver, ee.When, ee.Priority, ee.UserData, ee.EventType))
+                if (!_ees.SelectThisEvent(ee.ExecEventReceiver, ee.When, ee.Priority, ee.UserData, ee.EventType))
                 {
-                    events.RemoveAt(i);
+                    remainingEvents.Add(ee);
                 }
             }
+            return remainingEvents;
         }
 
-        private void FilterOnEventId(ref SortedList events)
+        private List<ExecEvent> FilterOnEventId(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-            if (events.ContainsValue(_eventId))
+            bool removed = false;
+            List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
+            foreach (ExecEvent ee in events)
             {
-                // Need to remove the entry that has the value of m_eventID.
-                events.RemoveAt(events.IndexOfValue(_eventId));
+                if (!removed && ee.Key == _eventId)
+                {
+                    removed = true;
+                    continue;
+                }
+                remainingEvents.Add(ee);
             }
-            else
+
+            if (!removed)
             {
                 throw new ApplicationException("Attempted to remove an event from the executive by its event ID (" + _eventId + "), where that event ID was not in the event list.");
             }
+
+            return remainingEvents;
         }
 
-        private void FilterOnTarget(ref SortedList events)
+        private List<ExecEvent> FilterOnTarget(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-
-            object eventTarget = null;
-            foreach (ExecEvent ee in events.Keys)
-            {
-
-                if (ee.ExecEventReceiver.Target is DetachableEvent)
-                {
-                    ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
-                    eventTarget = eer.Target;
-                }
-                else
-                {
-                    eventTarget = ee.ExecEventReceiver.Target;
-                }
-
-                // We're comparing at the object level - we can't compare any higher, since we
-                // have no control over what kinds of objects we may be comparing. To avoid an
-                // invalid cast exception, we treat them both as objects.
-                if (Equals(eventTarget, _target))
-                {
-                    //_Debug.WriteLine("Sure would like to remove " + ee.ToString());
-                    int indexOfKey = events.IndexOfKey(ee);
-                    events.RemoveAt(indexOfKey);
-                    break;
-                }
-            }
+            ExecEvent eventToRemove = FindFirstMatchingEvent(events, comparison, MatchesTarget);
+            return RemoveSingleEvent(events, eventToRemove);
         }
 
-        private void FilterOnDelegate(ref SortedList events)
+        private List<ExecEvent> FilterOnDelegate(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-
-            object eventTarget = null;
-            foreach (ExecEvent ee in events.Keys)
-            {
-
-                if (ee.ExecEventReceiver.Target is DetachableEvent)
-                {
-                    ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
-                    eventTarget = eer;
-                }
-                else
-                {
-                    eventTarget = ee.ExecEventReceiver;
-                }
-
-                if (((Delegate)eventTarget).Equals((Delegate)_target))
-                {
-                    //_Debug.WriteLine("Sure would like to remove " + ee.ToString());
-                    int indexOfKey = events.IndexOfKey(ee);
-                    events.RemoveAt(indexOfKey);
-                    break;
-                }
-            }
+            ExecEvent eventToRemove = FindFirstMatchingEvent(events, comparison, MatchesDelegate);
+            return RemoveSingleEvent(events, eventToRemove);
         }
 
-        private void FilterOnTargetAll(ref SortedList events)
+        private List<ExecEvent> FilterOnTargetAll(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-
-            ArrayList eventsToDelete = new ArrayList();																// AEL
+            List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
             Type soughtTargetType = _target.GetType();
-            Type eventTargetType = null;
+            Type eventTargetType;
 
-            IList keyList = events.GetKeyList();
-            for (int i = keyList.Count - 1; i >= 0; i--)
+            foreach (ExecEvent ee in events)
             {
-                ExecEvent ee = (ExecEvent)keyList[i];
-
                 if (ee.ExecEventReceiver.Target is DetachableEvent)
                 {
                     ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
@@ -155,24 +113,22 @@ namespace Highpoint.Sage.SimCore
                 // have no control over what kinds of objects we may be comparing. To avoid an
                 // invalid cast exception, we treat them both as objects.
                 //if ( object.Equals(eventTarget,m_target) ) {
-                if (eventTargetType.Equals(soughtTargetType))
+                if (!eventTargetType.Equals(soughtTargetType))
                 {
-                    events.RemoveAt(i);
+                    remainingEvents.Add(ee);
                 }
             }
+
+            return remainingEvents;
         }
 
-        private void FilterOnDelegateAll(ref SortedList events)
+        private List<ExecEvent> FilterOnDelegateAll(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-
-            object eventTarget = null;
-            ExecEvent ee;
-            DetachableEvent de;
-            IList keyList = events.GetKeyList();
-            for (int i = keyList.Count - 1; i >= 0; i--)
+            List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
+            object eventTarget;
+            foreach (ExecEvent ee in events)
             {
-                ee = (ExecEvent)keyList[i];
-                de = ee.ExecEventReceiver.Target as DetachableEvent;
+                DetachableEvent de = ee.ExecEventReceiver.Target as DetachableEvent;
                 if (de != null)
                 {
                     eventTarget = de.RootEvent.ExecEventReceiver.Target;
@@ -182,11 +138,74 @@ namespace Highpoint.Sage.SimCore
                     eventTarget = ee.ExecEventReceiver;
                 }
 
-                if (((Delegate)eventTarget).Equals((Delegate)_target))
+                if (!((Delegate)eventTarget).Equals((Delegate)_target))
                 {
-                    events.RemoveAt(i);
+                    remainingEvents.Add(ee);
                 }
             }
+
+            return remainingEvents;
+        }
+
+        private static ExecEvent FindFirstMatchingEvent(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison, Predicate<ExecEvent> predicate)
+        {
+            List<ExecEvent> orderedEvents = new List<ExecEvent>(events);
+            orderedEvents.Sort(comparison);
+            foreach (ExecEvent ee in orderedEvents)
+            {
+                if (predicate(ee))
+                    return ee;
+            }
+            return null;
+        }
+
+        private static List<ExecEvent> RemoveSingleEvent(IReadOnlyList<ExecEvent> events, ExecEvent eventToRemove)
+        {
+            if (eventToRemove == null)
+                return new List<ExecEvent>(events);
+
+            List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count - 1);
+            foreach (ExecEvent ee in events)
+            {
+                if (!ReferenceEquals(ee, eventToRemove))
+                    remainingEvents.Add(ee);
+            }
+            return remainingEvents;
+        }
+
+        private bool MatchesTarget(ExecEvent ee)
+        {
+            object eventTarget;
+            if (ee.ExecEventReceiver.Target is DetachableEvent)
+            {
+                ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
+                eventTarget = eer.Target;
+            }
+            else
+            {
+                eventTarget = ee.ExecEventReceiver.Target;
+            }
+
+            // We're comparing at the object level - we can't compare any higher, since we
+            // have no control over what kinds of objects we may be comparing. To avoid an
+            // invalid cast exception, we treat them both as objects.
+            return Equals(eventTarget, _target);
+        }
+
+        private bool MatchesDelegate(ExecEvent ee)
+        {
+            object eventTarget;
+            if (ee.ExecEventReceiver.Target is DetachableEvent)
+            {
+                ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
+                eventTarget = eer;
+            }
+            else
+            {
+                eventTarget = ee.ExecEventReceiver;
+            }
+
+            return ((Delegate)eventTarget).Equals((Delegate)_target);
         }
     }
 }

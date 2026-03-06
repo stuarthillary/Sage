@@ -24,7 +24,9 @@ namespace Highpoint.Sage.SimCore
         private readonly ExecEventType _defaultEventType = ExecEventType.Synchronous;
         private ExecState _state = ExecState.Stopped;
         private DateTime _now = DateTime.MinValue;
-        private SortedList _events = new SortedList(new ExecEventComparer());
+        private const int InitialEventHeapCapacity = 16;
+        private ExecEvent[] _eventHeap;
+        private int _eventHeapCapacity;
         private Stack _removals = new Stack();
         private double _currentPriorityLevel = double.MinValue;
         private long _nextReqHashCode = 0;
@@ -53,6 +55,8 @@ namespace Highpoint.Sage.SimCore
         {
             _guid = execGuid;
             _currentEventType = ExecEventType.None;
+            _eventHeapCapacity = InitialEventHeapCapacity;
+            _eventHeap = new ExecEvent[_eventHeapCapacity + 1];
 
 
             #region >>> Set up from-config-file parameters <<<
@@ -186,7 +190,11 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
         {
             get
             {
-                return ArrayList.ReadOnly(_events.GetKeyList());
+                lock (_eventLock)
+                {
+                    List<ExecEvent> snapshot = GetSortedEventSnapshot();
+                    return ArrayList.ReadOnly(new ArrayList(snapshot));
+                }
             }
         }
 
@@ -358,7 +366,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
         public long RequestImmediateEvent(ExecEventReceiver eer, object userData, ExecEventType execEventType)
         {
-            lock (_events)
+            lock (_eventLock)
             {
                 return RequestEvent(eer, _now, _currentPriorityLevel, userData, execEventType, false);
             }
@@ -369,7 +377,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
             if (!_stopRequested && !_abortRequested)
             {
                 Debug.Assert(eer != null, "An event was requested to call into a null callback.");
-                lock (_events)
+                lock (_eventLock)
                 {
                     if (_state == ExecState.Running)
                     {
@@ -392,8 +400,8 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                         _nextReqHashCode++;
                         if (isDaemon)
                             _numDaemonEventsInQueue++;
-                        _numEventsInQueue++;
-                        _events.Add(ExecEvent.Get(eer, when, priority, userData, execEventType, _nextReqHashCode, isDaemon), _nextReqHashCode);
+                        ExecEvent newEvent = ExecEvent.Get(eer, when, priority, userData, execEventType, _nextReqHashCode, isDaemon);
+                        HeapEnqueue(newEvent);
                         if (_diagnostics)
                         {
                             _Debug.WriteLine("Event requested for time " + when + ", to call back at " + eer.Target + "(" + eer.Target.GetHashCode() + ")." + eer.Method.Name);
@@ -410,6 +418,129 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
             {
                 return -1;
             }
+        }
+
+        private static int CompareEvents(ExecEvent ee1, ExecEvent ee2)
+        {
+            if (ee1.When < ee2.When)
+                return -1;
+            if (ee1.When > ee2.When)
+                return 1;
+            if (ee1.Priority > ee2.Priority)
+                return -1;
+            if (ee1.Priority < ee2.Priority)
+                return 1;
+            if (ee1.Key < ee2.Key)
+                return -1;
+            if (ee1.Key > ee2.Key)
+                return 1;
+            return 0;
+        }
+
+        private void HeapEnqueue(ExecEvent ee)
+        {
+            if (_numEventsInQueue == _eventHeapCapacity)
+            {
+                _eventHeapCapacity = Math.Max(InitialEventHeapCapacity, _eventHeapCapacity * 2);
+                ExecEvent[] newHeap = new ExecEvent[_eventHeapCapacity + 1];
+                Array.Copy(_eventHeap, newHeap, _numEventsInQueue + 1);
+                _eventHeap = newHeap;
+            }
+
+            _numEventsInQueue++;
+            int ndx = _numEventsInQueue;
+            int parentNdx = ndx / 2;
+            while (parentNdx > 0 && CompareEvents(_eventHeap[parentNdx], ee) > 0)
+            {
+                _eventHeap[ndx] = _eventHeap[parentNdx];
+                ndx = parentNdx;
+                parentNdx = ndx / 2;
+            }
+            _eventHeap[ndx] = ee;
+        }
+
+        private ExecEvent HeapDequeue()
+        {
+            if (_numEventsInQueue == 0)
+            {
+                throw new InvalidOperationException("Event heap is empty.");
+            }
+
+            ExecEvent minEvent = _eventHeap[1];
+            ExecEvent relocatee = _eventHeap[_numEventsInQueue];
+            _eventHeap[_numEventsInQueue] = null;
+            _numEventsInQueue--;
+
+            if (_numEventsInQueue == 0)
+            {
+                return minEvent;
+            }
+
+            int ndx = 1;
+            int child;
+            while ((child = ndx * 2) <= _numEventsInQueue)
+            {
+                if (child < _numEventsInQueue && CompareEvents(_eventHeap[child], _eventHeap[child + 1]) > 0)
+                    child++;
+                if (CompareEvents(_eventHeap[child], relocatee) >= 0)
+                    break;
+                _eventHeap[ndx] = _eventHeap[child];
+                ndx = child;
+            }
+
+            _eventHeap[ndx] = relocatee;
+            return minEvent;
+        }
+
+        private List<ExecEvent> GetEventSnapshot()
+        {
+            List<ExecEvent> snapshot = new List<ExecEvent>(_numEventsInQueue);
+            for (int i = 1; i <= _numEventsInQueue; i++)
+            {
+                snapshot.Add(_eventHeap[i]);
+            }
+            return snapshot;
+        }
+
+        private List<ExecEvent> GetSortedEventSnapshot()
+        {
+            List<ExecEvent> snapshot = GetEventSnapshot();
+            snapshot.Sort(CompareEvents);
+            return snapshot;
+        }
+
+        private void RebuildEventHeap(IReadOnlyList<ExecEvent> events)
+        {
+            _numEventsInQueue = 0;
+            _numDaemonEventsInQueue = 0;
+
+            _eventHeapCapacity = Math.Max(InitialEventHeapCapacity, _eventHeapCapacity);
+            while (_eventHeapCapacity < events.Count)
+            {
+                _eventHeapCapacity *= 2;
+            }
+            _eventHeap = new ExecEvent[_eventHeapCapacity + 1];
+
+            foreach (ExecEvent ee in events)
+            {
+                HeapEnqueue(ee);
+                if (ee.IsDaemon)
+                    _numDaemonEventsInQueue++;
+            }
+        }
+
+        private ExecEvent FindEventByKey(long eventKey)
+        {
+            lock (_eventLock)
+            {
+                for (int i = 1; i <= _numEventsInQueue; i++)
+                {
+                    ExecEvent ee = _eventHeap[i];
+                    if (ee.Key == eventKey)
+                        return ee;
+                }
+            }
+            return null;
         }
 
         public void UnRequestEvent(long requestedEventHashCode)
@@ -448,7 +579,12 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                 _eventCodes = new List<long>(eventCodes);
                 foreach (long eventCode in eventCodes)
                 {
-                    ((ExecEvent)_exec._events.GetKey(_exec._events.IndexOfValue(eventCode))).ServiceCompleted += new EventMonitor(ee_ServiceCompleted);
+                    ExecEvent targetEvent = _exec.FindEventByKey(eventCode);
+                    if (targetEvent == null)
+                    {
+                        throw new InvalidOperationException($"Event {eventCode} not found in queue for Join operation.");
+                    }
+                    targetEvent.ServiceCompleted += new EventMonitor(ee_ServiceCompleted);
                 }
             }
 
@@ -568,32 +704,26 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                     while (_removals.Count > 0)
                     {
                         ExecEventRemover er = (ExecEventRemover)_removals.Pop();
-                        er.Filter(ref _events);
-
-                        // Now determine the correct number of regular and daemon events in the executive.
-                        // TODO: Can we do this outside the while loop?
-                        _numDaemonEventsInQueue = 0;
-                        _numEventsInQueue = 0;
-                        foreach (ExecEvent ee in _events.Keys)
+                        lock (_eventLock)
                         {
-                            _numEventsInQueue++;
-                            if (ee.IsDaemon)
-                                _numDaemonEventsInQueue++;
+                            List<ExecEvent> remainingEvents = er.Filter(GetEventSnapshot(), CompareEvents);
+                            RebuildEventHeap(remainingEvents);
                         }
                     }
                     #endregion Process queued-up event removal requests
 
                     ExecEvent currentEvent;
                     #region Identify and select the current event
-                    lock (_events)
+                    lock (_eventLock)
                     {
                         // TODO: While awaiting this lock, the last even may have been resc
                         if (_numEventsInQueue > 0)
                         {
                             try
                             {  // MTHACK
-                                currentEvent = (ExecEvent)_events.GetKey(0);
-                                _events.RemoveAt(0);
+                                currentEvent = HeapDequeue();
+                                if (currentEvent.IsDaemon)
+                                    _numDaemonEventsInQueue--;
                                 _currentPriorityLevel = currentEvent.Priority;
                                 _lastEventServiceTime = _now;
                                 _now = currentEvent.When;
@@ -615,9 +745,6 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                     try
                     {
                         _currentEventType = currentEvent.EventType;
-                        if (currentEvent.IsDaemon)
-                            _numDaemonEventsInQueue--;
-                        _numEventsInQueue--;
                         if (_diagnostics)
                             _Debug.WriteLine(string.Format(_eventSvcMsg, currentEvent, currentEvent.ExecEventReceiver.Target, currentEvent.ExecEventReceiver.Target.GetHashCode(), currentEvent.ExecEventReceiver.Method.Name));
                         switch (currentEvent.EventType)
@@ -665,7 +792,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                     {
                         if (_numEventsInQueue > _numDaemonEventsInQueue)
                         {
-                            DateTime nextEventTime = ((ExecEvent)_events.GetKey(0)).When;
+                            DateTime nextEventTime = _eventHeap[1].When;
                             //DateTime nextEventTime = ((ExecEvent)m_events[0]).m_when;
                             if (nextEventTime > _now)
                             {
@@ -682,7 +809,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
 
                 if (_stopRequested)
                 {
-                    if (_events.Count > 0)
+                    if (_numEventsInQueue > 0)
                     {
                         _state = ExecState.Paused;
                         if (_executiveStopped != null)
@@ -754,20 +881,20 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
 
         private void DumpEventQueue()
         {
-            lock (_events)
+            lock (_eventLock)
             {
                 _Debug.WriteLine("Event Queue: (highest number served next)");
-                foreach (DictionaryEntry de in _events)
+                List<ExecEvent> snapshot = GetSortedEventSnapshot();
+                foreach (ExecEvent ee in snapshot)
                 {
-                    ExecEvent ee = (ExecEvent)de.Key;
                     if (ee.ExecEventReceiver.Target is DetachableEvent)
                     {
                         ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
-                        _Debug.WriteLine(de.Value + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + eer.Target + "(" + eer.Target.GetHashCode() + "), " + eer.Method.Name);
+                        _Debug.WriteLine(ee.Key + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + eer.Target + "(" + eer.Target.GetHashCode() + "), " + eer.Method.Name);
                     }
                     else
                     {
-                        _Debug.WriteLine(de.Value + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + ee.ExecEventReceiver.Target + "(" + ee.ExecEventReceiver.Target.GetHashCode() + "), " + ee.ExecEventReceiver.Method.Name);
+                        _Debug.WriteLine(ee.Key + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + ee.ExecEventReceiver.Target + "(" + ee.ExecEventReceiver.Target.GetHashCode() + "), " + ee.ExecEventReceiver.Method.Name);
                     }
                 }
                 _Debug.WriteLine("***********************************");
@@ -944,7 +1071,8 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
         {
             _state = ExecState.Stopped;
             _now = DateTime.MinValue;
-            _events = new SortedList(new ExecEventComparer());
+            _eventHeapCapacity = InitialEventHeapCapacity;
+            _eventHeap = new ExecEvent[_eventHeapCapacity + 1];
             _currentPriorityLevel = double.MinValue;
             _stopRequested = false;
             _numEventsInQueue = 0;
