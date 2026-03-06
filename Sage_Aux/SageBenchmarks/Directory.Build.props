@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Local Directory.Build.props for SageBenchmarks.
+     Chains the repo-root props (TargetFramework, company metadata, etc.) but resets
+     the output-path redirects so BenchmarkDotNet's auto-generated projects resolve
+     NuGet assets at the default SDK locations rather than the repo-wide BuildOutput\ tree. -->
+<Project>
+
+  <!-- Import parent Directory.Build.props (repo root) for shared settings. -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <!-- Reset output-path properties to SDK defaults.
+       BenchmarkDotNet copies this file to its temp project folder and the redirected
+       obj\ path causes "Assets file not found" because restore already ran against
+       the default paths. Clearing these properties lets both the benchmark project
+       and its auto-generated child projects use standard SDK layout. -->
+  <PropertyGroup>
+    <ArtifactsPath />
+    <BaseIntermediateOutputPath />
+    <IntermediateOutputPath />
+    <MSBuildProjectExtensionsPath />
+    <BaseOutputPath />
+    <OutputPath />
+    <OutDir />
+    <PublishDir />
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>SageBenchmarks</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <!-- BenchmarkDotNet requires Release builds for accurate results; Directory.Build.props
+         sets Optimize=true for Release. Always run benchmarks with: dotnet run -c Release -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sage\Sage4.csproj" />
+  </ItemGroup>
+
+</Project>
