@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 //#define WE_TRUST_HENRYS_LAW_IMPLEMENTATION
 

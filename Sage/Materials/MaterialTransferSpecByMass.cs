@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry;
@@ -17,14 +16,14 @@ namespace Highpoint.Sage.Materials
         private double _mass;
         private TimeSpan _duration;
 
-        private IDoubleScalingAdapter _massScaler = null;
-        private ITimeSpanScalingAdapter _durationScaler = null;
+        private IDoubleScalingAdapter? _massScaler;
+        private ITimeSpanScalingAdapter? _durationScaler;
 
         /// <summary>
         /// Gets the mass scaler associated with this MaterialTransferSpecByMass.
         /// </summary>
         /// <value>The mass scaler.</value>
-		public IDoubleScalingAdapter MassScaler
+        public IDoubleScalingAdapter? MassScaler
         {
             get
             {
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.Materials
         /// Gets the duration scaler associated with this MaterialTransferSpecByMass.
         /// </summary>
         /// <value>The duration scaler.</value>
-		public ITimeSpanScalingAdapter DurationScaler
+        public ITimeSpanScalingAdapter? DurationScaler
         {
             get
             {
@@ -142,7 +141,7 @@ namespace Highpoint.Sage.Materials
         {
 
             double massToRemove = Mass;
-            IMaterial retval = null;
+            IMaterial? retval = null;
 
             if (_materialType == null)
             {
@@ -221,7 +220,7 @@ namespace Highpoint.Sage.Materials
         /// <summary>
         /// Fired after a cloning operation has taken place.
         /// </summary>
-		public event CloneHandler CloneEvent;
+        public event CloneHandler? CloneEvent;
 
         /// <summary>
         /// Provides a human-readable description of the transfer mass, material, and duration, scaled as requested.

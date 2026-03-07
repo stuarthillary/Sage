@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using System;
@@ -40,14 +39,14 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
             PrepareToReadLateBoundParameters();
 
-            Mixture materialToAdd = null;
+            Mixture? materialToAdd = null;
             TryToRead(ref materialToAdd, PN.MaterialToAdd, parameters);
             double controlTemperature = double.NaN;
             TryToRead(ref controlTemperature, PN.ControlTemperature_K, parameters);
 
             EvaluateSuccessOfParameterReads();
 
-            PressureTransfer(initial, out final, out emission, modifyInPlace, materialToAdd, controlTemperature);
+            PressureTransfer(initial, out final, out emission, modifyInPlace, materialToAdd!, controlTemperature);
 
             ReportProcessCall(this, initial, final, emission, parameters);
 

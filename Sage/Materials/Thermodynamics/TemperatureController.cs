@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry;
@@ -21,7 +20,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
 
         #region >>> Private Fields <<<
         private static readonly bool diagnostics = Diagnostics.DiagnosticAids.Diagnostics("TemperatureController");
-        private string _lastMessage = null;
+        private string? _lastMessage = null;
         private static TemperatureControllerMode defaultTcMode = TemperatureControllerMode.ConstantT;
         private readonly IContainer _container;
         private readonly SmallDoubleInterpolable _thCond;
@@ -748,7 +747,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
             List<IModelError> removals = new List<IModelError>();
             foreach (IModelError ime in model.Errors)
             {
-                TErrorType et = ime as TErrorType;
+                TErrorType? et = ime as TErrorType;
                 if (et != null)
                 {
                     if (predicate(et))
@@ -778,16 +777,16 @@ namespace Highpoint.Sage.Materials.Thermodynamics
             #region Protected Fields
             protected string name = "Unspecified Settings Error";
             protected string narrative = "There was an unspecified error in the settings of a temperature controller.";
-            protected object target = null;
-            protected object subject = null;
+            protected object? target = null;
+            protected object? subject = null;
             protected bool autoClear = true;
             #endregion
 
             #region Private Fields
             private double _capacity;
-            private Mixture _mixture;
-            private SmallDoubleInterpolable _thCond;
-            private SmallDoubleInterpolable _thCondAmb;
+            private Mixture _mixture = null!; // Set in Initialize()
+            private SmallDoubleInterpolable _thCond = null!; // Set in Initialize()
+            private SmallDoubleInterpolable _thCondAmb = null!; // Set in Initialize()
             private bool _tcEnabled;
             private double _tcSetpoint;
             private double _tcSourceTemp;
@@ -796,7 +795,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
             private double _tcDelta;
             private double _ambientTemp;
             private TemperatureControllerMode _tcMode;
-            private TemperatureRampRate _temperatureRampRate;
+            private TemperatureRampRate _temperatureRampRate = null!; // Set in Initialize()
             private double _priority = 0.0;
             #endregion
 
@@ -1004,7 +1003,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
             {
                 get
                 {
-                    return (TemperatureController)target;
+                    return (TemperatureController)target!; // target is always set to TemperatureController in Initialize()
                 }
             }
 
@@ -1040,7 +1039,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
             /// Target is the place that the notification occurred.
             /// </summary>
             /// <value></value>
-            public object Target
+            public object? Target
             {
                 get
                 {
@@ -1056,7 +1055,7 @@ namespace Highpoint.Sage.Materials.Thermodynamics
             /// Subject is the thing that (probably) caused the notification.
             /// </summary>
             /// <value></value>
-            public object Subject
+            public object? Subject
             {
                 get
                 {

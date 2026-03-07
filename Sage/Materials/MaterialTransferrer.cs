@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.SimCore;
@@ -134,9 +133,9 @@ namespace Highpoint.Sage.Materials
             _Debug.Assert(_model.Executive.CurrentEventType == ExecEventType.Detachable);
             if (_completionKey == long.MinValue/*i.e. it has not started*/)
             {
-                IDetachableEventController waiter = _model.Executive.CurrentEventController;
-                _startWaiters.Add(waiter);
-                waiter.Suspend();
+                IDetachableEventController? waiter = _model.Executive.CurrentEventController;
+                _startWaiters.Add(waiter!);
+                waiter!.Suspend();
             }
         }
 
@@ -148,12 +147,12 @@ namespace Highpoint.Sage.Materials
             _Debug.Assert(_model.Executive.CurrentEventType == ExecEventType.Detachable);
             if (_completionKey > _model.Executive.Now.Ticks)
             {
-                _endWaiters.Add(_model.Executive.CurrentEventController);
-                _model.Executive.CurrentEventController.Suspend();
+                _endWaiters.Add(_model.Executive.CurrentEventController!);
+                _model.Executive.CurrentEventController!.Suspend();
             }
         }
 
-        private void _Update(IExecutive exec, object userData)
+        private void _Update(IExecutive exec, object? userData)
         {
             if (!_inProcess)
             {
@@ -203,7 +202,7 @@ namespace Highpoint.Sage.Materials
         /// <param name="initiator">The initiator.</param>
         public void DoUpdate(IMaterial initiator)
         {
-            _Update(null, null);
+            _Update(null!, null);
         }
 
         /// <summary>

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -162,23 +161,23 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="xmlsc">The specified XmlSerializationContext.</param>
         public void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            Hashtable typesByName = (Hashtable)xmlsc.LoadObject("MaterialTypesByName");
+            Hashtable? typesByName = (Hashtable?)xmlsc.LoadObject("MaterialTypesByName");
             _materialTypesByName = new Dictionary<string, MaterialType>();
             if (typesByName != null)
             {
                 foreach (DictionaryEntry entry in typesByName)
                 {
-                    _materialTypesByName.Add((string)entry.Key, (MaterialType)entry.Value);
+                    _materialTypesByName.Add((string)entry.Key, (MaterialType)entry.Value!);
                 }
             }
 
-            Hashtable typesByGuid = (Hashtable)xmlsc.LoadObject("MaterialTypesByGuid");
+            Hashtable? typesByGuid = (Hashtable?)xmlsc.LoadObject("MaterialTypesByGuid");
             _materialTypesByGuid = new Dictionary<Guid, MaterialType>();
             if (typesByGuid != null)
             {
                 foreach (DictionaryEntry entry in typesByGuid)
                 {
-                    _materialTypesByGuid.Add((Guid)entry.Key, (MaterialType)entry.Value);
+                    _materialTypesByGuid.Add((Guid)entry.Key, (MaterialType)entry.Value!);
                 }
             }
         }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry.Emissions;
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         private double _ebullioscopicConstant = default_Ebullioscopy_Constant;
 
         //private SmallDoubleInterpolable m_vaporPressure;
-        private ListDictionary _emissionClassifications;
+        private ListDictionary? _emissionClassifications;
         private IAntoinesCoefficients3 _antoinesCoefficients3 = new AntoinesCoefficients3Impl();
         private IAntoinesCoefficientsExt _antoinesCoefficientsExt = new AntoinesCoefficientsExt();
 
@@ -148,7 +147,10 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             _name = name;
             _guid = guid;
-            _model = model;
+            _model = model!; // Set via constructor parameter
+            _name = name!; // Set via constructor parameter
+            _description = string.Empty; // Set later via InitializeIdentity if needed
+            _tag = string.Empty; // Set later if needed
             STPState = stpState;
             SetSpecificGravity(specificGravity); // kilogram per liter.
             SetSpecificHeat(specificHeat); // Joules per Kilogram-degree K.
@@ -166,7 +168,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -196,7 +198,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public void AddEmissionsClassifications(string[] classifications)
         {
             ArrayList al = new ArrayList();
-            EmissionsClassification ec;
+            EmissionsClassification? ec;
             foreach (string classification in classifications)
             {
                 ec = null;
@@ -257,7 +259,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 _emissionClassifications = new ListDictionary();
             }
 
-            EmissionsClassificationCatalog ecc = (EmissionsClassificationCatalog)_model.Parameters["EmissionsClassificationCatalog"];
+            EmissionsClassificationCatalog? ecc = (EmissionsClassificationCatalog?)_model.Parameters["EmissionsClassificationCatalog"];
             if (_model != null && ecc == null)
             {
                 ecc = new EmissionsClassificationCatalog();
@@ -275,10 +277,10 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         public void ClearEmissionsClassifications()
         {
-            _emissionClassifications.Clear();
+            _emissionClassifications?.Clear();
         }
 
-        public IDictionary EmissionsClassifications
+        public IDictionary? EmissionsClassifications
         {
             get
             {
@@ -629,7 +631,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         #region Implementation of IModelObject
-        private string _name;
+        private string _name = null!; // Set in constructor
         public string Name
         {
             get
@@ -637,7 +639,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 return _name;
             }
         }
-        private string _description;
+        private string _description = string.Empty;
         /// <summary>
         /// A description of this Material Type.
         /// </summary>
@@ -650,7 +652,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in constructor or InitializeIdentity
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
@@ -702,7 +704,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             return "MaterialType:" + _name;
         }
 
-        private object _tag;
+        private object _tag = string.Empty;
         public object Tag
         {
             get

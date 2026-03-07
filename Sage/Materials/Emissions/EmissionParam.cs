@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -10,8 +9,8 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
     [Serializable]
     public class EmissionParam
     {
-        private string _name;
-        private string _description;
+        private string? _name;
+        private string? _description;
         /// <summary>
         /// Creates a new instance of the <see cref="T:EmissionParam"/> class for serialization purposes.
         /// </summary>
@@ -27,7 +26,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// Gets or sets the name of the <see cref="T:EmissionParam"/>.
         /// </summary>
         /// <value>The name of the <see cref="T:EmissionParam"/>.</value>
-		public string Name
+		public string? Name
         {
             get
             {
@@ -42,7 +41,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// Gets or sets the description of the <see cref="T:EmissionParam"/>.
         /// </summary>
         /// <value>The description of the <see cref="T:EmissionParam"/>.</value>
-		public string Description
+		public string? Description
         {
             get
             {

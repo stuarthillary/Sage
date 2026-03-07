@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -26,12 +25,12 @@ namespace Highpoint.Sage.Materials.Chemistry
         protected ReactionDefinitionException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         #endregion
 
-        private readonly Reaction _reaction = null;
+        private readonly Reaction? _reaction = null;
         /// <summary>
         /// Gets the members of the cycle.
         /// </summary>
         /// <value>The members of the cycle.</value>
-        public Reaction Reaction
+        public Reaction? Reaction
         {
             get
             {

@@ -63,3 +63,11 @@
 - **Nullability fixes:** GraphSequencer/GraphCycleException annotations, Randoms buffering fields, StateBase Configure fields/collections and distro cache, RunProgram optional parameters.
 - **Build/Test:** `dotnet build Sage\Sage4.csproj` clean; `dotnet build Sage4-Everything.sln` blocked by permission prompt; `dotnet test SageTestLib` 319/319.
 - **Remaining:** 370 files still `#nullable disable` (178 enabled total).
+
+### 2026-03-07 — Nullable Phase 5 (ItemBased) ✅
+
+- **Scope:** Removed `#nullable disable` from all 73 files in Sage/ItemBased/ (Connectors, Ports, Queues, Servers, SourcesAndSinks, SplittersAndJoiners).
+- **Nullability fixes:** IPort nullable annotations, ConnectorFactory nullable handling, Queue.cs naming collision resolved with fully-qualified System.Collections.Generic.Queue<T>, event delegates made nullable, IModel? propagated throughout.
+- **Critical fix:** Corrected Connectors.cs to preserve original Debug.Assert behavior for null models instead of throwing exceptions (test compatibility).
+- **Build/Test:** `dotnet build Sage4.csproj` clean; `dotnet test SageTestLib` 319/319 passing.
+- **Remaining:** 297 files still `#nullable disable` (251 enabled total).

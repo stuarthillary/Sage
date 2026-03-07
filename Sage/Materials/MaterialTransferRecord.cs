@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -227,10 +226,10 @@ namespace Highpoint.Sage.Materials
         {
             if (tgtGuid != Guid.Empty)
             {
-                IModelObject mo = ((IModelObject)model.ModelObjects[tgtGuid]);
+                IModelObject? mo = (IModelObject?)model.ModelObjects[tgtGuid];
                 if (mo != null)
                 {
-                    return ((IModelObject)model.ModelObjects[tgtGuid]).Name;
+                    return mo.Name;
                 }
             }
             return string.Format(fmtString, tgtGuid);
@@ -267,10 +266,10 @@ namespace Highpoint.Sage.Materials
         {
             #region IComparer Members
 
-            public int Compare(object x, object y)
+            public int Compare(object? x, object? y)
             {
-                MaterialTransferRecord mtrx = (MaterialTransferRecord)x;
-                MaterialTransferRecord mtry = (MaterialTransferRecord)y;
+                MaterialTransferRecord mtrx = (MaterialTransferRecord)x!;
+                MaterialTransferRecord mtry = (MaterialTransferRecord)y!;
 
                 int retval = Comparer.Default.Compare(mtrx.ConcurrencyGuid, mtry.ConcurrencyGuid);
                 if (retval == 0)

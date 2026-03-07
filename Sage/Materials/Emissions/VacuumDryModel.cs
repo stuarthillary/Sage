@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
 using PN = Highpoint.Sage.Materials.Chemistry.Emissions.EmissionModel.ParamNames;
@@ -57,16 +56,16 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             EvaluateSuccessOfParameterReads(); // Preceding values are required.
 
             // These two are optional. ////////////////////////////////////////////////////////////
-            Hashtable materialGuidToVolumeFraction = null;
+            Hashtable? materialGuidToVolumeFraction = null;
             if (parameters.Contains(PN.MaterialGuidToVolumeFraction))
             {
-                materialGuidToVolumeFraction = (Hashtable)parameters[PN.MaterialGuidToVolumeFraction];
+                materialGuidToVolumeFraction = (Hashtable?)parameters[PN.MaterialGuidToVolumeFraction];
             }
 
             double massofDriedProductCake = double.NaN;
             if (parameters.Contains(PN.MassOfDriedProductCake_Kg))
             {
-                massofDriedProductCake = (double)parameters[PN.MassOfDriedProductCake_Kg];
+                massofDriedProductCake = (double)parameters[PN.MassOfDriedProductCake_Kg]!;
             }
             // ////////////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +131,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             double systemPressure, /* in Pascals. */
             double airLeakRate, /* in kilograms per time unit. */
             double airLeakDuration, /* in matching time unit. */
-            Hashtable materialGuidToVolumeFraction,
+            Hashtable? materialGuidToVolumeFraction,
             double massOfDriedProductCake
             )
         {

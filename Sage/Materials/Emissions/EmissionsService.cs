@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using System;
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
     public class EmissionsService
     {
 
-        private static volatile EmissionsService _instance;
+        private static volatile EmissionsService? _instance;
         private static readonly object padlock = new object();
         private static EmissionsServiceOptions _options = new EmissionsServiceOptions();
         public static EmissionsService Instance
@@ -34,7 +33,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         private readonly bool _ignoreUnknownModelTypes;
         private readonly bool _enabled;
 
-        private EmissionsService(EmissionsServiceOptions options = null)
+        private EmissionsService(EmissionsServiceOptions? options = null)
         {
             options ??= new EmissionsServiceOptions();
             _enabled = options.Enabled;
@@ -44,7 +43,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             EmissionModel.ActiveEquationSet =
                 (EmissionModel.EquationSet)Enum.Parse(typeof(EmissionModel.EquationSet), equationSet);
 
-            IReadOnlyList<IEmissionModel> models = options.Models;
+            IReadOnlyList<IEmissionModel>? models = options.Models;
             if (models == null)
             {
                 if (UnitTestDetector.IsInUnitTest)
@@ -91,8 +90,8 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
         public void ProcessEmissions(
             Mixture initial,
-            out Mixture final,
-            out Mixture emission,
+            out Mixture? final,
+            out Mixture? emission,
             bool modifyInPlace,
             string emissionModelKey,
             Hashtable parameters)
@@ -101,7 +100,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             final = null;
             emission = null;
 
-            IEmissionModel em = (IEmissionModel)_models[emissionModelKey];
+            IEmissionModel? em = (IEmissionModel?)_models[emissionModelKey];
 
             if (em == null)
             {

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -27,13 +26,13 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private static readonly bool breakOnIsNaNTemp = Diagnostics.DiagnosticAids.Diagnostics("TemperatureIsNaNBreak");
         private static readonly ICollection _emptyList = Array.Empty<DictionaryEntry>();
-        private MaterialType _type;
-        private Dictionary<Guid, double> _materialSpecs;
+        private MaterialType _type = null!; // Set in constructor
+        private Dictionary<Guid, double>? _materialSpecs;
         private double _mass = 0.0;       // Kilograms
         private readonly WriteLock _writeLock = new WriteLock(true);
         private readonly MementoHelper _ssh;
-        private IMemento _memento;
-        private Mixture.MaterialChangeDistiller _eventDistiller;
+        private IMemento? _memento;
+        private Mixture.MaterialChangeDistiller? _eventDistiller;
         #endregion 
 
         internal double Temp = 0.0;       // degrees K
@@ -60,7 +59,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Fired after a material has changed its mass, constituents or temperature.
         /// </summary>
-        public event MaterialChangeListener MaterialChanged;
+        public event MaterialChangeListener? MaterialChanged;
 
 
         /// <summary>
@@ -103,7 +102,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <returns><c>true</c> if this one and the other one are equal, <c>false</c> otherwise.</returns>
         public bool Equals(ISupportsMementos otherOne)
         {
-            Substance otherSubstance = otherOne as Substance;
+            Substance? otherSubstance = otherOne as Substance;
             if (otherSubstance == null)
                 return false;
             if (_materialSpecs != null && otherSubstance._materialSpecs == null)
@@ -222,7 +221,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                         Guid key = (Guid)de.Key;
                         if (_materialSpecs.ContainsKey(key))
                             DuplicateSpec(key);
-                        _materialSpecs.Add(key, (double)de.Value);
+                        _materialSpecs.Add(key, (double)de.Value!);
                     }
                 }
                 else if (obj is KeyValuePair<Guid, double> pair)
@@ -320,7 +319,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             foreach (DictionaryEntry de in original.GetMaterialSpecs())
             {
                 Guid specGuid = (Guid)de.Key;
-                double specMass = (double)de.Value;
+                double specMass = (double)de.Value!;
                 double origPctg = specMass / original.Mass;
 
                 double emittedMass = emitted.Mass * origPctg;
@@ -768,7 +767,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// <summary>
             /// The material specs
             /// </summary>
-            private readonly Dictionary<Guid, double> _matlSpecs;
+            private readonly Dictionary<Guid, double>? _matlSpecs;
 
             #endregion
 
@@ -891,16 +890,13 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// <summary>
             /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
             /// </summary>
-            public event MementoEvent OnLoadCompleted;
+            public event MementoEvent? OnLoadCompleted;
 
             /// <summary>
             /// This holds a reference to the memento, if any, that contains this memento.
             /// </summary>
             /// <value>The parent.</value>
-            public IMemento Parent
-            {
-                get; set;
-            }
+            public IMemento? Parent { get; set; }
         }
 
 
@@ -908,10 +904,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Gets or sets the tag, which is a user-supplied data element.
         /// </summary>
         /// <value>The tag.</value>
-        public object Tag
-        {
-            get; set;
-        }
+        public object? Tag { get; set; } = string.Empty;
 
         #region >>> Serialization Support <<< 
         /// <summary>
@@ -963,9 +956,9 @@ namespace Highpoint.Sage.Materials.Chemistry
 
             #region IComparer<Substance> Members
 
-            public int Compare(Substance x, Substance y)
+            public int Compare(Substance? x, Substance? y)
             {
-                return Comparer.Default.Compare(x.Mass, y.Mass);
+                return Comparer.Default.Compare(x?.Mass, y?.Mass);
             }
 
             #endregion
@@ -976,12 +969,12 @@ namespace Highpoint.Sage.Materials.Chemistry
 
             #region IComparer<Substance> Members
 
-            public int Compare(Substance x, Substance y)
+            public int Compare(Substance? x, Substance? y)
             {
-                int retval = Comparer.Default.Compare(x.Mass, y.Mass);
+                int retval = Comparer.Default.Compare(x?.Mass, y?.Mass);
                 if (retval != 0)
                     return retval;
-                return Comparer.Default.Compare(x.Name, y.Name);
+                return Comparer.Default.Compare(x?.Name, y?.Name);
             }
 
             #endregion

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.SimCore;
@@ -71,7 +70,7 @@ namespace Highpoint.Sage.Materials
                 }
             }
 
-            public void SetAbortHandler(DetachableEventAbortHandler handler, params object[] args)
+            public void SetAbortHandler(DetachableEventAbortHandler handler, params object?[] args)
             {
                 throw new Exception("The method or operation is not implemented.");
             }
@@ -135,10 +134,10 @@ namespace Highpoint.Sage.Materials
             }
         }
 
-        private void ProcessGetters(IExecutive exec, object userData)
+        private void ProcessGetters(IExecutive exec, object? userData)
         {
-            _getProcessor = exec.CurrentEventController;
-            IDetachableEventController waiter = null;
+            _getProcessor = exec.CurrentEventController!;
+            IDetachableEventController? waiter = null;
             while (_waiters.Count > 0 && _waiters[0] != waiter)
             {
                 waiter = _waiters[0];
@@ -153,11 +152,11 @@ namespace Highpoint.Sage.Materials
         {
             if (_waiters.Count > 0 || PeekMixture.Mass < kilograms)
             {
-                _waiters.Add(_executive.CurrentEventController);
+                _waiters.Add(_executive.CurrentEventController!);
                 do
                 {
                     _getProcessor.Resume();
-                    _executive.CurrentEventController.Suspend();
+                    _executive.CurrentEventController!.Suspend();
                 } while (PeekMixture.Mass < kilograms);
                 _waiters.RemoveAt(0);
                 _getProcessor.Resume();

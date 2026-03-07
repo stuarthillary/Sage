@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -37,23 +36,23 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             Hashtable parameters)
         {
 
-            Mixture desiredEmission = (Mixture)parameters[PN.DesiredEmission];
+            Mixture? desiredEmission = (Mixture?)parameters[PN.DesiredEmission];
             PrepareToReadLateBoundParameters();
             if (desiredEmission == null)
             {
                 if (parameters.ContainsKey(PN.MaterialTypeGuidToEmit))
                 {
-                    Guid materialTypeGuid = (Guid)parameters[PN.MaterialTypeGuidToEmit];
+                    Guid materialTypeGuid = (Guid)parameters[PN.MaterialTypeGuidToEmit]!;
                     Guid materialSpecGuid = Guid.Empty;
                     if (parameters.ContainsKey(PN.MaterialSpecGuidToEmit))
                     {
-                        materialSpecGuid = (Guid)parameters[PN.MaterialSpecGuidToEmit];
+                        materialSpecGuid = (Guid)parameters[PN.MaterialSpecGuidToEmit]!;
                     }
 
                     // Emission by fraction.
                     if (parameters.ContainsKey(PN.MaterialFractionToEmit))
                     {
-                        double fraction = (double)parameters[PN.MaterialFractionToEmit];
+                        double fraction = (double)parameters[PN.MaterialFractionToEmit]!;
                         desiredEmission = new Mixture();
                         foreach (IMaterial material in initial.Constituents)
                         {
@@ -68,7 +67,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
                     }
                     else if (parameters.ContainsKey(PN.MaterialMassToEmit))
                     {
-                        double massOut = (double)parameters[PN.MaterialMassToEmit];
+                        double massOut = (double)parameters[PN.MaterialMassToEmit]!;
                         desiredEmission = new Mixture();
                         foreach (IMaterial material in initial.Constituents)
                         {
@@ -92,7 +91,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             }
             EvaluateSuccessOfParameterReads();
 
-            MassBalance(initial, out final, out emission, modifyInPlace, desiredEmission);
+            MassBalance(initial, out final, out emission, modifyInPlace, desiredEmission!);
 
             ReportProcessCall(this, initial, final, emission, parameters);
         }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Resources;
@@ -27,9 +26,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         #region Private fields
         private static readonly bool diagnostics = Diagnostics.DiagnosticAids.Diagnostics("MaterialResourceItem");
 
-        private IModel _model;
-        private IMaterial _material;
-        private string _name;
+        private IModel _model = null!; // Set in constructor
+        private IMaterial _material = null!; // Set in Initialize()
+        private string _name = null!; // Set in constructor
         private Guid _guid;
         private readonly ArrayList _waiters;
         private static readonly ArrayList _empty_List = ArrayList.ReadOnly(new ArrayList());
@@ -95,7 +94,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="initialCapacity">The initial capacity of the MaterialResourceItem to hold the substance.</param>
         /// <param name="materialSpecGuids">The material specification guids. See Material Specifications tech note.</param>
         /// <exception cref="System.ApplicationException">A MaterialResourceItem cannot contain a spec with the same Guid as that of its own core material type.</exception>
-        public MaterialResourceItem(IModel model, string name, Guid guid, MaterialType mt, double initialQuantity, double initialTemp, double initialCapacity, ICollection materialSpecGuids)
+        public MaterialResourceItem(IModel model, string name, Guid guid, MaterialType mt, double initialQuantity, double initialTemp, double initialCapacity, ICollection? materialSpecGuids)
         {
             if (materialSpecGuids == null)
                 materialSpecGuids = _empty_List;
@@ -147,7 +146,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -300,7 +299,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 return false;
             request.QuantityObtained = request.QuantityDesired;
             request.ResourceObtained = this;
-            Substance material = _material as Substance;
+            Substance? material = _material as Substance;
             if (material != null)
             {
                 material.Remove(request.QuantityDesired);
@@ -378,7 +377,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
             while (_waiters.Count > 0)
             {
-                IDetachableEventController dec = (IDetachableEventController)_waiters[0];
+                IDetachableEventController dec = (IDetachableEventController)_waiters[0]!;
                 _waiters.RemoveAt(0);
                 dec.Resume();
             }
@@ -420,7 +419,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
             while (_waiters.Count > 0)
             {
-                IDetachableEventController dec = (IDetachableEventController)_waiters[0];
+                IDetachableEventController dec = (IDetachableEventController)_waiters[0]!;
                 _waiters.RemoveAt(0);
                 dec.Resume();
             }
@@ -429,27 +428,27 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Occurs when this resource has been requested.
         /// </summary>
-        public event ResourceStatusEvent RequestEvent;
+        public event ResourceStatusEvent? RequestEvent;
 
         /// <summary>
         /// Occurs when this resource has been reserved.
         /// </summary>
-        public event ResourceStatusEvent ReservedEvent;
+        public event ResourceStatusEvent? ReservedEvent;
 
         /// <summary>
         /// Occurs when this resource has been unreserved.
         /// </summary>
-        public event ResourceStatusEvent UnreservedEvent;
+        public event ResourceStatusEvent? UnreservedEvent;
 
         /// <summary>
         /// Occurs when this resource has been acquired.
         /// </summary>
-        public event ResourceStatusEvent AcquiredEvent;
+        public event ResourceStatusEvent? AcquiredEvent;
 
         /// <summary>
         /// Occurs when this resource has been released.
         /// </summary>
-        public event ResourceStatusEvent ReleasedEvent;
+        public event ResourceStatusEvent? ReleasedEvent;
 
         #endregion
 
@@ -482,7 +481,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             if (blockAwaitingAcquisition)
             {
 
-                IDetachableEventController dec = Model.Executive.CurrentEventController;
+                IDetachableEventController? dec = Model!.Executive.CurrentEventController;
                 if (dec == null)
                     throw new ApplicationException("Someone tried to call Reserve(..., true) while not in a detachable event. This is not allowed.");
 
@@ -517,7 +516,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             if (blockAwaitingAcquisition)
             {
 
-                IDetachableEventController dec = Model.Executive.CurrentEventController;
+                IDetachableEventController? dec = Model!.Executive.CurrentEventController;
                 if (dec == null)
                     throw new ApplicationException("Someone tried to call Acquire(..., true) while not in a detachable event. This is not allowed.");
 
@@ -543,31 +542,31 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Fired when a resource request is received.
         /// </summary>
-        public event ResourceStatusEvent ResourceRequested;
+        public event ResourceStatusEvent? ResourceRequested;
         /// <summary>
         /// Fired when a resource is reserved.
         /// </summary>
-        public event ResourceStatusEvent ResourceReserved;
+        public event ResourceStatusEvent? ResourceReserved;
         /// <summary>
         /// Fired when a resource is unreserved.
         /// </summary>
-        public event ResourceStatusEvent ResourceUnreserved;
+        public event ResourceStatusEvent? ResourceUnreserved;
         /// <summary>
         /// Fired when a resource is acquired and thereby removed from the pool.
         /// </summary>
-        public event ResourceStatusEvent ResourceAcquired;
+        public event ResourceStatusEvent? ResourceAcquired;
         /// <summary>
         /// Fired when a resource is released back into the pool.
         /// </summary>
-        public event ResourceStatusEvent ResourceReleased;
+        public event ResourceStatusEvent? ResourceReleased;
         /// <summary>
         /// Fired when a resource is added to the pool.
         /// </summary>
-        public event ResourceManagerEvent ResourceAdded;
+        public event ResourceManagerEvent? ResourceAdded;
         /// <summary>
         /// Fired when a resource is removed from the pool.
         /// </summary>
-        public event ResourceManagerEvent ResourceRemoved;
+        public event ResourceManagerEvent? ResourceRemoved;
 
         /// <summary>
         /// Gets or sets the access regulator, which is an object that can allow or deny
@@ -575,7 +574,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         /// <value>The access regulator.</value>
         /// <exception cref="System.NotSupportedException">A MaterialResourceItem does not support an access regulator.</exception>
-        public IAccessRegulator AccessRegulator
+        public IAccessRegulator? AccessRegulator
         {
             set
             {
@@ -616,13 +615,13 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         #region IHasIdentity Members
 
         public string Name => _name;
 
-        private string _description = null;
+        private string? _description;
         /// <summary>
         /// A description of this MaterialResourceItem
         /// </summary>
@@ -691,7 +690,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Gets or sets the tag - an arbitrary object attached to this one.
         /// </summary>
         /// <value>The tag.</value>
-        public object Tag { get; set; } = null;
+        public object? Tag { get; set; }
 
         private void Initialize()
         {

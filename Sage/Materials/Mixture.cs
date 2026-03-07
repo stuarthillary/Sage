@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
@@ -31,25 +30,25 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Fired after a change in mass, constituents or temperature has taken place in this mixture. 
         /// </summary>
-        public event MaterialChangeListener MaterialChanged;
+        public event MaterialChangeListener? MaterialChanged;
         /// <summary>
         /// Fires before a reaction takes place in this mixture.
         /// </summary>
-        public event ReactionGoingToHappenEvent OnReactionGoingToHappen;
+        public event ReactionGoingToHappenEvent? OnReactionGoingToHappen;
         /// <summary>
         /// Fires after a reaction has taken place in this mixture.
         /// </summary>
-        public event ReactionHappenedEvent OnReactionHappened;
+        public event ReactionHappenedEvent? OnReactionHappened;
 
         #region Private Fields
         private Dictionary<string, Substance> _constituentSubstances = new Dictionary<string, Substance>();
-        private string _name;
+        private string? _name;
         private double _temp = double.NaN;
         private readonly WriteLock _writeLock = new WriteLock(true);
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Mixture");
         private static readonly bool _breakOnIsNaNTemp = Diagnostics.DiagnosticAids.Diagnostics("TemperatureIsNaNBreak");
-        private IMemento _memento;
-        private MaterialChangeDistiller _eventDistiller;
+        private IMemento? _memento;
+        private MaterialChangeDistiller? _eventDistiller;
         private IUpdater _updater = _dummyUpdater;
         private static readonly IUpdater _dummyUpdater = new NullUpdater();
         #endregion
@@ -63,26 +62,26 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Creates a new instance of the <see cref="T:Mixture"/> class.
         /// </summary>
         /// <param name="name">The name of the <see cref="T:Mixture"/>.</param>
-        public Mixture(string name) : this(null, name, Guid.NewGuid()) { }
+        public Mixture(string? name) : this(null, name, Guid.NewGuid()) { }
         /// <summary>
         /// Creates a new instance of the <see cref="T:Mixture"/> class.
         /// </summary>
         /// <param name="name">The name of the <see cref="T:Mixture"/>.</param>
         /// <param name="guid">The GUID of the <see cref="T:Mixture"/>.</param>
-        public Mixture(string name, Guid guid) : this(null, name, guid) { }
+        public Mixture(string? name, Guid guid) : this(null, name, guid) { }
         /// <summary>
         /// Creates a new instance of the <see cref="T:Mixture"/> class.
         /// </summary>
         /// <param name="model">The model in which the <see cref="T:Mixture"/> will exist.</param>
         /// <param name="name">The name of the <see cref="T:Mixture"/>.</param>
-        public Mixture(IModel model, string name) : this(model, name, Guid.NewGuid()) { }
+        public Mixture(IModel? model, string? name) : this(model, name, Guid.NewGuid()) { }
         /// <summary>
         /// Creates a new instance of the <see cref="T:Mixture"/> class.
         /// </summary>
         /// <param name="model">The model in which the <see cref="T:Mixture"/> will exist.</param>
         /// <param name="name">The name of the <see cref="T:Mixture"/>.</param>
         /// <param name="guid">The GUID of the <see cref="T:Mixture"/>.</param>
-        public Mixture(IModel model, string name, Guid guid)
+        public Mixture(IModel? model, string? name, Guid guid)
         {
             Model = model;
             _name = name;
@@ -168,7 +167,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="model">The model in which this mixture exists.</param>
         /// <returns>Null.</returns>
         // ReSharper disable once UnusedParameter.Global
-        public ITransitionFailureReason Initialize(IModel model)
+        public ITransitionFailureReason? Initialize(IModel model)
         {
             if (_diagnostics)
                 _Debug.WriteLine("Clearing mixture " + Name);
@@ -198,7 +197,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </returns>
         public bool Equals(ISupportsMementos otherGuy)
         {
-            Mixture otherMixture = otherGuy as Mixture;
+            Mixture? otherMixture = otherGuy as Mixture;
             if (_constituentSubstances.Count != otherMixture?._constituentSubstances.Count)
                 return false;
             Update();
@@ -221,9 +220,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         public double ContainedMassOf(MaterialType type)
         {
             Update();
-            if (!_constituentSubstances.TryGetValue(type.Name, out Substance sub))
+            if (!_constituentSubstances.TryGetValue(type.Name, out Substance? sub))
                 return 0.0;
-            return sub.Mass;
+            return sub!.Mass;
         }
 
         /// <summary>
@@ -286,13 +285,13 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Gets the material type of the mixture - always null.
         /// </summary>
         /// <value>The type of the material.</value>
-		public MaterialType MaterialType => null;
+		public MaterialType MaterialType => null!;
 
         /// <summary>
         /// Gets the name.
         /// </summary>
         /// <value>The name of the mixture.</value>
-        public string Name => _name;
+        public string Name => _name ?? string.Empty;
 
         /// <summary>
         /// Gets the mass of the mixture.
@@ -560,7 +559,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             Update();
             if (!_writeLock.IsWritable)
                 throw new WriteProtectionViolationException(this, _writeLock);
-            Substance substanceToAdd = materialToAdd as Substance;
+            Substance? substanceToAdd = materialToAdd as Substance;
             if (substanceToAdd != null)
             {
                 AddSubstance(substanceToAdd);
@@ -595,7 +594,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 // TODO: Figure out how to deal with this!
                 return;
             }
-            _constituentSubstances.TryGetValue(substanceToAdd.Name, out Substance s);
+            _constituentSubstances.TryGetValue(substanceToAdd.Name, out Substance? s);
             double temperature = Temperature;
             if (s != null)
             {                      //Augment an existing substance.
@@ -627,7 +626,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 throw new WriteProtectionViolationException(this, _writeLock);
             IMaterial matl = RemoveMaterial(s.MaterialType, s.Mass);
             WriteLock wl;
-            Substance substance = matl as Substance;
+            Substance? substance = matl as Substance;
             if (substance != null)
                 wl = (WriteLock)substance;
             else if (matl is Mixture)
@@ -675,7 +674,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 throw new WriteProtectionViolationException(this, _writeLock);
             IMaterial matl = RemoveMaterial(matlType, double.MaxValue);
             WriteLock wl;
-            Substance substance = matl as Substance;
+            Substance? substance = matl as Substance;
             if (substance != null)
                 wl = (WriteLock)substance;
             else if (matl is Mixture)
@@ -696,7 +695,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public IMaterial RemoveMaterial(MaterialType matlType, double mass)
         {
             Update();
-            IMaterial retval = null;
+            IMaterial? retval = null;
             if (mass > 0 && ContainedMassOf(matlType) > 0)
             {
                 if (!_writeLock.IsWritable)
@@ -704,7 +703,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
                 IMaterial requestedMaterial = matlType.CreateMass(mass, Temperature);
 
-                Substance material = requestedMaterial as Substance;
+                Substance? material = requestedMaterial as Substance;
                 if (material != null)
                 { // Removing a single substance.
                     retval = RemoveSubstance(material);
@@ -714,7 +713,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                     Mixture removed = new Mixture(Model, Name);
                     foreach (Substance s in ((Mixture)requestedMaterial)._constituentSubstances.Values)
                     {
-                        Substance removee = (Substance)RemoveSubstance(s);
+                        Substance? removee = (Substance?)RemoveSubstance(s);
                         if (removee != null)
                         {
                             removed.AddSubstance(removee);
@@ -820,7 +819,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             return vsMix;
         }
 
-        private IMaterial RemoveSubstance(Substance requestedSubstance)
+        private IMaterial? RemoveSubstance(Substance requestedSubstance)
         {
             Update();
             if (!_writeLock.IsWritable)
@@ -844,7 +843,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
             else
             {
-                _constituentSubstances.TryGetValue(requestedSubstance.Name, out Substance s);
+                _constituentSubstances.TryGetValue(requestedSubstance.Name, out Substance? s);
                 if (s != null)
                 {
                     requestedSubstance = s.Remove(requestedSubstance);
@@ -1063,7 +1062,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 if (this == otherMemento)
                     return true;
 
-                MixtureMemento mmog = otherMemento as MixtureMemento;
+                MixtureMemento? mmog = otherMemento as MixtureMemento;
                 if (_substanceMementos.Count != mmog?._substanceMementos.Count)
                     return false;
 
@@ -1071,7 +1070,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 {
                     if (!mmog._substanceMementos.Contains(de.Key))
                         return false;
-                    if (!((IMemento)de.Value).Equals((IMemento)mmog._substanceMementos[de.Key]))
+                    if (!((IMemento)de.Value!).Equals((IMemento)mmog!._substanceMementos[de.Key]!))
                         return false;
                 }
 
@@ -1082,7 +1081,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// This holds a reference to the memento, if any, that contains this memento.
             /// </summary>
             /// <value></value>
-            public IMemento Parent
+            public IMemento? Parent
             {
                 get; set;
             }
@@ -1090,7 +1089,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// <summary>
             /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
             /// </summary>
-            public event MementoEvent OnLoadCompleted;
+            public event MementoEvent? OnLoadCompleted;
 
         }
 
@@ -1192,12 +1191,12 @@ namespace Highpoint.Sage.Materials.Chemistry
             return "Mixture (" + Temperature.ToString(tempFmt) + " deg C) of " + ToStringWithoutTemperature(massFmt);
         }
 
-        private object _tag;
+        private object? _tag;
         /// <summary>
         /// Gets or sets the tag, which is a user-supplied data element.
         /// </summary>
         /// <value>The tag.</value>
-        public object Tag
+        public object? Tag
         {
             get
             {
@@ -1224,7 +1223,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model
+        public IModel? Model
         {
             get;
         }
@@ -1256,7 +1255,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             {
                 foreach (DictionaryEntry entry in substances)
                 {
-                    _constituentSubstances.Add((string)entry.Key, (Substance)entry.Value);
+                    _constituentSubstances.Add((string)entry.Key, (Substance)entry.Value!);
                 }
             }
         }
@@ -1274,10 +1273,10 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
 
             #region Private Fields
-            private MaterialChangeListener _realHandler;
+            private MaterialChangeListener? _realHandler;
             private event MaterialChangeListener Filter;
             private readonly bool _autoDigest;
-            private readonly IExecutive _exec;
+            private readonly IExecutive? _exec;
             private readonly List<Entry> _changesTranspired = new List<Entry>();
             private int _attaches;
             #endregion Private Fields
@@ -1309,7 +1308,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// </summary>
             /// <param name="mcl">The specified listener.</param>
             /// <exception cref="ApplicationException"></exception>
-            public void Hold(ref MaterialChangeListener mcl)
+            public void Hold(ref MaterialChangeListener? mcl)
             {
                 if (!_autoDigest)
                 {
@@ -1328,10 +1327,8 @@ namespace Highpoint.Sage.Materials.Chemistry
             /// <param name="mcl">The specified listener.</param>
             /// <param name="issueSummaryEvents">if set to <c>true</c>issue summary events. Otherwise, simply discard the change notifications.</param>
             /// <exception cref="ApplicationException"></exception>
-            public void Release(ref MaterialChangeListener mcl, bool issueSummaryEvents)
+            public void Release(ref MaterialChangeListener? mcl, bool issueSummaryEvents)
             {
-                if (mcl == null)
-                    throw new ArgumentNullException(nameof(mcl));
                 mcl = _realHandler;
                 if (!_autoDigest)
                 {
@@ -1343,7 +1340,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 }
             }
 
-            private void _Release(ref MaterialChangeListener mcl, bool issueSummaryEvents)
+            private void _Release(ref MaterialChangeListener? mcl, bool issueSummaryEvents)
             {
 
                 Distill(_changesTranspired);
@@ -1371,8 +1368,8 @@ namespace Highpoint.Sage.Materials.Chemistry
 
             private void Distill(List<Entry> changesTranspired)
             {
-                Entry contents = changesTranspired.FindLast(e => e.Mct == MaterialChangeType.Contents);
-                Entry temperature = changesTranspired.FindLast(e => e.Mct == MaterialChangeType.Temperature);
+                Entry? contents = changesTranspired.FindLast(e => e.Mct == MaterialChangeType.Contents);
+                Entry? temperature = changesTranspired.FindLast(e => e.Mct == MaterialChangeType.Temperature);
                 changesTranspired.Clear();
                 if (contents != null)
                     changesTranspired.Add(contents);
@@ -1398,7 +1395,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 {
                     if (_attaches++ == 0)
                     {
-                        _exec.ClockAboutToChange += m_exec_ClockAboutToChange;
+                        _exec!.ClockAboutToChange += m_exec_ClockAboutToChange;
                     }
                 }
             }
@@ -1406,7 +1403,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             void m_exec_ClockAboutToChange(IExecutive exec)
             {
                 _Release(ref _realHandler, true);
-                _exec.ClockAboutToChange -= m_exec_ClockAboutToChange;
+                _exec!.ClockAboutToChange -= m_exec_ClockAboutToChange;
                 _attaches = 0;
             }
 
@@ -1424,9 +1421,10 @@ namespace Highpoint.Sage.Materials.Chemistry
                 {
                     return "Material Change : " + Material + ", change type " + Mct;
                 }
-                public override bool Equals(object obj)
+                public override bool Equals(object? obj)
                 {
-                    Entry otherOne = (Entry)obj;
+                    Entry? otherOne = obj as Entry;
+                    if (otherOne == null) return false;
                     return otherOne.Material.Equals(Material) && otherOne.Mct.Equals(Mct);
                 }
                 public override int GetHashCode()
@@ -1444,9 +1442,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         /// <param name="materialType">Type of the material.</param>
         /// <returns>Substance.</returns>
-        public Substance GetSubstance(MaterialType materialType)
+        public Substance? GetSubstance(MaterialType materialType)
         {
-            return _constituentSubstances.TryGetValue(materialType.Name, out Substance substance)
+            return _constituentSubstances.TryGetValue(materialType.Name, out Substance? substance)
                 ? substance
                 : null;
         }

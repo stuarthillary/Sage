@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Resources;
@@ -58,7 +57,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="mt">The Material Type being requested.</param>
         /// <param name="quantity">The quantity of Material being requested.</param>
         /// <param name="direction">The <see cref="MaterialResourceRequest.Direction "/> of the request - Augment or Deplete.</param>
-        public MaterialResourceRequest(IHasIdentity byWhom, MaterialType mt, double quantity, Direction direction)
+        public MaterialResourceRequest(IHasIdentity? byWhom, MaterialType mt, double quantity, Direction direction)
             : this(byWhom, mt, null, quantity, direction) { }
 
         /// <summary>
@@ -69,7 +68,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="materialSpecs">The material specs, if any, being requested. Note: See the tech note on Material Specifications.</param>
         /// <param name="quantity">The quantity of Material being requested.</param>
         /// <param name="direction">The <see cref="MaterialResourceRequest.Direction "/> of the request - Augment or Deplete.</param>
-        public MaterialResourceRequest(IHasIdentity byWhom, MaterialType mt, ICollection materialSpecs, double quantity, Direction direction)
+        public MaterialResourceRequest(IHasIdentity? byWhom, MaterialType mt, ICollection? materialSpecs, double quantity, Direction direction)
         {
             AsyncGrantConfirmationCallback = DefaultGrantConfirmationRequest_Refuse;
 
@@ -98,7 +97,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public double GetScore(IResource resource)
         {
             // If it's the right type of material, it's perfect. Otherwise, throw it back.
-            MaterialResourceItem item = resource as MaterialResourceItem;
+            MaterialResourceItem? item = resource as MaterialResourceItem;
             if (item != null && item.MaterialType.Equals(_materialType))
             {
                 if (QuantityDesired < 0 /* augmenting */ || (resource.Available + resource.PermissibleOverbook) >= QuantityDesired)
@@ -110,7 +109,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         #region Priority Management
-        public event RequestPriorityChangeEvent PriorityChangeEvent;
+        public event RequestPriorityChangeEvent? PriorityChangeEvent;
         private double _priority = 0.0;
         public double Priority
         {
@@ -129,9 +128,9 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         public double QuantityDesired => _quantityDesired;
 
-        public object Key => null;
+        public object? Key => null;
 
-        public IResource RequiredResource
+        public IResource? RequiredResource
         {
             get
             {
@@ -145,7 +144,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         public double QuantityObtained { get; set; } = 0.0;
 
-        public IResource ResourceObtained
+        public IResource? ResourceObtained
         {
             get; set;
         }
@@ -159,17 +158,17 @@ namespace Highpoint.Sage.Materials.Chemistry
             get; set;
         }
 
-        public IResourceManager ResourceObtainedFrom
+        public IResourceManager? ResourceObtainedFrom
         {
             get; set;
         }
 
-        public IHasIdentity Requester
+        public IHasIdentity? Requester
         {
             get; set;
         }
 
-        public ResourceSelectionStrategy ResourceSelectionStrategy => null;
+        public ResourceSelectionStrategy? ResourceSelectionStrategy => null;
 
         public bool Acquire(IResourceManager resourceManager, bool blockAwaitingAcquisition)
         {
@@ -202,7 +201,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 		/// it picks up the IResourceRequest identity, and is passed on through this event, which
 		/// includes the IResourceRequest.
 		/// </summary>
-		public event ResourceRequestAbortEvent ResourceRequestAborting;
+		public event ResourceRequestAbortEvent? ResourceRequestAborting;
 
 
         /// <summary>
@@ -219,7 +218,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
 		/// Called after a resource request is granted asynchronously.
 		/// </summary>
-		public ResourceRequestCallback AsyncGrantNotificationCallback
+		public ResourceRequestCallback? AsyncGrantNotificationCallback
         {
             get; set;
         }
@@ -227,7 +226,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
 		/// Data maintained by this resource request on behalf of the requester.
 		/// </summary>
-		public object UserData
+		public object? UserData
         {
             get; set;
         }
@@ -245,9 +244,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         /// <param name="obj">An object to compare with this instance.</param>
         /// <returns>A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows <paramref name="obj" /> in the sort order.</returns>
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
-            IResourceRequest irr = (IResourceRequest)obj;
+            IResourceRequest irr = (IResourceRequest)obj!;
             int retval = Comparer.Default.Compare(Priority, irr.Priority);
             if (retval == 0)
                 retval = Comparer.Default.Compare(QuantityDesired, irr.QuantityDesired);
@@ -283,7 +282,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// This is the resource manager from which a resource is obtained if none is provided in the reserve or
         /// acquire API calls.
         /// </summary>
-        public IResourceManager DefaultResourceManager
+        public IResourceManager? DefaultResourceManager
         {
             get
             {
@@ -301,7 +300,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
 
-        private void OnRequestAborting(IExecutive exec, IDetachableEventController idec, params object[] args)
+        private void OnRequestAborting(IExecutive exec, IDetachableEventController idec, params object?[] args)
         {
             ResourceRequestAborting?.Invoke(this, exec, idec);
         }

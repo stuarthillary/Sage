@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -49,12 +48,12 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Fired before a reaction is processed.
         /// </summary>
-        public event ReactionGoingToHappenEvent ReactionGoingToHappenEvent;
+        public event ReactionGoingToHappenEvent? ReactionGoingToHappenEvent;
 
         /// <summary>
         /// Fired after a reaction is processed.
         /// </summary>
-        public event ReactionHappenedEvent ReactionHappenedEvent;
+        public event ReactionHappenedEvent? ReactionHappenedEvent;
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:Reaction"/> class.
@@ -62,7 +61,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="model">The model in which this object runs.</param>
         /// <param name="name">The user-friendly name of this object. Typically not required to be unique in a pan-model context.</param>
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
-		public Reaction(IModel model, string name, Guid guid)
+		public Reaction(IModel? model, string name, Guid guid)
         {
             InitializeIdentity(model, name, null, guid);
 
@@ -81,7 +80,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel? model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -201,7 +200,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         /// <param name="target">The target.</param>
         /// <returns></returns>
-        public ReactionInstance React(Mixture target)
+        public ReactionInstance? React(Mixture target)
         {
             // We will handle a reaction's completion percentage/equilibrium
             // calculation by first using the reverse reaction to move all of
@@ -334,14 +333,14 @@ namespace Highpoint.Sage.Materials.Chemistry
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             for (int i = 0; i < Reactants.Count; i++)
             {
-                sb.Append(((ReactionParticipant)Reactants[i]).ToString(1));
+                sb.Append(((ReactionParticipant)Reactants[i]!).ToString(1)); // Reactants[i] is always ReactionParticipant
                 if (i < Reactants.Count - 1)
                     sb.Append(" + ");
             }
             sb.Append(" ==> ");
             for (int i = 0; i < Products.Count; i++)
             {
-                sb.Append(((ReactionParticipant)Products[i]).ToString(1));
+                sb.Append(((ReactionParticipant)Products[i]!).ToString(1)); // Products[i] is always ReactionParticipant
                 if (i < Products.Count - 1)
                     sb.Append(" + ");
             }
@@ -352,7 +351,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Gets or sets the tag.
         /// </summary>
         /// <value>The tag.</value>
-        public object Tag
+        public object? Tag
         {
             get; set;
         }
@@ -377,23 +376,23 @@ namespace Highpoint.Sage.Materials.Chemistry
         };
 
         #region >>> Implementation of IHasIdentity <<<
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model to which this reaction belongs.
         /// </summary>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
-        private string _name;
+        private string _name = null!; // Set in InitializeIdentity
         /// <summary>
         /// The name of this reaction.
         /// </summary>
         public string Name => _name;
 
-        private string _description;
+        private string? _description;
         /// <summary>
         /// A description of this reaction.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -461,7 +460,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         public class ReactionParticipant : IXmlPersistable
         {
-            private MaterialType _type;
+            private MaterialType _type = null!; // Set in constructor or DeserializeFrom
             private double _mass;
 
             /// <summary>

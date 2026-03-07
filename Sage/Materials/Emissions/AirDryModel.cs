@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -46,12 +45,12 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             TryToRead(ref massOfDriedProductCake, PN.MassOfDriedProductCake_Kg, parameters);
             double controlTemperature = double.NaN;
             TryToRead(ref controlTemperature, PN.ControlTemperature_K, parameters);
-            Hashtable materialGuidToVolumeFraction = null;
+            Hashtable? materialGuidToVolumeFraction = null;
             TryToRead(ref materialGuidToVolumeFraction, PN.MaterialGuidToVolumeFraction, parameters);
 
             EvaluateSuccessOfParameterReads();
 
-            AirDry(initial, out final, out emission, modifyInPlace, massOfDriedProductCake, controlTemperature, materialGuidToVolumeFraction);
+            AirDry(initial, out final, out emission, modifyInPlace, massOfDriedProductCake, controlTemperature, materialGuidToVolumeFraction!);
 
             ReportProcessCall(this, initial, final, emission, parameters);
 
@@ -123,7 +122,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
                 foreach (Substance substance in mixture.Constituents)
                 {
                     MaterialType mt = substance.MaterialType;
-                    double volFrac = (double)materialGuidToVolumeFraction[mt.Guid];
+                    double volFrac = (double)materialGuidToVolumeFraction[mt.Guid]!;
                     double density = substance.Density;
                     aggDensity += volFrac * density;
                 }
@@ -135,7 +134,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
                 foreach (Substance substance in substances)
                 {
                     MaterialType mt = substance.MaterialType;
-                    double massOfSubstance = kTerm * (double)materialGuidToVolumeFraction[mt.Guid] * substance.Density;
+                    double massOfSubstance = kTerm * (double)materialGuidToVolumeFraction[mt.Guid]! * substance.Density;
 
                     if (!PermitOverEmission)
                         massOfSubstance = Math.Min(substance.Mass, massOfSubstance);

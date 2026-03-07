@@ -57,7 +57,7 @@ namespace Highpoint.Sage.Utility.Mementos
         /// <summary>
         /// This holds a reference to the memento, if any, that contains this memento.
         /// </summary>
-        IMemento Parent
+        IMemento? Parent
         {
             get; set;
         }

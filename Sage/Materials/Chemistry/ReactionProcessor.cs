@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -30,8 +29,8 @@ namespace Highpoint.Sage.Materials.Chemistry
     public class ReactionProcessor : IHasIdentity, IXmlPersistable
     {
 
-        public event ReactionProcessorEvent ReactionAddedEvent;
-        public event ReactionProcessorEvent ReactionRemovedEvent;
+        public event ReactionProcessorEvent? ReactionAddedEvent;
+        public event ReactionProcessorEvent? ReactionRemovedEvent;
 
         private readonly ArrayList _reactions = new ArrayList();
         private readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("ReactionProcessor");
@@ -62,7 +61,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         public ArrayList Reactions => ArrayList.ReadOnly(_reactions);
 
-        public Reaction GetReaction(Guid rxnGuid)
+        public Reaction? GetReaction(Guid rxnGuid)
         {
             return _reactions.Cast<Reaction>().FirstOrDefault(rxn => rxn.Guid.Equals(rxnGuid));
         }
@@ -160,11 +159,11 @@ namespace Highpoint.Sage.Materials.Chemistry
                 _Debug.WriteLine("ReactionProcessor notified of change type " + mct + " to material " + material);
             if (mct == MaterialChangeType.Contents)
             {
-                Mixture tmpMixture = material as Mixture;
+                Mixture? tmpMixture = material as Mixture;
                 if (tmpMixture != null)
                 {
                     Mixture mixture = tmpMixture;
-                    ReactionInstance ri = null;
+                    ReactionInstance? ri = null;
                     if (_diagnostics)
                         _Debug.WriteLine("Processing change type " + mct + " to mixture " + mixture.Name);
 
@@ -181,7 +180,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
         }
 
-        public object Tag
+        public object? Tag
         {
             get; set;
         }
@@ -193,7 +192,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         public string Name => _name;
 
-        private readonly string _description = null;
+        private readonly string? _description = null;
         /// <summary>
         /// A description of this Reaction Processor.
         /// </summary>

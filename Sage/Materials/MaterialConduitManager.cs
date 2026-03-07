@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Resources;
@@ -21,7 +20,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         #region Private Fields
         private readonly IResourceManager _myResourceManager;
         private readonly Dictionary<MaterialType, IResourceManager> _conduits;
-        private Dictionary<MaterialType, MaterialResourceItem> _resources;
+        private Dictionary<MaterialType, MaterialResourceItem> _resources = null!; // Set in IndexResources, called from constructor
         #endregion
 
 
@@ -54,12 +53,12 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private void myResourceManager_ResourceRequested(IResourceRequest irr, IResource resource)
         {
-            MaterialResourceRequest resourceRequest = irr as MaterialResourceRequest;
+            MaterialResourceRequest? resourceRequest = irr as MaterialResourceRequest;
             if (resourceRequest != null)
             {
                 MaterialResourceRequest mrr = resourceRequest;
                 //_Debug.WriteLine("I am taking care of a request for " + mrr.QuantityDesired + " kg of " + mrr.MaterialType.Name);
-            if (_conduits.TryGetValue(mrr.MaterialType, out IResourceManager rm))
+            if (_conduits.TryGetValue(mrr.MaterialType, out IResourceManager? rm))
             {
                 //_Debug.WriteLine("There is a conduit specified for " + mrr.MaterialType.Name + ", and it is " + rm);
                 HandleRequest(mrr, rm);
@@ -77,7 +76,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private void HandleRequest(MaterialResourceRequest mrr, IResourceManager secondary)
         {
-            if (!_resources.TryGetValue(mrr.MaterialType, out MaterialResourceItem mri))
+            if (!_resources.TryGetValue(mrr.MaterialType, out MaterialResourceItem? mri))
                 return;
 
             if (mrr.QuantityDesired > 0)
@@ -113,7 +112,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
         }
 
-        private void IndexResources(IResourceManager irm, IResource resource)
+        private void IndexResources(IResourceManager irm, IResource? resource)
         {
             _resources = new Dictionary<MaterialType, MaterialResourceItem>();
             foreach (IResource rsc in _myResourceManager.Resources)

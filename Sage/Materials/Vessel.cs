@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
@@ -115,16 +114,16 @@ namespace Highpoint.Sage.Materials.Chemistry
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity
         private Guid _guid = Guid.Empty;
-        private IModel _model;
-        private string _description = null;
+        private IModel _model = null!; // Set in InitializeIdentity
+        private string? _description;
 
         /// <summary>
         /// The IModel to which this object belongs.
         /// </summary>
         /// <value>The object's Model.</value>
-        public IModel Model
+        public IModel? Model
         {
             [System.Diagnostics.DebuggerStepThrough]
             get
@@ -179,7 +178,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }

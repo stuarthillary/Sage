@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.ItemBased.Ports;
@@ -37,10 +36,10 @@ namespace Highpoint.Sage.Materials
         private static readonly bool diagnostics = Diagnostics.DiagnosticAids.Diagnostics("MaterialService");
 
         #region >>> Private Fields <<<
-        private readonly MaterialCatalog _materialCatalog;
-        private readonly Hashtable _materials;
-        private SelfManagingResource _serviceTokens;
-        private readonly SelfManagingResource _deliveryCapacity;
+        private readonly MaterialCatalog _materialCatalog = null!;
+        private readonly Hashtable _materials = null!;
+        private SelfManagingResource? _serviceTokens;
+        private readonly SelfManagingResource? _deliveryCapacity;
         private bool _autocreateMaterialCompartments = false;
         private readonly double _defaultMaterialTemperature;
         private Guid _transferTableKey;
@@ -140,7 +139,7 @@ namespace Highpoint.Sage.Materials
             {
                 if (_serviceTokens == null)
                 {
-                    _serviceTokens = new SelfManagingResource(_model, _name + ".ServiceTokens", Guid.NewGuid(), value, false, true, true);
+                    _serviceTokens = new SelfManagingResource(_model!, _name + ".ServiceTokens", Guid.NewGuid(), value, false, true, true);
                 }
                 else
                 {
@@ -158,7 +157,7 @@ namespace Highpoint.Sage.Materials
             {
                 if (_deliveryCapacity == null)
                     return double.MaxValue;
-                return (int)_serviceTokens.Capacity;
+                return (int)_serviceTokens!.Capacity;
             }
         }
 
@@ -311,9 +310,9 @@ namespace Highpoint.Sage.Materials
         /// <param name="materialSpecification">The single guid that describes the material spec we seek on the material type.</param>
         /// <returns>The MaterialResourceItem that is acting as the compartment for the
         /// specified material type.</returns>
-        public MaterialResourceItem GetCompartment(Guid materialTypeGuid, Guid materialSpecification)
+        public MaterialResourceItem? GetCompartment(Guid materialTypeGuid, Guid materialSpecification)
         {
-            MaterialType mt = (MaterialType)_materialCatalog[materialTypeGuid];
+            MaterialType mt = _materialCatalog[materialTypeGuid];
             if (mt == null)
             {
                 throw new ApplicationException("A MaterialService compartment cannot be created with the material whose Guid is " +
@@ -333,7 +332,7 @@ namespace Highpoint.Sage.Materials
         /// <param name="mt">The material type whose compartment we desire.</param>
         /// <returns>The MaterialResourceItem that is acting as the compartment for the
         /// specified material type.</returns>
-        public MaterialResourceItem GetCompartment(MaterialType mt)
+        public MaterialResourceItem? GetCompartment(MaterialType mt)
         {
             return GetCompartment(mt, null);
         }
@@ -349,12 +348,12 @@ namespace Highpoint.Sage.Materials
         /// that are to be applied to this compartment.</param>
         /// <returns>The MaterialResourceItem that is acting as the compartment for the
         /// specified material type.</returns>
-        public MaterialResourceItem GetCompartment(MaterialType mt, ICollection materialSpecifications)
+        public MaterialResourceItem? GetCompartment(MaterialType mt, ICollection? materialSpecifications)
         {
 
             Guid key = GetAggregateKey(mt.Guid, materialSpecifications);
 
-            MaterialResourceItem mri = (MaterialResourceItem)_materials[key];
+            MaterialResourceItem? mri = (MaterialResourceItem?)_materials[key];
             if (mri == null && _autocreateMaterialCompartments)
             {
                 double temperature = _defaultMaterialTemperature;
@@ -378,7 +377,7 @@ namespace Highpoint.Sage.Materials
                 }
 
                 #endregion Get MaterialSpecifications as an array of guids.
-                mri = new MaterialResourceItem(_model, "MaterialService Compartment : " + mt.Name, Guid.NewGuid(), mt, 0.0, temperature, double.MaxValue, materialSpecifications);
+                mri = new MaterialResourceItem(_model!, "MaterialService Compartment : " + mt.Name, Guid.NewGuid(), mt, 0.0, temperature, double.MaxValue, materialSpecifications);
 
                 mri.PermissibleOverbook = double.MaxValue;
                 _materials.Add(key, mri);
@@ -395,7 +394,7 @@ namespace Highpoint.Sage.Materials
         public void EstablishConnection(IPort otherGuysPort)
         {
             Guid myPortKey = GuidOps.XOR(otherGuysPort.Key, Guid);
-            IPort myPort = Ports[myPortKey];
+            IPort? myPort = Ports[myPortKey];
             if (myPort != null && myPort.Peer != null && myPort.Peer.Equals(otherGuysPort))
                 return; // Only bother if there's not already a cnxn there.
 
@@ -412,7 +411,7 @@ namespace Highpoint.Sage.Materials
                     {
                         ndx++;
                     }
-                    myPort = new SimpleInputPort(Model, "Input port from " + otherGuysPort.Name + "." + ndx, myPortKey, this, new DataArrivalHandler(OnMaterialArrived));
+                    myPort = new SimpleInputPort(Model!, "Input port from " + otherGuysPort.Name + "." + ndx, myPortKey, this, new DataArrivalHandler(OnMaterialArrived));
                 }
                 else if (otherGuysPort is IInputPort)
                 {
@@ -421,7 +420,7 @@ namespace Highpoint.Sage.Materials
                     {
                         ndx++;
                     }
-                    myPort = new SimpleOutputPort(Model, "Output port to " + otherGuysPort.Name + "." + ndx, myPortKey, this, null, null);
+                    myPort = new SimpleOutputPort(Model!, "Output port to " + otherGuysPort.Name + "." + ndx, myPortKey, this, null, null);
                 }
                 else
                 {
@@ -439,7 +438,7 @@ namespace Highpoint.Sage.Materials
         public void DestroyConnection(IPort otherGuysPort)
         {
             Guid myPortKey = GuidOps.XOR(otherGuysPort.Key, Guid);
-            IPort myPort = Ports[myPortKey];
+            IPort? myPort = Ports[myPortKey];
 
             // If I have a port, and it's got a connector, and is either not connected to
             // anyone else, or connected to the other guy's port, disconnect it. This way,
@@ -456,7 +455,7 @@ namespace Highpoint.Sage.Materials
         }
         #endregion Connection Management
 
-        protected Guid GetAggregateKey(Guid mtGuid, ICollection materialSpecifications)
+        protected Guid GetAggregateKey(Guid mtGuid, ICollection? materialSpecifications)
         {
             Guid key = mtGuid;
             if (materialSpecifications != null)
@@ -483,7 +482,7 @@ namespace Highpoint.Sage.Materials
             return key;
         }
 
-        protected SelfManagingResource DeliveryCapacity
+        protected SelfManagingResource? DeliveryCapacity
         {
             get
             {
@@ -491,7 +490,7 @@ namespace Highpoint.Sage.Materials
             }
         }
 
-        protected SelfManagingResource ServiceTokens
+        protected SelfManagingResource? ServiceTokens
         {
             get
             {
@@ -504,11 +503,11 @@ namespace Highpoint.Sage.Materials
             return false;
         }
 
-        private object _tag = null;
+        private object? _tag;
         /// <summary>
         /// Tag object is for holding user-specified references.
         /// </summary>
-        public object Tag
+        public object? Tag
         {
             get
             {
@@ -521,7 +520,7 @@ namespace Highpoint.Sage.Materials
         }
 
         #region IModelObject Members
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity
         /// <summary>
         /// The name of this MaterialService.
         /// </summary>
@@ -532,7 +531,7 @@ namespace Highpoint.Sage.Materials
                 return _name;
             }
         }
-        private string _description = null;
+        private string? _description;
         /// <summary>
         /// A description of this MaterialService.
         /// </summary>
@@ -548,11 +547,11 @@ namespace Highpoint.Sage.Materials
         /// The Guid of this MaterialService.
         /// </summary>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The Model to which this MaterialService belongs.
         /// </summary>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         /// <summary>
         /// Initializes the fields that feed the properties of this IModelObject identity.
@@ -561,7 +560,7 @@ namespace Highpoint.Sage.Materials
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -690,13 +689,13 @@ namespace Highpoint.Sage.Materials
                 EstablishConnection(otherGuysPort);
             }
 
-            IPort myPort = Ports[GuidOps.XOR(otherGuysPort.Guid, Guid)];
+            IPort? myPort = Ports[GuidOps.XOR(otherGuysPort.Guid, Guid)];
             string reason = "";
             #region >>> First, verify that this request is achievable in all ways other than materials.<<<
 
             if (myPort == null)
             {
-                reason += "The MaterialService " + Name + " was asked to transfer to " + ((IHasIdentity)otherGuysPort.Owner).Name + ", but there does not seem to be a connection between the two.";
+                reason += "The MaterialService " + Name + " was asked to transfer to " + ((IHasIdentity?)otherGuysPort.Owner)?.Name + ", but there does not seem to be a connection between the two.";
             }
 
             if ((DeliveryCapacity != null) && deliveryRate > DeliveryCapacity.Capacity)
@@ -747,11 +746,11 @@ namespace Highpoint.Sage.Materials
             for (int i = 0; i < substances.Count; i++)
             {// ( Substance substance in substances ) {
 
-                MaterialType mt = ((Substance)substances[i]).MaterialType;
-                double mass = ((Substance)substances[i]).Mass;
-                ICollection matlSpecs = ((Substance)substances[i]).GetMaterialSpecs();
+                MaterialType mt = ((Substance)substances[i]!).MaterialType;
+                double mass = ((Substance)substances[i]!).Mass;
+                ICollection matlSpecs = ((Substance)substances[i]!).GetMaterialSpecs();
 
-                MaterialResourceItem mri = null; // Populated in the following region.
+                MaterialResourceItem? mri = null; // Populated in the following region.
 
                 if (mt != null)
                 {
@@ -786,14 +785,14 @@ namespace Highpoint.Sage.Materials
             #region >>> Create all Resource requests (str, crr and mrr[]).<<<
             #region >>> Create Service Token Request (strr). <<<
             strr = new SimpleResourceRequest(1.0);
-            strr.Requester = (IHasIdentity)otherGuysPort.Owner;
+            strr.Requester = (IHasIdentity)otherGuysPort!.Owner!;
             #endregion
 
             #region >>> Create Material Resource Request Array (mrr). <<<
             foreach (Substance substance in substances)
             {
                 MaterialResourceRequest mrr = new MaterialResourceRequest(null, substance.MaterialType, substance.GetMaterialSpecs(), substance.Mass, direction);
-                mrr.Requester = (IHasIdentity)otherGuysPort.Owner;
+                mrr.Requester = (IHasIdentity?)otherGuysPort.Owner;
                 alMaterialResourceRequests.Add(mrr);
             }
             mrra = (MaterialResourceRequest[])alMaterialResourceRequests.ToArray(typeof(MaterialResourceRequest));
@@ -801,7 +800,7 @@ namespace Highpoint.Sage.Materials
 
             #region >>> Create Capacity Resource Request (crr). <<<
             crr = new SimpleResourceRequest(deliveryRate);
-            crr.Requester = (IHasIdentity)otherGuysPort.Owner;
+            crr.Requester = (IHasIdentity)otherGuysPort.Owner!;
             #endregion
             #endregion
 
@@ -876,7 +875,7 @@ namespace Highpoint.Sage.Materials
 
         public virtual IDictionary GetTransferTable(IDictionary graphContext)
         {
-            IDictionary xferTable = (IDictionary)graphContext[_transferTableKey];
+            IDictionary? xferTable = (IDictionary?)graphContext[_transferTableKey];
             if (xferTable == null)
             {
                 xferTable = new Hashtable();
@@ -907,9 +906,9 @@ namespace Highpoint.Sage.Materials
                 for (int i = 0; i < acqKey.Amrr.Length; i++)
                 {
                     MaterialResourceRequest mrr = acqKey.Amrr[i];
-                    MaterialResourceItem mri = GetCompartment(mrr.MaterialType, mrr.MaterialSpecs);
+                    MaterialResourceItem? mri = GetCompartment(mrr.MaterialType, mrr.MaterialSpecs);
                     double mass, temperature;
-                    lock (mri)
+                    lock (mri!)
                     {
                         mri.Unreserve(mrr);
                         if (mri.Acquire(mrr, false))
@@ -932,15 +931,15 @@ namespace Highpoint.Sage.Materials
                 if (diagnostics)
                 {
                     _Debug.WriteLine(Name + " is transferring out " + charge + " over " + duration + ", ");
-                    _Debug.WriteLine("\t and adding a MaterialTransfer to xferTable under key " + acqKey.MyPort.Connector.GetHashCode());
+                    _Debug.WriteLine("\t and adding a MaterialTransfer to xferTable under key " + acqKey.MyPort!.Connector!.GetHashCode());
                 }
                 #endregion
-                if (xferTable.Contains(acqKey.MyPort.Connector))
+                if (xferTable.Contains(acqKey.MyPort!.Connector!))
                 {
                     //_Debug.WriteLine("Removing acquisition key for " + acqKey.m_amrr[0].MaterialType.Name);
-                    xferTable.Remove(acqKey.MyPort.Connector);
+                    xferTable.Remove(acqKey.MyPort!.Connector!);
                 }
-                xferTable.Add(acqKey.MyPort.Connector, NewMaterialTransfer(charge, duration));
+                xferTable.Add(acqKey.MyPort!.Connector!, NewMaterialTransfer(charge, duration));
                 acqKey.GraphContext = graphContext;
                 #endregion
 
@@ -961,15 +960,15 @@ namespace Highpoint.Sage.Materials
                 //				}
 
                 #region >>> Process Receipt of Discharge from SCR's Partner <<<
-                MaterialTransfer mt = (MaterialTransfer)xferTable[acqKey.MyPort.Connector];
+                MaterialTransfer? mt = (MaterialTransfer?)xferTable[acqKey.MyPort!.Connector!];
                 #region Diagnostics
                 if (diagnostics)
-                    _Debug.WriteLine(Name + " is transferring in " + mt.Mixture + " over " + mt.DestinationDuration);
+                    _Debug.WriteLine(Name + " is transferring in " + mt!.Mixture + " over " + mt!.DestinationDuration);
                 #endregion
                 foreach (MaterialResourceRequest mrr in acqKey.Amrr)
                 {
-                    MaterialResourceItem mri = GetCompartment(mrr.MaterialType, mrr.MaterialSpecs);
-                    lock (mri)
+                    MaterialResourceItem? mri = GetCompartment(mrr.MaterialType, mrr.MaterialSpecs);
+                    lock (mri!)
                     {
                         mri.Unreserve(mrr);
                         mri.Acquire(mrr, true);
@@ -981,7 +980,7 @@ namespace Highpoint.Sage.Materials
             }
             else
             {
-                throw new ApplicationException("Do not know how to execute with a port type of " + acqKey.MyPort.GetType());
+                throw new ApplicationException("Do not know how to execute with a port type of " + acqKey.MyPort!.GetType());
             }
 
         }
@@ -1009,15 +1008,15 @@ namespace Highpoint.Sage.Materials
             AcquisitionKey acqKey = (AcquisitionKey)key;
 
             if (DeliveryCapacity != null)
-                acqKey.Dacrr.Release();
+                acqKey.Dacrr!.Release();
             foreach (IResourceRequest mrr in acqKey.Amrr)
                 mrr.Release();
             if (ServiceTokens != null)
-                acqKey.Strr.Release();
+                acqKey.Strr!.Release();
 
             if (destroyConnection)
             {
-                DestroyConnection(acqKey.MyPort.Peer);
+                DestroyConnection(acqKey.MyPort!.Peer!);
             }
 
         }
@@ -1029,13 +1028,13 @@ namespace Highpoint.Sage.Materials
         {
             #region >>> Public Fields <<<
             public double DeliveryRate;
-            public IPort MyPort;
-            public IResourceRequest Strr;
+            public IPort? MyPort;
+            public IResourceRequest? Strr;
             public MaterialResourceRequest[] Amrr;
-            public IResourceRequest Dacrr;
-            public IDictionary GraphContext;
+            public IResourceRequest? Dacrr;
+            public IDictionary? GraphContext;
             #endregion
-            public AcquisitionKey(/*IMaterial material,*/double deliveryRate, IPort myPort, IResourceRequest strr, MaterialResourceRequest[] amrr, IResourceRequest dacrr)
+            public AcquisitionKey(/*IMaterial material,*/double deliveryRate, IPort? myPort, IResourceRequest? strr, MaterialResourceRequest[] amrr, IResourceRequest? dacrr)
             {
                 DeliveryRate = deliveryRate;
                 MyPort = myPort;

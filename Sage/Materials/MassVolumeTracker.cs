@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Utility;
@@ -24,8 +23,8 @@ namespace Highpoint.Sage.Materials
         private readonly DoubleTracker _massHistory;
         private readonly DoubleTracker _volumeHistory;
         private static readonly bool diagnostics = Diagnostics.DiagnosticAids.Diagnostics("MVTracker");
-        private Mixture _initial, _inflow, _outflow;
-        private readonly ReactionProcessor _reactionProcessor;
+        private Mixture _initial = null!, _inflow = null!, _outflow = null!; // Set in constructor or SetXxx methods
+        private readonly ReactionProcessor? _reactionProcessor;
         private readonly bool _inflowFirst;
         private readonly bool _cyclical;
         #endregion Private Fields
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Materials
         /// <code>this.GetSOD(graphContext).SetChangeLogging(true);</code>
         /// </summary>
         /// <param name="rp">The ReactionProcessor that knows of any reactions that will take place. Can be null.</param>
-        public MassVolumeTracker(ReactionProcessor rp) : this(null, null, null, double.NaN, rp) { }
+        public MassVolumeTracker(ReactionProcessor? rp) : this(null, null, null, double.NaN, rp) { }
 
         /// <summary>
         /// Creates a MVTracker without initial mixture, transfers or capacity specified. The way this
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.Materials
         /// </summary>
         /// <param name="vesselCapacity">The capacity of the vessel in which the mixture is being handled.</param>
         /// <param name="rp">The ReactionProcessor that knows of any reactions that will take place. Can be null.</param>
-        public MassVolumeTracker(ReactionProcessor rp, double vesselCapacity) : this(null, null, null, vesselCapacity, rp) { }
+        public MassVolumeTracker(ReactionProcessor? rp, double vesselCapacity) : this(null, null, null, vesselCapacity, rp) { }
 
         /// <summary>
         /// Creates a MVTracker with a full complement of parameters.
@@ -59,7 +58,7 @@ namespace Highpoint.Sage.Materials
         /// <param name="outflow">The outflowing mixture.</param>
         /// <param name="capacity">The capacity of the vessel.</param>
         /// <param name="rp">The ReactionProcessor that knows of any reactions that will take place. Can be null.</param>
-        public MassVolumeTracker(Mixture initial, Mixture inflow, Mixture outflow, double capacity, ReactionProcessor rp)
+        public MassVolumeTracker(Mixture? initial, Mixture? inflow, Mixture? outflow, double capacity, ReactionProcessor? rp)
         {
             _massHistory = new DoubleTracker();
             _volumeHistory = new DoubleTracker();
@@ -76,7 +75,7 @@ namespace Highpoint.Sage.Materials
         /// Sets the initial mixture in the modeled vessel.
         /// </summary>
         /// <param name="initial">The initial mixture in the modeled vessel.</param>
-        public void SetInitialMixture(Mixture initial)
+        public void SetInitialMixture(Mixture? initial)
         {
             if (initial != null)
             {
@@ -92,7 +91,7 @@ namespace Highpoint.Sage.Materials
         /// Sets the inflowing mixture in the modeled vessel.
         /// </summary>
         /// <param name="inflow">The inflowing mixture in the modeled vessel.</param>
-        public void SetInflowMixture(Mixture inflow)
+        public void SetInflowMixture(Mixture? inflow)
         {
             if (inflow != null)
             {
@@ -108,7 +107,7 @@ namespace Highpoint.Sage.Materials
         /// Sets the outflowing mixture in the modeled vessel.
         /// </summary>
         /// <param name="outflow">The outflowing mixture in the modeled vessel.</param>
-        public void SetOutflowMixture(Mixture outflow)
+        public void SetOutflowMixture(Mixture? outflow)
         {
             if (outflow != null)
             {

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry;
@@ -106,7 +105,7 @@ namespace Highpoint.Sage.Materials
         /// <returns>The material to be transferred.</returns>
         public virtual IMaterial GetExtract(IMaterial source)
         {
-            IMaterial retval = null;
+            IMaterial? retval = null;
             if (_materialType == null)
             {
                 double massToRemove = source.Mass * Percentage;
@@ -168,7 +167,7 @@ namespace Highpoint.Sage.Materials
         /// <summary>
         /// Fired after a clone operation has taken place.
         /// </summary>
-		public event CloneHandler CloneEvent;
+        public event CloneHandler? CloneEvent;
 
         /// <summary>
         /// Provides a human-readable description of the transfer mass, material, and duration, scaled as requested.

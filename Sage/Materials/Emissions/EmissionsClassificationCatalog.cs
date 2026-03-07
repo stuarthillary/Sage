@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -39,7 +38,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// Gets or sets the <see cref="T:Object"/> with the specified key.
         /// </summary>
         /// <value></value>
-		public object this[object key] {
+		public object? this[object key] {
 			get { return m_ht[key]; }
 			set { m_ht[key] = value; }
 		}
@@ -83,7 +82,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// <exception cref="T:System.ArgumentException">An <see cref="Highpoint.Sage.Materials.Emissions.EmissionsClassification"/> with the same key already exists in the <see cref="T:Highpoint.Sage.Materials.Emissions.EmissionsClassificationCatalog"></see> object. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Materials.Emissions.EmissionsClassificationCatalog"></see> is read-only.-or- The <see cref="T:Highpoint.Sage.Materials.Emissions.EmissionsClassificationCatalog"></see> has a fixed size. </exception>
-		public void Add(object key, object value) { m_ht.Add(key,value); }
+		public void Add(object key, object? value) { m_ht.Add(key,value); }
 
         /// <summary>
         /// Gets an <see cref="T:System.Collections.ICollection"></see> object containing the keys of the <see cref="T:Highpoint.Sage.Materials.Emissions.EmissionsClassificationCatalog"></see> object.

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
 using System.Collections.Generic;
@@ -238,7 +237,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         {
             if (parameters.Contains(paramName))
             {
-                variable = (double)parameters[paramName];
+                variable = (double)parameters[paramName]!;
             }
             else
             {
@@ -253,11 +252,11 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// <param name="variable">The double into which the read value is to be placed.</param>
         /// <param name="paramName">The string name of the parameter. Should be one of the EmissionModel.ParamNames entries.</param>
         /// <param name="parameters">The late-bound hashtable.</param>
-        protected void TryToRead(ref Hashtable variable, string paramName, Hashtable parameters)
+        protected void TryToRead(ref Hashtable? variable, string paramName, Hashtable parameters)
         {
             if (parameters.Contains(paramName))
             {
-                variable = (Hashtable)parameters[paramName];
+                variable = (Hashtable?)parameters[paramName];
             }
             else
             {
@@ -272,11 +271,11 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// <param name="variable">The double into which the read value is to be placed.</param>
         /// <param name="paramName">The string name of the parameter. Should be one of the EmissionModel.ParamNames entries.</param>
         /// <param name="parameters">The late-bound hashtable.</param>
-        protected void TryToRead(ref Mixture variable, string paramName, Hashtable parameters)
+        protected void TryToRead(ref Mixture? variable, string paramName, Hashtable parameters)
         {
             if (parameters.Contains(paramName))
             {
-                variable = (Mixture)parameters[paramName];
+                variable = (Mixture?)parameters[paramName];
             }
             else
             {
@@ -314,7 +313,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             if (diagnostics)
             {
                 string modelName = subject.Keys[0];
-                string opStepName = (string)parameters["SomOpStepName"];
+                string? opStepName = (string?)parameters["SomOpStepName"];
                 parameters.Remove("SomOpStepName");
                 _Debug.WriteLine("\r\n> > > > > > > >  " + opStepName + " [" + modelName + "]");
                 _Debug.WriteLine("Initial : " + initial.Volume + " liters ( " + initial.Volume / K.LitersPerGallon + " Gallons ) , " + initial.Mass + " kg ( " + (initial.Mass / K.KgPerPound) + " lbm ).");
@@ -335,13 +334,13 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
                 int longestKey = 0;
                 foreach (DictionaryEntry de in parameters)
-                    if (de.Key.ToString().Length > longestKey)
-                        longestKey = de.Key.ToString().Length;
+                    if (de.Key.ToString()!.Length > longestKey)
+                        longestKey = de.Key.ToString()!.Length;
 
                 foreach (DictionaryEntry de in parameters)
                 {
                     System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                    string label = de.Key.ToString();
+                    string label = de.Key.ToString()!;
                     sb.Append(label);
                     for (int i = label.Length; i < longestKey + 3; i++)
                         sb.Append(" ");
@@ -354,12 +353,12 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         private string Convert(DictionaryEntry de)
         {
             double d;
-            if (!double.TryParse(de.Value.ToString(), System.Globalization.NumberStyles.Any, null, out d))
+            if (!double.TryParse(de.Value?.ToString(), System.Globalization.NumberStyles.Any, null, out d))
             {
                 //Console.WriteLine("Couldn't parse " + de.Value.ToString() + " ( key was " + de.Key + ".)" );
                 return "";
             }
-            switch (de.Key.ToString())
+            switch (de.Key.ToString()!)
             {
                 case "VacuumSystemPressure":
                     {
@@ -476,12 +475,12 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
             double systemPressure = double.NaN;
             if (parameters.Contains(PN.SystemPressure_P))
             {
-                systemPressure = (double)parameters[PN.SystemPressure_P];
+                systemPressure = (double)parameters[PN.SystemPressure_P]!;
             }
             else if (parameters.Contains(PN.FinalPressure_P))
             {
                 //double initPressure = (double)parameters[PN.InitialPressure];
-                double finalPressure = (double)parameters[PN.FinalPressure_P];
+                double finalPressure = (double)parameters[PN.FinalPressure_P]!;
                 systemPressure = finalPressure; //(finalPressure+initPressure)/2.0;
             }
             else

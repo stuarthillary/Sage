@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -13,8 +12,8 @@ namespace Highpoint.Sage.Materials.Chemistry
     /// </summary>
     public class BasicReactionSupporter : ISupportsReactions, IXmlPersistable
     {
-        private ReactionProcessor _reactionProcessor;
-        private MaterialCatalog _materialCatalog;
+        private ReactionProcessor _reactionProcessor = null!; // Set in constructor
+        private MaterialCatalog _materialCatalog = null!; // Set in constructor
         /// <summary>
 		/// The simplest class that implements the ISupportsReactions interface (it also implements IXmlPersistable...)
         /// </summary>

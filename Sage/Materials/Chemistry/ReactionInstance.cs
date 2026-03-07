@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -33,7 +32,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         public Reaction Reaction => _reaction;
 
-        private Reaction _isReaction;
+        private Reaction? _isReaction;
         public Reaction InstanceSpecificReaction
         {
             get
@@ -71,14 +70,14 @@ namespace Highpoint.Sage.Materials.Chemistry
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             for (int i = 0; i < _reaction.Reactants.Count; i++)
             {
-                sb.Append(((Reaction.ReactionParticipant)_reaction.Reactants[i]).ToString(_fwdScale - _revScale));
+                sb.Append(((Reaction.ReactionParticipant)_reaction.Reactants[i]!).ToString(_fwdScale - _revScale)); // Reactants[i] is always ReactionParticipant
                 if (i < _reaction.Reactants.Count - 1)
                     sb.Append(" + ");
             }
             sb.Append(" <==> ");
             for (int i = 0; i < _reaction.Products.Count; i++)
             {
-                sb.Append(((Reaction.ReactionParticipant)_reaction.Products[i]).ToString(_fwdScale - _revScale));
+                sb.Append(((Reaction.ReactionParticipant)_reaction.Products[i]!).ToString(_fwdScale - _revScale)); // Products[i] is always ReactionParticipant
                 if (i < _reaction.Products.Count - 1)
                     sb.Append(" + ");
             }
