@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 
@@ -10,10 +9,10 @@ namespace Highpoint.Sage.Graphs
     {
         #region IComparer Members
 
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
-            VertexSynchronizer vsx = (VertexSynchronizer)x;
-            VertexSynchronizer vsy = (VertexSynchronizer)y;
+            VertexSynchronizer vsx = (VertexSynchronizer)x!;
+            VertexSynchronizer vsy = (VertexSynchronizer)y!;
 
             System.Text.StringBuilder sbx = new System.Text.StringBuilder();
             System.Text.StringBuilder sby = new System.Text.StringBuilder();

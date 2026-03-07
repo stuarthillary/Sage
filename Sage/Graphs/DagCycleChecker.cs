@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -54,7 +53,7 @@ namespace Highpoint.Sage.Graphs
         /// <returns>
         /// True if the DAGCycleChecker found no errors.
         /// </returns>
-        public virtual bool Check(bool haltOnError, object startElement)
+        public virtual bool Check(bool haltOnError, object? startElement)
         {
             _haltOnError = haltOnError;
             _currentPath.Clear();
@@ -62,9 +61,9 @@ namespace Highpoint.Sage.Graphs
             _nodes.Clear();
 
             Build(_rootEdge.PreVertex);
-            Node start = (Node)_nodes[startElement ?? _rootEdge];
+            Node? start = _nodes[startElement ?? _rootEdge] as Node;
 
-            Advance(start);
+            Advance(start!);
 
             return (_errors.Count == 0);
         }
@@ -115,7 +114,7 @@ namespace Highpoint.Sage.Graphs
                 Collapse(successor);
                 if (successor.Successors.Length == 0)
                 {
-                    node.Successors[i] = null;
+                    node.Successors[i] = null!; // collapse: marks this slot as removed
                 }
                 else if (successor.Successors.Length == 1)
                 {
@@ -296,13 +295,13 @@ namespace Highpoint.Sage.Graphs
                 }
                 set
                 {
-                    _successors = (value == null ? _emptyArray : value);
+                    _successors = value;
                 }
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                return _element.Equals(((Node)obj)._element);
+                return obj is Node n && _element.Equals(n._element);
             }
             public override int GetHashCode()
             {

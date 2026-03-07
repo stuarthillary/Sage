@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.PFC.Execution;
@@ -25,8 +24,8 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private Dictionary<string, IProcedureFunctionChart> _actions;
         private readonly Utility.LabelManager _labelManager;
-        private IPfcUnitInfo _unit = null;
-        private StepStateMachine _myStepStateMachine = null;
+        private IPfcUnitInfo? _unit = null;
+        private StepStateMachine? _myStepStateMachine = null;
 
         #endregion Private Fields
 
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// Creates a new instance of the <see cref="T:PfcStep"/> class.
         /// </summary>
-        public PfcStep() : this(null, null, null, Guid.NewGuid()) { }
+        public PfcStep() : this(null, string.Empty, string.Empty, Guid.NewGuid()) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:PfcStep"/> class.
@@ -44,7 +43,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The name of this step.</param>
         /// <param name="description">The description for this step.</param>
         /// <param name="guid">The GUID of this step.</param>
-        public PfcStep(IProcedureFunctionChart parent, string name, string description, Guid guid)
+        public PfcStep(IProcedureFunctionChart? parent, string name, string description, Guid guid)
             : base(parent, name, description, guid)
         {
             _actions = new Dictionary<string, IProcedureFunctionChart>();
@@ -134,8 +133,8 @@ namespace Highpoint.Sage.Graphs.PFC
         }
 
         private static readonly PfcAction _defaultPfcAction = delegate (PfcExecutionContext pfcec, StepStateMachine ssm) { return; };
-        private PfcAction _pfcAction = _defaultPfcAction;
-        public PfcAction LeafLevelAction
+        private PfcAction? _pfcAction = _defaultPfcAction;
+        public PfcAction? LeafLevelAction
         {
             get
             {
@@ -166,9 +165,9 @@ namespace Highpoint.Sage.Graphs.PFC
                 if (_myStepStateMachine == null)
                 {
                     // ReSharper disable once UnusedVariable
-                    object obj = ((ProcedureFunctionChart)Parent).ExecutionEngine; // Forces initialization so everyone has a SSM.
+                    object obj = ((ProcedureFunctionChart)Parent!).ExecutionEngine; // Parent non-null; forces SSM initialization
                 }
-                return _myStepStateMachine;
+                return _myStepStateMachine!; // guaranteed non-null after ExecutionEngine initialization
             }
             internal set
             {
@@ -188,7 +187,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// Occurs when PFC is starting.
         /// </summary>
-        public event PfcAction PfcStarting;
+        public event PfcAction? PfcStarting;
 #pragma warning restore 67
 
         private static readonly string _msgReplaceExistingSm = "Attempt to replace an existing step state machine on {0}. "
@@ -206,14 +205,14 @@ namespace Highpoint.Sage.Graphs.PFC
             Debug.Assert(exec.CurrentEventType == ExecEventType.Detachable);
             if (EarliestStart != null && EarliestStart > exec.Now)
             {
-                exec.CurrentEventController.SuspendUntil(EarliestStart.Value);
+                exec.CurrentEventController!.SuspendUntil(EarliestStart.Value); // non-null: Assert above guarantees detachable context
             }
 
             _precondition?.Invoke(myPfcec, ssm);
         }
 
-        private PfcAction _precondition = null;
-        public PfcAction Precondition
+        private PfcAction? _precondition = null;
+        public PfcAction? Precondition
         {
             set
             {
@@ -261,13 +260,13 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the unit with which this step is associated.
         /// </summary>
         /// <value>The unit.</value>
-        public IPfcUnitInfo UnitInfo
+        public IPfcUnitInfo? UnitInfo
         {
             get
             {
                 if (_unit == null)
                 {
-                    _unit = new PfcUnitInfo(null, -1);
+                    _unit = new PfcUnitInfo(string.Empty, -1);
                 }
                 return _unit;
             }
@@ -305,12 +304,12 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             #region IComparer<IPfcStepNode> Members
 
-            public int Compare(IPfcStepNode x, IPfcStepNode y)
+            public int Compare(IPfcStepNode? x, IPfcStepNode? y)
             {
-                int retval = Comparer.Default.Compare(x.GraphOrdinal, y.GraphOrdinal);
+                int retval = Comparer.Default.Compare(x!.GraphOrdinal, y!.GraphOrdinal);
                 if (retval == 0)
                 {
-                    Utility.GuidOps.Compare(x.Guid, y.Guid);
+                    Utility.GuidOps.Compare(x!.Guid, y!.Guid);
                 }
                 return retval;
             }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 
@@ -20,13 +19,13 @@ namespace Highpoint.Sage.Graphs
         public enum WhichVertex { Pre, Post };
 
         #region Public Events
-        public event StaticEdgeEvent PreEdgeAddedEvent;
-        public event StaticEdgeEvent PostEdgeAddedEvent;
-        public event StaticEdgeEvent PreEdgeRemovedEvent;
-        public event StaticEdgeEvent PostEdgeRemovedEvent;
+        public event StaticEdgeEvent? PreEdgeAddedEvent;
+        public event StaticEdgeEvent? PostEdgeAddedEvent;
+        public event StaticEdgeEvent? PreEdgeRemovedEvent;
+        public event StaticEdgeEvent? PostEdgeRemovedEvent;
 
-        public event VertexEvent BeforeVertexFiringEvent;
-        public event VertexEvent AfterVertexFiringEvent;
+        public event VertexEvent? BeforeVertexFiringEvent;
+        public event VertexEvent? AfterVertexFiringEvent;
         #endregion
 
         internal int NumPreEdges = 0;
@@ -41,20 +40,20 @@ namespace Highpoint.Sage.Graphs
         private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
         private static readonly IList _emptyCollection = Array.Empty<Edge>();
 
-        private string _name;
-        private Edge _principalEdge;
+        private string _name = null!; // Set in constructor or DeserializeFrom
+        private Edge _principalEdge = null!; // Set in constructor or DeserializeFrom
         private readonly PreEdgesSatisfiedKey _preEdgesSatisfiedKey = new PreEdgesSatisfiedKey();
 
         private static int _vertexNum = 0;
 
-        private VertexSynchronizer _synchronizer;
-        private IEdgeFiringManager _edgeFiringManager = null;
-        private IEdgeReceiptManager _edgeReceiptManager = null;
+        private VertexSynchronizer? _synchronizer;
+        private IEdgeFiringManager? _edgeFiringManager = null;
+        private IEdgeReceiptManager? _edgeReceiptManager = null;
 
         private WhichVertex _role;
         private bool _roleIsKnown = false;
 
-        private TriggerDelegate _triggerDelegate;
+        private TriggerDelegate _triggerDelegate = null!; // Set in constructor or DeserializeFrom
         #endregion
 
         #region Constructors
@@ -98,7 +97,7 @@ namespace Highpoint.Sage.Graphs
         /// the EdgeFiringManager on it's FireIfAppropriate(Edge e) API to determine if it
         /// should fire.
         /// </summary>
-        public IEdgeFiringManager EdgeFiringManager
+        public IEdgeFiringManager? EdgeFiringManager
         {
             get
             {
@@ -115,7 +114,7 @@ namespace Highpoint.Sage.Graphs
         /// is responsible for determining when the vertex is to fire. If it is null, then it is
         /// assumed that only if all incoming edges have fired, is the vertex to fire.
         /// </summary>
-        public IEdgeReceiptManager EdgeReceiptManager
+        public IEdgeReceiptManager? EdgeReceiptManager
         {
             get
             {
@@ -159,7 +158,7 @@ namespace Highpoint.Sage.Graphs
                 return;
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend(); // hasVm guarantees non-null
             if (_diagnostics)
                 _Debug.WriteLine($"{Name} adding preEdge {preEdge.Name}.");
             PreEdges.Add(preEdge);
@@ -169,7 +168,7 @@ namespace Highpoint.Sage.Graphs
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddPreEdge, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume(); // hasVm guarantees non-null
         }
 
         public void RemovePreEdge(Edge preEdge)
@@ -178,7 +177,7 @@ namespace Highpoint.Sage.Graphs
                 return;
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend(); // hasVm guarantees non-null
             if (_diagnostics)
                 _Debug.WriteLine($"{Name} removing preEdge {preEdge.Name}.");
             PreEdges.Remove(preEdge);
@@ -188,7 +187,7 @@ namespace Highpoint.Sage.Graphs
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.RemovePreEdge, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume(); // hasVm guarantees non-null
         }
 
         public void AddPostEdge(Edge postEdge)
@@ -197,7 +196,7 @@ namespace Highpoint.Sage.Graphs
                 return;
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend(); // hasVm guarantees non-null
             if (_diagnostics)
                 _Debug.WriteLine($"{Name} adding postEdge {postEdge.Name}.");
             PostEdges.Add(postEdge);
@@ -207,7 +206,7 @@ namespace Highpoint.Sage.Graphs
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddPostEdge, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume(); // hasVm guarantees non-null
         }
 
         public void RemovePostEdge(Edge postEdge)
@@ -216,7 +215,7 @@ namespace Highpoint.Sage.Graphs
                 return;
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend(); // hasVm guarantees non-null
             if (_diagnostics)
                 _Debug.WriteLine($"{Name} removing postEdge {postEdge.Name}.");
             PostEdges.Remove(postEdge);
@@ -226,7 +225,7 @@ namespace Highpoint.Sage.Graphs
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.RemovePostEdge, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume(); // hasVm guarantees non-null
         }
         #endregion
 
@@ -285,7 +284,7 @@ namespace Highpoint.Sage.Graphs
 #if DEBUG
             if (_managePostMortemData)
             {
-                PmData pmData = (PmData)graphContext["PostMortemData"];
+                PmData? pmData = (PmData?)graphContext["PostMortemData"];
                 if (pmData == null)
                 {
                     pmData = new PmData();
@@ -351,7 +350,7 @@ namespace Highpoint.Sage.Graphs
                 }
                 else
                 {
-                    ArrayList preEdgesSatisfied = (ArrayList)graphContext[_preEdgesSatisfiedKey];
+                    ArrayList? preEdgesSatisfied = (ArrayList?)graphContext[_preEdgesSatisfiedKey];
                     if (preEdgesSatisfied == null)
                     {
                         preEdgesSatisfied = new ArrayList();
@@ -388,7 +387,7 @@ namespace Highpoint.Sage.Graphs
         /// A synchronizer, ip present, defines a relationship among vertices wherein all vertices
         /// wait until they are all ready to fire, and then they fire in the specified order.
         /// </summary>
-        public VertexSynchronizer Synchronizer
+        public VertexSynchronizer? Synchronizer
         {
             get
             {
@@ -407,12 +406,12 @@ namespace Highpoint.Sage.Graphs
                 throw new ApplicationException(Name + " already has a synchronizer assigned!");
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend(); // hasVm guarantees non-null
             _synchronizer = synch;
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.NewSynchronizer, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume(); // hasVm guarantees non-null
         }
 
         #endregion
@@ -441,15 +440,15 @@ namespace Highpoint.Sage.Graphs
 
         public virtual void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _name = (string)xmlsc.LoadObject("Name");
-            IList tmpPostEdges = (IList)xmlsc.LoadObject("PostEdges");
+            _name = (string)xmlsc.LoadObject("Name")!;
+            IList tmpPostEdges = (IList)xmlsc.LoadObject("PostEdges")!;
             foreach (Edge edge in tmpPostEdges)
             {
                 if (!PostEdges.Contains(edge))
                     PostEdges.Add(edge);
                 NumPostEdges++;
             }
-            IList tmpPreEdges = (IList)xmlsc.LoadObject("PreEdges");
+            IList tmpPreEdges = (IList)xmlsc.LoadObject("PreEdges")!;
             foreach (Edge edge in tmpPreEdges)
             {
                 if (!PreEdges.Contains(edge))
@@ -457,11 +456,11 @@ namespace Highpoint.Sage.Graphs
                 NumPreEdges++;
             }
 
-            _principalEdge = (Edge)xmlsc.LoadObject("PrincipalEdge");
-            _role = (WhichVertex)xmlsc.LoadObject("Role");
-            _roleIsKnown = (bool)xmlsc.LoadObject("RoleIsKnown");
+            _principalEdge = (Edge)xmlsc.LoadObject("PrincipalEdge")!;
+            _role = (WhichVertex)xmlsc.LoadObject("Role")!;
+            _roleIsKnown = (bool)xmlsc.LoadObject("RoleIsKnown")!;
             _synchronizer = (VertexSynchronizer)xmlsc.LoadObject("Synchronizer");
-            _triggerDelegate = (TriggerDelegate)xmlsc.LoadObject("TriggerDelegate");
+            _triggerDelegate = (TriggerDelegate)xmlsc.LoadObject("TriggerDelegate")!;
             //			_Debug.WriteLine("Deserializing " + m_name + " : it has " + m_postEdges.Count + " post edges in object w/ hashcode " 
             //				+ m_postEdges.GetHashCode() + ". (BTW, this has hashcode " + this.GetHashCode() + ").");
         }
@@ -479,8 +478,8 @@ namespace Highpoint.Sage.Graphs
 
         #region IHasValidity Members
 
-        private Validity.ValidationService _vm = null;
-        public Validity.ValidationService ValidationService
+        private Validity.ValidationService? _vm = null;
+        public Validity.ValidationService? ValidationService
         {
             get
             {
@@ -510,7 +509,7 @@ namespace Highpoint.Sage.Graphs
             //if ( ValidityChangeEvent != null ) ValidityChangeEvent(this,newValidity);
         }
 
-        public event Validity.ValidityChangeHandler ValidityChangeEvent
+        public event Validity.ValidityChangeHandler? ValidityChangeEvent
         {
             add { }
             remove { }
@@ -538,13 +537,13 @@ namespace Highpoint.Sage.Graphs
             return retval;
         }
 
-        public Validity.IHasValidity GetParent() { return null; }
+        public Validity.IHasValidity? GetParent() { return null; }
 
         #endregion
 
         #region IPartOfGraphStructure Members
 
-        public event StructureChangeHandler StructureChangeHandler;
+        public event StructureChangeHandler? StructureChangeHandler;
 
         //		public void PropagateStructureChange(object obj, StructureChangeType sct, bool isPropagated){
         //			if ( StructureChangeHandler != null ) StructureChangeHandler(obj,sct,isPropagated);

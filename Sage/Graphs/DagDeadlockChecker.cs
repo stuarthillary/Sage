@@ -1,10 +1,8 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs
@@ -23,9 +21,9 @@ namespace Highpoint.Sage.Graphs
         #region Private Fields
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("DAGDeadlockChecker");
         private IEdge _rootEdge;
-        private Dictionary<object, Node> _nodes;
-        protected ArrayList _errors;
-        private List<Node> _frontier;
+        private Dictionary<object, Node> _nodes = null!; // initialized in Check()
+        protected ArrayList _errors = null!; // initialized in Check()
+        private List<Node> _frontier = null!; // initialized in Check()
         #endregion
 
         /// <summary>
@@ -240,7 +238,7 @@ namespace Highpoint.Sage.Graphs
                 Collapse(successor);
                 if (successor.Successors.Length == 0)
                 {
-                    node.Successors[i] = null;
+                    node.Successors[i] = null!; // collapse: marks this slot as removed
                 }
                 else if (successor.Successors.Length == 1)
                 {
@@ -318,12 +316,12 @@ namespace Highpoint.Sage.Graphs
         class Node
         {
             #region Private Fields
-            private static Node[] _emptyArray = new Node[] { };
+            private static readonly Node[] _emptyArray = new Node[] { };
             private bool m_onPath;
             private bool m_visited;
-            private object m_element;
+            private readonly object m_element;
             private Node[] m_successors;
-            private Node[] m_predecessors;
+            private Node[]? m_predecessors;
 
             #endregion
 
@@ -367,28 +365,28 @@ namespace Highpoint.Sage.Graphs
             {
                 get
                 {
-                    return (m_successors == null ? _emptyArray : m_successors);
+                    return m_successors;
                 }
                 set
                 {
-                    m_successors = (value == null ? _emptyArray : value);
+                    m_successors = value;
                 }
             }
             public Node[] Predecessors
             {
                 get
                 {
-                    return (m_predecessors == null ? _emptyArray : m_predecessors);
+                    return (m_predecessors ?? _emptyArray);
                 }
                 set
                 {
-                    m_predecessors = (value == null ? _emptyArray : value);
+                    m_predecessors = value;
                 }
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                return m_element.Equals(((Node)obj).Element);
+                return obj is Node n && m_element.Equals(n.Element);
             }
             public override int GetHashCode()
             {

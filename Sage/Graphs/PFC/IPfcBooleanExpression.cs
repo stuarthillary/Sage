@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs.PFC
@@ -12,7 +11,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the left hand side of the boolean expression.
         /// </summary>
         /// <value>The left hand side of the boolean expression..</value>
-        string Lhs
+        string? Lhs
         {
             get;
         }
@@ -20,7 +19,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the right hand side of the boolean expression.
         /// </summary>
         /// <value>The right hand side of the boolean expression..</value>
-        string Rhs
+        string? Rhs
         {
             get;
         }

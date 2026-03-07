@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 
@@ -79,9 +78,9 @@ namespace Highpoint.Sage.Graphs
             }
         }
 
-        private void _FireTheVertex(IExecutive exec, object graphContext)
+        private void _FireTheVertex(IExecutive exec, object? graphContext)
         {
-            FireTheVertex((IDictionary)graphContext);
+            FireTheVertex((IDictionary)graphContext!);
         }
 
     }

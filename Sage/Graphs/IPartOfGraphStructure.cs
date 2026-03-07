@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// Fired when the structure of the graph changes.
         /// </summary>
-		event StructureChangeHandler StructureChangeHandler;
+		event StructureChangeHandler? StructureChangeHandler;
         //void PropagateStructureChange(object obj, StructureChangeType sct, bool isPropagated);
     }
 }

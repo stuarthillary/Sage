@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs.PFC
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// The name of the unit with which a step is associated.
         /// </summary>
-        string Name
+        string? Name
         {
             get; set;
         }

@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -11,8 +11,8 @@ namespace Highpoint.Sage.Graphs.PFC {
 
         #region Private Members
 
-        private IPfcNode _predecessor = null;
-        private IPfcNode _successor = null;
+        private IPfcNode? _predecessor;
+        private IPfcNode? _successor;
         private bool _isLoopback = false;
 
         #endregion Private Members
@@ -21,7 +21,7 @@ namespace Highpoint.Sage.Graphs.PFC {
 
         internal PfcLink() : this(null, "", "", Guid.NewGuid()) { }
 
-        internal PfcLink(IProcedureFunctionChart parent, string name, string description, Guid guid ):base(parent,name,description,guid){}
+        internal PfcLink(IProcedureFunctionChart? parent, string name, string description, Guid guid ):base(parent,name,description,guid){}
 
         #endregion Constructors
 
@@ -31,7 +31,7 @@ namespace Highpoint.Sage.Graphs.PFC {
         /// Gets the predecessor IPfcNode to this Link node.
         /// </summary>
         /// <value>The predecessor.</value>
-        public IPfcNode Predecessor {
+        public IPfcNode? Predecessor {
             get { return _predecessor; }
             set {
                 if (_predecessor == null || value == null) {
@@ -46,7 +46,7 @@ namespace Highpoint.Sage.Graphs.PFC {
         /// Gets the successor IPfcNode to this Link node.
         /// </summary>
         /// <value>The successor.</value>
-        public IPfcNode Successor {
+        public IPfcNode? Successor {
             get { return _successor; }
             set {
                 if (_successor == null || value == null) {
@@ -77,9 +77,9 @@ namespace Highpoint.Sage.Graphs.PFC {
         /// Detaches this link from its predecessor and successor.
         /// </summary>
         public void Detach() {
-            Predecessor.Successors.Remove(this);
+            Predecessor!.Successors.Remove(this); // non-null: link must be connected to detach
             _predecessor = null;
-            Successor.Predecessors.Remove(this);
+            Successor!.Predecessors.Remove(this); // non-null: link must be connected to detach
             _successor = null;
         }
 
@@ -118,17 +118,17 @@ namespace Highpoint.Sage.Graphs.PFC {
         /// </summary>
         public AggregateLinkType AggregateLinkType {
             get {
-                if (Predecessor.SuccessorNodes.Count == 1 && Successor.PredecessorNodes.Count == 1) {
+                if (Predecessor!.SuccessorNodes.Count == 1 && Successor!.PredecessorNodes.Count == 1) { // non-null: called only on connected links
                     return AggregateLinkType.Simple;
                 } else {
-                    if (Predecessor.SuccessorNodes.Count > 1) {
+                    if (Predecessor!.SuccessorNodes.Count > 1) {
                         // It is a divergent link.
                         if (Predecessor.ElementType.Equals(PfcElementType.Step)) {
                             return AggregateLinkType.SeriesDivergent;
                         } else if (Predecessor.ElementType.Equals(PfcElementType.Transition)) {
                             return AggregateLinkType.ParallelDivergent;
                         }
-                    } else if (Successor.PredecessorNodes.Count > 1) {
+                    } else if (Successor!.PredecessorNodes.Count > 1) {
                         // It is a convergent link.
                         if (Predecessor.ElementType.Equals(PfcElementType.Step)) {
                             return AggregateLinkType.ParallelConvergent;
@@ -163,8 +163,8 @@ namespace Highpoint.Sage.Graphs.PFC {
         /// </summary>
         /// <seealso cref="IPfcLinkElement" />
         public class LinkComparer : IComparer<IPfcLinkElement> {
-            public int Compare(IPfcLinkElement x, IPfcLinkElement y) {
-                int retval = Comparer.Default.Compare(x.Priority, y.Priority) * -1; // High priorities happen first. Ergo, high-to-low.
+            public int Compare(IPfcLinkElement? x, IPfcLinkElement? y) {
+                int retval = Comparer.Default.Compare(x!.Priority, y!.Priority) * -1; // High priorities happen first. Ergo, high-to-low.
                 if (retval == 0 && x.Successor!= null && y.Successor!= null)
                 {
                     retval = Comparer<string>.Default.Compare(x.Successor.Name, y.Successor.Name);

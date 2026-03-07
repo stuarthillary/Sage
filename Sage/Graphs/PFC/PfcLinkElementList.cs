@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -42,7 +41,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the <see cref="T:IPfcLinkElement"/> with the specified name.
         /// </summary>
         /// <value></value>
-        public IPfcLinkElement this[string name]
+        public IPfcLinkElement? this[string name]
         {
             get
             {
@@ -57,7 +56,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the <see cref="T:IPfcLinkElement"/> with the specified GUID.
         /// </summary>
         /// <value></value>
-        public IPfcLinkElement this[Guid guid]
+        public IPfcLinkElement? this[Guid guid]
         {
             get
             {
@@ -86,8 +85,10 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             #region IComparer<IPfcLinkElement> Members
 
-            public int Compare(IPfcLinkElement x, IPfcLinkElement y)
+            public int Compare(IPfcLinkElement? x, IPfcLinkElement? y)
             {
+                if (x is null) return y is null ? 0 : -1;
+                if (y is null) return 1;
                 return (x.Priority > y.Priority ? 1 : x.Priority < y.Priority ? -1 : 0);
             }
 

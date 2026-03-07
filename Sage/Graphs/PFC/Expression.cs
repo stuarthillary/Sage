@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                 }
             }
 
-            public override string ToString(ExpressionType t, object forWhom)
+            public override string ToString(ExpressionType t, object? forWhom)
             {
                 throw new Exception("Directory was unable to map an expression element to the guid, " + _guid + ".");
             }
@@ -38,9 +38,9 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
 
         #region Private Fields
         private bool _hasUnknowns = false;
-        private ParticipantDirectory _participantDirectory = null;
-        private List<ExpressionElement> _elements;
-        private object _owner = null;
+        private ParticipantDirectory? _participantDirectory;
+        private List<ExpressionElement> _elements = null!; // assigned in factory methods before use
+        private object? _owner;
         private static Regex _singQuotes =
             new Regex(@" \'                   " +
                       @"   (?>                " +
@@ -85,7 +85,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
             {
                 if (match.Value.StartsWith(Macro.MACRO_START, StringComparison.Ordinal))
                 {
-                    Macro macro = (Macro)directory[match.Value.Trim('\'')];
+                    Macro macro = (Macro)directory[match.Value.Trim('\'')]!; // macro is registered before parsing
                     expression._elements.Add(macro);
                     cursor = match.Index + match.Value.Length;
                 }
@@ -177,7 +177,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
 
                 if (directory.Contains(guid))
                 {
-                    expression._elements.Add(directory[guid]);
+                    expression._elements.Add(directory[guid]!); // Contains check guarantees non-null
                 }
                 else
                 {
@@ -211,7 +211,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <param name="t">The indicated representation type.</param>
         /// <param name="forWhom">The owner of the macro, usually a Transition.</param>
         /// <returns>The string for this macro.</returns>
-        public override string ToString(ExpressionType t, object forWhom)
+        public override string ToString(ExpressionType t, object? forWhom)
         {
 
             if (_hasUnknowns)
@@ -240,17 +240,17 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                     if (ee is UnknownReferenceElement)
                     {
                         Guid guid = ee.Guid;
-                        if (_participantDirectory.Contains(guid))
+                        if (_participantDirectory!.Contains(guid)) // non-null: set during FromUf/FromUh before ResolveUnknowns
                         {
-                            _elements.Add(_participantDirectory[guid]);
+                            _elements.Add(_participantDirectory![guid]!); // Contains check guarantees non-null
                         }
                         else
                         {
-                            IPfcTransitionNode trans = _owner as IPfcTransitionNode;
+                            IPfcTransitionNode? trans = _owner as IPfcTransitionNode;
                             string msg;
                             if (trans != null)
                             {
-                                msg = string.Format("Failed to map Guid {0} into an object on behalf of {1} in Pfc {2}.", guid, trans.Name, trans.Parent.Name);
+                                msg = string.Format("Failed to map Guid {0} into an object on behalf of {1} in Pfc {2}.", guid, trans.Name, trans.Parent!.Name); // Parent non-null for any real transition
                             }
                             else
                             {

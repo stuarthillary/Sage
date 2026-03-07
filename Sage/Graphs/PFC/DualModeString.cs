@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -36,7 +35,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <param name="t">The indicated representation type.</param>
         /// <param name="forWhom">The owner of the expression, usually a Transition.</param>
         /// <returns>The string for this expression element.</returns>
-        public override string ToString(ExpressionType t, object forWhom)
+        public override string ToString(ExpressionType t, object? forWhom)
         {
             switch (t)
             {

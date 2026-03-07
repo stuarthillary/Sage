@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -14,7 +13,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// Gets or sets the validation service that oversees the implementer.
         /// </summary>
         /// <value>The validation service.</value>
-		ValidationService ValidationService
+		ValidationService? ValidationService
         {
             get; set;
         }
@@ -32,7 +31,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// Gets the parent (from a perspective of validity) of the implementer.
         /// </summary>
         /// <returns></returns>
-		IHasValidity GetParent();
+		IHasValidity? GetParent();
         /// <summary>
         /// Gets or sets the state (from a perspective of validity) of the implementer.
         /// </summary>
@@ -44,7 +43,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <summary>
         /// Fires when the implementer's validity state is changed.
         /// </summary>
-		event ValidityChangeHandler ValidityChangeEvent;
+		event ValidityChangeHandler? ValidityChangeEvent;
         /// <summary>
         /// Called by the ValidationService upon an overall validity change.
         /// </summary>

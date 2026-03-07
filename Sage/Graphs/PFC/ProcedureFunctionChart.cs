@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* COPYRIGHT_NOTICE */
 using Highpoint.Sage.Diagnostics;
 using Highpoint.Sage.Graphs.PFC.Execution;
@@ -34,28 +34,28 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #region Private Members
 
-        private IModel _model;
-        private string _name = null;
-        private string _description = null;
+        private IModel? _model;
+        private string? _name;
+        private string? _description;
         private Guid _guid = Guid.Empty;
 
         private static readonly bool _diagnostics = DiagnosticAids.Diagnostics("ProcedureFunctionChart");
 
-        private IPfcStepNode _parent = null;
+        private IPfcStepNode? _parent;
 
-        private PfcNodeList _nodeList = null;
-        private PfcStepNodeList _stepNodeList = null;
-        private PfcLinkElementList _linkNodeList = null;
-        private PfcTransitionNodeList _transitionNodeList = null;
+        private PfcNodeList? _nodeList;
+        private PfcStepNodeList? _stepNodeList;
+        private PfcLinkElementList? _linkNodeList;
+        private PfcTransitionNodeList? _transitionNodeList;
 
         private static Guid _pfcFromStepMaskGuid = new Guid("89415910-A44D-4d0b-BCBC-29E19BE378D5");
         private Guid _modelMaskForSelfGuid = new Guid("8BC12586-C2BD-405a-BABF-37F8F19F7535");
         private Guid _elementFactoryMaskGuid = new Guid("B66CE340-FF4A-43e0-A85F-270C06AE8373");
         private Guid _guidGeneratorMaskGuid = new Guid("C50E5875-E03E-4560-8D54-0D57C9EA03B5");
         private Guid _guidGeneratorSeedMaskGuid = new Guid("D1137F29-DAE7-4342-97EE-E10DFABE452C");
-        private IPfcElementFactory _sfcElementFactory = null;
+        private IPfcElementFactory? _sfcElementFactory;
 
-        private GuidGenerator _guidGenerator = null;
+        private GuidGenerator? _guidGenerator;
 
         private ParticipantDirectory _participantDirectory;
 
@@ -73,14 +73,14 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         private int _pathLengthCap = 60;
 
-        private IProcedureFunctionChart _source = null;
+        private IProcedureFunctionChart? _source;
 
-        private ExecutionEngine _executionEngine = null;
+        private ExecutionEngine? _executionEngine;
 
-        private ExecutionEngineConfiguration _executionEngineConfiguration = null;
+        private ExecutionEngineConfiguration? _executionEngineConfiguration;
 
         private static IComparer<IPfcLinkElement> _linkComparer = new PfcLink.LinkComparer();
-        private IComparer<IPfcLinkElement> m_linkComparer = _linkComparer;
+        private IComparer<IPfcLinkElement>? m_linkComparer = _linkComparer;
 
         #endregion Private Members
 
@@ -95,14 +95,14 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Creates a new instance of the <see cref="T:ProcedureFunctionChart"/> class.
         /// </summary>
         /// <param name="model">The model in which this <see cref="T:ProcedureFunctionChart"/> will run.</param>
-        public ProcedureFunctionChart(IModel model) : this(model, "PFC", "", Guid.Empty) { }
+        public ProcedureFunctionChart(IModel? model) : this(model, "PFC", "", Guid.Empty) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:ProcedureFunctionChart"/> class.
         /// </summary>
         /// <param name="model">The model in which this object runs.</param>
         /// <param name="name">The name of the new <see cref="T:ProcedureFunctionChart"/>.</param>
-        public ProcedureFunctionChart(IModel model, string name) : this(model, name, "", Guid.Empty) { }
+        public ProcedureFunctionChart(IModel? model, string name) : this(model, name, "", Guid.Empty) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:ProcedureFunctionChart"/> class.
@@ -112,7 +112,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="description">The description of the new <see cref="T:ProcedureFunctionChart"/>.</param>
         /// <param name="guid">The GUID of the new <see cref="T:ProcedureFunctionChart"/>.</param>
         /// <param name="elementFactory">The element factory from which this SFC will create its new elements.</param>
-        public ProcedureFunctionChart(IModel model, string name, string description, Guid guid, IPfcElementFactory elementFactory)
+        public ProcedureFunctionChart(IModel? model, string? name, string? description, Guid guid, IPfcElementFactory elementFactory)
             : this(model, name, description, guid)
         {
             _sfcElementFactory = elementFactory;
@@ -128,7 +128,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The name of the new <see cref="T:ProcedureFunctionChart"/>.</param>
         /// <param name="description">The description of the new <see cref="T:ProcedureFunctionChart"/>.</param>
         /// <param name="guid">The GUID of the new <see cref="T:ProcedureFunctionChart"/>.</param>
-        public ProcedureFunctionChart(IModel model, string name, string description, Guid guid)
+        public ProcedureFunctionChart(IModel? model, string? name, string? description, Guid guid)
         {
 
             if (guid.Equals(Guid.Empty))
@@ -215,7 +215,7 @@ namespace Highpoint.Sage.Graphs.PFC
                     $"Deriving a single Pfc from a step ({step.Name}) that has more than one Action is not yet supported.");
             }
 
-            ProcedureFunctionChart pfc = null;
+            ProcedureFunctionChart? pfc = null;
             if (step.Actions == null || step.Actions.Count == 0)
             {
                 return new ProcedureFunctionChart(step.Model, step.Name + ".PFC", "", GuidOps.XOR(step.Guid, _pfcFromStepMaskGuid));
@@ -232,7 +232,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 }
             }
 
-            return pfc;
+            return pfc!;
         }
 
         #endregion Constructors
@@ -258,7 +258,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                return _sfcElementFactory;
+                return _sfcElementFactory!;
             }
             set
             {
@@ -288,17 +288,17 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="description">The description of the step.</param>
         /// <param name="guid">The GUID of the step.</param>
         /// <returns>The <see cref="T:IPfcStepNode"/>.</returns>
-        public IPfcStepNode CreateStep(string name, string description, Guid guid)
+        public IPfcStepNode CreateStep(string? name, string? description, Guid guid)
         {
             if (guid.Equals(Guid.Empty))
             {
-                guid = _guidGenerator.Next();
+                guid = _guidGenerator!.Next();
             }
-            IPfcStepNode step = _sfcElementFactory.CreateStepNode(name, guid, description);
+            IPfcStepNode step = _sfcElementFactory!.CreateStepNode(name, guid, description);
             step.IsNullNode = _defaultNullness;
 
-            _stepNodeList.Add(step);
-            _nodeList.Add(step);
+            _stepNodeList!.Add(step);
+            _nodeList!.Add(step);
             _participantDirectory.RegisterMapping(step.Name, step.Guid);
 
             return step;
@@ -322,17 +322,17 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="description">The transition description.</param>
         /// <param name="guid">The transition GUID.</param>
         /// <returns>The <see cref="T:IPfcTransitionNode"/>.</returns>
-        public IPfcTransitionNode CreateTransition(string name, string description, Guid guid)
+        public IPfcTransitionNode CreateTransition(string? name, string? description, Guid guid)
         {
             if (guid.Equals(Guid.Empty))
             {
-                guid = _guidGenerator.Next();
+                guid = _guidGenerator!.Next();
             }
 
-            IPfcTransitionNode transition = _sfcElementFactory.CreateTransitionNode(name, guid, description);
+            IPfcTransitionNode transition = _sfcElementFactory!.CreateTransitionNode(name, guid, description);
 
-            _transitionNodeList.Add(transition);
-            _nodeList.Add(transition);
+            _transitionNodeList!.Add(transition);
+            _nodeList!.Add(transition);
 
             // PCB, 10/29/06: During load, while adding child PFC under an action, the child Pfc's 
             // existing connections were added into the parent ParticipantDirectory, followed by those
@@ -366,14 +366,14 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="description">The description of the new link.</param>
         /// <param name="guid">The GUID of the new link.</param>
         /// <returns>The <see cref="T:IPfcLinkElement"/>.</returns>
-        public IPfcLinkElement CreateLink(string name, string description, Guid guid)
+        public IPfcLinkElement CreateLink(string? name, string? description, Guid guid)
         {
             if (guid.Equals(Guid.Empty))
             {
-                guid = _guidGenerator.Next();
+                guid = _guidGenerator!.Next();
             }
 
-            IPfcLinkElement link = _sfcElementFactory.CreateLinkElement(name, guid, description);
+            IPfcLinkElement link = _sfcElementFactory!.CreateLinkElement(name, guid, description);
 
             return link;
         }
@@ -387,18 +387,18 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="predecessor">The predecessor to the new link.</param>
         /// <param name="successor">The successor of the new link.</param>
         /// <returns>The <see cref="T:IPfcLinkElement"/>.</returns>
-        public IPfcLinkElement CreateLink(string name, string description, Guid guid, IPfcNode predecessor, IPfcNode successor)
+        public IPfcLinkElement CreateLink(string? name, string? description, Guid guid, IPfcNode predecessor, IPfcNode successor)
         {
 
             if (guid.Equals(Guid.Empty))
             {
-                guid = _guidGenerator.Next();
+                guid = _guidGenerator!.Next();
             }
 
-            IPfcLinkElement link = null;
+            IPfcLinkElement? link = null;
             foreach (IPfcLinkElement _link in predecessor.Successors)
             {
-                if (_link.Successor.Equals(successor))
+                if (_link.Successor?.Equals(successor) == true)
                 {
                     link = _link;
                     break;
@@ -409,7 +409,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 link = CreateLink(name, description, guid);
 
-                _linkNodeList.Add(link);
+                _linkNodeList!.Add(link);
 
                 if (predecessor != null)
                 {
@@ -436,15 +436,15 @@ namespace Highpoint.Sage.Graphs.PFC
             switch (element.ElementType)
             {
                 case PfcElementType.Link:
-                    _linkNodeList.Add((IPfcLinkElement)element);
+                    _linkNodeList!.Add((IPfcLinkElement)element);
                     break;
                 case PfcElementType.Transition:
-                    _transitionNodeList.Add((IPfcTransitionNode)element);
-                    _nodeList.Add((IPfcNode)element);
+                    _transitionNodeList!.Add((IPfcTransitionNode)element);
+                    _nodeList!.Add((IPfcNode)element);
                     break;
                 case PfcElementType.Step:
-                    _stepNodeList.Add((IPfcStepNode)element);
-                    _nodeList.Add((IPfcNode)element);
+                    _stepNodeList!.Add((IPfcStepNode)element);
+                    _nodeList!.Add((IPfcNode)element);
                     break;
                 default:
                     break;
@@ -467,9 +467,9 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="to">The node to which a connection is being established.</param>
         public void Bind(IPfcNode from, IPfcNode to)
         {
-            IPfcLinkElement iPfcLink1;
-            IPfcNode shimNode;
-            IPfcLinkElement iPfcLink2;
+            IPfcLinkElement? iPfcLink1;
+            IPfcNode? shimNode;
+            IPfcLinkElement? iPfcLink2;
             Bind(from, to, out iPfcLink1, out shimNode, out iPfcLink2, true);
         }
 
@@ -486,7 +486,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="shimNode">The shim node, if one was created.</param>
         /// <param name="iPfcLink2">The second link element, if one was created.</param>
         /// <param name="allowPiggybacking">if set to <c>true</c>, we allow an existing link to serve the purpose of this requested link.</param>
-        public void Bind(IPfcNode from, IPfcNode to, out IPfcLinkElement iPfcLink1, out IPfcNode shimNode, out IPfcLinkElement iPfcLink2, bool allowPiggybacking)
+        public void Bind(IPfcNode from, IPfcNode to, out IPfcLinkElement? iPfcLink1, out IPfcNode? shimNode, out IPfcLinkElement? iPfcLink2, bool allowPiggybacking)
         {
             iPfcLink1 = iPfcLink2 = null;
             shimNode = null;
@@ -543,7 +543,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             if (to.Successor != null)
             {
-                IPfcNode shimNode = RequiredShimNode(from, to.Successor);
+                IPfcNode? shimNode = RequiredShimNode(from, to.Successor);
                 if (shimNode != null)
                 {
                     // Bind them.
@@ -565,7 +565,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             if (from.Predecessor != null)
             {
-                IPfcNode shimNode = RequiredShimNode(from.Predecessor, to);
+                IPfcNode? shimNode = RequiredShimNode(from.Predecessor, to);
                 if (shimNode != null)
                 {
                     Bind(from, shimNode);
@@ -609,7 +609,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 var copyOfList = from.Successors.ToList(); // Avoid mutating a list under iteration.
                 foreach (IPfcLinkElement link in copyOfList)
                 {
-                    if (link.Successor.Equals(to))
+                    if (link.Successor?.Equals(to) == true)
                     {
                         link.Detach();
                         from.Successors.Remove(link);
@@ -660,7 +660,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <returns>True, if successful, otherwise, false.</returns>
         public bool Unbind(IPfcLinkElement from, IPfcNode to, bool skipStructureUpdating = false)
         {
-            if (!from.Successor.Equals(to))
+            if (!(from.Successor?.Equals(to) == true))
             {
                 return false;
             }
@@ -701,7 +701,7 @@ namespace Highpoint.Sage.Graphs.PFC
             ResumeNodeSorting();
         }
 
-        public StartStepResolver StartStepResolver
+        public StartStepResolver? StartStepResolver
         {
             get; set;
         }
@@ -765,9 +765,9 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <returns>
         /// The necessary shim node, or none if no shim node is required.
         /// </returns>
-        private IPfcNode RequiredShimNode(IPfcNode from, IPfcNode to)
+        private IPfcNode? RequiredShimNode(IPfcNode from, IPfcNode to)
         {
-            IPfcNode retval = null;
+            IPfcNode? retval = null;
             if (from.ElementType.Equals(to.ElementType))
             {
                 if (from.ElementType.Equals(PfcElementType.Step))
@@ -987,8 +987,8 @@ namespace Highpoint.Sage.Graphs.PFC
         public void Synchronize(IPfcNode[] inbound, IPfcNode[] outbound)
         {
 
-            Type inboundType = ArrayType(inbound);
-            Type outboundType = ArrayType(outbound);
+            Type? inboundType = ArrayType(inbound);
+            Type? outboundType = ArrayType(outbound);
             if (inboundType == null || outboundType == null)
             {
                 throw new ApplicationException("The array of inbound and the array of outbound ILinkables must each consist of the same type elements (either all Steps or all Transitions.)");
@@ -1022,7 +1022,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="array">The array.</param>
         /// <returns>The type of the elements in this array. If they do not all match, returns null.</returns>
-        private Type ArrayType(IPfcNode[] array)
+        private Type? ArrayType(IPfcNode[] array)
         {
             Debug.Assert(array != null && array.Length > 0, "IPfcLinkable[] being bound must be non-null and non-zero length.");
 
@@ -1041,7 +1041,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #endregion Binding
 
-        public IComparer<IPfcLinkElement> LinkComparer
+        public IComparer<IPfcLinkElement>? LinkComparer
         {
             get
             {
@@ -1112,10 +1112,10 @@ namespace Highpoint.Sage.Graphs.PFC
         {
 
             #region Remove any orphan steps, links or transitions.
-            PruneOrphans<IPfcStepNode>(_stepNodeList);
-            PruneOrphans<IPfcLinkElement>(_linkNodeList);
-            PruneOrphans<IPfcTransitionNode>(_transitionNodeList);
-            PruneOrphans<IPfcNode>(_nodeList);
+            PruneOrphans<IPfcStepNode>(_stepNodeList!);
+            PruneOrphans<IPfcLinkElement>(_linkNodeList!);
+            PruneOrphans<IPfcTransitionNode>(_transitionNodeList!);
+            PruneOrphans<IPfcNode>(_nodeList!);
             #endregion
 
             #region If we want to do NodeSorting, then ...
@@ -1134,7 +1134,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 #endregion
 
                 #region Ascertain the startSteps
-                List<IPfcStepNode> startSteps = null;
+                List<IPfcStepNode>? startSteps = null;
                 if (StartStepResolver != null)
                 {
                     startSteps = new List<IPfcStepNode>();
@@ -1174,7 +1174,7 @@ namespace Highpoint.Sage.Graphs.PFC
                             bool readyToAcceptOrdinal = true;
                             foreach (IPfcLinkElement link in _node.Predecessors)
                             {
-                                if (!link.IsLoopback && link.Predecessor.GraphOrdinal == -1)
+                                if (!link.IsLoopback && link.Predecessor?.GraphOrdinal == -1)
                                 {
                                     readyToAcceptOrdinal = false;
                                 }
@@ -1188,7 +1188,7 @@ namespace Highpoint.Sage.Graphs.PFC
                                     {
                                         if (!link.IsLoopback)
                                         {
-                                            queue.Enqueue(link.Successor);
+                                            queue.Enqueue(link.Successor!);
                                         }
                                     }
                                 }
@@ -1207,7 +1207,7 @@ namespace Highpoint.Sage.Graphs.PFC
                             bool readyToAcceptOrdinal = true;
                             foreach (IPfcLinkElement link in node.Predecessors)
                             {
-                                if (!link.IsLoopback && link.Predecessor.GraphOrdinal == -1)
+                                if (!link.IsLoopback && link.Predecessor?.GraphOrdinal == -1)
                                 {
                                     readyToAcceptOrdinal = false;
                                 }
@@ -1221,7 +1221,7 @@ namespace Highpoint.Sage.Graphs.PFC
                                     {
                                         if (!link.IsLoopback)
                                         {
-                                            stack.Push(link.Successor);
+                                            stack.Push(link.Successor!);
                                         }
                                     }
                                 }
@@ -1237,14 +1237,14 @@ namespace Highpoint.Sage.Graphs.PFC
                     Debugger.Break();
                 }
 
-                _nodeList.Sort(new PfcNode.NodeComparer());
-                _stepNodeList.Sort(new PfcStep.StepComparer());
-                _linkNodeList.Sort(new PfcLink.LinkComparer());
-                _transitionNodeList.Sort(new PfcTransition.TransitionComparer());
+                _nodeList!.Sort(new PfcNode.NodeComparer());
+                _stepNodeList!.Sort(new PfcStep.StepComparer());
+                _linkNodeList!.Sort(new PfcLink.LinkComparer());
+                _transitionNodeList!.Sort(new PfcTransition.TransitionComparer());
             }
             #endregion
 
-            ExecutionEngine = null;
+            _executionEngine = null;
 
         }
 
@@ -1302,7 +1302,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the root NodeGroup of this SFC.
         /// </summary>
         /// <value>The root.</value>
-        public IPfcStepNode Parent
+        public IPfcStepNode? Parent
         {
             get
             {
@@ -1318,7 +1318,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the source PFC, if any, from which this PFC was cloned.
         /// </summary>
         /// <value>The source.</value>
-        public IProcedureFunctionChart Source
+        public IProcedureFunctionChart? Source
         {
             get
             {
@@ -1335,7 +1335,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 if (_parent != null)
                 {
-                    return _parent.Parent.ParticipantDirectory;
+                    return _parent.Parent!.ParticipantDirectory;
                 }
                 else
                 {
@@ -1384,7 +1384,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                return _stepNodeList;
+                return _stepNodeList!;
             }
         }
 
@@ -1397,7 +1397,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                return _transitionNodeList;
+                return _transitionNodeList!;
             }
         }
 
@@ -1410,7 +1410,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                return _nodeList;
+                return _nodeList!;
             }
         }
 
@@ -1423,7 +1423,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="children">The children, treated as a return value.</param>
         public void GetChildren(int depth, Predicate<IPfcElement> filter, ref List<IPfcElement> children)
         {
-            foreach (IPfcElement element in _nodeList)
+            foreach (IPfcElement element in _nodeList!)
             {
                 if (filter(element))
                 {
@@ -1445,8 +1445,8 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                PruneOrphans(_linkNodeList);
-                return _linkNodeList;
+                PruneOrphans(_linkNodeList!);
+                return _linkNodeList!;
             }
         }
 
@@ -1459,8 +1459,8 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                PruneOrphans(_linkNodeList);
-                return _linkNodeList;
+                PruneOrphans(_linkNodeList!);
+                return _linkNodeList!;
             }
         }
 
@@ -1530,17 +1530,17 @@ namespace Highpoint.Sage.Graphs.PFC
                         Unbind(partner, successor);
                     }
                     Bind(precedent, successor);
-                    PruneOrphans(_stepNodeList);
-                    PruneOrphans(_nodeList);
-                    PruneOrphans(_transitionNodeList);
+                    PruneOrphans(_stepNodeList!);
+                    PruneOrphans(_nodeList!);
+                    PruneOrphans(_transitionNodeList!);
                     return true;
                 }
             }
             else if (node.PredecessorNodes.Count == 0 || node.SuccessorNodes.Count == 0)
             {
-                PruneOrphans(_stepNodeList);
-                PruneOrphans(_nodeList);
-                PruneOrphans(_transitionNodeList);
+                PruneOrphans(_stepNodeList!);
+                PruneOrphans(_nodeList!);
+                PruneOrphans(_transitionNodeList!);
             }
             return false;
         }
@@ -1567,7 +1567,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="node">The node.</param>
         /// <param name="path">The path.</param>
-        private void MarkLoopbackLinks(IPfcNode node, Stack<IPfcNode> path)
+        private void MarkLoopbackLinks(IPfcNode node, Stack<IPfcNode>? path)
         {
 
             if (((PfcNode)node).NodeColor == NodeColor.Black)
@@ -1577,14 +1577,15 @@ namespace Highpoint.Sage.Graphs.PFC
             ((PfcNode)node).NodeColor = NodeColor.Gray;
             foreach (IPfcLinkElement link in node.Successors)
             {
-                IPfcNode nextNode = link.Successor;
+                IPfcNode? nextNode = link.Successor;
+                if (nextNode == null) continue;
                 if (((PfcNode)nextNode).NodeColor == NodeColor.Gray)
                 {
                     link.IsLoopback = true;
                     if (_diagnostics)
                     {
                         Console.WriteLine("Loopback path to " + nextNode.Name + ":");
-                        foreach (IPfcNode pathNode in path)
+                        foreach (IPfcNode pathNode in path!)
                         {
                             Console.WriteLine("\t{0}{1}", pathNode.Name, (pathNode.Equals(nextNode) ? "<--------------" : ""));
                         }
@@ -1614,7 +1615,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             #region Detach and save off any attached userdata, since we're going to use this field as a marker.
             Hashtable holdUserData = new Hashtable();
-            foreach (IPfcNode n in node.Parent.Nodes)
+            foreach (IPfcNode n in node.Parent!.Nodes)
             {
                 if (n.UserData != null)
                 {
@@ -1666,7 +1667,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
                     foreach (IPfcLinkElement link in node.Successors)
                     {
-                        IPfcNode nextNode = link.Successor;
+                        IPfcNode? nextNode = link.Successor;
                         if (nextNode != null && lookForwardForNodesOnPathEndingAt(finish, nextNode, ref deletees, ref visited))
                         {
                             retval = true;
@@ -1750,7 +1751,7 @@ namespace Highpoint.Sage.Graphs.PFC
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
         /// <summary>
@@ -1769,7 +1770,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// The model that owns this Procedure Function Chart, or from which it gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -1790,7 +1791,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel? model, string? name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -1805,15 +1806,15 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the PFC schema.
         /// </summary>
         /// <returns>The PFC schema.</returns>
-        public static XmlSchemaComplexType GetPfcSchema(XmlSchemaSet xs)
+        public static XmlSchemaComplexType? GetPfcSchema(XmlSchemaSet xs)
         {
-            XmlSchema xmls = XmlSchema.Read(new XmlTextReader(_schema, XmlNodeType.Document, null), null);
+            XmlSchema? xmls = XmlSchema.Read(new XmlTextReader(_schema, XmlNodeType.Document, null), null);
 
-            xs.Add(xmls);
+            xs.Add(xmls!);
 
             string tns = "http://tempuri.org/ProcedureFunctionChart.xsd";
             XmlQualifiedName name = new XmlQualifiedName("ProcedureFunctionChart", tns);
-            XmlSchemaComplexType schemaType = (XmlSchemaComplexType)xmls.SchemaTypes[name];
+            XmlSchemaComplexType? schemaType = (XmlSchemaComplexType?)xmls!.SchemaTypes[name];
 
             return schemaType;
         }
@@ -1824,7 +1825,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <returns>
         /// An <see cref="T:System.Xml.Schema.XmlSchema"></see> that describes the XML representation of the object that is produced by the <see cref="M:System.Xml.Serialization.IXmlSerializable.WriteXml(System.Xml.XmlWriter)"></see> method and consumed by the <see cref="M:System.Xml.Serialization.IXmlSerializable.ReadXml(System.Xml.XmlReader)"></see> method.
         /// </returns>
-        public XmlSchema GetSchema()
+        public XmlSchema? GetSchema()
         {
             return null;
         }
@@ -1838,19 +1839,19 @@ namespace Highpoint.Sage.Graphs.PFC
             writer.WriteElementString("Name", _name);
             writer.WriteElementString("Description", _description);
             writer.WriteElementString("Guid", _guid.ToString());
-            writer.WriteElementString("ElementFactoryType", _sfcElementFactory.GetType().FullName);
+            writer.WriteElementString("ElementFactoryType", _sfcElementFactory!.GetType().FullName);
 
-            foreach (IPfcStepNode step in _stepNodeList)
+            foreach (IPfcStepNode step in _stepNodeList!)
             {
                 WriteStep(step, writer);
             }
 
-            foreach (IPfcTransitionNode transition in _transitionNodeList)
+            foreach (IPfcTransitionNode transition in _transitionNodeList!)
             {
                 WriteTransition(transition, writer);
             }
 
-            foreach (IPfcLinkElement link in _linkNodeList)
+            foreach (IPfcLinkElement link in _linkNodeList!)
             {
                 WriteLink(link, writer);
             }
@@ -1895,9 +1896,9 @@ namespace Highpoint.Sage.Graphs.PFC
             }
 
             //System.Reflection.ConstructorInfo[] cia = Type.GetType(elementFactoryType).GetConstructors();
-            _sfcElementFactory = (IPfcElementFactory)Type.GetType(elementFactoryType).GetConstructor(new Type[] { typeof(IProcedureFunctionChart) }).Invoke(new object[] { this });
+            _sfcElementFactory = (IPfcElementFactory)Type.GetType(elementFactoryType)!.GetConstructor(new Type[] { typeof(IProcedureFunctionChart) })!.Invoke(new object[] { this });
 
-            IModel tmp = _model;
+            IModel? tmp = _model;
             _model = null;
             _guid = Guid.Empty; // ...so that the read-from-xml Guid is set into the new PFC.
             InitializeIdentity(tmp, name, description, guid);
@@ -1925,9 +1926,9 @@ namespace Highpoint.Sage.Graphs.PFC
             } while (!(reader.Name.Equals("ProcedureFunctionChart", StringComparison.Ordinal) && !reader.IsStartElement()));
             reader.Read();
             _sfcElementFactory.OnPfcLoadCompleted(this);
-            foreach (IPfcTransitionNode trans in _transitionNodeList)
+            foreach (IPfcTransitionNode trans in _transitionNodeList!)
             {
-                trans.Expression.ResolveUnknowns(); // Forces resolution of unknown guid keys, now that the deserialization is complete.
+                trans.Expression?.ResolveUnknowns(); // Forces resolution of unknown guid keys, now that the deserialization is complete.
             }
         }
 
@@ -2024,7 +2025,7 @@ namespace Highpoint.Sage.Graphs.PFC
             writer.WriteElementString("Guid", transition.Guid.ToString());
             writer.WriteElementString("Ordinal", transition.GraphOrdinal.ToString());
             writer.WriteElementString("IsNull", XMLCONVERT.ToString(transition.IsNullNode));
-            writer.WriteElementString("Expression", transition.Expression.ToString(ExpressionType.Hostile, transition));
+            writer.WriteElementString("Expression", transition.Expression!.ToString(ExpressionType.Hostile, transition));
             writer.WriteEndElement();
         }
 
@@ -2034,8 +2035,8 @@ namespace Highpoint.Sage.Graphs.PFC
             writer.WriteElementString("Name", link.Name);
             writer.WriteElementString("Description", link.Description);
             writer.WriteElementString("Guid", link.Guid.ToString());
-            writer.WriteElementString("Predecessor", link.Predecessor.Guid.ToString());
-            writer.WriteElementString("Successor", link.Successor.Guid.ToString());
+            writer.WriteElementString("Predecessor", link.Predecessor!.Guid.ToString());
+            writer.WriteElementString("Successor", link.Successor!.Guid.ToString());
             if (link.Priority > 0)
             {
                 writer.WriteElementString("Priority", link.Priority.ToString());
@@ -2115,19 +2116,19 @@ namespace Highpoint.Sage.Graphs.PFC
                     reader.ReadToFollowing("Guid");
                     Guid guid = XMLCONVERT.ToGuid(reader.ReadString());
 
-                    Type elementType = Type.GetType(type);
+                    Type? elementType = Type.GetType(type);
                     if (elementType == null)
                     {
                         // In-place upgrade from old data.
                         type = type.Replace(_libWas, _libIs, StringComparison.Ordinal);
                         elementType = Type.GetType(type);
                     }
-                    if (typeof(Macro).IsAssignableFrom(elementType))
+                    if (elementType != null && typeof(Macro).IsAssignableFrom(elementType))
                     {
                         _participantDirectory.RegisterMacro(elementType);
                     }
 
-                    if (elementType.Equals(typeof(DualModeString)))
+                    if (elementType != null && elementType.Equals(typeof(DualModeString)))
                     {
                         _participantDirectory.RegisterMapping(name, guid);
                     }
@@ -2275,11 +2276,11 @@ namespace Highpoint.Sage.Graphs.PFC
 
             reader.ReadToFollowing("Predecessor");
             Guid predGuid = new Guid(reader.ReadString());
-            IPfcNode predecessor = _nodeList[predGuid];
+            IPfcNode? predecessor = _nodeList![predGuid];
 
             reader.ReadToFollowing("Successor");
             Guid succGuid = new Guid(reader.ReadString());
-            IPfcNode successor = _nodeList[succGuid];
+            IPfcNode? successor = _nodeList![succGuid];
 
             int priority = 0;
             reader.Read();
@@ -2306,7 +2307,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 IPfcLinkElement link = CreateLink(name, description, guid);
                 link.Priority = priority;
 
-                _linkNodeList.Add(link);
+                _linkNodeList!.Add(link);
                 Connect(predecessor, link);
                 //Console.Write("Connecting " + predecessor.Name + " to " + link.Name + ", and ");
                 Connect(link, successor);
@@ -2326,13 +2327,13 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <para></para>
         /// </summary>
         /// <param name="path">The path (e.g. ParentName/ChildName).</param>
-        public IPfcNode FindNode(string path)
+        public IPfcNode? FindNode(string path)
         {
-            IPfcNode retval = null;
+            IPfcNode? retval = null;
             if (path.Contains("/", StringComparison.Ordinal))
             {
                 string[] s = path.Split(new char[] { '/' }, 2);
-                IPfcStepNode child = Nodes[s[0]] as IPfcStepNode;
+                IPfcStepNode? child = Nodes[s[0]] as IPfcStepNode;
                 if (child != null)
                 {
                     foreach (IProcedureFunctionChart childAction in child.Actions.Values)
@@ -2357,7 +2358,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public IPfcNode FindFirst(Predicate<IPfcNode> predicate)
+        public IPfcNode? FindFirst(Predicate<IPfcNode> predicate)
         {
             foreach (IPfcNode node in DepthFirstIterator())
             {
@@ -2393,7 +2394,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             foreach (IPfcNode node in Nodes)
             {
-                IPfcStepNode step = node as IPfcStepNode;
+                IPfcStepNode? step = node as IPfcStepNode;
                 if (step != null)
                 {
                     foreach (ProcedureFunctionChart action in step.Actions.Values)
@@ -2458,7 +2459,7 @@ namespace Highpoint.Sage.Graphs.PFC
                     // with references to the macros at this level.
                     foreach (IPfcTransitionNode trans in pfc.Transitions)
                     {
-                        List<ExpressionElement> listOfEe = new List<ExpressionElement>(trans.Expression.Elements);
+                        List<ExpressionElement> listOfEe = new List<ExpressionElement>(trans.Expression!.Elements);
                         foreach (ExpressionElement ee in listOfEe)
                         {
                             if ((ee as Macro) != null)
@@ -2468,7 +2469,7 @@ namespace Highpoint.Sage.Graphs.PFC
                                 {
                                     int ndx = trans.Expression.Elements.IndexOf(ee);
                                     trans.Expression.Elements.Remove(ee);
-                                    trans.Expression.Elements.Insert(ndx, _participantDirectory[targetName]);
+                                    trans.Expression.Elements.Insert(ndx, _participantDirectory[targetName]!);
                                 }
                             }
                         }
@@ -2542,7 +2543,7 @@ namespace Highpoint.Sage.Graphs.PFC
             List<string> names = new List<string>();
             bool needsRenaming = false;
 
-            foreach (IPfcLinkElement link in _linkNodeList)
+            foreach (IPfcLinkElement link in _linkNodeList!)
             {
                 if (names.Contains(link.Name))
                 {
@@ -2557,7 +2558,7 @@ namespace Highpoint.Sage.Graphs.PFC
             if (!needsRenaming)
             {
                 names.Clear();
-                foreach (IPfcStepNode step in _stepNodeList)
+                foreach (IPfcStepNode step in _stepNodeList!)
                 {
                     if (names.Contains(step.Name))
                     {
@@ -2573,7 +2574,7 @@ namespace Highpoint.Sage.Graphs.PFC
             if (!needsRenaming)
             {
                 names.Clear();
-                foreach (IPfcTransitionNode trans in _transitionNodeList)
+                foreach (IPfcTransitionNode trans in _transitionNodeList!)
                 {
                     if (names.Contains(trans.Name))
                     {
@@ -2657,15 +2658,15 @@ namespace Highpoint.Sage.Graphs.PFC
                     && s.SuccessorNodes.Count == 1)
                 {
 
-                    IPfcTransitionNode preTrans = (IPfcTransitionNode)s.Predecessors[0].Predecessor;
-                    IPfcTransitionNode postTrans = (IPfcTransitionNode)s.Successors[0].Successor;
+                    IPfcTransitionNode preTrans = (IPfcTransitionNode)s.Predecessors[0].Predecessor!;
+                    IPfcTransitionNode postTrans = (IPfcTransitionNode)s.Successors[0].Successor!;
 
                     if (postTrans.PredecessorNodes.Count > 1)
                     {
 
                         foreach (IPfcLinkElement link in preTrans.Successors)
                         {
-                            IPfcStepNode altStep = (IPfcStepNode)link.Successor;
+                            IPfcStepNode altStep = (IPfcStepNode)link.Successor!;
                             if (altStep != null)
                             {
                                 if (!altStep.Equals(s))
@@ -2700,7 +2701,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 if (node.IsNullNode)
                 {
-                    IPfcNode nodeA = null, nodeB = null;
+                    IPfcNode? nodeA = null, nodeB = null;
                     if (node.SuccessorNodes.Count == 1 && node.SuccessorNodes[0].IsNullNode)
                     {
                         nodeA = node;
@@ -2772,7 +2773,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
                             foreach (IPfcLinkElement link in pfc.Links)
                             {
-                                if (link.Predecessor.SuccessorNodes.Count > 1 && link.Successor.PredecessorNodes.Count > 1)
+                                if (link.Predecessor!.SuccessorNodes.Count > 1 && link.Successor!.PredecessorNodes.Count > 1)
                                 {
                                     Console.WriteLine("Found a binding error between " + link.Predecessor.Name + " and " + link.Successor.Name + ".");
                                 }
@@ -2830,7 +2831,7 @@ namespace Highpoint.Sage.Graphs.PFC
         public void ApplyGuidMap(List<NewGuidHolder> newGuidHolders)
         {
             BindingFlags bindingAttr = BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic;
-            FieldInfo fi = typeof(PfcElement).GetField("_guid", bindingAttr);
+            FieldInfo? fi = typeof(PfcElement).GetField("_guid", bindingAttr);
             List<IPfcElement> erroredObjects = new List<IPfcElement>();
             foreach (NewGuidHolder ngh in newGuidHolders)
             {
@@ -2838,13 +2839,13 @@ namespace Highpoint.Sage.Graphs.PFC
                 {
                     if (ngh.Target is PfcElement)
                     {
-                        fi.SetValue(ngh.Target, ngh.NewGuid);
+                        fi!.SetValue(ngh.Target, ngh.NewGuid);
                     }
                     else
                     {
                         try
                         {
-                            fi.SetValue(ngh.Target, ngh.NewGuid);
+                            fi!.SetValue(ngh.Target, ngh.NewGuid);
                         }
                         catch (ArgumentException)
                         {
@@ -2924,7 +2925,7 @@ namespace Highpoint.Sage.Graphs.PFC
                         else if (ee is DualModeString)
                         {
                             // Might be a node, or a different entity representing something elsewhere in the system.
-                            IPfcNode pfcNode = childPfc.FindFirst(delegate (IPfcNode node)
+                            IPfcNode? pfcNode = childPfc.FindFirst(delegate (IPfcNode node)
                             {
                                 return node.Guid.Equals(ee.Guid);
                             });
@@ -2940,7 +2941,7 @@ namespace Highpoint.Sage.Graphs.PFC
                                 else
                                 {
                                     int ndx = (ParticipantDirectory.Contains(ee.Guid) ? 1 : 0) << 1 + (ParticipantDirectory.Contains(ee.Name) ? 1 : 0);
-                                    string msg = null;
+                                    string? msg = null;
                                     switch (ndx)
                                     {
                                         case 1:
@@ -3133,7 +3134,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #region ICloneable Members
 
-        public event CloneHandler CloneEvent;
+        public event CloneHandler? CloneEvent;
 
         public object Clone()
         {
@@ -3174,7 +3175,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 IPfcStepNode cloneStep = newClone.CreateStep(step.Name, step.Description, GuidOps.XOR(cloneHashGuid, step.Guid));
                 ((PfcElement)cloneStep).SEID = step.Guid;
-                cloneStep.UnitInfo.Name = step.UnitInfo.Name;
+                cloneStep.UnitInfo!.Name = step.UnitInfo!.Name;
                 cloneStep.UnitInfo.SequenceNumber = step.UnitInfo.SequenceNumber;
 
                 originalToCloneMap.Add(step, cloneStep);
@@ -3192,8 +3193,8 @@ namespace Highpoint.Sage.Graphs.PFC
             foreach (IPfcLinkElement link in Links)
             {
 
-                IPfcNode predecessor = originalToCloneMap[link.Predecessor];
-                IPfcNode successor = originalToCloneMap[link.Successor];
+                IPfcNode predecessor = originalToCloneMap[link.Predecessor!];
+                IPfcNode successor = originalToCloneMap[link.Successor!];
 
                 IPfcLinkElement cloneLink = newClone.CreateLink(link.Name, link.Description, GuidOps.XOR(cloneHashGuid, link.Guid), predecessor, successor);
                 ((PfcElement)cloneLink).SEID = link.Guid;
@@ -3209,7 +3210,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        public ExecutionEngineConfiguration ExecutionEngineConfiguration
+        public ExecutionEngineConfiguration? ExecutionEngineConfiguration
         {
             get
             {
@@ -3221,17 +3222,17 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        public void Run(IExecutive exec, object userData)
+        public void Run(IExecutive exec, object? userData)
         {
-            PfcExecutionContext pfcec = (PfcExecutionContext)userData;
+            PfcExecutionContext pfcec = (PfcExecutionContext)userData!;
             if (PfcStartRequested != null)
             {
-                PfcStartRequested((PfcExecutionContext)userData, null);
+                PfcStartRequested((PfcExecutionContext)userData!, null!);
             }
-            GetPermissionToStart(pfcec, null);
+            GetPermissionToStart(pfcec, null!);
             if (PfcStarting != null)
             {
-                PfcStarting((PfcExecutionContext)userData, null);
+                PfcStarting((PfcExecutionContext)userData!, null!);
             }
             ExecutionEngine.Run(exec, userData);
         }
@@ -3239,23 +3240,23 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// Occurs when PFC start requested, but before permission has been obtained to do so.
         /// </summary>
-        public event PfcAction PfcStartRequested;
+        public event PfcAction? PfcStartRequested;
 
         /// <summary>
         /// Occurs when PFC is starting.
         /// </summary>
-        public event PfcAction PfcStarting;
+        public event PfcAction? PfcStarting;
 
         /// <summary>
         /// Occurs when PFC is completing.
         /// </summary>
-        public event PfcAction PfcCompleting;
+        public event PfcAction? PfcCompleting;
 
         internal void FirePfcCompleting(PfcExecutionContext pfcec)
         {
             if (PfcCompleting != null)
             {
-                PfcCompleting(pfcec, null);
+                PfcCompleting(pfcec, null!);
             }
         }
 
@@ -3283,7 +3284,7 @@ namespace Highpoint.Sage.Graphs.PFC
             Debug.Assert(exec.CurrentEventType == ExecEventType.Detachable);
             if (EarliestStart != null && EarliestStart > exec.Now)
             {
-                exec.CurrentEventController.SuspendUntil(EarliestStart.Value);
+                exec.CurrentEventController!.SuspendUntil(EarliestStart.Value);
             }
 
             if (_precondition != null)
@@ -3303,8 +3304,8 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        private PfcAction _precondition = null;
-        public PfcAction Precondition
+        private PfcAction? _precondition;
+        public PfcAction? Precondition
         {
             set
             {
@@ -3330,7 +3331,7 @@ namespace Highpoint.Sage.Graphs.PFC
                     _executionEngine.StepStateChanged += new StepStateMachineEvent(executionEngine_StepStateChanged);
                     _executionEngine.TransitionStateChanged += new TransitionStateMachineEvent(executionEngine_TransitionStateChanged);
                 }
-                return _executionEngine;
+                return _executionEngine!;
             }
             set
             {
@@ -3338,7 +3339,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        void executionEngine_TransitionStateChanged(TransitionStateMachine tsm, object userData)
+        void executionEngine_TransitionStateChanged(TransitionStateMachine tsm, object? userData)
         {
             if (TransitionStateChanged != null)
             {
@@ -3346,7 +3347,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        void executionEngine_StepStateChanged(StepStateMachine ssm, object userData)
+        void executionEngine_StepStateChanged(StepStateMachine ssm, object? userData)
         {
             if (StepStateChanged != null)
             {
@@ -3354,25 +3355,25 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        public event StepStateMachineEvent StepStateChanged;
+        public event StepStateMachineEvent? StepStateChanged;
 
-        public event TransitionStateMachineEvent TransitionStateChanged;
+        public event TransitionStateMachineEvent? TransitionStateChanged;
 
     }
 
     internal class TransitionsByGuidSorter : IComparer<IPfcTransitionNode>
     {
-        public int Compare(IPfcTransitionNode x, IPfcTransitionNode y)
+        public int Compare(IPfcTransitionNode? x, IPfcTransitionNode? y)
         {
-            return GuidOps.Compare(x.Guid, y.Guid);
+            return GuidOps.Compare(x!.Guid, y!.Guid);
         }
     }
 
     internal class StepsByGuidSorter : IComparer<IPfcStepNode>
     {
-        public int Compare(IPfcStepNode x, IPfcStepNode y)
+        public int Compare(IPfcStepNode? x, IPfcStepNode? y)
         {
-            return GuidOps.Compare(x.Guid, y.Guid);
+            return GuidOps.Compare(x!.Guid, y!.Guid);
         }
     }
 }

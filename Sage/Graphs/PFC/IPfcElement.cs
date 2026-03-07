@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -31,7 +30,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// The parent ProcedureFunctionChart of this node.
         /// </summary>
-        IProcedureFunctionChart Parent
+        IProcedureFunctionChart? Parent
         {
             get; set;
         }
@@ -40,7 +39,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets some piece of arbitrary user data. This data is (currently) not serialized.
         /// </summary>
         /// <value>The user data.</value>
-        object UserData
+        object? UserData
         {
             get; set;
         }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -105,7 +104,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        static void DumpElementContents(IPfcElement element, StringBuilder sb, int indent)
+        static void DumpElementContents(IPfcElement? element, StringBuilder sb, int indent)
         {
             sb.Append("\r\n");
 

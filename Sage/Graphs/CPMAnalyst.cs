@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Diagnostics;
@@ -59,32 +58,32 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		private static readonly IList s_emptylist = Array.Empty<Edge>();
 
 		private bool m_analyzed = false;
-		private Stack<Vertex> m_traceStack;
+		private Stack<Vertex> m_traceStack = null!; // assigned in ctor
 
 		/// <summary>
 		/// The start vertex for the section of the graph that is to be analyzed.
 		/// </summary>
-		protected Vertex Start;
+		protected Vertex Start = null!;       // assigned in ctor via edge.PreVertex
 		/// <summary>
 		/// The finish vertex for the section of the graph that is to be analyzed.
 		/// </summary>
-		protected Vertex Finish;
+		protected Vertex Finish = null!;      // assigned in ctor via edge.PostVertex
 		/// <summary>
 		/// A hashtable of edge-related data compiled by this analyst. 
 		/// </summary>
-		protected Hashtable Edges;
+		protected Hashtable Edges = null!;        // initialized in Reset(), called from ctor
 		/// <summary>
 		/// A hashtable of vertex-related data compiled by this analyst. 
 		/// </summary>
-		protected Hashtable Vertices;
+		protected Hashtable Vertices = null!;     // initialized in Reset(), called from ctor
 		/// <summary>
 		/// A hashtable of vertices that this analyst knows to be pegged at certain times. 
 		/// </summary>
-		protected Hashtable VertexPegs;
+		protected Hashtable? VertexPegs;          // optional; may be null
 		/// <summary>
 		/// A hashtable of synchronizer-related data compiled by this analyst. 
 		/// </summary>
-		protected Hashtable Synchronizers;
+		protected Hashtable Synchronizers = null!; // initialized in Reset(), called from ctor
 		/// <summary>
 		/// Creates a CPMAnalyst that analyzes a given edge and all of its children.
 		/// </summary>
@@ -320,8 +319,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			}
 		}
 
-		private HashSet<Edge> m_verifiedEdges;
-		private StringBuilder m_sb;
+		private HashSet<Edge>? m_verifiedEdges;  // initialized only when s_diagnosticsValidation is true
+		private StringBuilder? m_sb;             // initialized only when s_diagnosticsValidation is true
 		private int m_errorCount;
 		private void ValidateResults(Vertex startVertex){
 			
@@ -487,20 +486,20 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		private void LogEdgeNotFoundError(string msg, Edge edge){
 			if ( s_logEdgeNotFoundError ) {
 				string logFilePath = @"./SOM_Analytical.txt";
-				Tasks.Task task = edge as Tasks.Task;
+				Tasks.Task? task = edge as Tasks.Task;
 				StreamWriter sw = new StreamWriter(logFilePath);
 				sw.WriteLine("\r\n::::::::::::::::Message::::::::::::::::\r\n" + msg + "\r\n");
 				sw.WriteLine("\r\n::::::::::::::::Call Stack::::::::::::::::\r\n");
 				StackTrace st = new StackTrace(true);
 				sw.WriteLine(st.ToString());
 				sw.WriteLine("\r\n::::::::::::::::Requested Edge::::::::::::::::\r\n");
-				sw.WriteLine("Name : " + edge.Name + "\r\nGuid : " + task.Guid + "\r\nHashCode : " + task.GetHashCode());
+				sw.WriteLine("Name : " + edge.Name + "\r\nGuid : " + task?.Guid + "\r\nHashCode : " + task?.GetHashCode());
 
 				sw.WriteLine("\r\n::::::::::::::::Known Edges::::::::::::::::\r\n");
 				foreach ( DictionaryEntry de in Edges ) {
 					Edge knownEdge = (Edge)de.Key;
 					EdgeData knownEdgeData = (EdgeData)de.Value;
-					Tasks.Task knownTask = knownEdge as Tasks.Task;
+					Tasks.Task? knownTask = knownEdge as Tasks.Task;
 					if ( knownTask != null ) {
 						sw.WriteLine("Name : " + knownTask.Name + "\r\nGuid : " + knownTask.Guid + "\r\nHashCode : " + knownTask.GetHashCode());
 					} else {
@@ -767,7 +766,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 	public class AnalysisFailedException : Exception {
         // For best practice guidelines regarding the creation of new exception types, see
         //    https://msdn.microsoft.com/en-us/library/5b2yeyab(v=vs.110).aspx
-        IList m_problemElements = null;
+        IList? m_problemElements = null;
 
 		#region protected ctors
 		/// <summary>
@@ -807,7 +806,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
         /// Gets the list of problem elements.
         /// </summary>
         /// <value>The problem elements.</value>
-		public IList ProblemElements { get { return m_problemElements; } }
+		public IList? ProblemElements { get { return m_problemElements; } }
 	}
 
 }

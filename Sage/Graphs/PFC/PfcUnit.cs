@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs.PFC
@@ -7,7 +7,7 @@ namespace Highpoint.Sage.Graphs.PFC
     {
 
         #region Private Fields
-        private string _name;
+        private string? _name;
         private int _sequenceNumber;
         #endregion 
 
@@ -21,7 +21,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #region IPfcUnit Members
 
-        public string Name
+        public string? Name
         {
             get
             {

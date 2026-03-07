@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.PFC.Execution;
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the expression that is attached to this transition node.
         /// </summary>
         /// <value>The expression.</value>
-        Expression Expression
+        Expression? Expression
         {
             get;
         }
@@ -25,7 +24,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets the 'user-friendly' value of this expression. Uses step names and macro names.
         /// </summary>
         /// <value>The expression value.</value>
-        string ExpressionUFValue
+        string? ExpressionUFValue
         {
             get; set;
         }
@@ -34,7 +33,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets the 'user-hostile' value of this expression. Uses guids in place of names.
         /// </summary>
         /// <value>The expression value.</value>
-        string ExpressionUHValue
+        string? ExpressionUHValue
         {
             get; set;
         }
@@ -43,7 +42,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the expanded value of this expression. Uses step names and expands macro names into their resultant names.
         /// </summary>
         /// <value>The expression expanded.</value>
-        string ExpressionExpandedValue
+        string? ExpressionExpandedValue
         {
             get;
         }
@@ -53,7 +52,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// evaluate unless overridden in the execution manager.
         /// </summary>
         /// <value>The default executable condition.</value>
-        ExecutableCondition ExpressionExecutable
+        ExecutableCondition? ExpressionExecutable
         {
             get; set;
         }

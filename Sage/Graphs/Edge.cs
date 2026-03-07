@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -51,47 +50,47 @@ namespace Highpoint.Sage.Graphs
 
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Edge");
         private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
-        private List<Edge> _childEdges = null;      // My children - all of them.
-        private List<Ligature> _childLigatures = null;  // Ligatures that connect me, the task, to my children.
+        private List<Edge>? _childEdges = null;      // My children - all of them.
+        private List<Ligature>? _childLigatures = null;  // Ligatures that connect me, the task, to my children.
         private static readonly IList _emptyCollection = Array.Empty<Edge>();
-        private EdgeExecutionCompletionSignaler _eecs;
-        private object _channel;
-        private List<IDictionary> _activeContexts = null;
-        private StaticEdgeEvent _onChildGainedPredecessorHandler;
-        private StaticEdgeEvent _onChildGainedSuccessorHandler;
-        private StaticEdgeEvent _onChildLostPredecessorHandler;
-        private StaticEdgeEvent _onChildLostSuccessorHandler;
+        private EdgeExecutionCompletionSignaler _eecs = null!; // Set in constructor
+        private object _channel = null!; // Set in constructor
+        private List<IDictionary> _activeContexts = null!; // Set in constructor
+        private StaticEdgeEvent _onChildGainedPredecessorHandler = null!; // Set in constructor
+        private StaticEdgeEvent _onChildGainedSuccessorHandler = null!; // Set in constructor
+        private StaticEdgeEvent _onChildLostPredecessorHandler = null!; // Set in constructor
+        private StaticEdgeEvent _onChildLostSuccessorHandler = null!; // Set in constructor
 
         /// <summary>A description of this edge</summary>
-		protected string _description = null;
+		protected string? _description = null;
 
-        private EdgeExecutionDelegate _myExecutionDelegate;
+        private EdgeExecutionDelegate? _myExecutionDelegate;
 
         private int _cloneNumber = 0;
 
-        private object _ref = null;
+        private object? _ref = null;
 
-        private Validity.ValidationService _vm = null;
-        private IList m_successorList = null;
+        private Validity.ValidationService? _vm = null;
+        private IList? m_successorList = null;
 
         #endregion 
 
         /// <summary>
         /// This edge's pre-vertex.
         /// </summary>
-		protected Vertex Pre = null;
+		protected Vertex? Pre = null;
         /// <summary>
         /// This edge's post-vertex.
         /// </summary>
-		protected Vertex Post = null;
+		protected Vertex? Post = null;
         /// <summary>
         /// This edge's Name.
         /// </summary>
-		protected string _name = null;
+protected string _name = null!; // Set in constructor
         /// <summary>
         /// This edge's parent edge.
         /// </summary>
-		protected Edge ParentEdge = null;
+		protected Edge? ParentEdge = null;
 
         /// <summary>
         /// An EdgeFiringManager that is told to fire all edges that are marked with a NullChannelMarker will
@@ -102,23 +101,23 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// Fired after this edge is cloned.
         /// </summary>
-        public event CloneHandler CloneEvent;
+        public event CloneHandler? CloneEvent;
         /// <summary>
         /// Fired after an edge has been notified that it may start, and immediately prior to calling the <see cref="EdgeExecutionDelegate"/> which contains the application code.
         /// </summary>
-        public event EdgeEvent EdgeExecutionStartingEvent;
+        public event EdgeEvent? EdgeExecutionStartingEvent;
         /// <summary>
         /// Called as soon as the application code in the <see cref="EdgeExecutionDelegate"/> has finished.
         /// </summary>
-		public event EdgeEvent EdgeExecutionFinishingEvent;
+		public event EdgeEvent? EdgeExecutionFinishingEvent;
         /// <summary>
         /// Called as an edge's pre-vertex is starting to fire.
         /// </summary>
-        public event EdgeEvent EdgeStartingEvent;
+        public event EdgeEvent? EdgeStartingEvent;
         /// <summary>
         /// Called as an edge's post-vertex is starting to fire.
         /// </summary>
-		public event EdgeEvent EdgeFinishingEvent;
+		public event EdgeEvent? EdgeFinishingEvent;
 
 #if DEBUG
         string[] m_breakpointEvents = new string[] { };//{"GetVat","Charge 1"};
@@ -127,13 +126,13 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// Creates a new instance of the <see cref="T:Edge"/> class. This implementation is provided in support of serialization.
         /// </summary>
-        public Edge() : this((string)null) { }
+        public Edge() : this((string?)null) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:Edge"/> class with a given name.
         /// </summary>
         /// <param name="name">The user-friendly name of this object. Typically not required to be unique in a pan-model context.</param>
-		public Edge(string name)
+		public Edge(string? name)
         {
             _name = (name == null ? ToString() : name);
             CreateVertices();
@@ -191,11 +190,11 @@ namespace Highpoint.Sage.Graphs
         {
             add
             {
-                Pre.PreEdgeAddedEvent += value;
+                Pre!.PreEdgeAddedEvent += value; // Pre non-null after CreateVertices()
             }
             remove
             {
-                Pre.PreEdgeAddedEvent -= value;
+                Pre!.PreEdgeAddedEvent -= value; // Pre non-null after CreateVertices()
             }
         }
         /// <summary>
@@ -205,11 +204,11 @@ namespace Highpoint.Sage.Graphs
         {
             add
             {
-                Pre.PreEdgeRemovedEvent += value;
+                Pre!.PreEdgeRemovedEvent += value; // Pre non-null after CreateVertices()
             }
             remove
             {
-                Pre.PreEdgeRemovedEvent -= value;
+                Pre!.PreEdgeRemovedEvent -= value; // Pre non-null after CreateVertices()
             }
         }
         /// <summary>
@@ -219,11 +218,11 @@ namespace Highpoint.Sage.Graphs
         {
             add
             {
-                Post.PostEdgeAddedEvent += value;
+                Post!.PostEdgeAddedEvent += value; // Post non-null after CreateVertices()
             }
             remove
             {
-                Post.PostEdgeAddedEvent -= value;
+                Post!.PostEdgeAddedEvent -= value; // Post non-null after CreateVertices()
             }
         }
         /// <summary>
@@ -233,18 +232,18 @@ namespace Highpoint.Sage.Graphs
         {
             add
             {
-                Post.PostEdgeRemovedEvent += value;
+                Post!.PostEdgeRemovedEvent += value; // Post non-null after CreateVertices()
             }
             remove
             {
-                Post.PostEdgeRemovedEvent -= value;
+                Post!.PostEdgeRemovedEvent -= value; // Post non-null after CreateVertices()
             }
         }
 
         /// <summary>
         /// The preVertex to this edge.
         /// </summary>
-        public Vertex PreVertex
+        public Vertex? PreVertex
         {
             get
             {
@@ -255,7 +254,7 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// The postVertes to this edge.
         /// </summary>
-        public Vertex PostVertex
+        public Vertex? PostVertex
         {
             get
             {
@@ -269,7 +268,7 @@ namespace Highpoint.Sage.Graphs
         /// The channel can be null, if there is no branch manager, or if the provided
         /// branch manager allows it.
         /// </summary>
-        public object Channel
+        public object? Channel
         {
             get
             {
@@ -322,10 +321,10 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-            AddLigature(preEdge.PostVertex, PreVertex);
+                _vm!.Suspend();
+            AddLigature(preEdge.PostVertex!, PreVertex!); // PostVertex/PreVertex non-null in established graphs
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -339,10 +338,10 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-            AddLigature(PostVertex, postEdge.PreVertex);
+                _vm!.Suspend();
+            AddLigature(PostVertex!, postEdge.PreVertex!); // PostVertex/PreVertex non-null in established graphs
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -357,7 +356,7 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             if (preEdge is Ligature)
             {
                 preEdge.Disconnect();
@@ -367,7 +366,7 @@ namespace Highpoint.Sage.Graphs
                 RemoveLigature(preEdge, this);
             }
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -382,7 +381,7 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             if (postEdge is Ligature)
             {
                 postEdge.Disconnect();
@@ -392,7 +391,7 @@ namespace Highpoint.Sage.Graphs
                 RemoveLigature(this, postEdge);
             }
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -405,11 +404,11 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             preEdge.AddSuccessor(this);
             postEdge.AddPredecessor(this);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -423,10 +422,10 @@ namespace Highpoint.Sage.Graphs
             {
                 bool hasVm = (_vm != null);
                 if (hasVm)
-                    _vm.Suspend();
+                    _vm!.Suspend();
                 ParentEdge.RemoveChildEdge(this);
                 if (hasVm)
-                    _vm.Resume();
+                    _vm!.Resume();
             }
 
             // If we were to iterate through the Edges, the removal of the predecessor
@@ -440,10 +439,10 @@ namespace Highpoint.Sage.Graphs
                     throw new ApplicationException("Non-ligature where a ligature was expected!!!");
                 bool hasVm = (_vm != null);
                 if (hasVm)
-                    _vm.Suspend();
+                    _vm!.Suspend();
                 e.Disconnect();
                 if (hasVm)
-                    _vm.Resume();
+                    _vm!.Resume();
             }
 
             tmp = new ArrayList(SuccessorEdges);
@@ -453,10 +452,10 @@ namespace Highpoint.Sage.Graphs
                     throw new ApplicationException("Non-ligature where a ligature was expected!!!");
                 bool hasVm = (_vm != null);
                 if (hasVm)
-                    _vm.Suspend();
+                    _vm!.Suspend();
                 e.Disconnect();
                 if (hasVm)
-                    _vm.Resume();
+                    _vm!.Resume();
             }
         }
 
@@ -472,12 +471,12 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-            Edge retval = AddLigature(PreVertex, slaveEdge.PreVertex);
+                _vm!.Suspend();
+            Edge retval = AddLigature(PreVertex!, slaveEdge.PreVertex!)!; // PreVertex non-null after CreateVertices()
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddCostart, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
             return retval;
         }
 
@@ -489,12 +488,12 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-            RemoveLigature(PreVertex, slaveEdge.PreVertex);
+                _vm!.Suspend();
+            RemoveLigature(PreVertex!, slaveEdge.PreVertex!); // PreVertex non-null after CreateVertices()
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.RemoveCostart, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -508,12 +507,12 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-			Edge retval = AddLigature(PostVertex,slaveEdge.PostVertex);
+                _vm!.Suspend();
+			Edge retval = AddLigature(PostVertex!, slaveEdge.PostVertex!)!; // PostVertex non-null after CreateVertices()
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddCofinish, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
             return retval;
         }
 
@@ -525,12 +524,12 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-            RemoveLigature(PostVertex, slaveEdge.PostVertex);
+                _vm!.Suspend();
+            RemoveLigature(PostVertex!, slaveEdge.PostVertex!); // PostVertex non-null after CreateVertices()
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.RemoveCofinish, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
 #if NOT_IMPLEMENTED
@@ -560,7 +559,7 @@ namespace Highpoint.Sage.Graphs
         {
             get
             {
-                return Pre.PredecessorEdges;
+                return Pre!.PredecessorEdges; // Pre non-null after CreateVertices()
             }
         }
 
@@ -572,7 +571,7 @@ namespace Highpoint.Sage.Graphs
         {
             get
             {
-                return Post.SuccessorEdges;
+                return Post!.SuccessorEdges; // Post non-null after CreateVertices()
             }
         }
 
@@ -591,14 +590,14 @@ namespace Highpoint.Sage.Graphs
         /// <param name="graphContext">The graph context.</param>
 		public void Start(IDictionary graphContext)
         {
-            PreVertex.FireVertex(graphContext);
+            PreVertex!.FireVertex(graphContext); // PreVertex non-null after CreateVertices()
         }
 
         /// <summary>
         /// Gets the parent edge to this one. If the graph is not hierarchical, this will be null.
         /// </summary>
         /// <returns></returns>
-		public IEdge GetParent()
+		public IEdge? GetParent()
         {
             return ParentEdge;
         }
@@ -607,7 +606,7 @@ namespace Highpoint.Sage.Graphs
         /// Gets or sets the parent edge to this one. If the graph is not hierarchical, this will be null.
         /// </summary>
         /// <value>The parent.</value>
-		protected Edge Parent
+		protected Edge? Parent
         {
             get
             {
@@ -622,7 +621,7 @@ namespace Highpoint.Sage.Graphs
                 }
                 else
                 {
-                    ParentEdge.RemoveChildEdge(this);
+                    ParentEdge!.RemoveChildEdge(this); // ParentEdge non-null: removing existing parent
                     ParentEdge = null;
                 }
             }
@@ -655,16 +654,16 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             for (int i = 1; i < listOfEdges.Count; i++)
             {
-                Edge e0 = (Edge)listOfEdges[i - 1];
-                Edge e1 = (Edge)listOfEdges[i];
+                Edge e0 = (Edge)listOfEdges[i - 1]!;
+                Edge e1 = (Edge)listOfEdges[i]!;
                 e0.AddSuccessor(e1);
             }
             AddChildEdges(listOfEdges);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -679,7 +678,7 @@ namespace Highpoint.Sage.Graphs
                 throw new ApplicationException("You are adding children to an edge that already has children. This is not yet supported.");
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             _childEdges = new List<Edge>(edges.Count);
             _childLigatures = new List<Ligature>();
             foreach (Edge edge in edges)
@@ -689,7 +688,7 @@ namespace Highpoint.Sage.Graphs
                     StructureChangeHandler(this, StructureChangeType.AddChildEdge, false);
             }
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -703,7 +702,7 @@ namespace Highpoint.Sage.Graphs
         {
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             if (_childEdges == null)
                 _childEdges = new List<Edge>();
             if (_childLigatures == null)
@@ -722,7 +721,7 @@ namespace Highpoint.Sage.Graphs
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddChildEdge, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         /// <summary>
@@ -730,15 +729,15 @@ namespace Highpoint.Sage.Graphs
         /// and their pre-vertices, and the parent's post-vertex and their post-vertices.)
         /// </summary>
         /// <returns>A list of the edges that were removed as children.</returns>
-		public virtual IList RemoveChildEdges()
+		public virtual IList? RemoveChildEdges()
         {
             if (_childLigatures == null)
                 return null;
 
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
-            List<Edge> childEdgeBuffer = new List<Edge>(_childEdges);
+                _vm!.Suspend();
+            List<Edge> childEdgeBuffer = new List<Edge>(_childEdges!); // _childEdges non-null when _childLigatures non-null
             List<Ligature> childLigBuffer = new List<Ligature>(_childLigatures);
 
             foreach (Edge child in childEdgeBuffer)
@@ -758,7 +757,7 @@ namespace Highpoint.Sage.Graphs
             if (StructureChangeHandler != null)
                 StructureChangeHandler(this, StructureChangeType.AddChildEdge, false);
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
             return childEdgeBuffer;
         }
 
@@ -772,11 +771,11 @@ namespace Highpoint.Sage.Graphs
         /// </returns>
         public virtual bool RemoveChildEdge(Edge child)
         {
-            if (!_childEdges.Contains(child))
+            if (!_childEdges!.Contains(child)) // _childEdges non-null when children exist
                 return false;
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             _childEdges.Remove(child);
             child.ParentEdge = null;
             child.GainedPredecessorEvent -= _onChildGainedPredecessorHandler;
@@ -786,10 +785,10 @@ namespace Highpoint.Sage.Graphs
 
 
             ArrayList ligaturesToDisconnect = new ArrayList();
-            foreach (Ligature childLigature in _childLigatures)
+            foreach (Ligature childLigature in _childLigatures!)
             {
-                if (childLigature.PreVertex.PrincipalEdge.Equals(child) ||
-                    childLigature.PostVertex.PrincipalEdge.Equals(child))
+                if (childLigature.PreVertex!.PrincipalEdge.Equals(child) ||
+                    childLigature.PostVertex!.PrincipalEdge.Equals(child))
                 {
                     ligaturesToDisconnect.Add(childLigature);
                 }
@@ -804,7 +803,7 @@ namespace Highpoint.Sage.Graphs
 
 
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
             return true;
         }
 
@@ -814,11 +813,11 @@ namespace Highpoint.Sage.Graphs
             // Add a child Ligature.
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             if (child.PredecessorEdges.Count == 0)
-                _childLigatures.Add((Ligature)AddCostart(child));
+                _childLigatures!.Add((Ligature)AddCostart(child)); // _childLigatures non-null when children exist
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         private void OnChildLostSuccessor(Edge child)
@@ -827,35 +826,35 @@ namespace Highpoint.Sage.Graphs
             // Was, until 1/25/2004 : if ( child.SuccessorEdges.Count == 0 ) m_childLigatures.Add(AddCofinish(child));
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             if (child.SuccessorEdges.Count == 0)
-                _childLigatures.Add((Ligature)child.AddCofinish(this));
+                _childLigatures!.Add((Ligature)child.AddCofinish(this)); // _childLigatures non-null when children exist
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         private void OnChildGainedPredecessor(Edge child)
         {
             // If the child has only one predecessor and it's the ligature to parent, ignore this.
             if ((child.PredecessorEdges.Count == 1) &&
-                ((Edge)child.PredecessorEdges[0]).PreVertex.PrincipalEdge.Equals(this))
+                ((Edge)child.PredecessorEdges[0]!).PreVertex!.PrincipalEdge.Equals(this))
                 return;
 
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
             // Find the ligature-to-this-child
-            Ligature lttc = null;
-            foreach (Ligature childLigature in _childLigatures)
+            Ligature? lttc = null;
+            foreach (Ligature childLigature in _childLigatures!) // non-null when children exist
             {
-                if (childLigature.PostVertex.PrincipalEdge.Equals(child))
+                if (childLigature.PostVertex!.PrincipalEdge.Equals(child))
                     lttc = childLigature;
             }
 
             if (lttc == null)
             {
                 if (hasVm)
-                    _vm.Resume();
+                    _vm!.Resume();
                 return;
             }
 
@@ -865,7 +864,7 @@ namespace Highpoint.Sage.Graphs
             {
                 Edge edgePred = childPred;
                 while (edgePred is Ligature)
-                    edgePred = edgePred.PreVertex.PrincipalEdge;
+                    edgePred = edgePred.PreVertex!.PrincipalEdge; // PreVertex non-null on established edges
                 if (edgePred.Parent == this)
                 {
                     _childLigatures.Remove(lttc);
@@ -874,25 +873,25 @@ namespace Highpoint.Sage.Graphs
                 }
             }
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
         }
 
         private void OnChildGainedSuccessor(Edge child)
         {
             // If the child has only one successor and it's the ligature to parent, ignore this.
             if ((child.SuccessorEdges.Count == 1) &&
-                ((Edge)child.SuccessorEdges[0]).PostVertex.PrincipalEdge.Equals(this))
+                ((Edge)child.SuccessorEdges[0]!).PostVertex!.PrincipalEdge.Equals(this))
                 return;
 
             bool hasVm = (_vm != null);
             if (hasVm)
-                _vm.Suspend();
+                _vm!.Suspend();
 
             // Find the ligature-to-this-child
-            Ligature lttc = null;
-            foreach (Ligature childLigature in _childLigatures)
+            Ligature? lttc = null;
+            foreach (Ligature childLigature in _childLigatures!) // non-null when children exist
             {
-                if (childLigature.PreVertex.PrincipalEdge.Equals(child))
+                if (childLigature.PreVertex!.PrincipalEdge.Equals(child))
                     lttc = childLigature;
             }
 
@@ -905,7 +904,7 @@ namespace Highpoint.Sage.Graphs
                 {
                     Edge edgeSucc = childSucc;
                     while (edgeSucc is Ligature)
-                        edgeSucc = edgeSucc.PostVertex.PrincipalEdge;
+                        edgeSucc = edgeSucc.PostVertex!.PrincipalEdge; // PostVertex non-null on established edges
                     if (edgeSucc.Parent == this)
                     {
                         _childLigatures.Remove(lttc);
@@ -916,7 +915,7 @@ namespace Highpoint.Sage.Graphs
             }
 
             if (hasVm)
-                _vm.Resume();
+                _vm!.Resume();
 
         }
 
@@ -954,7 +953,7 @@ namespace Highpoint.Sage.Graphs
         /// Gets or sets the execution delegate that this edge uses to call application code.
         /// </summary>
         /// <value>The execution delegate.</value>
-        public EdgeExecutionDelegate ExecutionDelegate
+        public EdgeExecutionDelegate? ExecutionDelegate
         {
             get
             {
@@ -994,7 +993,7 @@ namespace Highpoint.Sage.Graphs
 #if DEBUG
             if (_managePostMortemData)
             {
-                PmData pmData = (PmData)graphContext["PostMortemData"];
+                PmData pmData = (PmData)graphContext["PostMortemData"]!;
                 pmData.EdgesFired.Add(this);
             }
 #endif // DEBUG
@@ -1055,14 +1054,14 @@ namespace Highpoint.Sage.Graphs
         /// <param name="from">The vertex that is to become the preVertex of the new edge.</param>
         /// <param name="to">The vertex that is to become the postVertex of the new edge.</param>
         /// <returns>The edge that joins the two vertices.</returns>
-        public static Edge Connect(Vertex from, Vertex to)
+        public static Edge? Connect(Vertex from, Vertex to)
         {
-            Edge e = AddLigature(from, to);
+            Edge? e = AddLigature(from, to);
             if (e == null)
             {
                 foreach (Edge edge in from.SuccessorEdges)
                 {
-                    if (edge.PostVertex.Equals(to))
+                    if (edge.PostVertex!.Equals(to)) // PostVertex non-null in established graph edges
                         e = edge;
                 }
             }
@@ -1081,10 +1080,10 @@ namespace Highpoint.Sage.Graphs
         {
             foreach (Edge e in from.SuccessorEdges)
             {
-                if (e.PostVertex.Equals(to))
+                if (e.PostVertex!.Equals(to))
                 {
-                    e.PostVertex.RemovePreEdge(e);
-                    e.PreVertex.RemovePostEdge(e);
+                    e.PostVertex!.RemovePreEdge(e);
+                    e.PreVertex!.RemovePostEdge(e);
                     if (!deleteAllSuchEdges)
                         return;
                 }
@@ -1098,11 +1097,11 @@ namespace Highpoint.Sage.Graphs
         /// <param name="from">The 'from' vertex</param>
         /// <param name="to">The 'to' vertex</param>
         /// <returns>The new ligature.</returns>
-		internal static Ligature AddLigature(Vertex from, Vertex to)
+		internal static Ligature? AddLigature(Vertex from, Vertex to)
         {
             foreach (Edge edge in from.SuccessorEdges)
             {
-                if (edge.PostVertex.Equals(to))
+                if (edge.PostVertex!.Equals(to))
                 {
                     //					if ( m_diagnostics ) {
                     //						_Debug.WriteLine("Skipping addition of redundant ligature, " + Ligature.CreateName(from,to));
@@ -1124,7 +1123,7 @@ namespace Highpoint.Sage.Graphs
             //string name = Ligature.CreateName(from,to);
             foreach (Edge e in from.SuccessorEdges)
             {
-                if (e is Ligature && e.Post.Equals(to))
+                if (e is Ligature && e.Post!.Equals(to))
                 {
                     ((Ligature)e).Disconnect();
                     break;
@@ -1140,9 +1139,9 @@ namespace Highpoint.Sage.Graphs
         protected static void RemoveLigature(Edge from, Edge to)
         {
             //string name = Ligature.CreateName(from,to);
-            foreach (Edge e in from.PostVertex.SuccessorEdges)
+            foreach (Edge e in from.PostVertex!.SuccessorEdges)
             {
-                if (e is Ligature && e.PostVertex.Equals(to.PreVertex))
+                if (e is Ligature && e.PostVertex!.Equals(to.PreVertex))
                 {
                     ((Ligature)e).Disconnect();
                     break;
@@ -1177,7 +1176,7 @@ namespace Highpoint.Sage.Graphs
 
             UtilRef = clone;
 
-            ArrayList tmpKids = (ChildEdges == _emptyCollection ? null : new ArrayList());
+            ArrayList? tmpKids = (ChildEdges == _emptyCollection ? null : new ArrayList());
             if (tmpKids != null)
             {
                 foreach (Edge origChild in ChildEdges)
@@ -1189,7 +1188,7 @@ namespace Highpoint.Sage.Graphs
                 ((Edge)clone).PopulateForwardEdgesFromMyVertex(this, Vertex.WhichVertex.Pre);
                 foreach (Edge origChild in ChildEdges)
                 {
-                    Edge clonedChild = (Edge)origChild.UtilRef;
+                    Edge clonedChild = (Edge)origChild.UtilRef!; // UtilRef was just set to childClone above
                     clonedChild.PopulateForwardEdgesFromMyVertex(origChild, Vertex.WhichVertex.Pre);
                     clonedChild.PopulateForwardEdgesFromMyVertex(origChild, Vertex.WhichVertex.Post);
                 }
@@ -1218,18 +1217,18 @@ namespace Highpoint.Sage.Graphs
 
         private void PopulateForwardEdgesFromMyVertex(Edge original, Vertex.WhichVertex whichVertex)
         {
-            Vertex origLigaturePre = original.GetVertex(whichVertex);
-            Vertex cloneLigaturePre = GetVertex(whichVertex);
+            Vertex origLigaturePre = original.GetVertex(whichVertex)!; // non-null for Pre/Post
+            Vertex cloneLigaturePre = GetVertex(whichVertex)!; // non-null for Pre/Post
             foreach (Edge originalLigature in origLigaturePre.SuccessorEdges)
             {
                 if (originalLigature is Ligature)
                 {
-                    Edge originalTarget = originalLigature.PostVertex.PrincipalEdge;
-                    Edge cloneTarget = (Edge)originalTarget.UtilRef;
+                    Edge originalTarget = originalLigature.PostVertex!.PrincipalEdge; // PostVertex non-null on ligatures
+                    Edge? cloneTarget = (Edge?)originalTarget.UtilRef;
                     if (cloneTarget == null)
                         continue;
                     Vertex.WhichVertex targetRole = originalLigature.PostVertex.Role;
-                    Vertex cloneLigaturePost = cloneTarget.GetVertex(targetRole);
+                    Vertex cloneLigaturePost = cloneTarget.GetVertex(targetRole)!; // non-null for Pre/Post
                     AddLigature(cloneLigaturePre, cloneLigaturePost);
                 }
             }
@@ -1240,7 +1239,7 @@ namespace Highpoint.Sage.Graphs
         /// </summary>
         /// <param name="whichVertex">Which vertex is desired (pre or post).</param>
         /// <returns></returns>
-		public Vertex GetVertex(Vertex.WhichVertex whichVertex)
+		public Vertex? GetVertex(Vertex.WhichVertex whichVertex)
         {
             if (whichVertex == Vertex.WhichVertex.Pre)
                 return Pre;
@@ -1252,7 +1251,7 @@ namespace Highpoint.Sage.Graphs
         /// for short periods. The cloning mechanism, for example, uses it during cloning.
         /// </summary>
         /// <value>The util ref.</value>
-		public object UtilRef
+		public object? UtilRef
         {
             get
             {
@@ -1277,7 +1276,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="otherEdge">The edge whose completion this edge will await.</param>
 		public void Join(IDictionary graphContext, IExecutive exec, Edge otherEdge)
         {
-            new EdgeJoiner(graphContext, exec.CurrentEventController, otherEdge).Join(graphContext);
+            new EdgeJoiner(graphContext, exec.CurrentEventController!, otherEdge).Join(graphContext);
         }
 
         /// <summary>
@@ -1287,7 +1286,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="exec">The executive for the model to which this edge belongs.</param>
         public void Yield(IExecutive exec)
         {
-            exec.CurrentEventController.SuspendUntil(exec.Now);
+            exec.CurrentEventController!.SuspendUntil(exec.Now);
         }
 
         /// <summary>
@@ -1401,14 +1400,14 @@ namespace Highpoint.Sage.Graphs
                     _childLigatures.Add(ligature);
                 }
             }
-            ParentEdge = (Edge)xmlsc.LoadObject("ParentEdge");
-            Post = (Vertex)xmlsc.LoadObject("PostVertex");
+            ParentEdge = (Edge?)xmlsc.LoadObject("ParentEdge");
+            Post = (Vertex?)xmlsc.LoadObject("PostVertex");
             //_Debug.WriteLine("Assigning " + m_post.Name + "(" + m_post.GetHashCode()+ ") into " + this.Name +"(" + this.GetHashCode()+ ").");
-            Pre = (Vertex)xmlsc.LoadObject("PreVertex");
+            Pre = (Vertex?)xmlsc.LoadObject("PreVertex");
             //_Debug.WriteLine("Assigning " + m_pre.Name + "(" + m_pre.GetHashCode()+ ") into " + this.Name +"(" + this.GetHashCode()+ ").");
-            ExecutionDelegate = (EdgeExecutionDelegate)xmlsc.LoadObject("ExecutionDelegate");
-            EdgeExecutionStartingEvent = (EdgeEvent)xmlsc.LoadObject("EESE");
-            EdgeExecutionFinishingEvent = (EdgeEvent)xmlsc.LoadObject("EEFE");
+            ExecutionDelegate = (EdgeExecutionDelegate?)xmlsc.LoadObject("ExecutionDelegate");
+            EdgeExecutionStartingEvent = (EdgeEvent?)xmlsc.LoadObject("EESE");
+            EdgeExecutionFinishingEvent = (EdgeEvent?)xmlsc.LoadObject("EEFE");
             //EdgeExecutionCompletionSignaler = (EdgeExecutionCompletionSignaler)xmlsc.LoadObject("EECS");
 
             #region >>> Stuff from the constructor <<<
@@ -1424,8 +1423,8 @@ namespace Highpoint.Sage.Graphs
             #endregion
 
             #region >>> Stuff from 'CreateVertices()' that isn't part of deserialization. <<<
-            Pre.BeforeVertexFiringEvent += new VertexEvent(OnPreVertexStartingToFire);
-            Post.BeforeVertexFiringEvent += new VertexEvent(OnPostVertexStartingToFire);
+            Pre!.BeforeVertexFiringEvent += new VertexEvent(OnPreVertexStartingToFire); // Pre non-null after deserialization
+            Post!.BeforeVertexFiringEvent += new VertexEvent(OnPostVertexStartingToFire); // Post non-null after deserialization
             #endregion
 
             //_Debug.WriteLine("Just deserialized " + m_name + ", and it has " + ChildEdges.Count + " child edges.");
@@ -1438,13 +1437,13 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// Fired when the Validation Service determines that this edge's validity has changed.
         /// </summary>
-        public event Validity.ValidityChangeHandler ValidityChangeEvent;
+        public event Validity.ValidityChangeHandler? ValidityChangeEvent;
 
         /// <summary>
         /// Gets or sets the validation service that oversees the implementer.
         /// </summary>
         /// <value>The validation service.</value>
-		public Validity.ValidationService ValidationService
+		public Validity.ValidationService? ValidationService
         {
             get
             {
@@ -1477,7 +1476,7 @@ namespace Highpoint.Sage.Graphs
         /// Gets the parent (from a perspective of validity) of the implementer.
         /// </summary>
         /// <returns></returns>
-		Validity.IHasValidity Validity.IHasValidity.GetParent()
+		Validity.IHasValidity? Validity.IHasValidity.GetParent()
         {
             return Parent;
         }
@@ -1498,7 +1497,7 @@ namespace Highpoint.Sage.Graphs
 		public virtual IList GetSuccessors()
         {
             if (m_successorList == null)
-                m_successorList = new ArrayList(new Validity.IHasValidity[] { Post });
+                m_successorList = new ArrayList(new Validity.IHasValidity[] { Post! }); // Post non-null after CreateVertices()
             return m_successorList;
         }
 
@@ -1524,7 +1523,7 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// This event is fired any time the graph's structure changes.
         /// </summary>
-        public event StructureChangeHandler StructureChangeHandler;
+        public event StructureChangeHandler? StructureChangeHandler;
 
         #endregion
 
@@ -1578,13 +1577,13 @@ namespace Highpoint.Sage.Graphs
         public void Join(IDictionary graphContext)
         {
             _otherEdge.EdgeFinishingEvent += _edgeFinishingEvent;
-            IDetachableEventController idec = (IDetachableEventController)graphContext[this];
+            IDetachableEventController idec = (IDetachableEventController)graphContext[this]!; // Guaranteed non-null: set in constructor
             idec.Suspend();
         }
 
         private void OtherEdgeCompleted(IDictionary graphContext, Edge otherEdge)
         {
-            IDetachableEventController idec = ((IDetachableEventController)graphContext[this]);
+            IDetachableEventController idec = (IDetachableEventController)graphContext[this]!; // Guaranteed non-null: set in constructor
             if (idec.IsWaiting())
             {
                 idec.Resume();

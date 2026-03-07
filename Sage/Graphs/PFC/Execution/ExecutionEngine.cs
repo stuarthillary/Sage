@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -25,7 +24,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         public ExecutionEngine(IProcedureFunctionChart pfc, ExecutionEngineConfiguration eec)
         {
             _executionEngineConfiguration = eec;
-            _model = pfc.Model;
+            _model = pfc.Model!;
             _stepStateMachines = new Dictionary<IPfcStepNode, StepStateMachine>();
             _transitionStateMachines = new Dictionary<IPfcTransitionNode, TransitionStateMachine>();
 
@@ -58,7 +57,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 if (step.MyStepStateMachine.SuccessorStateMachines.Count == 0)
                 {
                     string message =
-                        $"Step {step.Name} in PFC {step.Parent.Name} has no successor transition. A PFC must end with a termination transition. (Did you acquire an Execution Engine while the Pfc was still under construction?)";
+                        $"Step {step.Name} in PFC {step.Parent!.Name} has no successor transition. A PFC must end with a termination transition. (Did you acquire an Execution Engine while the Pfc was still under construction?)";
                     throw new ApplicationException(message);
                 }
             }
@@ -83,12 +82,12 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             _startStep = _stepStateMachines[startSteps[0]];
         }
 
-        void aTSM_TransitionStateChanged(TransitionStateMachine tsm, object userData)
+        void aTSM_TransitionStateChanged(TransitionStateMachine tsm, object? userData)
         {
             TransitionStateChanged?.Invoke(tsm, userData);
         }
 
-        void anSSM_StepStateChanged(StepStateMachine ssm, object userData)
+        void anSSM_StepStateChanged(StepStateMachine ssm, object? userData)
         {
             StepStateChanged?.Invoke(ssm, userData);
         }
@@ -99,22 +98,22 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         /// </summary>
         /// <param name="exec">The exec.</param>
         /// <param name="userData">The user data.</param>
-        public void Run(IExecutive exec, object userData)
+        public void Run(IExecutive exec, object? userData)
         {
 
             if (exec.CurrentEventType != ExecEventType.Detachable)
             {
                 _model.Executive.RequestEvent(
-                    delegate (IExecutive exec1, object userData1)
+                    delegate (IExecutive exec1, object? userData1)
                     {
-                        Run(exec, (IDictionary)userData1);
+                        Run(exec, (IDictionary)userData1!);
                     }, exec.Now, exec.CurrentPriorityLevel, userData, ExecEventType.Detachable);
             }
             else
             {
                 // We already got this permission as a part of the permission to start the PFC.
                 //m_startStep.GetStartPermission((IDictionary)userData);
-                _startStep.Start((PfcExecutionContext)userData);
+                _startStep.Start((PfcExecutionContext)userData!);
             }
         }
 
@@ -128,8 +127,8 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             return _transitionStateMachines[trans];
         }
 
-        public event StepStateMachineEvent StepStateChanged;
-        public event TransitionStateMachineEvent TransitionStateChanged;
+        public event StepStateMachineEvent? StepStateChanged;
+        public event TransitionStateMachineEvent? TransitionStateChanged;
 
     }
 }

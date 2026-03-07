@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Diagnostics;
@@ -13,7 +12,7 @@ namespace Highpoint.Sage.Graphs.Tasks
     public class TaskList : IXmlPersistable, IModelObject
     {
 
-        private Task _masterTask;
+        private Task _masterTask = null!; // Set in constructor or DeserializeFrom
         private readonly ArrayList _list;
         private readonly Hashtable _hashtable;
 
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -73,8 +72,8 @@ namespace Highpoint.Sage.Graphs.Tasks
             }
             else
             { // actual insertion...
-                Task pred = (Task)_list[predIndex];
-                Task succ = (Task)_list[predIndex + 1];
+                Task pred = (Task)_list[predIndex]!;
+                Task succ = (Task)_list[predIndex + 1]!;
                 _list.Insert(predIndex + 1, subject);
                 //_Debug.WriteLine("Appending task " + subject.Name + " with Guid " + subject.Guid + " under task list for task " + MasterTask.Name + " which currently has " + m_hashtable.Count + " entries.");
                 _hashtable.Add(subject.Guid, subject);
@@ -100,14 +99,14 @@ namespace Highpoint.Sage.Graphs.Tasks
                     throw new ApplicationException("In \"AddTaskBefore\" operation, the ChildTaskList for " + _masterTask.Name + " does not contain the successor, " + successor.Name + ", so the new task, " + subject.Name + " cannot be added after it.");
                 }
             }
-            Task succ = null;
+            Task? succ = null;
             if (succIndex > 0)
             {
-                Task pred = (Task)_list[succIndex - 1];
+                Task pred = (Task)_list[succIndex - 1]!;
                 pred.RemoveSuccessor(successor);
                 pred.AddSuccessor(subject);
             }
-            succ = (Task)_list[succIndex];
+            succ = (Task)_list[succIndex]!;
             succ.AddPredecessor(subject);
             _list.Insert(succIndex, subject);
             //_Debug.WriteLine("Appending task " + subject.Name + " with Guid " + subject.Guid + " under task list for task " + MasterTask.Name + " which currently has " + m_hashtable.Count + " entries.");
@@ -120,7 +119,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         {
             if (_list.Count > 0)
             {
-                Task predecessor = (Task)_list[_list.Count - 1];
+                Task predecessor = (Task)_list[_list.Count - 1]!;
                 _list.Add(subject);
                 //_Debug.WriteLine("Appending task " + subject.Name + " with Guid " + subject.Guid + " under task list for task " + MasterTask.Name + " which currently has " + m_hashtable.Count + " entries.");
                 _hashtable.Add(subject.Guid, subject);
@@ -142,14 +141,14 @@ namespace Highpoint.Sage.Graphs.Tasks
         public void RemoveTask(Task subject)
         {
 
-            Task pred = null;
-            Task succ = null;
+            Task? pred = null;
+            Task? succ = null;
             int subjNdx = _list.IndexOf(subject);
 
             if (subjNdx < _list.Count - 1)
-                succ = (Task)_list[subjNdx + 1];
+                succ = (Task)_list[subjNdx + 1]!;
             if (subjNdx > 0)
-                pred = (Task)_list[subjNdx - 1];
+                pred = (Task)_list[subjNdx - 1]!;
 
             //			_Debug.WriteLine("\r\n\r\n*************************************************************\r\nBefore RemoveTask\r\n");
             //			_Debug.WriteLine(DiagnosticAids.GraphToString(m_masterTask));
@@ -185,15 +184,15 @@ namespace Highpoint.Sage.Graphs.Tasks
         {
             get
             {
-                return (Task)_list[i];
+                return (Task)_list[i]!; // Index assumed valid by caller
             }
         }
 
-        public Task this[Guid guid]
+        public Task? this[Guid guid]
         {
             get
             {
-                return (Task)_hashtable[guid];
+                return (Task?)_hashtable[guid];
             }
         }
 
@@ -246,7 +245,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
         public virtual void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _masterTask = (Task)xmlsc.LoadObject("MasterTask");
+            _masterTask = (Task)xmlsc.LoadObject("MasterTask")!; // Guaranteed present in serialization context
 
             ArrayList tmpList = (ArrayList)xmlsc.LoadObject("ChildTasks");
 
@@ -259,7 +258,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
         #region IModelObject Members
 
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
@@ -272,16 +271,16 @@ namespace Highpoint.Sage.Graphs.Tasks
             }
         }
 
-        private string _name = null;
+        private string? _name = null;
         public string Name
         {
             get
             {
-                return _name;
+                return _name!; // Set via InitializeIdentity before use
             }
         }
 
-        private string _description = null;
+        private string? _description = null;
         /// <summary>
         /// A description of this TaskList.
         /// </summary>
@@ -289,7 +288,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         {
             get
             {
-                return _description ?? _name;
+                return _description ?? _name!; // _name set via InitializeIdentity before use
             }
         }
 

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -17,7 +16,7 @@ namespace Highpoint.Sage.Graphs.Analysis
 
         double _criticalPathMean;
         double _criticalPathVariance;
-        ArrayList _criticalPath;
+        ArrayList _criticalPath = null!; // assigned in Analyze()
 
         //public PERTAnalyst(Vertex start, Vertex finish):base(start,finish){}
         public PertAnalyst(Edge edge) : base(edge) { }

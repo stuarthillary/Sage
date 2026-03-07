@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 
@@ -41,8 +40,8 @@ namespace Highpoint.Sage.Graphs
 
         }
 
-        private Vertex[] _vertices; // This one is contained in the synchronizer
-        private IExecutive _exec;
+        private Vertex[] _vertices = null!; // assigned in primary ctor; default ctor is for XML deserialization
+        private IExecutive _exec = null!; // assigned in primary ctor; default ctor is for XML deserialization
         private ExecEventType _eventType;
 
         /// <summary>

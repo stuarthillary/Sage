@@ -1,7 +1,7 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using _Debug = System.Diagnostics.Debug;
 
 namespace Highpoint.Sage.Graphs.PFC.Expressions
@@ -24,7 +24,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         private readonly Dictionary<string, ExpressionElement> _nameMap = new Dictionary<string, ExpressionElement>();
         private readonly Dictionary<Guid, ExpressionElement> _guidMap = new Dictionary<Guid, ExpressionElement>();
         private static readonly Dictionary<Type, Macro> _knownMacros = new Dictionary<Type, Macro>();
-        private ParticipantDirectory _parent = null;
+        private ParticipantDirectory? _parent;
 
         #endregion
 
@@ -41,10 +41,10 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
             else
             {
 
-                Macro macro = null;
+                Macro? macro = null;
                 if (!_knownMacros.TryGetValue(macroType, out macro))
                 {
-                    macro = (Macro)macroType.GetConstructor(new Type[] { }).Invoke(new object[] { });
+                    macro = (Macro)(macroType.GetConstructor(new Type[] { })!.Invoke(new object[] { }));
                     _knownMacros.Add(macroType, macro);
                 }
 
@@ -73,7 +73,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
             }
             else
             {
-                if (!_nameMap.TryGetValue(name, out ExpressionElement mapping))
+                if (!_nameMap.TryGetValue(name, out ExpressionElement? mapping))
                 {
                     throw new ApplicationException(Msg_NameMapDoesntContainKey(name));
                 }
@@ -144,7 +144,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
             ExpressionElement ee1 = _nameMap[name];
             ExpressionElement ee2 = _guidMap[guid];
 
-            if (ee1 != null && ee1.Equals(ee2))
+            if (ee1.Equals(ee2))
             {
                 _nameMap.Remove(name);
                 _guidMap.Remove(guid);
@@ -186,14 +186,14 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <param name="to">The name to which the caller wants to remap the expression element.</param>
         public void ChangeName(string from, string to)
         {
-            if (!_nameMap.TryGetValue(from, out ExpressionElement expressionElement))
+            if (!_nameMap.TryGetValue(from, out ExpressionElement? expressionElement))
             {
                 throw new ApplicationException(Msg_NameMapDoesntContainKey(from));
             }
 
             if (expressionElement != null)
             {
-                DualModeString dms = expressionElement as DualModeString;
+                DualModeString? dms = expressionElement as DualModeString;
                 if (dms != null)
                 {
                     dms.Name = to;
@@ -231,11 +231,11 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// Gets the <see cref="T:ExpressionElement"/> with the specified name.
         /// </summary>
         /// <value></value>
-        public ExpressionElement this[string name]
+        public ExpressionElement? this[string name]
         {
             get
             {
-                if (_nameMap.TryGetValue(name, out ExpressionElement item))
+                if (_nameMap.TryGetValue(name, out ExpressionElement? item))
                 {
                     return item;
                 }
@@ -257,7 +257,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// Gets or sets the parent participantDirectory to this one..
         /// </summary>
         /// <value>The parent.</value>
-        public ParticipantDirectory Parent
+        public ParticipantDirectory? Parent
         {
             get
             {
@@ -273,11 +273,11 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// Gets the <see cref="T:ExpressionElement"/> with the specified GUID.
         /// </summary>
         /// <value></value>
-        public ExpressionElement this[Guid guid]
+        public ExpressionElement? this[Guid guid]
         {
             get
             {
-                if (_guidMap.TryGetValue(guid, out ExpressionElement item))
+                if (_guidMap.TryGetValue(guid, out ExpressionElement? item))
                 {
                     return item;
                 }
@@ -370,7 +370,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
 
             foreach (IPfcStepNode node in pfc.Steps)
             {
-                if (_nameMap.TryGetValue(node.Name, out ExpressionElement value))
+                if (_nameMap.TryGetValue(node.Name, out ExpressionElement? value))
                 {
                     value.Marked = true;
                 }
@@ -385,7 +385,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
 
             foreach (IPfcTransitionNode trans in pfc.Transitions)
             {
-                foreach (ExpressionElement ee in trans.Expression.Elements)
+                foreach (ExpressionElement ee in trans.Expression?.Elements ?? Enumerable.Empty<ExpressionElement>())
                 {
                     if (ee is Macro)
                     {

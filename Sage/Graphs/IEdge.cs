@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -16,17 +15,17 @@ namespace Highpoint.Sage.Graphs
         /// Gets the pre vertex of the object.
         /// </summary>
         /// <value>The pre vertex.</value>
-		Vertex PreVertex { get; }
+		Vertex? PreVertex { get; }
         /// <summary>
         /// Gets the post vertex of the object.
         /// </summary>
         /// <value>The post vertex.</value>
-		Vertex PostVertex { get; }
+		Vertex? PostVertex { get; }
         /// <summary>
         /// Gets the parent edge to this one. If the graph is not hierarchical, this will be null.
         /// </summary>
         /// <returns></returns>
-		IEdge GetParent();
+		IEdge? GetParent();
         /// <summary>
         /// Gets the child edges of this one. No sequence is implied in this collection - child edges are executed
         /// in an order according to their vertices' relationships to each other and their parents.
@@ -42,7 +41,7 @@ namespace Highpoint.Sage.Graphs
         /// once the loopback count had been reached.
         /// </summary>
         /// <value>The channel.</value>
-		object Channel { get; set; }
+		object? Channel { get; set; }
 	}
 }
 

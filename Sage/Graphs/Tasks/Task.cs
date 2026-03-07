@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.Analysis;
@@ -40,7 +39,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         private bool _keepingTimingData = true;
 
         private Guid _guid = Guid.Empty;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity
 
         #endregion Private Fields
 
@@ -52,19 +51,19 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <summary>
         /// Fired when the task is starting, as a result of the EdgeStartingEvent, which is fired when the preVertex has been fully satisfied.
         /// </summary>
-        public event TaskEvent TaskStartingEvent;
+        public event TaskEvent? TaskStartingEvent;
         /// <summary>
         /// Fired when the task is finishing, as a result of the EdgeCompletionEvent, which is fired when the postVertex has been fully satisfied.
         /// </summary>
-        public event TaskEvent TaskFinishingEvent;
+        public event TaskEvent? TaskFinishingEvent;
         /// <summary>
         /// Fired immediately prior to calling the ExecutionDelegate (where application code is run.)
         /// </summary>
-        public event TaskEvent TaskExecutionStartingEvent;
+        public event TaskEvent? TaskExecutionStartingEvent;
         /// <summary>
         /// Fired immediately following completion of the ExecutionDelegate (where application code was run.)
         /// </summary>
-        public event TaskEvent TaskExecutionFinishingEvent;
+        public event TaskEvent? TaskExecutionFinishingEvent;
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:Task"/> class. Creates an arbitrary Guid for the new task.
@@ -107,7 +106,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="name">The name of the task.</param>
         /// <param name="description">The description of the task.</param>
         /// <param name="guid">The GUID of the task.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -243,7 +242,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <returns>The time at which this task began in the specified GraphContext.</returns>
         public DateTime GetStartTime(IDictionary graphContext)
         {
-            object tmp = graphContext[_selfStartTimeKey];
+            object? tmp = graphContext[_selfStartTimeKey];
             return tmp == null ? DateTime.MinValue : (DateTime)tmp;
         }
 
@@ -270,7 +269,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <returns>The time at which this task completed in the specified GraphContext.</returns>
         public DateTime GetFinishTime(IDictionary graphContext)
         {
-            object tmp = graphContext[_selfFinishTimeKey];
+            object? tmp = graphContext[_selfFinishTimeKey];
             return (DateTime?)tmp ?? DateTime.MinValue;
         }
 
@@ -321,7 +320,7 @@ namespace Highpoint.Sage.Graphs.Tasks
             {
                 if (_delaysExplicitlySet)
                     ResetDurationData();
-                DateTime startTime = (DateTime)graphContext[_selfStartTimeKey];
+                DateTime startTime = (DateTime)graphContext[_selfStartTimeKey]!; // Guaranteed set by OnEdgeStartingEvent
                 DateTime finishTime = _model.Executive.Now;
                 RecordFinishTime(graphContext, finishTime);
                 TimeSpan duration = finishTime - startTime;
@@ -382,11 +381,11 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <summary>
         /// This event is fired when the task becomes valid.
         /// </summary>
-        public event StaticTaskEvent TaskBecameValidEvent;
+        public event StaticTaskEvent? TaskBecameValidEvent;
         /// <summary>
         /// This event is fired when the task becomes invalid.
         /// </summary>
-        public event StaticTaskEvent TaskBecameInvalidEvent;
+        public event StaticTaskEvent? TaskBecameInvalidEvent;
 
         /// <summary>
         /// Either removes a <see cref="T:Ligature"/> between the provided edge's postVertex and this one's PreVertex,
@@ -426,7 +425,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
             if (_diagnostics)
                 _Debug.WriteLine(Name + " is completing - it's validity state is (VS=" + ValidityState + "/SVS=" + SelfValidState + "/UVS=" + AllUpstreamValid + "/CVS=" + AllChildrenValid + ")");
-            EdgeExecutionCompletionSignaler eecs = (EdgeExecutionCompletionSignaler)graphContext[EecsKey];
+            EdgeExecutionCompletionSignaler? eecs = (EdgeExecutionCompletionSignaler?)graphContext[EecsKey];
             if (eecs != null)
             {
                 graphContext.Remove(EecsKey);
@@ -674,7 +673,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="xmlsc">The specified XmlSerializationContext.</param>
 		public override void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _model = (Model)xmlsc.ContextEntities["Model"];
+            _model = (Model)xmlsc.ContextEntities["Model"]!; // Guaranteed present in serialization context
             _guid = (Guid)xmlsc.LoadObject("Guid");
 
             base.DeserializeFrom(xmlsc);

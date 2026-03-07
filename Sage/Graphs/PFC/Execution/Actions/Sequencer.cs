@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
@@ -22,7 +21,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution.Actions
         private Guid _myKey;
         private readonly int _myIndex;
         private readonly int _rootHeight;
-        private IDetachableEventController m_idec = null;
+        private IDetachableEventController? m_idec;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Sequencer"/> class.
@@ -56,15 +55,15 @@ namespace Highpoint.Sage.Graphs.PFC.Execution.Actions
             int ascents = _rootHeight;
             while (ascents > 0)
             {
-                root = (PfcExecutionContext)myPfcec.Parent.Payload;
+                root = (PfcExecutionContext)myPfcec.Parent!.Payload!;
                 ascents--;
             }
 
-            Exchange exchange = null;
+            Exchange? exchange = null;
             if (_myIndex == 0)
             {
                 //Console.WriteLine(myPfcec.Name + " is creating an exchange and injecting it into pfcec " + root.Name + " under key " + m_sequenceKey);
-                exchange = new Exchange(myPfcec.Model.Executive);
+                exchange = new Exchange(myPfcec.Model!.Executive);
                 root.Add(_sequenceKey, exchange);
             }
             else
@@ -73,12 +72,12 @@ namespace Highpoint.Sage.Graphs.PFC.Execution.Actions
                 DictionaryChange dc = new DictionaryChange(myPfcec_EntryAdded);
                 while (true)
                 {
-                    exchange = (Exchange)root[_sequenceKey];
+                    exchange = (Exchange?)root[_sequenceKey];
                     if (exchange == null)
                     {
                         root.EntryAdded += dc;
-                        m_idec = myPfcec.Model.Executive.CurrentEventController;
-                        m_idec.Suspend();
+                        m_idec = myPfcec.Model!.Executive.CurrentEventController;
+                        m_idec!.Suspend();
                     }
                     else
                     {
@@ -86,19 +85,19 @@ namespace Highpoint.Sage.Graphs.PFC.Execution.Actions
                         break;
                     }
                 }
-                exchange.Take(_myKey, true); // Only indices 1,2, ... take (and wait?). Index 0 only posts.
+                exchange!.Take(_myKey, true); // Only indices 1,2, ... take (and wait?). Index 0 only posts.
                 //Console.WriteLine(myPfcec.Name + " got the key I was looking for!");
             }
             Guid nextGuysKey = GuidOps.Increment(_myKey);
-            exchange.Post(nextGuysKey, nextGuysKey, false);
+            exchange!.Post(nextGuysKey, nextGuysKey, false);
             //Console.WriteLine(myPfcec.Name + " posted the key the next guy is looking for!");
         }
 
-        void myPfcec_EntryAdded(object key, object value)
+        void myPfcec_EntryAdded(object key, object? value)
         {
             if (key.Equals(_sequenceKey))
             {
-                m_idec.Resume();
+                m_idec!.Resume();
             }
         }
     }

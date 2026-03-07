@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -23,7 +22,7 @@ namespace Highpoint.Sage.Graphs
         /// Initializes a new instance of the <see cref="Ligature"/> class.
         /// </summary>
         /// <param name="name">The user-friendly name of this object. Typically not required to be unique in a pan-model context.</param>
-        public Ligature(string name){
+        public Ligature(string? name){
 			_name = (name==null?ToString():name);
 		}
 
@@ -33,7 +32,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="from">The vertex from which this ligature starts.</param>
         /// <param name="to">The vertex at which this ligature ends.</param>
         /// <param name="name">The user-friendly name of this object. Typically not required to be unique in a pan-model context.</param>
-        public Ligature(Vertex from, Vertex to, string name):this(name){
+        public Ligature(Vertex from, Vertex to, string? name):this(name){
 			Pre = from;
 			Post = to;
 			from.AddPostEdge(this);
@@ -48,7 +47,7 @@ namespace Highpoint.Sage.Graphs
         /// </summary>
         /// <param name="graphContext">The graph context.</param>
         public override void PreVertexSatisfied(IDictionary graphContext){
-			PostVertex.PreEdgeSatisfied(graphContext, this);
+			PostVertex!.PreEdgeSatisfied(graphContext, this);
 		}
 
         /// <summary>
@@ -64,8 +63,8 @@ namespace Highpoint.Sage.Graphs
         /// attached.
         /// </summary>
         public override void Disconnect(){
-			Post.RemovePreEdge(this);
-			Pre.RemovePostEdge(this);
+			Post!.RemovePreEdge(this);
+			Pre!.RemovePostEdge(this);
 //			m_pre.StructureChangeHandler -=new StructureChangeHandler(from_StructureChangeHandler);
 //			m_post.StructureChangeHandler -= new StructureChangeHandler(to_StructureChangeHandler);
 			Post = null;  // Set post to null first, so that invalidity will not

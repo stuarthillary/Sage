@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -99,7 +98,7 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// Represents an exception that may have been thrown in the creation of this error.
         /// </summary>
-        public Exception InnerException
+        public Exception? InnerException
         {
             get
             {

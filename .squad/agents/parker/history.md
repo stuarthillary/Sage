@@ -71,3 +71,13 @@
 - **Critical fix:** Corrected Connectors.cs to preserve original Debug.Assert behavior for null models instead of throwing exceptions (test compatibility).
 - **Build/Test:** `dotnet build Sage4.csproj` clean; `dotnet test SageTestLib` 319/319 passing.
 - **Remaining:** 297 files still `#nullable disable` (251 enabled total).
+
+### 2026-03-07 — Nullable Phase 6 (Materials) ✅
+
+- **Scope:** Removed `#nullable disable` from all 66 files in Sage/Materials/ (base + Chemistry, Emissions, Thermodynamics, VaporPressure subdirectories).
+- **Nullability fixes:** MaterialType IModel/EmissionsClassifications nullable, Substance event delegates, MassVolumeTracker ReactionProcessor nullable, MaterialChangeListener event handlers, IMemento.Parent nullability, IComparer nullability signatures.
+- **Notable files:** MaterialType.cs (IModel/IDictionary nullable, InitializeIdentity signature), Substance.cs (large file, event delegates, comparers, memento), Mixture.cs (complex state management), emission models (Hashtable parameters, out parameters).
+- **Patterns applied:** Event delegates nullable (`event MaterialChangeListener?`), IModel fields nullable for deserialization, `null!` for deferred-init fields with comments, nullable cast patterns (`as Type?`), unboxing with `!` for DictionaryEntry values.
+- **Build/Test:** `dotnet build Sage4.csproj` clean; `dotnet test SageTestLib` 319/319 passing.
+- **Remaining:** 232 files still `#nullable disable` (316 enabled total, 548 total in Sage/).
+- **Phase 6 completion:** All Materials module files migrated successfully. Ready for Phase 7 (next target TBD).

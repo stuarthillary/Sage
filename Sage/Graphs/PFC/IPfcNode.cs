@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections.Generic;
@@ -94,14 +93,14 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="successorNode">The successor node.</param>
         /// <returns></returns>
-        IPfcLinkElement GetLinkForSuccessorNode(IPfcNode successorNode);
+        IPfcLinkElement? GetLinkForSuccessorNode(IPfcNode successorNode);
 
         /// <summary>
         /// Gets the link that connects this node to a predecessor node. Returns null if there is no such link.
         /// </summary>
         /// <param name="predecessorNode">The predecessor node.</param>
         /// <returns></returns>
-        IPfcLinkElement GetLinkForPredecessorNode(IPfcNode predecessorNode);
+        IPfcLinkElement? GetLinkForPredecessorNode(IPfcNode predecessorNode);
 
         /// <summary>
         /// Gives the specified link (which must be one of the outbound links from this node) the highest 

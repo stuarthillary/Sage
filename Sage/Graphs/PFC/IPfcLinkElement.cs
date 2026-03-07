@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs.PFC
@@ -13,7 +12,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the predecessor IPfcNode to this Link node.
         /// </summary>
         /// <value>The predecessor.</value>
-        IPfcNode Predecessor
+        IPfcNode? Predecessor
         {
             get;
         }
@@ -22,7 +21,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the successor IPfcNode to this Link node.
         /// </summary>
         /// <value>The successor.</value>
-        IPfcNode Successor
+        IPfcNode? Successor
         {
             get;
         }

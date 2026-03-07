@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using _Debug = System.Diagnostics.Debug;
@@ -24,7 +24,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <summary>
         /// The friendly representation of this macro.
         /// </summary>
-        protected string _name;
+        protected string _name = null!; // assigned in derived class constructors
         #endregion
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// </summary>
         /// <param name="args">The arguments.</param>
         /// <returns>The evaluated representation of the macro.</returns>
-        protected abstract string Evaluate(object[] args);
+        protected abstract string Evaluate(object?[] args);
 
         /// <summary>
         /// Returns the string for this macro element that corresponds to the indicated representation type.
@@ -47,14 +47,14 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <param name="t">The indicated representation type.</param>
         /// <param name="forWhom">The owner of the expression, usually a Transition.</param>
         /// <returns>The string for this expression element.</returns>
-        public override string ToString(ExpressionType t, object forWhom)
+        public override string ToString(ExpressionType t, object? forWhom)
         {
             _Debug.Assert(Name.StartsWith(MACRO_START, StringComparison.Ordinal));
 
             switch (t)
             {
                 case ExpressionType.Expanded:
-                    return Evaluate(new object[] { forWhom });
+                    return Evaluate(new object?[] { forWhom });
                 case ExpressionType.Friendly:
                     return Name;
                 case ExpressionType.Hostile:

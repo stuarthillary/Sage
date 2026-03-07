@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -22,23 +21,22 @@ namespace Highpoint.Sage.Graphs.Tasks
     {
 
         #region Private Fields
-        private Task _masterTask;
-
+        private Task _masterTask = null!; // Set in constructor or DeserializeFrom
         private bool _startConditionsSpecified = false;
         private DateTime _when;
         private double _priority;
         private ExecEventType _eet;
-        private IModel _model;
-        private string _description = null;
+        private IModel _model = null!; // Set in InitializeIdentity
+        private string? _description = null;
         private Guid _guid = Guid.Empty;
-        private string _name = null;
+        private string? _name = null;
         private bool _keepGraphContexts = false;
 
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("TaskProcessor");
         #endregion
 
         #region Protected Fields
-        protected IDictionary GraphContext;
+        protected IDictionary? GraphContext;
         protected List<IDictionary> _graphContexts = new List<IDictionary>();
         #endregion
 
@@ -53,7 +51,7 @@ namespace Highpoint.Sage.Graphs.Tasks
             _priority = 0.0;
             _when = DateTime.MinValue;
             _eet = ExecEventType.Synchronous;
-            Model.GetService<ITaskManagementService>().AddTaskProcessor(this);
+            Model.GetService<ITaskManagementService>()!.AddTaskProcessor(this); // Service always registered before task processor is created
 
             IMOHelper.RegisterWithModel(this);
         }
@@ -66,7 +64,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -135,13 +133,13 @@ namespace Highpoint.Sage.Graphs.Tasks
             _model.Executive.RequestEvent(new ExecEventReceiver(BeginExecution), _when, _priority, GraphContext, _eet);
         }
 
-        private void BeginExecution(IExecutive exec, object userData)
+        private void BeginExecution(IExecutive exec, object? userData)
         {
             if (_diagnostics)
             {
                 _Debug.WriteLine("Task processor " + Name + " beginning execution instance of graph " + _masterTask.Name);
             }
-            _masterTask.Start((IDictionary)userData);
+            _masterTask.Start((IDictionary)userData!); // userData is the GraphContext set in Activate
         }
 
         public bool KeepGraphContexts
@@ -162,7 +160,7 @@ namespace Highpoint.Sage.Graphs.Tasks
                 return _graphContexts.AsReadOnly();
             }
         }
-        public IDictionary CurrentGraphContext
+        public IDictionary? CurrentGraphContext
         {
             get
             {
@@ -174,7 +172,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         {
             get
             {
-                return _name;
+                return _name!; // Set via InitializeIdentity before use
             }
         }
         /// <summary>
@@ -184,7 +182,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         {
             get
             {
-                return _description ?? _name;
+                return _description ?? _name!; // _name set via InitializeIdentity before use
             }
         }
         public Guid Guid
@@ -230,12 +228,12 @@ namespace Highpoint.Sage.Graphs.Tasks
 
         public virtual void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _model = (Model)xmlsc.ContextEntities["Model"];
+            _model = (Model)xmlsc.ContextEntities["Model"]!; // Guaranteed present in serialization context
             _eet = (ExecEventType)xmlsc.LoadObject("ExecEventType");
             _guid = (Guid)xmlsc.LoadObject("Guid");
             _keepGraphContexts = (bool)xmlsc.LoadObject("KeepGCs");
-            _masterTask = (Task)xmlsc.LoadObject("MasterTask");
-            _name = (string)xmlsc.LoadObject("Name");
+            _masterTask = (Task)xmlsc.LoadObject("MasterTask")!; // Guaranteed present in serialization context
+            _name = (string?)xmlsc.LoadObject("Name");
             _startConditionsSpecified = (bool)xmlsc.LoadObject("StartCondSpec");
             _when = (DateTime)xmlsc.LoadObject("When");
 

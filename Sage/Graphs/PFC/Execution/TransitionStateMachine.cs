@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -9,7 +8,7 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Graphs.PFC.Execution
 {
 
-    public delegate void TransitionStateMachineEvent(TransitionStateMachine tsm, object userData);
+    public delegate void TransitionStateMachineEvent(TransitionStateMachine tsm, object? userData);
 
     public delegate bool ExecutableCondition(object graphContext, TransitionStateMachine tsm);
 
@@ -51,10 +50,10 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
 
         #region Private Fields
 
-        private IPfcTransitionNode _myTransition = null;
+        private IPfcTransitionNode _myTransition = null!;
         private readonly List<StepStateMachine> _predecessors;
         private readonly List<StepStateMachine> _successors;
-        private ExecutableCondition _executableCondition = null;
+        private ExecutableCondition? _executableCondition;
         private TimeSpan _scanningPeriod = ExecutionEngineConfiguration.DEFAULT_SCANNING_PERIOD;
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("PfcTransitionStateMachine");
         #endregion
@@ -82,7 +81,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         {
             if (pfcec.IsStepCentric)
             {
-                pfcec = (PfcExecutionContext)pfcec.Parent;
+                pfcec = (PfcExecutionContext)pfcec.Parent!;
             }
             return GetTsmData(pfcec).State;
         }
@@ -120,11 +119,11 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
 
             if (pfcec.IsStepCentric)
             {
-                pfcec = (PfcExecutionContext)pfcec.Parent;
+                pfcec = (PfcExecutionContext)pfcec.Parent!;
             }
             else
             {
-                Debugger.Break(); // Only step-centrics should call this.
+                Debugger.Break();// Only step-centrics should call this.
             }
 
             switch (GetState(pfcec))
@@ -173,7 +172,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             }
         }
 
-        public event TransitionStateMachineEvent TransitionStateChanged;
+        public event TransitionStateMachineEvent? TransitionStateChanged;
 
         private TsmData GetTsmData(PfcExecutionContext parentPfcec)
         {
@@ -182,14 +181,14 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             {
                 parentPfcec.Add(this, new TsmData());
             }
-            return (TsmData)parentPfcec[this];
+            return (TsmData)parentPfcec[this]!;
         }
 
         private void SetState(TransitionState transitionState, PfcExecutionContext parentPfcec)
         {
             if (SuccessorStateMachines.Count == 0 && transitionState == TransitionState.Inactive)
             {
-                ((ProcedureFunctionChart)_myTransition.Parent).FirePfcCompleting(parentPfcec);
+                ((ProcedureFunctionChart)_myTransition.Parent!).FirePfcCompleting(parentPfcec);
             }
             Debug.Assert(!parentPfcec.IsStepCentric); // State is stored in the parent of the trans, a PFC.
             TsmData tsmData = GetTsmData(parentPfcec);
@@ -211,7 +210,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 Console.WriteLine("Starting condition-scanning on transition " + _myTransition.Name + " in EC " + pfcec.Name + ".");
             }
             HaltConditionScanning(pfcec);
-            IExecutive exec = _myTransition.Model.Executive;
+            IExecutive exec = _myTransition.Model!.Executive;
             TsmData tsmData = GetTsmData(pfcec);
             tsmData.NextExpressionEvaluation = exec.RequestEvent(new ExecEventReceiver(EvaluateCondition), exec.Now + _scanningPeriod, 0.0, pfcec, ExecEventType.Synchronous);
         }
@@ -221,14 +220,14 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             TsmData tsmData = GetTsmData(pfcec);
             if (tsmData.NextExpressionEvaluation != 0L)
             {
-                _myTransition.Model.Executive.UnRequestEvent(tsmData.NextExpressionEvaluation);
+                _myTransition.Model!.Executive.UnRequestEvent(tsmData.NextExpressionEvaluation);
                 tsmData.NextExpressionEvaluation = 0L;
             }
         }
 
-        private void EvaluateCondition(IExecutive exec, object userData)
+        private void EvaluateCondition(IExecutive exec, object? userData)
         {
-            PfcExecutionContext pfcec = (PfcExecutionContext)userData;
+            PfcExecutionContext pfcec = (PfcExecutionContext)userData!;
             TsmData tsmData = GetTsmData(pfcec);
             tsmData.NextExpressionEvaluation = 0L;
             if (tsmData.State == TransitionState.Active && ExecutableCondition(pfcec, this))
@@ -263,13 +262,14 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
 
         private void RunSuccessor(StepStateMachine ssm, IDictionary graphContext)
         {
-            _myTransition.Model.Executive.RequestEvent(new ExecEventReceiver(_RunSuccessor), _myTransition.Model.Executive.Now, 0.0, new object[] { ssm, graphContext }, ExecEventType.Detachable);
+            _myTransition.Model!.Executive.RequestEvent(new ExecEventReceiver(_RunSuccessor), _myTransition.Model!.Executive.Now, 0.0, new object[] { ssm, graphContext }, ExecEventType.Detachable);
         }
 
-        private void _RunSuccessor(IExecutive exec, object userData)
+        private void _RunSuccessor(IExecutive exec, object? userData)
         {
-            StepStateMachine ssm = ((object[])userData)[0] as StepStateMachine;
-            PfcExecutionContext parentPfcec = ((object[])userData)[1] as PfcExecutionContext;
+            object[] args = (object[])userData!;
+            StepStateMachine ssm = (StepStateMachine)args[0];
+            PfcExecutionContext parentPfcec = (PfcExecutionContext)args[1];
 
             Debug.Assert(!parentPfcec.IsStepCentric);
             ssm.Start(parentPfcec);// Must run ones' successor in the context of out parent, not the predecessor step.
@@ -289,7 +289,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 }
                 else
                 {
-                    return _myTransition.ExpressionExecutable;
+                    return _myTransition.ExpressionExecutable!;
                 }
             }
             set

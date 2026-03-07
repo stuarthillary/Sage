@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.Tasks;
 using Highpoint.Sage.SimCore;
@@ -32,7 +31,7 @@ namespace Highpoint.Sage.Graphs
         private readonly IModel _model;
         private readonly VolatileKey _cbmDataKey = new VolatileKey();
         private readonly List<BranchScenario> _branchScenarios = new List<BranchScenario>();
-        private string _defaultChannel;
+        private string? _defaultChannel;
         #endregion
 
         #region Constructors
@@ -160,7 +159,7 @@ namespace Highpoint.Sage.Graphs
         /// Gets or sets the channel that will be run if the expressions are un-evaluatable (which all currently are).
         /// </summary>
         /// <value>The default channel.</value>
-        public string DefaultChannel
+        public string? DefaultChannel
         {
             get
             {
@@ -172,7 +171,7 @@ namespace Highpoint.Sage.Graphs
             }
         }
 
-        private static void LaunchEdge(IExecutive exec, object userData)
+        private static void LaunchEdge(IExecutive exec, object? userData)
         {
             EdgeLaunchData eld = (EdgeLaunchData)userData;
             eld.Edge.PreVertexSatisfied(eld.GraphContext);
@@ -256,11 +255,11 @@ namespace Highpoint.Sage.Graphs
             {
                 get;
             }
-            Task Target
+            Task? Target
             {
                 get;
             }
-            Task Master
+            Task? Master
             {
                 get;
             }
@@ -274,12 +273,12 @@ namespace Highpoint.Sage.Graphs
         private class BranchScenario : IBranchScenario
         {
             private readonly IModel _model;
-            private Task _target;
-            private Task _master;
+            private Task? _target;
+            private Task? _master;
             private Guid _masterGuid;
             private Guid _targetGuid;
 
-            public BranchScenario(IModel model, string condition, string channel, Task target = null, Task master = null)
+            public BranchScenario(IModel model, string condition, string channel, Task? target = null, Task? master = null)
             {
                 _model = model;
                 Condition = condition;
@@ -300,7 +299,7 @@ namespace Highpoint.Sage.Graphs
                 get; set;
             }
 
-            public Task Master
+            public Task? Master
             {
                 get
                 {
@@ -328,7 +327,7 @@ namespace Highpoint.Sage.Graphs
                 }
             }
 
-            public Task Target
+            public Task? Target
             {
 
                 get
@@ -393,7 +392,7 @@ namespace Highpoint.Sage.Graphs
             return sb.ToString();
         }
 
-        public static ConditionalBranchManager FromXml(IModel model, XmlNode node)
+        public static ConditionalBranchManager? FromXml(IModel model, XmlNode node)
         {
             if (node == null)
                 throw new ArgumentException("Attempt to create a ConditionalBranchManager from a null XmlNode.");

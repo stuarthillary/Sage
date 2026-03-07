@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <param name="t">The indicated representation type.</param>
         /// <param name="forWhom">The owner of the expression, usually a Transition.</param>
         /// <returns>The string for this expression element.</returns>
-        public abstract string ToString(ExpressionType t, object forWhom);
+        public abstract string ToString(ExpressionType t, object? forWhom);
 
         /// <summary>
         /// Gets or sets the GUID of this expression. Returns Guid.Empty if the expression element will not need to

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using System;
@@ -21,8 +20,8 @@ namespace Highpoint.Sage.Graphs
         private readonly Func<T, bool> _isFixed;
         private readonly Func<T, IEnumerable<T>> _successors;
         private readonly Func<T, IEnumerable<T>> _predecessors;
-        private List<T> _criticalPath;
-        private Dictionary<T, TimingData> _timingData;
+        private List<T>? _criticalPath;
+        private Dictionary<T, TimingData>? _timingData;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CriticalPathAnalyst{T}"/> class.
@@ -45,8 +44,7 @@ namespace Highpoint.Sage.Graphs
             _predecessors = predecessors;
 
             _criticalPath = null;
-            _timingData = null;
-        }
+            _timingData = null;        }
 
         /// <summary>
         /// Returns the critical path.
@@ -60,7 +58,7 @@ namespace Highpoint.Sage.Graphs
                 {
                     ComputeCriticalPath();
                 }
-                return _criticalPath;
+                return _criticalPath!; // ComputeCriticalPath() always assigns _criticalPath
             }
         }
 
@@ -72,7 +70,6 @@ namespace Highpoint.Sage.Graphs
             _criticalPath = new List<T>();
             _timingData = new Dictionary<T, TimingData>();
             PropagateForward(TimingDataNodeFor(_startNode));
-
             TimingData tdFinish = TimingDataNodeFor(_finishNode);
             tdFinish.Fix(tdFinish.EarlyStart, tdFinish.NominalDuration, true);
             PropagateBackward(TimingDataNodeFor(_finishNode));
@@ -83,9 +80,9 @@ namespace Highpoint.Sage.Graphs
         private void AnalyzeCriticality()
         {
             // Rough. Starting.
-            foreach (TimingData tdNode in _timingData.Values.Where(n => n.IsCritical).OrderBy(n => n.EarlyStart))
+            foreach (TimingData tdNode in _timingData!.Values.Where(n => n.IsCritical).OrderBy(n => n.EarlyStart))
             {
-                _criticalPath.Add(tdNode.Subject);
+                _criticalPath!.Add(tdNode.Subject);
             }
         }
 
@@ -147,7 +144,7 @@ namespace Highpoint.Sage.Graphs
         private TimingData TimingDataNodeFor(T node)
         {
             TimingData tdNode;
-            if (!_timingData.TryGetValue(node, out tdNode))
+            if (!_timingData!.TryGetValue(node, out tdNode))
             {
                 tdNode = new TimingData(
                     node,

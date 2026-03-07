@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -28,13 +27,13 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #endregion
 
-        private IProcedureFunctionChart _pfc = null;
+        private IProcedureFunctionChart? _pfc;
 
         /// <summary>
         /// Gets the members of the cycle.
         /// </summary>
         /// <value>The members of the cycle.</value>
-        public IProcedureFunctionChart Pfc
+        public IProcedureFunctionChart? Pfc
         {
             get
             {

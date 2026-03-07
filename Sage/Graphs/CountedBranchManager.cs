@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -24,7 +23,7 @@ namespace Highpoint.Sage.Graphs
         private static readonly ExecEventReceiver _launchEdge = LaunchEdge;
         private readonly object[] _channels;
         private readonly int[] _counts;
-        private static VolatileKey _cbmDataKey;
+        private readonly VolatileKey _cbmDataKey; // instance key so each manager's context data is independent
         private readonly IModel _model;
         #endregion
 
@@ -57,7 +56,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="graphContext">The graph context in which we are currently running.</param>
         public void Start(IDictionary graphContext)
         {
-            CbmData data = (CbmData)graphContext[_cbmDataKey];
+            CbmData? data = (CbmData?)graphContext[_cbmDataKey];
             if (data == null)
             {
                 data = new CbmData();
@@ -80,10 +79,10 @@ namespace Highpoint.Sage.Graphs
         {
             //System.Diagnostics.Debugger.Break();
             //Console.Write("Reviewing edge " + edge.Name + " for firing. Its channel marker is  " + edge.Channel.ToString());
-            CbmData data = (CbmData)graphContext[_cbmDataKey];
+            CbmData? data = (CbmData?)graphContext[_cbmDataKey];
             // If data is null, here, it is probably because the vertex did not call Start before firing branch edges.
 
-            if (_channels[data.ActiveChannel].Equals(edge.Channel))
+            if (_channels[data!.ActiveChannel].Equals(edge.Channel))
             {
                 //Console.WriteLine(" Scheduling it to fire.");
                 _model.Executive.RequestEvent(_launchEdge, data.Now, data.CurrentPriority, new EdgeLaunchData(edge, graphContext));
@@ -108,7 +107,7 @@ namespace Highpoint.Sage.Graphs
         /// </summary>
         public IModel Model => _model;
 
-        private static void LaunchEdge(IExecutive exec, object userData)
+        private static void LaunchEdge(IExecutive exec, object? userData)
         {
             EdgeLaunchData eld = (EdgeLaunchData)userData;
             eld.Edge.PreVertexSatisfied(eld.GraphContext);

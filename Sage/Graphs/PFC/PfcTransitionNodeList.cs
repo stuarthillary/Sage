@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -40,7 +39,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the <see cref="T:IPfcTransitionNode"/> with the specified name.
         /// </summary>
         /// <value></value>
-        public IPfcTransitionNode this[string name]
+        public IPfcTransitionNode? this[string name]
         {
             get
             {
@@ -55,7 +54,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the <see cref="T:IPfcTransitionNode"/> with the specified GUID.
         /// </summary>
         /// <value></value>
-        public IPfcTransitionNode this[Guid guid]
+        public IPfcTransitionNode? this[Guid guid]
         {
             get
             {

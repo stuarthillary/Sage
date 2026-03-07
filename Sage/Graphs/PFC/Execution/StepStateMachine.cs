@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
@@ -8,7 +7,7 @@ using System.Diagnostics;
 
 namespace Highpoint.Sage.Graphs.PFC.Execution
 {
-    public delegate void StepStateMachineEvent(StepStateMachine ssm, object userData);
+    public delegate void StepStateMachineEvent(StepStateMachine ssm, object? userData);
 
     public class StepStateMachine
     {
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         #endregion
 
         #region Private Fields
-        private IPfcStepNode _myStep = null;
+        private IPfcStepNode _myStep = null!;
         private List<TransitionStateMachine> _successorStateMachines;
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("PfcStepStateMachine");
         #endregion
@@ -103,7 +102,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             Debug.Assert(!parentPfcec.IsStepCentric); // Must be called with parent.
             Debug.Assert(parentPfcec.PFC.Equals(MyStep.Parent));
 
-            PfcExecutionContext pfcec = GetActiveInstanceExecutionContext(parentPfcec);
+            PfcExecutionContext pfcec = GetActiveInstanceExecutionContext(parentPfcec)!;
             if (_diagnostics)
             {
                 Console.WriteLine("Stopping step " + _myStep.Name + " with ec " + pfcec.Name + ".");
@@ -117,7 +116,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             Debug.Assert(!parentPfcec.IsStepCentric); // Must be called with parent.
             Debug.Assert(parentPfcec.PFC.Equals(MyStep.Parent));
 
-            PfcExecutionContext pfcec = GetActiveInstanceExecutionContext(parentPfcec);
+            PfcExecutionContext pfcec = GetActiveInstanceExecutionContext(parentPfcec)!;
             if (_diagnostics)
             {
                 Console.WriteLine("Resetting step " + _myStep.Name + " with ec " + pfcec.Name + ".");
@@ -135,7 +134,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             return ssmData.State;
         }
 
-        public PfcExecutionContext GetActiveInstanceExecutionContext(PfcExecutionContext pfcEc)
+        public PfcExecutionContext? GetActiveInstanceExecutionContext(PfcExecutionContext pfcEc)
         {
             return GetSsmData(pfcEc).ActiveStepInstanceEc;
         }
@@ -151,7 +150,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             private readonly Queue<IDetachableEventController> _qIdec = new Queue<IDetachableEventController>();
             private Guid _nextExecutionInstanceUid = Guid.Empty;
             private int _numberOfIterations = 0;
-            private PfcExecutionContext _currentStepInstanceEc = null;
+            private PfcExecutionContext? _currentStepInstanceEc;
             private readonly List<PfcExecutionContext> _lstStepInstanceECs = new List<PfcExecutionContext>();
             public SsmData()
             {
@@ -182,7 +181,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                     return _numberOfIterations;
                 }
             }
-            public PfcExecutionContext ActiveStepInstanceEc
+            public PfcExecutionContext? ActiveStepInstanceEc
             {
                 [DebuggerStepThrough]
                 get
@@ -226,7 +225,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         {
             if (MyStep.Equals(pfcec.Step))
             {
-                pfcec = (PfcExecutionContext)pfcec.Parent;
+                pfcec = (PfcExecutionContext)pfcec.Parent!;
             }
 
             if (!pfcec.Contains(this))
@@ -235,7 +234,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 pfcec.Add(this, retval);
             }
 
-            return (SsmData)pfcec[this];
+            return (SsmData)pfcec[this]!;
         }
 
         /// <summary>
@@ -266,7 +265,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             }
         }
 
-        public event StepStateMachineEvent StepStateChanged;
+        public event StepStateMachineEvent? StepStateChanged;
 
         /// <summary>
         /// Gets the successor state machines.
@@ -318,16 +317,16 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
 
         internal void GetStartPermission(PfcExecutionContext pfcec)
         {
-            IDetachableEventController currentEventController = _myStep.Model.Executive.CurrentEventController;
+            IDetachableEventController? currentEventController = _myStep.Model!.Executive.CurrentEventController;
             SsmData ssmData = GetSsmData(pfcec);
             if (!ssmData.State.Equals(StepState.Idle))
             {
-                ssmData.QueueIdec.Enqueue(currentEventController);
+                ssmData.QueueIdec.Enqueue(currentEventController!);
                 if (_diagnostics)
                 {
                     Console.WriteLine(_myStep.Model.Executive.Now + " : suspending awaiting start of " + _myStep.Name + " ...");
                 }
-                currentEventController.Suspend();
+                currentEventController!.Suspend();
                 if (_diagnostics)
                 {
                     Console.WriteLine(_myStep.Model.Executive.Now + " : resuming the starting of     " + _myStep.Name + " ...");
@@ -518,7 +517,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 string plural = "";
                 string stepName = _myStep.Name;
                 string ecName = pfcec.Name;
-                int nActions = (_myStep.Actions?.Count ?? 0) + _myStep.LeafLevelAction.GetInvocationList().Length;
+                int nActions = (_myStep.Actions?.Count ?? 0) + (_myStep.LeafLevelAction?.GetInvocationList()?.Length ?? 0);
                 nKids = nActions.ToString();
                 plural = nActions == 1 ? "" : "s";
                 if (nActions == 0)
@@ -526,7 +525,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 Console.WriteLine(msg, nKids, plural, stepName, ecName);
             }
 
-            IModel model = _myStep.Model;
+            IModel model = _myStep.Model!;
             SsmData ssmData = GetSsmData(pfcec);
             Debug.Assert(model.Executive.CurrentEventType == ExecEventType.Detachable);
             if (model != null && model.Executive != null)
@@ -535,7 +534,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 {
                     IProcedureFunctionChart[] kids;
                     PfcExecutionContext[] kidContexts;
-                    CreateChildContexts(ssmData.ActiveStepInstanceEc, out kids, out kidContexts);
+                    CreateChildContexts(ssmData.ActiveStepInstanceEc!, out kids, out kidContexts);
                     foreach (IProcedureFunctionChart action in _myStep.Actions.Values)
                     {
                         for (int i = 0; i < kidContexts.Length; i++)
@@ -543,12 +542,12 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                             model.Executive.RequestEvent(new ExecEventReceiver(kids[i].Run), model.Executive.Now, 0.0, kidContexts[i], ExecEventType.Detachable);
                         }
                     }
-                    new PfcStepJoiner(ssmData.ActiveStepInstanceEc, kids).RunAndWait();
+                    new PfcStepJoiner(ssmData.ActiveStepInstanceEc!, kids).RunAndWait();
                 }
                 else
                 {
                     //PfcExecutionContext iterPfc = CreateIterationContext(pfcec);
-                    _myStep.LeafLevelAction(pfcec, this);
+                    _myStep.LeafLevelAction?.Invoke(pfcec, this);
                 }
             }
 
@@ -625,7 +624,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             private readonly IModel _model;
             private readonly PfcExecutionContext _rootStepEc;
             private readonly TransitionStateMachineEvent _onTransitionStateChanged;
-            private IDetachableEventController _idec;
+            private IDetachableEventController? _idec;
             private readonly List<IProcedureFunctionChart> _pendingActions;
             #endregion Private Fields
 
@@ -639,26 +638,26 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 _pendingActions = new List<IProcedureFunctionChart>(childPfCs);
                 _pendingActions.ForEach(delegate (IProcedureFunctionChart kid)
                 {
-                    kid.GetFinishTransition().MyTransitionStateMachine.TransitionStateChanged += _onTransitionStateChanged;
+                    kid.GetFinishTransition()!.MyTransitionStateMachine.TransitionStateChanged += _onTransitionStateChanged;
                 });
             }
 
             public void RunAndWait()
             {
                 _idec = _model.Executive.CurrentEventController;
-                _idec.Suspend();
+                _idec!.Suspend();
             }
 
-            private void OnTransitionStateChanged(TransitionStateMachine tsm, object userData)
+            private void OnTransitionStateChanged(TransitionStateMachine tsm, object? userData)
             {
-                PfcExecutionContext completedStepsParentPfcec = (PfcExecutionContext)userData;
-                if (completedStepsParentPfcec.Parent.Payload.Equals(_rootStepEc) && tsm.GetState(completedStepsParentPfcec) == TransitionState.Inactive)
+                PfcExecutionContext completedStepsParentPfcec = (PfcExecutionContext)userData!;
+                if (completedStepsParentPfcec.Parent!.Payload!.Equals(_rootStepEc) && tsm.GetState(completedStepsParentPfcec) == TransitionState.Inactive)
                 {
                     tsm.TransitionStateChanged -= _onTransitionStateChanged;
-                    _pendingActions.Remove(tsm.MyTransition.Parent);
+                    _pendingActions.Remove(tsm.MyTransition.Parent!);
                     if (_pendingActions.Count == 0)
                     {
-                        _idec.Resume();
+                        _idec!.Resume();
                     }
                 }
             }

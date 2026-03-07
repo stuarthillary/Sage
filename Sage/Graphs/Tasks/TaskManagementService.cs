@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -15,7 +14,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         private static readonly bool _managePostMortemData = Diagnostics.DiagnosticAids.Diagnostics("Graph.KeepPostMortems");
 
         private readonly Dictionary<Guid, TaskProcessor> _taskProcessors;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeService
         public TaskManagementService()
         {
             _taskProcessors = new Dictionary<Guid, TaskProcessor>();
@@ -35,11 +34,11 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <summary>
         /// Fired when a TaskProcessor is added to this model.
         /// </summary>
-        public event TaskProcessorListener TaskProcessorAddedEvent;
+        public event TaskProcessorListener? TaskProcessorAddedEvent;
         /// <summary>
         /// Fired when a TaskProcessor is removed from this model.
         /// </summary>
-        public event TaskProcessorListener TaskProcessorRemovedEvent;
+        public event TaskProcessorListener? TaskProcessorRemovedEvent;
 
         /// <summary>
         /// Adds a task processor to this model. A Task Processor is an entity that knows when to
@@ -86,9 +85,9 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// </summary>
         /// <param name="guid">The Guid of the task processor to be located.</param>
         /// <returns>The task processor, if found, otherwise null.</returns>
-        public TaskProcessor GetTaskProcessor(Guid guid)
+        public TaskProcessor? GetTaskProcessor(Guid guid)
         {
-            return _taskProcessors.TryGetValue(guid, out TaskProcessor taskProcessor) ? taskProcessor : null;
+            return _taskProcessors.TryGetValue(guid, out TaskProcessor? taskProcessor) ? taskProcessor : null;
         }
 
         /// <summary>
@@ -170,7 +169,7 @@ namespace Highpoint.Sage.Graphs.Tasks
                 {
                     foreach (IDictionary graphContext in tp.GraphContexts)
                     {
-                        PmData pmData = (PmData)graphContext["PostMortemData"];
+                        PmData? pmData = (PmData?)graphContext["PostMortemData"];
                         postmortems.Add(tp.Name, pmData);
                     }
                 }

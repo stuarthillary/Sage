@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
@@ -19,10 +18,10 @@ namespace Highpoint.Sage.Graphs.PFC
         public static bool Diagnostics = Highpoint.Sage.Diagnostics.DiagnosticAids.Diagnostics("PfcValidator");
         private readonly IProcedureFunctionChart _pfc;
         private bool? _pfcIsValid = null;
-        private Queue<QueueData> _activePath;
-        private ValidationToken _root;
-        private bool[,] _dependencies;
-        private List<PfcValidationError> _errorList = null;
+        private Queue<QueueData> _activePath = null!; // initialized in Validate()
+        private ValidationToken _root = null!; // initialized in Validate()
+        private bool[,] _dependencies = null!; // initialized in BuildDependencies()
+        private List<PfcValidationError> _errorList = new List<PfcValidationError>();
         private int _maxGraphOrdinal = 0;
 
         #endregion
@@ -112,7 +111,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             if (!_pfcIsValid.HasValue)
                 Validate();
-            return _pfcIsValid.Value;
+            return _pfcIsValid!.Value; // Validate() always sets _pfcIsValid
         }
 
         #region Dependency mechanism
@@ -125,8 +124,8 @@ namespace Highpoint.Sage.Graphs.PFC
             _dependencies = new bool[_maxGraphOrdinal + 1, _maxGraphOrdinal + 1];
             foreach (IPfcLinkElement link in _pfc.Links)
             {
-                int independent = link.Predecessor.GraphOrdinal;
-                bool[] dependents = GetValidationData(link).NodesBelow;
+                int independent = link.Predecessor!.GraphOrdinal; // non-null: valid PFC link always has a predecessor
+                bool[] dependents = GetValidationData(link).NodesBelow!; // set by BuildDependencies traversal
                 for (int dependentNum = 0; dependentNum < _maxGraphOrdinal + 1; dependentNum++)
                 {
                     _dependencies[independent, dependentNum] |= dependents[dependentNum];
@@ -145,12 +144,13 @@ namespace Highpoint.Sage.Graphs.PFC
                     if (lvd.NodesBelow == null)
                     {
                         stack.Push(outbound);
-                        BuildDependencies(outbound.Successor, stack);
+                        IPfcNode outboundSuccessor = outbound.Successor!; // non-null: valid link always has a successor
+                        BuildDependencies(outboundSuccessor, stack);
                         stack.Pop();
 
                         lvd.NodesBelow = new bool[_maxGraphOrdinal + 1];
-                        lvd.NodesBelow[outbound.Successor.GraphOrdinal] = true;
-                        foreach (IPfcLinkElement succOutboundLink in outbound.Successor.Successors)
+                        lvd.NodesBelow[outboundSuccessor.GraphOrdinal] = true;
+                        foreach (IPfcLinkElement succOutboundLink in outboundSuccessor.Successors)
                         {
                             LinkValidationData lvSuccLink = GetValidationData(succOutboundLink);
                             if (lvSuccLink.NodesBelow != null)
@@ -252,7 +252,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             if (GetValidationData(node).NodeHasRun)
             {
-                GetValidationData(node).ValidationToken.DecrementAlternatePathsOpen();
+                GetValidationData(node).ValidationToken!.DecrementAlternatePathsOpen(); // token set during propagation
 
                 // TODO: Check that converging tokens have the same parent.
 
@@ -277,7 +277,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 // from that point, all parallel, and at least one of every set of serially divergent
                 // paths, must contain the target node. If not all of the serially-divergent paths does,
                 // then we will catch that in the serial convergence handler.
-                UpdateClosureToken(node as IPfcTransitionNode);
+                UpdateClosureToken((node as IPfcTransitionNode)!); // guaranteed IPfcTransitionNode for ParallelConvergence
                 return true;
             }
             else
@@ -290,7 +290,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private void ProcessParallelDivergence(IPfcNode node)
         {
-            ValidationToken nodeVt = GetValidationData(node).ValidationToken;
+            ValidationToken nodeVt = GetValidationData(node).ValidationToken!; // token set before processing
             foreach (IPfcNode successor in node.SuccessorNodes)
             {
                 ValidationToken successorVtVt = new ValidationToken(successor);
@@ -306,7 +306,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private void ProcessSerialDivergence(IPfcNode node)
         {
-            ValidationToken nodeVt = GetValidationData(node).ValidationToken;
+            ValidationToken nodeVt = GetValidationData(node).ValidationToken!; // token set before processing
             foreach (IPfcNode successor in node.SuccessorNodes)
             {
                 nodeVt.IncrementAlternatePathsOpen();
@@ -318,12 +318,12 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private void ProcessPassthrough(IPfcNode node)
         {
-            Enqueue(node, node.SuccessorNodes[0], GetValidationData(node).ValidationToken);
+            Enqueue(node, node.SuccessorNodes[0], GetValidationData(node).ValidationToken!); // token set before processing
         }
 
         private void ProcessTerminalNode(IPfcNode node)
         {
-            GetValidationData(node).ValidationToken.DecrementAlternatePathsOpen();
+            GetValidationData(node).ValidationToken!.DecrementAlternatePathsOpen(); // token set before processing
         }
 
         private void Enqueue(IPfcNode from, IPfcNode node, ValidationToken vt)
@@ -331,7 +331,7 @@ namespace Highpoint.Sage.Graphs.PFC
             NodeValidationData vd = GetValidationData(node);
             if (vd.InputRole == InputRole.ParallelConvergence)
             {
-                GetValidationData(from).ValidationToken.DecrementAlternatePathsOpen();
+                GetValidationData(from).ValidationToken!.DecrementAlternatePathsOpen(); // from's token set before enqueueing
             }
             vd.ValidationToken = vt;
             _activePath.Enqueue(new QueueData(from, node));
@@ -360,15 +360,15 @@ namespace Highpoint.Sage.Graphs.PFC
         {
 
             // Find the youngest common ancestor to all gazinta tokens.
-            IPfcNode yca = DivergenceNodeFor(closureTransition);
+            IPfcNode yca = DivergenceNodeFor(closureTransition)!; // guaranteed non-null for valid parallel convergence
 
             bool completeParallelConverge = AllParallelAndAtLeastOneOfEachSetOfSerialPathsContain(yca, closureTransition);
 
             ValidationToken replacementToken =
                 completeParallelConverge ?                                                // Are all of the root node's outbound
                                                                                           //    paths closed by the closure node?
-                GetValidationData(yca).ValidationToken :                                  // If so, its token is the closure token.
-                GetValidationData(closureTransition.PredecessorNodes[0]).ValidationToken; // If not, pick one of the gazinta tokens.
+                GetValidationData(yca).ValidationToken! :                                 // If so, its token is the closure token.
+                GetValidationData(closureTransition.PredecessorNodes[0]).ValidationToken!; // If not, pick one of the gazinta tokens.
 
             replacementToken.IncrementAlternatePathsOpen();
             GetValidationData(closureTransition).ValidationToken = replacementToken;
@@ -427,7 +427,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
 
             // Find the youngest common ancestor to all gazinta tokens.
-            IPfcNode yca = DivergenceNodeFor(targetNodeToBeClosed);
+            IPfcNode yca = DivergenceNodeFor(targetNodeToBeClosed)!; // guaranteed non-null for valid convergence
 
             // Are all of the root node's outbound paths closed by the closure node?
             IPfcNode target = targetNodeToBeClosed;
@@ -438,11 +438,11 @@ namespace Highpoint.Sage.Graphs.PFC
             // If not, pick one of the gazinta tokens.
             if (allDivergencesConverge)
             {
-                return GetValidationData(yca).ValidationToken;
+                return GetValidationData(yca).ValidationToken!; // token set during propagation
             }
             else
             {
-                return GetValidationData(targetNodeToBeClosed.PredecessorNodes[0]).ValidationToken;
+                return GetValidationData(targetNodeToBeClosed.PredecessorNodes[0]).ValidationToken!; // token set during propagation
             }
         }
 
@@ -538,7 +538,7 @@ namespace Highpoint.Sage.Graphs.PFC
         //    }
         //}
 
-        private IPfcNode DivergenceNodeFor(IPfcNode closure)
+        private IPfcNode? DivergenceNodeFor(IPfcNode closure)
         {
 
             NodeValidationData nvd = GetValidationData(closure);
@@ -620,7 +620,7 @@ namespace Highpoint.Sage.Graphs.PFC
             foreach (IPfcNode node in _pfc.Nodes)
             {
                 NodeValidationData nodeVd = GetValidationData(node);
-                ValidationToken nodeVt = nodeVd.ValidationToken;
+                ValidationToken? nodeVt = nodeVd.ValidationToken;
                 if (nodeVt == null)
                 {
                     unreachableNodes.Add(node);
@@ -630,15 +630,15 @@ namespace Highpoint.Sage.Graphs.PFC
                 {
                     if (nodeVt.AlternatePathsOpen > 0 && !tokensWithOpenAlternates.Contains(nodeVt))
                     {
-                        tokensWithOpenAlternates.Add(GetValidationData(node).ValidationToken);
+                        tokensWithOpenAlternates.Add(nodeVt);
                     }
                     if (!nodeVd.NodeHasRun)
                         unexecutedNodes.Add(node);
 
                     if (node.ElementType == PfcElementType.Step && node.PredecessorNodes.Count() > 1)
                     {
-                        ValidationToken vt = GetValidationData(node.PredecessorNodes[0]).ValidationToken;
-                        if (!node.PredecessorNodes.TrueForAll(n => GetValidationData(n).ValidationToken.Equals(vt)))
+                        ValidationToken? vt = GetValidationData(node.PredecessorNodes[0]).ValidationToken;
+                        if (!node.PredecessorNodes.TrueForAll(n => GetValidationData(n).ValidationToken == vt))
                         {
                             inconsistentSerialConvergences.Add((IPfcStepNode)node);
                         }
@@ -657,8 +657,7 @@ namespace Highpoint.Sage.Graphs.PFC
                            unexecutedNodes.Count() == 0 &&
                            inconsistentSerialConvergences.Count() == 0;
 
-            StringBuilder sb = null;
-            sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             unreachableNodes.Sort(_nodeByName);
             unexecutedNodes.Sort(_nodeByName);
@@ -700,13 +699,13 @@ namespace Highpoint.Sage.Graphs.PFC
                 List<IPfcNode> liveNodes = new List<IPfcNode>();
                 foreach (ValidationToken vt2 in vt.ChildNodes.Where(n => n.AlternatePathsOpen > 0))
                 {
-                    liveNodes.Add(vt2.Origin);
+                    liveNodes.Add(vt2.Origin!); // Origin non-null: set in ValidationToken constructor
                 }
 
                 int nParallelsOpen = vt.ChildNodes.Count();
 
                 string narrative =
-                    $"Under {vt.Origin.Name}, there {(nParallelsOpen == 1 ? "is" : "are")} {nParallelsOpen} parallel branch{(nParallelsOpen == 1 ? "" : "es")} that did not complete - {(nParallelsOpen == 1 ? "it" : "they")} began at {StringOperations.ToCommasAndAndedList<IPfcNode>(liveNodes, n => n.Name)}.";
+                    $"Under {vt.Origin!.Name}, there {(nParallelsOpen == 1 ? "is" : "are")} {nParallelsOpen} parallel branch{(nParallelsOpen == 1 ? "" : "es")} that did not complete - {(nParallelsOpen == 1 ? "it" : "they")} began at {StringOperations.ToCommasAndAndedList<IPfcNode>(liveNodes, n => n.Name)}."; // vt.Origin non-null for live tokens
 
                 _errorList.Add(new PfcValidationError("Uncompleted Parallel Branches", narrative, vt.Origin));
                 sb.AppendLine();
@@ -721,12 +720,12 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private NodeValidationData GetValidationData(IPfcNode node)
         {
-            return node.UserData as NodeValidationData;
+            return (node.UserData as NodeValidationData)!; // always set by NodeValidationData.Attach()
         }
 
         private LinkValidationData GetValidationData(IPfcLinkElement link)
         {
-            return link.UserData as LinkValidationData;
+            return (link.UserData as LinkValidationData)!; // always set by LinkValidationData.Attach()
         }
 
         public IEnumerable<PfcValidationError> Errors
@@ -742,12 +741,12 @@ namespace Highpoint.Sage.Graphs.PFC
         public class PfcValidationError : IModelError
         {
 
-            private readonly IPfcNode _subject;
-            private readonly object _target;
+            private readonly IPfcNode? _subject;
+            private readonly object? _target;
             private readonly string _narrative;
             private readonly string _name;
 
-            public PfcValidationError(string name, string narrative, IPfcNode subject)
+            public PfcValidationError(string name, string narrative, IPfcNode? subject)
             {
                 _target = null;
                 _name = name;
@@ -757,7 +756,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             #region IModelError Members
 
-            public Exception InnerException
+            public Exception? InnerException
             {
                 get
                 {
@@ -793,7 +792,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 }
             }
 
-            public object Target
+            public object? Target
             {
                 get
                 {
@@ -801,7 +800,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 }
             }
 
-            public object Subject
+            public object? Subject
             {
                 get
                 {
@@ -819,7 +818,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             #endregion
 
-            public IPfcNode SubjectNode
+            public IPfcNode? SubjectNode
             {
                 get
                 {
@@ -837,12 +836,13 @@ namespace Highpoint.Sage.Graphs.PFC
             /// <returns></returns>
             public string NamesOfSubjectsNeighborNodes(int distanceLimit, NodeDiscriminator discriminator)
             {
+                IPfcNode subject = _subject!; // non-null when this method is meaningfully called
 
                 List<string> nodesBefore = new List<string>();
                 List<string> nodesAfter = new List<string>();
 
                 Queue<IPfcNode> preds = new Queue<IPfcNode>();
-                foreach (IPfcNode node in _subject.PredecessorNodes)
+                foreach (IPfcNode node in subject.PredecessorNodes)
                     preds.Enqueue(node);
                 for (int i = 0; i < distanceLimit; i++)
                 {
@@ -863,7 +863,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 }
 
                 Queue<IPfcNode> succs = new Queue<IPfcNode>();
-                foreach (IPfcNode node in _subject.SuccessorNodes)
+                foreach (IPfcNode node in subject.SuccessorNodes)
                     succs.Enqueue(node);
                 for (int i = 0; i < distanceLimit; i++)
                 {
@@ -901,7 +901,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 {
                     after = "has no recognizable predecessors";
                 }
-                string retval = $"The node {_subject.Name} {before} and {after}.";
+                string retval = $"The node {subject.Name} {before} and {after}.";
                 return retval;
             }
         }
@@ -925,8 +925,8 @@ namespace Highpoint.Sage.Graphs.PFC
         internal class LinkValidationData
         {
 
-            private object _userData;
-            private IPfcLinkElement _link;
+            private object? _userData;
+            private IPfcLinkElement _link = null!; // initialized in attach()
 
             public static void Attach(IPfcLinkElement link)
             {
@@ -935,7 +935,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             public static void Detach(IPfcLinkElement link)
             {
-                LinkValidationData vd = link.UserData as LinkValidationData;
+                LinkValidationData? vd = link.UserData as LinkValidationData;
                 if (vd != null)
                     link.UserData = vd._userData;
             }
@@ -947,15 +947,15 @@ namespace Highpoint.Sage.Graphs.PFC
                 link.UserData = this;
             }
 
-            public bool[] NodesBelow;
+            public bool[]? NodesBelow;
 
         }
 
         internal class NodeValidationData
         {
 
-            private object _userData;
-            private IPfcNode _node;
+            private object? _userData;
+            private IPfcNode _node = null!; // initialized in attach()
 
             public static void Attach(IPfcNode node)
             {
@@ -964,12 +964,12 @@ namespace Highpoint.Sage.Graphs.PFC
 
             public static void Detach(IPfcNode node)
             {
-                NodeValidationData vd = node.UserData as NodeValidationData;
+                NodeValidationData? vd = node.UserData as NodeValidationData;
                 if (vd != null)
                     node.UserData = vd._userData;
             }
 
-            internal ValidationToken ValidationToken
+            internal ValidationToken? ValidationToken
             {
                 get; set;
             }
@@ -998,12 +998,12 @@ namespace Highpoint.Sage.Graphs.PFC
                 get; set;
             }
 
-            public IPfcNode DivergenceNode
+            public IPfcNode? DivergenceNode
             {
                 get; set;
             }
 
-            public IPfcNode ClosureNode
+            public IPfcNode? ClosureNode
             {
                 get; set;
             }
@@ -1060,7 +1060,7 @@ namespace Highpoint.Sage.Graphs.PFC
             #region Private Fields
 
             private static int _nToken = 0;
-            private IPfcNode _origin = null;
+            private IPfcNode? _origin = null;
             private int _openAlternatives;
 
             #endregion
@@ -1078,7 +1078,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 _openAlternatives = 1;
             }
 
-            public IPfcNode Origin
+            public IPfcNode? Origin
             {
                 get
                 {
@@ -1090,7 +1090,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 get
                 {
-                    return Parent == null ? 0 : Parent.Payload.Generation + 1;
+                    return Parent == null ? 0 : Parent.Payload!.Generation + 1; // Payload non-null when Parent exists
                 }
             }
 
@@ -1134,18 +1134,18 @@ namespace Highpoint.Sage.Graphs.PFC
 
         private class QueueData
         {
-            public QueueData(IPfcNode from, IPfcNode to)
+            public QueueData(IPfcNode? from, IPfcNode to)
             {
                 From = from;
                 To = to;
             }
 
-            public IPfcNode From;
+            public IPfcNode? From;
             public IPfcNode To;
 
             public override string ToString()
             {
-                return $"{From.Name} -> {To.Name}";
+                return $"{From?.Name} -> {To.Name}";
             }
         }
 

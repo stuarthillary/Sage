@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* COPYRIGHT_NOTICE */
 using Highpoint.Sage.Utility;
 using System;
@@ -34,11 +34,11 @@ namespace Highpoint.Sage.Graphs.PFC
         private int _nextLinkNumber = 0;
         private int _nextStepNumber = 0;
         private int _nextTransitionNumber = 0;
-        private IProcedureFunctionChart _hostPfc = null;
+        private IProcedureFunctionChart? _hostPfc;
         private Guid _seedGuid = Guid.Empty;
         private Guid _maskGuid = Guid.Empty;
         private bool _repeatable = false;
-        private GuidGenerator _guidGenerator = null;
+        private GuidGenerator _guidGenerator = null!; // assigned in all constructors
         #endregion Private Members
 
         #region Private Helper Methods
@@ -182,7 +182,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the Procedure Function Chart for which this factory is creating elements.
         /// </summary>
         /// <value>The host PFC.</value>
-        public IProcedureFunctionChart HostPfc
+        public IProcedureFunctionChart? HostPfc
         {
             get
             {
@@ -213,7 +213,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID.</param>
         /// <param name="description">The description.</param>
         /// <returns>The new IPfcStepNode.</returns>
-        public virtual IPfcStepNode CreateStepNode(string name, Guid guid, string description)
+        public virtual IPfcStepNode CreateStepNode(string? name, Guid guid, string? description)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -228,7 +228,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 guid = NextGuid();
             }
 
-            IPfcStepNode node = NewStepNode(_hostPfc, name, guid, description);
+            IPfcStepNode node = NewStepNode(_hostPfc!, name, guid, description);
 
             return node;
         }
@@ -246,7 +246,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID.</param>
         /// <param name="description">The description.</param>
         /// <returns>The new IPfcTransitionNode.</returns>
-        public virtual IPfcTransitionNode CreateTransitionNode(string name, Guid guid, string description)
+        public virtual IPfcTransitionNode CreateTransitionNode(string? name, Guid guid, string? description)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -261,7 +261,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 guid = NextGuid();
             }
 
-            IPfcTransitionNode node = NewTransitionNode(_hostPfc, name, guid, description);
+            IPfcTransitionNode node = NewTransitionNode(_hostPfc!, name, guid, description);
 
             return node;
         }
@@ -279,7 +279,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID.</param>
         /// <param name="description">The description.</param>
         /// <returns>The new IPfcLinkElement.</returns>
-        public virtual IPfcLinkElement CreateLinkElement(string name, Guid guid, string description)
+        public virtual IPfcLinkElement CreateLinkElement(string? name, Guid guid, string? description)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -293,7 +293,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 guid = NextGuid();
             }
-            return NewLinkElement(_hostPfc, name, guid, description);
+            return NewLinkElement(_hostPfc!, name, guid, description);
         }
 
         public virtual IPfcLinkElement NewLinkElement(IProcedureFunctionChart parent, string name, Guid guid, string description)
@@ -399,7 +399,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             #region Retract Link Name
             List<string> linkNames = new List<string>();
-            _hostPfc.Links.ForEach(delegate (IPfcLinkElement le)
+            _hostPfc!.Links.ForEach(delegate (IPfcLinkElement le)
             {
                 linkNames.Add(le.Name);
             });
@@ -425,7 +425,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             #region Retract Step Name
             List<string> stepNames = new List<string>();
-            _hostPfc.Steps.ForEach(delegate (IPfcStepNode sn)
+            _hostPfc!.Steps.ForEach(delegate (IPfcStepNode sn)
             {
                 stepNames.Add(sn.Name);
             });
@@ -451,7 +451,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             #region Retract Transition Name
             List<string> transitionNames = new List<string>();
-            _hostPfc.Transitions.ForEach(delegate (IPfcTransitionNode tn)
+            _hostPfc!.Transitions.ForEach(delegate (IPfcTransitionNode tn)
             {
                 transitionNames.Add(tn.Name);
             });

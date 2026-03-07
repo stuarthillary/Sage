@@ -1,4 +1,4 @@
-#nullable disable
+// nullable enabled
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -11,12 +11,12 @@ namespace Highpoint.Sage.Graphs.PFC
     {
 
         #region Private Fields
-        private IModel _model;
-        private string _name;
-        private string _description;
+        private IModel _model = null!;       // initialized via InitializeIdentity
+        private string _name = null!;        // initialized via InitializeIdentity
+        private string _description = null!; // initialized via InitializeIdentity
         private Guid _guid;
-        private object _userData;
-        private IProcedureFunctionChart _parent = null;
+        private object? _userData;
+        private IProcedureFunctionChart? _parent;
         private Guid _seid;
         #endregion Private Fields
 
@@ -38,10 +38,10 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The name of this node.</param>
         /// <param name="description">The description for this node.</param>
         /// <param name="guid">The GUID of this node.</param>
-        public PfcElement(IProcedureFunctionChart parent, string name, string description, Guid guid)
+        public PfcElement(IProcedureFunctionChart? parent, string name, string description, Guid guid)
         {
             _parent = parent;
-            InitializeIdentity(parent.Model, name, description, guid);
+            InitializeIdentity(parent!.Model!, name, description, guid); // parent non-null for all real construction paths
             _userData = null;
             IMOHelper.RegisterWithModel(this);
         }
@@ -67,7 +67,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 return;
             }
 
-            if (Parent.ParticipantDirectory.Contains(newName))
+            if (Parent!.ParticipantDirectory.Contains(newName)) // Parent non-null when SetName is called
             {
                 string msg =
                     $"Trying to set a {ElementType} name from \"{Name}\" to \"{newName}\" - but the name \"{newName}\" is already in use in this PFC.";
@@ -80,7 +80,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             if (Parent != null && Parent.ParticipantDirectory.Contains(_guid))
             {
-                oldName = ((Expressions.DualModeString)Parent.ParticipantDirectory[_guid]).Name;
+                oldName = ((Expressions.DualModeString)Parent.ParticipantDirectory[_guid]!).Name; // Contains check ensures non-null
                 Parent.ParticipantDirectory.ChangeName(oldName, newName);
             }
         }
@@ -97,7 +97,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// The parent ProcedureFunctionChart of this node.
         /// </summary>
         /// <value></value>
-        public IProcedureFunctionChart Parent
+        public IProcedureFunctionChart? Parent
         {
             get
             {
@@ -147,7 +147,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets some piece of arbitrary user data. This data is (currently) not serialized.
         /// </summary>
         /// <value>The user data.</value>
-        public object UserData
+        public object? UserData
         {
             get
             {
@@ -220,7 +220,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The name of the task.</param>
         /// <param name="description">The description of the task.</param>
         /// <param name="guid">The GUID of the task.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }

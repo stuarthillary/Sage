@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -8,14 +7,14 @@ namespace Highpoint.Sage.Graphs.Tasks
 {
     public class TaskError : IModelError
     {
-        private Task _task;
-        private string _name;
-        private string _narrative;
-        private object _subject = null;
+        private Task? _task;
+        private string? _name;
+        private string? _narrative;
+        private object? _subject = null;
         private double _priority = 0.0;
         private bool _autoClear = false;
 
-        public Task Task
+        public Task? Task
         {
             get
             {
@@ -60,14 +59,14 @@ namespace Highpoint.Sage.Graphs.Tasks
                 _narrative = value;
             }
         }
-        public object Target
+        public object? Target
         {
             get
             {
                 return _task;
             }
         }
-        public object Subject
+        public object? Subject
         {
             get
             {
@@ -92,7 +91,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <summary>
         /// An exception that may have been caught in the detection of this error.
         /// </summary>
-        public Exception InnerException
+        public Exception? InnerException
         {
             get
             {
@@ -111,7 +110,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
         public override string ToString()
         {
-            return Name + " occurred at " + _task.Name + " due to " + Subject + " : " + Narrative;
+            return Name + " occurred at " + _task?.Name + " due to " + Subject + " : " + Narrative;
         }
     }
 }

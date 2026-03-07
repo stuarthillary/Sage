@@ -1,11 +1,10 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs.Tasks
 {
     public class TaskHasInvalidSelfStateError : TaskError
     {
-        public TaskHasInvalidSelfStateError(Task task, object subject)
+        public TaskHasInvalidSelfStateError(Task task, object? subject)
         {
             Task = task;
             Name = "InvalidSelfStateError";

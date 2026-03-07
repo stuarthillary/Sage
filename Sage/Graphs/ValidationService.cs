@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -33,8 +32,8 @@ namespace Highpoint.Sage.Graphs.Validity
         private int _suspensions;
         private bool _dirty;
         private readonly StructureChangeHandler _structureChangeListener;
-        private Dictionary<IHasValidity, ValidityNode> _htNodes;
-        private readonly Stack<string> _suspendResumeStack;
+        private Dictionary<IHasValidity, ValidityNode> _htNodes = null!; // assigned in Refresh(), called from ctor
+        private readonly Stack<string> _suspendResumeStack = null!; // assigned in ctor when _diagnostics is true
         private Dictionary<IHasValidity, bool> _oldValidities = null; // For holding pre-refresh validities so that refresh can fire the right change events.
         #endregion
 
@@ -370,7 +369,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// </summary>
         /// <param name="ihv">The specified object in the graph.</param>
         /// <returns>The parent of the specified object in the graph.</returns>
-		public IHasValidity GetParentOf(IHasValidity ihv)
+		public IHasValidity? GetParentOf(IHasValidity ihv)
         {
             if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
                 return null;
@@ -477,8 +476,8 @@ namespace Highpoint.Sage.Graphs.Validity
             private readonly IHasValidity _mine;
             private readonly ValidationService _validationService;
             private readonly List<ValidityNode> _predecessors;
-            private readonly List<ValidityNode> _successors;
-            private readonly List<ValidityNode> _children;
+            private readonly List<ValidityNode?> _successors;
+            private readonly List<ValidityNode?> _children;
             private readonly List<IHasValidity> _successorElements;
             private readonly List<IHasValidity> _childElements;
             private ValidityNode _parent;
@@ -499,8 +498,8 @@ namespace Highpoint.Sage.Graphs.Validity
                 _childElements = new List<IHasValidity>();
                 foreach (object obj in mine.GetChildren())
                     _childElements.Add((IHasValidity)obj);
-                _successors = new List<ValidityNode>();
-                _children = new List<ValidityNode>();
+                _successors = new List<ValidityNode?>();
+                _children = new List<ValidityNode?>();
                 _predecessors = new List<ValidityNode>();
                 if (_mine is SimCore.IHasName)
                 {
@@ -572,8 +571,8 @@ namespace Highpoint.Sage.Graphs.Validity
                         // We just became valid overall.
                         if (_parent != null)
                             _parent.InvalidChildCount--;
-                        foreach (ValidityNode vn in Successors)
-                            vn.InvalidPredecessorCount--;
+                        foreach (ValidityNode? vn in Successors)
+                            if (vn != null) vn.InvalidPredecessorCount--;
 
                     }
                     else if (newValidity == Validity.Invalid)
@@ -581,8 +580,8 @@ namespace Highpoint.Sage.Graphs.Validity
                         // We just became invalid overall.
                         if (_parent != null)
                             _parent.InvalidChildCount++;
-                        foreach (ValidityNode vn in Successors)
-                            vn.InvalidPredecessorCount++;
+                        foreach (ValidityNode? vn in Successors)
+                            if (vn != null) vn.InvalidPredecessorCount++;
                     }
                     _mine.NotifyOverallValidityChange(newValidity);
                 }
@@ -640,8 +639,8 @@ namespace Highpoint.Sage.Graphs.Validity
                 int delta = OverallValid ? -1 : +1;
                 if (_parent != null)
                     _parent.InvalidChildCount += delta;
-                foreach (ValidityNode vn in Successors)
-                    vn.InvalidPredecessorCount += delta;
+                foreach (ValidityNode? vn in Successors)
+                    if (vn != null) vn.InvalidPredecessorCount += delta;
 
                 _mine.NotifyOverallValidityChange(OverallValid ? Validity.Valid : Validity.Invalid);
             }
@@ -694,8 +693,8 @@ namespace Highpoint.Sage.Graphs.Validity
                 {
                     if (_parent != null)
                         _parent.InvalidChildCount++;
-                    foreach (ValidityNode vn in Successors)
-                        vn.InvalidPredecessorCount++;
+                    foreach (ValidityNode? vn in Successors)
+                        if (vn != null) vn.InvalidPredecessorCount++;
                 }
                 // If it's valid, it has no effect on parents & predecessors from the initial zero counts.
             }
@@ -708,21 +707,21 @@ namespace Highpoint.Sage.Graphs.Validity
                     return _predecessors;
                 }
             }
-            public IReadOnlyList<ValidityNode> Successors
+            public IReadOnlyList<ValidityNode?> Successors
             {
                 get
                 {
                     return _successors;
                 }
             }
-            public IReadOnlyList<ValidityNode> Children
+            public IReadOnlyList<ValidityNode?> Children
             {
                 get
                 {
                     return _children;
                 }
             }
-            public ValidityNode Parent
+            public ValidityNode? Parent
             {
                 get
                 {

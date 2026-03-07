@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
@@ -19,7 +18,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
         /// <param name="description">The description.</param>
         /// <returns>The new IPfcStepNode.</returns>
-        IPfcStepNode CreateStepNode(string name, Guid guid, string description);
+        IPfcStepNode CreateStepNode(string? name, Guid guid, string? description);
 
         /// <summary>
         /// Performs raw instantiation of a new step node.
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
         /// <param name="description">The description.</param>
         /// <returns>The new IPfcTransitionNode.</returns>
-        IPfcTransitionNode CreateTransitionNode(string name, Guid guid, string description);
+        IPfcTransitionNode CreateTransitionNode(string? name, Guid guid, string? description);
         /// <summary>
         /// Performs raw instantiation of a new transition node.
         /// </summary>
@@ -56,7 +55,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
         /// <param name="description">The description.</param>
         /// <returns>The new IPfcLinkElement.</returns>
-        IPfcLinkElement CreateLinkElement(string name, Guid guid, string description);
+        IPfcLinkElement CreateLinkElement(string? name, Guid guid, string? description);
         /// <summary>
         /// Performs raw instantiation of a new link element.
         /// </summary>
@@ -93,7 +92,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the Procedure Function Chart for which this factory is creating elements.
         /// </summary>
         /// <value>The host PFC.</value>
-        IProcedureFunctionChart HostPfc
+        IProcedureFunctionChart? HostPfc
         {
             get; set;
         }

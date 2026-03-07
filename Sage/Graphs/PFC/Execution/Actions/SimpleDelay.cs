@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.SimCore;
@@ -24,7 +23,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution.Actions
         public override void Run(PfcExecutionContext pfcec, StepStateMachine ssm)
         {
             IExecutive exec = Model.Executive;
-            exec.CurrentEventController.SuspendUntil(exec.Now + _tsd.GetNext());
+            exec.CurrentEventController!.SuspendUntil(exec.Now + _tsd.GetNext());
         }
 
 

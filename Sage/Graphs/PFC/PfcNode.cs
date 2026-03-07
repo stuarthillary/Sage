@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -18,8 +17,8 @@ namespace Highpoint.Sage.Graphs.PFC
         private bool _isNull = true;
         private bool _structureDirty = true;
         private int _graphOrdinal = 0;
-        internal object ScratchPad = null;
-        private Dictionary<string, string> _graphicsData = null;
+        internal object? ScratchPad = null;
+        private Dictionary<string, string>? _graphicsData = null;
         private DateTime? _earliestStart = null;
 
         #endregion Private Fields
@@ -29,7 +28,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// Creates a new instance of the <see cref="T:PfcNode"/> class.
         /// </summary>
-        public PfcNode() : this(null, null, null, Guid.NewGuid()) { }
+        public PfcNode() : this(null, string.Empty, string.Empty, Guid.NewGuid()) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:PfcNode"/> class.
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The name of this step.</param>
         /// <param name="description">The description for this step.</param>
         /// <param name="guid">The GUID of this step.</param>
-        public PfcNode(IProcedureFunctionChart parent, string name, string description, Guid guid)
+        public PfcNode(IProcedureFunctionChart? parent, string name, string description, Guid guid)
             : base(parent, name, description, guid)
         {
 
@@ -165,7 +164,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         public override void UpdateStructure()
         {
-            _successors.Sort(Parent.LinkComparer);
+            _successors.Sort(Parent!.LinkComparer); // Parent non-null when UpdateStructure is called
         }
 
         /// <summary>
@@ -191,9 +190,9 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="successorNode">The successor.</param>
         /// <returns></returns>
-        public IPfcLinkElement GetLinkForSuccessorNode(IPfcNode successorNode)
+        public IPfcLinkElement? GetLinkForSuccessorNode(IPfcNode successorNode)
         {
-            IPfcLinkElement retval = null;
+            IPfcLinkElement? retval = null;
             _successors.ForEach(delegate (IPfcLinkElement le)
             {
                 if (le.Successor == successorNode)
@@ -207,9 +206,9 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="predecessorNode">The predecessor.</param>
         /// <returns></returns>
-        public IPfcLinkElement GetLinkForPredecessorNode(IPfcNode predecessorNode)
+        public IPfcLinkElement? GetLinkForPredecessorNode(IPfcNode predecessorNode)
         {
-            IPfcLinkElement retval = null;
+            IPfcLinkElement? retval = null;
             _predecessors.ForEach(delegate (IPfcLinkElement le)
             {
                 if (le.Predecessor == predecessorNode)
@@ -233,7 +232,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 return false;
             }
 
-            _successors.Sort(Parent.LinkComparer);
+            _successors.Sort(Parent!.LinkComparer); // Parent non-null on an active node
             _successors.Remove(outbound);
             _successors.Add(outbound);
 
@@ -246,7 +245,7 @@ namespace Highpoint.Sage.Graphs.PFC
             _successors.Clear();
             _successors.AddRange(links);
 
-            _successors.Sort(Parent.LinkComparer);
+            _successors.Sort(Parent!.LinkComparer); // Parent non-null on an active node
 
             return true;
         }
@@ -265,7 +264,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 return false;
             }
 
-            _successors.Sort(Parent.LinkComparer);
+            _successors.Sort(Parent!.LinkComparer); // Parent non-null on an active node
             _successors.Remove(outbound);
             _successors.Insert(0, outbound);
 
@@ -278,7 +277,7 @@ namespace Highpoint.Sage.Graphs.PFC
             _successors.Clear();
             _successors.AddRange(links);
 
-            _successors.Sort(Parent.LinkComparer);
+            _successors.Sort(Parent!.LinkComparer); // Parent non-null on an active node
 
             return true;
         }
@@ -480,12 +479,12 @@ namespace Highpoint.Sage.Graphs.PFC
 
         public class NodeComparer : IComparer<IPfcNode>
         {
-            public int Compare(IPfcNode x, IPfcNode y)
+            public int Compare(IPfcNode? x, IPfcNode? y)
             {
-                int retval = Comparer<int>.Default.Compare(x.GraphOrdinal, y.GraphOrdinal);
+                int retval = Comparer<int>.Default.Compare(x!.GraphOrdinal, y!.GraphOrdinal);
                 if (retval == 0)
                 {
-                    retval = Utility.GuidOps.Compare(x.Guid, y.Guid);
+                    retval = Utility.GuidOps.Compare(x!.Guid, y!.Guid);
                 }
                 return retval;
             }

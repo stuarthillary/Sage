@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.PFC.Execution;
@@ -123,7 +122,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="shimNode">The shim node, if one was created.</param>
         /// <param name="iPfcLink2">The second link element, if one was created.</param>
         /// <param name="allowPiggybacking">if set to <c>true</c>, we allow an existing link to serve the purpose of this requested link.</param>
-        void Bind(IPfcNode from, IPfcNode to, out IPfcLinkElement iPfcLink1, out IPfcNode shimNode, out IPfcLinkElement iPfcLink2, bool allowPiggybacking);
+        void Bind(IPfcNode from, IPfcNode to, out IPfcLinkElement? iPfcLink1, out IPfcNode? shimNode, out IPfcLinkElement? iPfcLink2, bool allowPiggybacking);
 
         /// <summary>
         /// Unbinds the two nodes, removing the link between them. Returns false if they were
@@ -212,7 +211,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// By default, this orders a node's downstream links' priorities and thereby graph ordinals as GOOBER
         /// </summary>
-        IComparer<IPfcLinkElement> LinkComparer
+        IComparer<IPfcLinkElement>? LinkComparer
         {
             get; set;
         }
@@ -220,7 +219,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the parent step node for this SFC.
         /// </summary>
         /// <value>The parent step node.</value>
-        IPfcStepNode Parent
+        IPfcStepNode? Parent
         {
             get; set;
         }
@@ -229,7 +228,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the source PFC, if any, from which this PFC was cloned.
         /// </summary>
         /// <value>The source.</value>
-        IProcedureFunctionChart Source
+        IProcedureFunctionChart? Source
         {
             get;
         }
@@ -341,14 +340,14 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <para></para>
         /// </summary>
         /// <param name="path">The path (e.g. ParentName/ChildName).</param>
-        IPfcNode FindNode(string path);
+        IPfcNode? FindNode(string path);
 
         /// <summary>
         /// Finds the first node for which the predicate returns true.
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        IPfcNode FindFirst(Predicate<IPfcNode> predicate);
+        IPfcNode? FindFirst(Predicate<IPfcNode> predicate);
 
         /// <summary>
         /// Retrieves a depth-first iterator over all nodes in this PFC that satisfy the predicate.
@@ -386,7 +385,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the finish transition in this ProcedureFunctionChart.
         /// </summary>
         /// <returns>The finish transition.</returns>
-        IPfcTransitionNode GetFinishTransition();
+        IPfcTransitionNode? GetFinishTransition();
         /// <summary>
         /// Adds the element to the PFC.
         /// </summary>
@@ -453,7 +452,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="exec">The exec.</param>
         /// <param name="userData">The user data.</param>
-        void Run(IExecutive exec, object userData);
+        void Run(IExecutive exec, object? userData);
 
         DateTime? EarliestStart
         {
@@ -462,7 +461,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         void GetPermissionToStart(PfcExecutionContext myPfcec, StepStateMachine ssm);
 
-        PfcAction Precondition
+        PfcAction? Precondition
         {
             get; set;
         }
@@ -470,21 +469,21 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <summary>
         /// Occurs when PFC start requested, but before permission has been obtained to do so.
         /// </summary>
-        event PfcAction PfcStartRequested;
+        event PfcAction? PfcStartRequested;
 
         /// <summary>
         /// Occurs when PFC is starting.
         /// </summary>
-        event PfcAction PfcStarting;
+        event PfcAction? PfcStarting;
 
         /// <summary>
         /// Occurs when PFC is completing.
         /// </summary>
-        event PfcAction PfcCompleting;
+        event PfcAction? PfcCompleting;
 
-        event StepStateMachineEvent StepStateChanged;
+        event StepStateMachineEvent? StepStateChanged;
 
-        event TransitionStateMachineEvent TransitionStateChanged;
+        event TransitionStateMachineEvent? TransitionStateChanged;
 
     }
 }

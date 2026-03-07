@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -34,7 +33,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
 
         public IPfcStepNode StepNode => _myStepNode;
 
-        private List<IPfcStepNode> _peers;
+        private List<IPfcStepNode>? _peers;
         public List<IPfcStepNode> Peers
         {
             get
@@ -42,7 +41,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 if (_peers == null)
                 {
                     _peers = new List<IPfcStepNode>();
-                    foreach (IPfcStepNode step in _myStepNode.Parent.Steps)
+                    foreach (IPfcStepNode step in _myStepNode.Parent!.Steps)
                     {
                         _peers.Add(step);
                     }
@@ -58,10 +57,10 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         public abstract void SetStochasticMode(StochasticMode mode);
 
         #region Implementation of IModelObject
-        private string _name;
+        private string _name = null!;
         private Guid _guid = Guid.Empty;
-        private IModel _model;
-        private string _description;
+        private IModel _model = null!;
+        private string? _description;
 
         /// <summary>
         /// The IModel to which this object belongs.
@@ -122,7 +121,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }

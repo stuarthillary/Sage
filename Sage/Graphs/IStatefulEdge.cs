@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -15,13 +14,13 @@ namespace Highpoint.Sage.Graphs
         /// </summary>
         /// <param name="graphContext">The graph context.</param>
         /// <returns>The state of the implementing object immediately prior to execution.</returns>
-		IMemento GetPreState(IDictionary graphContext);
+		IMemento? GetPreState(IDictionary graphContext);
         /// <summary>
         /// Gets the state of the implementing object immediately following execution within the provided context.
         /// </summary>
         /// <param name="graphContext">The graph context.</param>
         /// <returns>The state of the implementing object immediately following execution.</returns>
-		IMemento GetPostState(IDictionary graphContext);
+		IMemento? GetPostState(IDictionary graphContext);
 	}
 }
 

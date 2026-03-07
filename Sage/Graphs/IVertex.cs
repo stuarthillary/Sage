@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 
@@ -15,7 +14,7 @@ namespace Highpoint.Sage.Graphs
         {
             get;
         }
-        Edge PrincipalEdge
+        Edge? PrincipalEdge
         {
             get;
         }
@@ -27,16 +26,16 @@ namespace Highpoint.Sage.Graphs
         {
             get;
         }
-        IEdgeFiringManager EdgeFiringManager
+        IEdgeFiringManager? EdgeFiringManager
         {
             get;
         }
-        IEdgeReceiptManager EdgeReceiptManager
+        IEdgeReceiptManager? EdgeReceiptManager
         {
             get;
         }
         void PreEdgeSatisfied(IDictionary graphContext, Edge theEdge);
-        TriggerDelegate FireVertex
+        TriggerDelegate? FireVertex
         {
             get;
         }

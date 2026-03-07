@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -16,11 +15,11 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// A list of the vertices in a graph that were fired in a given run of  the graph.
         /// </summary>
-        public ArrayList VerticesFired = new ArrayList();
+        public ArrayList VerticesFired = new();
         /// <summary>
         /// A list of the edges in a graph that were fired in a given run of  the graph.
         /// </summary>
-        public ArrayList EdgesFired = new ArrayList();
+        public ArrayList EdgesFired = new();
     }
 #endif
 }

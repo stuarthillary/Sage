@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.PFC.Execution;
@@ -18,7 +17,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// </summary>
         /// <param name="path">The path.</param>
         /// <returns></returns>
-        IPfcElement Find(string path);
+        IPfcElement? Find(string path);
 
         /// <summary>
         /// Gets all of the elements that are contained in or under this Pfc, to a depth
@@ -50,7 +49,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// The executable action that will be performed if there are no PFCs under this step. By default, it will
         /// run the child Action PFCs in parallel, if there are any, and will return immediately if there are not.
         /// </summary>
-        PfcAction LeafLevelAction
+        PfcAction? LeafLevelAction
         {
             get; set;
         }
@@ -83,7 +82,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// the UnitInfo property will be null.
         /// </summary>
         /// <value>The unit info.</value>
-        IPfcUnitInfo UnitInfo
+        IPfcUnitInfo? UnitInfo
         {
             get; set;
         }
@@ -116,7 +115,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets the precondition under which this step is permitted to start. If null, permission is assumed.
         /// </summary>
         /// <value>The precondition.</value>
-        PfcAction Precondition
+        PfcAction? Precondition
         {
             get; set;
         }

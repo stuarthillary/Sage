@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Text;
@@ -36,9 +35,9 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         /// <returns>
         /// The evaluated representation of the macro.
         /// </returns>
-        protected override string Evaluate(object[] args)
+        protected override string Evaluate(object?[] args)
         {
-            IPfcTransitionNode node = (IPfcTransitionNode)args[0];
+            IPfcTransitionNode node = (IPfcTransitionNode)args[0]!; // forWhom is always a transition node
 
             if (node.PredecessorNodes.Count > 0)
             {

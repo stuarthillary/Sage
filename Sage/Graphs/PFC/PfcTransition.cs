@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.PFC.Execution;
 using System;
@@ -15,9 +14,9 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #region Private Fields
 
-        private ExecutableCondition _executableExpression;
-        private Expressions.Expression _expression = null;
-        private TransitionStateMachine _myTransitionStateMachine = null;
+        private ExecutableCondition? _executableExpression;
+        private Expressions.Expression? _expression;
+        private TransitionStateMachine? _myTransitionStateMachine = null;
 
         #endregion Private Fields
 
@@ -55,10 +54,10 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="name">The name of this transition.</param>
         /// <param name="description">The description for this transition.</param>
         /// <param name="guid">The GUID of this transition.</param>
-        public PfcTransition(IProcedureFunctionChart parent, string name, string description, Guid guid)
+        public PfcTransition(IProcedureFunctionChart? parent, string name, string description, Guid guid)
             : base(parent, name, description, guid)
         {
-            _expression = Expressions.Expression.FromUf(DefaultExpression, parent.ParticipantDirectory, this);
+            _expression = Expressions.Expression.FromUf(DefaultExpression, parent!.ParticipantDirectory, this); // parent non-null for all real construction paths
             _executableExpression = DefaultExecutableExpression;
         }
 
@@ -70,7 +69,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the expression that is attached to this transition.
         /// </summary>
         /// <value>The expression.</value>
-        public Expressions.Expression Expression
+        public Expressions.Expression? Expression
         {
             get
             {
@@ -82,15 +81,15 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets the 'friendly' value of this expression. Uses step names and macro names.
         /// </summary>
         /// <value>The expression value.</value>
-        public string ExpressionUFValue
+        public string? ExpressionUFValue
         {
             get
             {
-                return Expression.ToString(Expressions.ExpressionType.Friendly, this);
+                return Expression?.ToString(Expressions.ExpressionType.Friendly, this);
             }
             set
             {
-                _expression = Expressions.Expression.FromUf(value, Parent.ParticipantDirectory, this);
+                _expression = Expressions.Expression.FromUf(value!, Parent!.ParticipantDirectory, this); // value non-null when expression setter is called
             }
         }
 
@@ -98,15 +97,15 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets or sets the 'hostile' value of this expression.
         /// </summary>
         /// <value>The expression value.</value>
-        public string ExpressionUHValue
+        public string? ExpressionUHValue
         {
             get
             {
-                return Expression.ToString(Expressions.ExpressionType.Hostile, this);
+                return Expression?.ToString(Expressions.ExpressionType.Hostile, this);
             }
             set
             {
-                _expression = Expressions.Expression.FromUh(value, Parent.ParticipantDirectory, this);
+                _expression = Expressions.Expression.FromUh(value!, Parent!.ParticipantDirectory, this); // value non-null when expression setter is called
             }
         }
 
@@ -114,11 +113,11 @@ namespace Highpoint.Sage.Graphs.PFC
         /// Gets the expanded value of this expression. Uses step names and expands macro names into their resultant names.
         /// </summary>
         /// <value>The expanded value of this expression.</value>
-        public string ExpressionExpandedValue
+        public string? ExpressionExpandedValue
         {
             get
             {
-                return Expression.ToString(Expressions.ExpressionType.Expanded, this);
+                return Expression?.ToString(Expressions.ExpressionType.Expanded, this);
             }
         }
 
@@ -127,7 +126,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// evaluate unless overridden in the execution manager.
         /// </summary>
         /// <value>The default executable condition.</value>
-        public ExecutableCondition ExpressionExecutable
+        public ExecutableCondition? ExpressionExecutable
         {
             get
             {
@@ -145,9 +144,9 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 if (_myTransitionStateMachine == null)
                 {
-                    object obj = ((ProcedureFunctionChart)Parent).ExecutionEngine; // Forces initialization so everyone has a TSM.
+                    object obj = ((ProcedureFunctionChart)Parent!).ExecutionEngine; // Parent non-null; forces TSM initialization
                 }
-                return _myTransitionStateMachine;
+                return _myTransitionStateMachine!; // guaranteed non-null after ExecutionEngine initialization
             }
             internal set
             {
@@ -191,7 +190,7 @@ namespace Highpoint.Sage.Graphs.PFC
         {
             get
             {
-                return (/*PredecessorNodes.Count < 2 && SuccessorNodes.Count < 2 &&*/ ExpressionUFValue.Equals(DefaultExpression, StringComparison.Ordinal));
+                return (/*PredecessorNodes.Count < 2 && SuccessorNodes.Count < 2 &&*/ string.Equals(ExpressionUFValue, DefaultExpression, StringComparison.Ordinal));
             }
             set
             {
@@ -201,9 +200,9 @@ namespace Highpoint.Sage.Graphs.PFC
 
         #endregion 
 
-        public static IPfcTransitionNode Between(IPfcStepNode before, IPfcStepNode after)
+        public static IPfcTransitionNode? Between(IPfcStepNode before, IPfcStepNode after)
         {
-            return (IPfcTransitionNode)before.SuccessorNodes.Find(delegate (IPfcNode trans)
+            return (IPfcTransitionNode?)before.SuccessorNodes.Find(delegate (IPfcNode trans)
             {
                 return trans.SuccessorNodes.Contains(after);
             });
@@ -222,12 +221,12 @@ namespace Highpoint.Sage.Graphs.PFC
             /// <returns>
             /// Value Condition Less than zero, x is less than y. Zero, x equals y.Greater than zero, x is greater than y.
             /// </returns>
-            public int Compare(IPfcTransitionNode x, IPfcTransitionNode y)
+            public int Compare(IPfcTransitionNode? x, IPfcTransitionNode? y)
             {
-                int retval = Comparer<int>.Default.Compare(x.GraphOrdinal, y.GraphOrdinal);
+                int retval = Comparer<int>.Default.Compare(x!.GraphOrdinal, y!.GraphOrdinal);
                 if (retval == 0)
                 {
-                    retval = Utility.GuidOps.Compare(x.Guid, y.Guid);
+                    retval = Utility.GuidOps.Compare(x!.Guid, y!.Guid);
                 }
                 return retval;
             }

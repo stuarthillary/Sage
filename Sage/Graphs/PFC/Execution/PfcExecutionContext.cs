@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Scheduling;
 using Highpoint.Sage.Utility;
@@ -23,15 +22,15 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         #region Private Fields
         private int _instanceCount = 0;
         private readonly IProcedureFunctionChart _pfc;
-        private readonly IPfcStepNode _step;
+        private readonly IPfcStepNode? _step;
         private readonly ITimePeriod _timePeriod;
         private static readonly Guid _time_Period_Mask = new Guid("8aeaf15a-f138-4739-b815-6db516107103");
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("PfcExecutionContext");
         #endregion Private Fields
 
         #region Constructors
-        public PfcExecutionContext(IProcedureFunctionChart pfc, string name, string description, Guid guid, PfcExecutionContext parent)
-            : base(pfc.Model, name, description, guid, parent)
+        public PfcExecutionContext(IProcedureFunctionChart pfc, string name, string? description, Guid guid, PfcExecutionContext? parent)
+            : base(pfc.Model!, name, description!, guid, parent!)
         {
 
             if (_diagnostics)
@@ -51,8 +50,8 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             _timePeriod.ChangeEvent += new ObservableChangeHandler(timePeriod_ChangeEvent);
         }
 
-        public PfcExecutionContext(IPfcStepNode stepNode, string name, string description, Guid guid, PfcExecutionContext parent)
-            : base(stepNode.Parent.Model, name, description, guid, parent)
+        public PfcExecutionContext(IPfcStepNode stepNode, string name, string? description, Guid guid, PfcExecutionContext parent)
+            : base(stepNode.Parent!.Model!, name, description!, guid, parent)
         {
 
             if (_diagnostics)
@@ -78,13 +77,13 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         }
         #endregion Constructors
 
-        private void timePeriod_ChangeEvent(object whoChanged, object whatChanged, object howChanged)
+        private void timePeriod_ChangeEvent(object whoChanged, object? whatChanged, object? howChanged)
         {
             if (TimePeriodChange != null)
-                TimePeriodChange((ITimePeriod)whoChanged, (TimePeriod.ChangeType)whatChanged);
+                TimePeriodChange((ITimePeriod)whoChanged, (TimePeriod.ChangeType)whatChanged!);
         }
 
-        public event TimePeriodChange TimePeriodChange;
+        public event TimePeriodChange? TimePeriodChange;
 
         public IProcedureFunctionChart PFC
         {
@@ -94,7 +93,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
                 return _pfc;
             }
         }
-        public IPfcStepNode Step
+        public IPfcStepNode? Step
         {
             [DebuggerStepThrough]
             get
@@ -125,7 +124,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             {
                 foreach (object obj in Values)
                 {
-                    StepStateMachine ssm = obj as StepStateMachine;
+                    StepStateMachine? ssm = obj as StepStateMachine;
                     if (ssm != null)
                     {
                         yield return ssm.MyStep;
@@ -140,7 +139,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             {
                 foreach (object obj in Keys)
                 {
-                    StepStateMachine ssm = obj as StepStateMachine;
+                    StepStateMachine? ssm = obj as StepStateMachine;
                     if (ssm != null)
                     {
                         yield return ssm;
@@ -192,7 +191,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         {
             get
             {
-                return Parent.Payload.Guid;
+                return Parent!.Payload!.Guid;
             }
         }
 
