@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Highpoint.Sage.Examples</RootNamespace>
-    <AssemblyName>Sample.Examples</AssemblyName>
+    <AssemblyName>Sage.Examples</AssemblyName>
   </PropertyGroup>
   <PropertyGroup>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
