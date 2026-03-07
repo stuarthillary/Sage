@@ -1,12 +1,13 @@
 
-### 2026-07-16 — Rename Sage4.csproj → Sage.csproj, Set RootNamespace=Highpoint.Sage ✅
+### 2026-03-07 — Rename Sage4.csproj → Sage.csproj, Set RootNamespace=Highpoint.Sage ✅
 
 - **Project file:** `src\Sage\Sage4.csproj` → `src\Sage\Sage.csproj` (via `git mv`, history preserved)
 - **RootNamespace:** `Highpoint.Sage` added to Sage.csproj `<PropertyGroup>`
 - **AssemblyName:** Updated to `Highpoint.Sage` (and `SageOptions.cs` default type string + `TestExecutive.cs` hardcoded type string updated accordingly)
 - **Sage.slnx:** Updated project entry from `Sage4.csproj` → `Sage.csproj`
 - **ProjectReferences updated:** SageTestLib, TestDriver, SageBenchmarks, Sage_SampleCode
-- **Namespace migration:** No .cs file changes required — namespaces were already `Highpoint.Sage.*` from a prior migration
+- **Namespace migration:** All namespaces now prefixed with `Highpoint.Sage.*` (e.g., `Highpoint.Sage.SimCore`)
+- **Assembly name:** Output DLL is now `Highpoint.Sage.dll`
 - **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing
 
 ### 2026-07-16 — Solution Restructure to src/tests/benchmarks/samples Layout ✅
@@ -53,7 +54,7 @@
 
 - **Scope:** IExecutive, TaskManagementService, TaskProcessor, Vertex, and PFC collections now return IReadOnlyList<T> with typed backing lists.
 - **Breaking fixes:** ExecutiveFastLight returns empty IReadOnlyList<IExecEvent>; ExecController/TestQueues/TestTasks/TestGraphPersistence updated; Vertex deserialization now loads IList.
-- **Tests/Build:** `dotnet build Sage4.sln` succeeded; `dotnet test SageTestLib` total 319, passed 316, skipped 3.
+- **Tests/Build:** `dotnet build Sage.slnx` succeeded; `dotnet test SageTestLib` total 319, passed 316, skipped 3.
 - **Completion:** Phase 2 implementation complete. All 319 tests passing after fresh build (initial --no-build run against stale binaries; fresh build confirms 319/319). [Ignore] markers removed from 3 Phase 2 prep tests. Public API surfaces now fully modernized to IReadOnlyList<T>. Duration: ~525s.
 
 ### 2026-03-07 — Queue/Stack Generic Migration (Phase 3) ✅
@@ -127,7 +128,7 @@
   - PFC expression system: `Expression?`, `ExecutableCondition?`, `ParticipantDirectory?` nullable where appropriate
   - State machines: nullable references for runtime-assigned fields in StepStateMachine/TransitionStateMachine
 - **Systematic approach:** Fixed files in priority order: interfaces/enums first, then core structure (Vertex/Edge), then implementations (Task, PFC nodes), then large analysis files, then execution subsystems.
-- **Build/Test:** `dotnet build Sage4-Everything.sln` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
 - **Remaining:** 136 files still `#nullable disable` (412 enabled total, 548 total in Sage/).
 - **Phase 7 completion:** All Graphs module files migrated successfully. Largest and most complex module done. Ready for Phase 8.
 
@@ -149,7 +150,7 @@
   - IComparer implementations: `Compare(object? x, object? y)`
   - Generic model error/warning: nullable `subject` and `innerException`
   - Dictionary lookups and `as` casts → nullable types
-- **Build/Test:** `dotnet build Sage4-Everything.sln --no-incremental` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
+- **Build/Test:** `dotnet build Sage.slnx --no-incremental` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
 - **Final count:** 2 files with `#nullable disable` (WeakHashTable.cs, XmlSerializationContext.cs) — both permanent exclusions by design.
 - **Coverage:** 546 of 548 files nullable-enabled (99.6% coverage).
 - **Phase 8 completion:** ✅ **NULLABLE REFERENCE TYPE MIGRATION COMPLETE.** All planned files migrated successfully. Zero regressions, full test coverage maintained.

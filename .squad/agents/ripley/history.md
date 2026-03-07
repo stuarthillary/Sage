@@ -15,7 +15,7 @@
 ### 2025-07-15 — Full Architectural Assessment
 
 **Solution structure:**
-- Single monolithic assembly `Sage.dll` from `Sage/Sage4.csproj` targeting .NET 8
+- Single monolithic assembly `Highpoint.Sage.dll` from `src/Sage/Sage.csproj` targeting .NET 8
 - 548 .cs source files across 16 module directories
 - ~304 MSTest tests in `Sage_Aux/SageTestLib/`
 - Builds clean (0 errors, ~3,746 warnings)
@@ -171,7 +171,7 @@
 
 **Key findings:**
 
-1. **4,446 nullable warnings** when `<Nullable>enable</Nullable>` is set in Sage4.csproj. Build succeeds (0 errors).
+1. **4,446 nullable warnings** when `<Nullable>enable</Nullable>` is set in Sage.csproj. Build succeeds (0 errors).
 
 2. **Warning type distribution:** CS8618 (constructor init) dominates at 1,378 (31%). CS8625 (null literal) at 988 (22%). CS8600 (null conversion) at 812 (18%). These three account for 71% of all warnings.
 
