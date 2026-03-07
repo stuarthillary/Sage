@@ -1192,3 +1192,23 @@ Phase 2 spec will be written after Phase 1 results are reviewed.
 ## Verification
 - `dotnet build E:\source\Sage\Sage4-Everything.sln --no-incremental -v minimal`
 - `dotnet test E:\source\Sage\Sage_Aux\SageTestLib\SageTestLib.csproj --no-build -v minimal` (319/319)
+
+---
+
+# Nullable Phase 2 — Engine Internals (Complete)
+
+**Date:** 2026-03-07T01:39:01Z  
+**Owner:** Parker  
+**Status:** Complete
+
+## Summary
+- **Files updated:** Executive.cs, ExecutiveFastLight.cs, ExecFactory.cs, ModelConfig.cs, Model.cs, ExecEventRemover.cs.
+- **Nullability updates:** `object userData` parameters annotated as `object?`, nullable events/fields adjusted, and Executive.SetCurrentEventController now accepts `DetachableEvent?`.
+- **Heap internals:** ExecutiveFastLight queue/heap logic preserved; only annotations and null-forgiving used.
+- **Build/Test:** `dotnet build Sage4-Everything.sln --no-incremental` succeeded; `dotnet test SageTestLib` total 319, passed 319.
+- **Counts:** 23 files now `#nullable enable`; 519 files still `#nullable disable`.
+
+## Verification
+- Build: SUCCESS
+- Tests: 319/319 PASSED
+- Commit: ed40b0f
