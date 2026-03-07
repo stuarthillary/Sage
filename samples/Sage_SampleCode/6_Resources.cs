@@ -9,7 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Demo.Resources
+namespace Highpoint.Sage.Examples.Resources
 {
     namespace Basic
     {

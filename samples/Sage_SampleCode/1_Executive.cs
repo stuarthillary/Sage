@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 
-namespace Demo.Executive
+namespace Highpoint.Sage.Examples.Executive
 {
 
     namespace SynchronousEvents

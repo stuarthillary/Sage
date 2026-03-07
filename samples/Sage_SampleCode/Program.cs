@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 using System.ComponentModel;
@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
-namespace Sage_SampleCode
+namespace Highpoint.Sage.Examples
 {
     static class Program
     {
@@ -16,44 +16,44 @@ namespace Sage_SampleCode
         static void Main(string[] args)
         {
 
-            Demonstrate(Demo.Executive.SynchronousEvents.HelloWorld.Run);
-            Demonstrate(Demo.Executive.SynchronousEvents.TwoCallbacksOutOfSequence.Run);
-            Demonstrate(Demo.Executive.SynchronousEvents.CallbacksWithPriorities.Run);
-            Demonstrate(Demo.Executive.SynchronousEvents.UserData_FollowOn_SelfImposedDelay.Run);
-            Demonstrate(Demo.Executive.SynchronousEvents.ExecCatchesRuntimeExceptionFromSynchronousEvent.Run);
-            Demonstrate(Demo.Executive.SynchronousEvents.RescindingSynchEvent.Run);
-            Demonstrate(Demo.Executive.SynchronousEvents.MoreRescindingPlusAgentBased.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.HelloWorld.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.TwoCallbacksOutOfSequence.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.CallbacksWithPriorities.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.UserData_FollowOn_SelfImposedDelay.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.ExecCatchesRuntimeExceptionFromSynchronousEvent.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.RescindingSynchEvent.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.SynchronousEvents.MoreRescindingPlusAgentBased.Run);
 
-            Demonstrate(Demo.Executive.DetachableEvents.BasicWithSuspends.Run);
-            Demonstrate(Demo.Executive.DetachableEvents.SuspendsWithMixedModeAgents.Run);
-            Demonstrate(Demo.Executive.DetachableEvents.UsesJoining.Run);
-            Demonstrate(Demo.Executive.DetachableEvents.RescindMultipleDetachables.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.DetachableEvents.BasicWithSuspends.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.DetachableEvents.SuspendsWithMixedModeAgents.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.DetachableEvents.UsesJoining.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.DetachableEvents.RescindMultipleDetachables.Run);
 
-            Demonstrate(Demo.Executive.AdvancedTopics.Metronomes.Run);
-            Demonstrate(Demo.Executive.AdvancedTopics.PauseAndResume.Run);
-            Demonstrate(Demo.Executive.AdvancedTopics.UseExecController.Run);
-            Demonstrate(Demo.Executive.AdvancedTopics.ExecEventModelAndStates.Run);
-            Demonstrate(Demo.Executive.AdvancedTopics.DaemonEvents.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.AdvancedTopics.Metronomes.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.AdvancedTopics.PauseAndResume.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.AdvancedTopics.UseExecController.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.AdvancedTopics.ExecEventModelAndStates.Run);
+            Demonstrate(Highpoint.Sage.Examples.Executive.AdvancedTopics.DaemonEvents.Run);
 
-            Demonstrate(Demo.StateManagement.InAgents.Run);
-            Demonstrate(Demo.StateManagement.InUserData.Run);
-            Demonstrate(Demo.StateManagement.OnTheStackFrame.Run);
+            Demonstrate(Highpoint.Sage.Examples.StateManagement.InAgents.Run);
+            Demonstrate(Highpoint.Sage.Examples.StateManagement.InUserData.Run);
+            Demonstrate(Highpoint.Sage.Examples.StateManagement.OnTheStackFrame.Run);
 
-            Demonstrate(Demo.RandomServer.SimpleDefaultServer.Run);
-            Demonstrate(Demo.RandomServer.DecorrellatedActivities.Run);
+            Demonstrate(Highpoint.Sage.Examples.RandomServer.SimpleDefaultServer.Run);
+            Demonstrate(Highpoint.Sage.Examples.RandomServer.DecorrellatedActivities.Run);
 
-            Demonstrate(Demo.StateMachine.Basic.Default.Run);
-            Demonstrate(Demo.StateMachine.Basic.SimpleCustomWithInitialization.Run);
-            Demonstrate(Demo.StateMachine.Basic.SimpleEnumStateMachine.Run);
+            Demonstrate(Highpoint.Sage.Examples.StateMachine.Basic.Default.Run);
+            Demonstrate(Highpoint.Sage.Examples.StateMachine.Basic.SimpleCustomWithInitialization.Run);
+            Demonstrate(Highpoint.Sage.Examples.StateMachine.Basic.SimpleEnumStateMachine.Run);
 
-            Demonstrate(Demo.Model.Basic.DefaultModel.Run);
-            Demonstrate(Demo.Model.Basic.SimpleCustomWithInitialization.Run);
+            Demonstrate(Highpoint.Sage.Examples.Model.Basic.DefaultModel.Run);
+            Demonstrate(Highpoint.Sage.Examples.Model.Basic.SimpleCustomWithInitialization.Run);
 
-            Demonstrate(Demo.Resources.Basic.ServicePoolExample.Run);
-            Demonstrate(Demo.Resources.Basic.ServicePoolExampleWithSynchronousEvents.Run);
-            Demonstrate(Demo.Resources.Advanced.OptimalResourceAcquisition.Run);
+            Demonstrate(Highpoint.Sage.Examples.Resources.Basic.ServicePoolExample.Run);
+            Demonstrate(Highpoint.Sage.Examples.Resources.Basic.ServicePoolExampleWithSynchronousEvents.Run);
+            Demonstrate(Highpoint.Sage.Examples.Resources.Advanced.OptimalResourceAcquisition.Run);
 
-            Demonstrate(Demo.SequenceControl.Basic.TaskGraphDemo.Run);
+            Demonstrate(Highpoint.Sage.Examples.SequenceControl.Basic.TaskGraphDemo.Run);
 
             outputDocumentation();
         }
@@ -113,7 +113,7 @@ namespace Sage_SampleCode
         private static void CreateDocs(Action run)
         {
             string @namespace = run.Method.DeclaringType?.Namespace;
-            string demoNamespace = @namespace.StartsWith("Demo.", StringComparison.Ordinal) ? @namespace.Substring(5) : @namespace;
+            string demoNamespace = @namespace.StartsWith("Highpoint.Sage.Examples.", StringComparison.Ordinal) ? @namespace.Substring(24) : @namespace;
             Debug.Assert(!string.IsNullOrEmpty(demoNamespace));
             if (demoNamespace.Contains(".", StringComparison.Ordinal))
             {

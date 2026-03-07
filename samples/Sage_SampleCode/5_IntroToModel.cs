@@ -4,7 +4,7 @@ using Highpoint.Sage.Utility;
 using System;
 using System.ComponentModel;
 
-namespace Demo.Model
+namespace Highpoint.Sage.Examples.Model
 {
 
     namespace Basic

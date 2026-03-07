@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 
-namespace Demo.StateMachine
+namespace Highpoint.Sage.Examples.StateMachine
 {
 
     namespace Basic

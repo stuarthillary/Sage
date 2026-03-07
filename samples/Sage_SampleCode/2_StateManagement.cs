@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable InconsistentNaming
 
-namespace Demo.StateManagement
+namespace Highpoint.Sage.Examples.StateManagement
 {
     using Highpoint.Sage.Randoms;
     using Highpoint.Sage.Core;

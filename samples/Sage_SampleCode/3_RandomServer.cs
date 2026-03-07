@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Demo.RandomServer
+namespace Highpoint.Sage.Examples.RandomServer
 {
     using Highpoint.Sage.Randoms;
     using Highpoint.Sage.Core;

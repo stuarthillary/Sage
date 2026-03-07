@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 
-namespace Demo.SequenceControl
+namespace Highpoint.Sage.Examples.SequenceControl
 {
     namespace Basic
     {

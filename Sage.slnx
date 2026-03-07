@@ -6,5 +6,5 @@
   <Project Path="benchmarks\SageBenchmarks\SageBenchmarks.csproj" />
   <Project Path="tests\TestDriver\TestDriver.csproj" />
   <Project Path="tests\SageTestLib\SageTestLib.csproj" />
-  <Project Path="samples\Sage_SampleCode\Sage_SampleCode.csproj" />
+  <Project Path="samples\Sage_SampleCode\Sample.Examples.csproj" />
 </Solution>
