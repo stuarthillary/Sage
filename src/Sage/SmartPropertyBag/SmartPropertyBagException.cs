@@ -5,7 +5,7 @@ using System;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable VirtualMemberNeverOverriden.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// A general exception that is fired by a SPB for reasons specific to the SPB.

@@ -131,7 +131,7 @@ namespace Highpoint.Sage.Utility
         /// <typeparam name="T"></typeparam>
         /// <param name="list">The list.</param>
         /// <returns>the string representation.</returns>
-        public static string ToCommasAndAndedListOfNames<T>(List<T> list) where T : SimCore.IHasName
+        public static string ToCommasAndAndedListOfNames<T>(List<T> list) where T : Core.IHasName
         {
             return ToCommasAndAndedList(list.ConvertAll(n => n.Name));
         }

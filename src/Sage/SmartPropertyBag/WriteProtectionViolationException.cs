@@ -3,7 +3,7 @@
 using System;
 // ReSharper disable UnusedMemberInSuper.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Thrown when someone tries to change a value that is write-locked.

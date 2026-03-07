@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// An exception that is fired if and when a transition fails for a reason

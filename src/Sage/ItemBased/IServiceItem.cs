@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 #pragma warning disable 1587
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 /// <summary>
 /// Sage� includes a Port-and-Connector architecture that allows the developer to create
 /// a familiar �create objects with ports and wire the ports together with connectors� model.

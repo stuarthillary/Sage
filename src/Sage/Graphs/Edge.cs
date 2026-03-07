@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
+using Highpoint.Sage.Core; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ namespace Highpoint.Sage.Graphs
     /// the satisfaction of its preVertex and that of its postVertex.
     /// </summary>
     public class Edge : IEdge, Validity.IHasValidity
-    { //Highpoint.Sage.SimCore.ICloneable, IVisitable, IXmlPersistable {
+    { //Highpoint.Sage.Core.ICloneable, IVisitable, IXmlPersistable {
 
         #region Private Fields
 

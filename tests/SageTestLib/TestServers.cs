@@ -7,7 +7,7 @@ using Highpoint.Sage.ItemBased.SinksAndSources;
 using Highpoint.Sage.ItemBased.SplittersAndJoiners;
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Resources;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 //using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

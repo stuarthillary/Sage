@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Randoms;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using _Debug = System.Diagnostics.Debug;
 
@@ -133,7 +133,7 @@ namespace Highpoint.Sage.Mathematics
         }
 
         /// <summary>
-        /// Used by the <see cref="T:Highpoint.Sage.SimCore.InitializationManager"/> in the sequenced execution of an initialization protocol.
+        /// Used by the <see cref="T:Highpoint.Sage.Core.InitializationManager"/> in the sequenced execution of an initialization protocol.
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>

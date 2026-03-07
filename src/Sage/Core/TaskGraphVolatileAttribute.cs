@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Used to decorate the key or the value for anything that is going to be put 

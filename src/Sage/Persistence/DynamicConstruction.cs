@@ -6,7 +6,7 @@ using System.Diagnostics;
 using _Debug = System.Diagnostics.Debug;
 using System.Collections;
 using System.Collections.Generic;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 
 namespace Highpoint.Sage.DynamicConstruction {

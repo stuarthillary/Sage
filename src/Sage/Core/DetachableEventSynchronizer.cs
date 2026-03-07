@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Synchronizes a series of threads that are all running on DetachableEvent handlers.
@@ -96,7 +96,7 @@ namespace Highpoint.Sage.SimCore
             /// <summary>
             /// Creates a new instance of the <see cref="T:SynchChannel"/> class.
             /// </summary>
-            /// <param name="ds">The <see cref="Highpoint.Sage.SimCore.DetachableEventSynchronizer"/>.</param>
+            /// <param name="ds">The <see cref="Highpoint.Sage.Core.DetachableEventSynchronizer"/>.</param>
             /// <param name="sortKey">The sort key.</param>
 			public SynchChannel(DetachableEventSynchronizer ds, IComparable sortKey)
             {

@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Graphs.Analysis;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections;
 using System.Diagnostics;

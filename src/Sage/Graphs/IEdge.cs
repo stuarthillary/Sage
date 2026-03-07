@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
-using Highpoint.Sage.SimCore; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
+using Highpoint.Sage.Core; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
 using Highpoint.Sage.Persistence;
 
 namespace Highpoint.Sage.Graphs
@@ -10,7 +10,7 @@ namespace Highpoint.Sage.Graphs
     /// Implemented by an object that is a participant in a directed graph. Edges may be hierarchical, meaning that an edge
     /// may have child edges that are executed as a part of its own execution.
     /// </summary>
-    public interface IEdge : SimCore.ICloneable, IVisitable, IXmlPersistable, IPartOfGraphStructure, IHasName {
+    public interface IEdge : ICloneable, IVisitable, IXmlPersistable, IPartOfGraphStructure, IHasName {
         /// <summary>
         /// Gets the pre vertex of the object.
         /// </summary>

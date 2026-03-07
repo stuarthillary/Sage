@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     [TestClass]
@@ -780,7 +780,7 @@ namespace Highpoint.Sage.SimCore
         [Highpoint.Sage.Utility.FieldDescription("Test the Heap collection.")]
         public void RecreateFailure()
         {
-            IExecutive exec = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.ExecutiveFastLight, Highpoint.Sage", Guid.NewGuid());
+            IExecutive exec = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.ExecutiveFastLight, Highpoint.Sage", Guid.NewGuid());
             foreach (string s in _testTimes)
             {
                 DateTime dt = DateTime.Parse(s);
@@ -807,7 +807,7 @@ namespace Highpoint.Sage.SimCore
         public void TestExecAcquisition()
         {
 
-            // using Highpoint.Sage.SimCore;
+            // using Highpoint.Sage.Core;
 
             // Obtain an executive of the default type and unspecified Guid from the factory.
             IExecutive exec1 = ExecFactory.Instance.CreateExecutive();
@@ -816,11 +816,11 @@ namespace Highpoint.Sage.SimCore
             IExecutive exec2 = ExecFactory.Instance.CreateExecutive(Guid.NewGuid());
             // ... or ...
             // Obtain an executive of the specified type and Guid from the factory.
-            IExecutive exec3 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.Executive",
+            IExecutive exec3 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.Executive",
                                                                     Guid.NewGuid());
             // ... or ...
             // Obtain an executive of the specified type and Guid from the factory.
-            IExecutive exec4 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.ExecutiveFastLight",
+            IExecutive exec4 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.ExecutiveFastLight",
                                                                     Guid.NewGuid());
 
             Console.WriteLine(exec1.ToString());
@@ -912,7 +912,7 @@ namespace Highpoint.Sage.SimCore
         [Highpoint.Sage.Utility.FieldDescription("Test the Executive's capability to run fast with a range of event type mixes.")]
         public void TestPerformance()
         {
-            IExecutive exec1 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.Executive", Guid.NewGuid());
+            IExecutive exec1 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.Executive", Guid.NewGuid());
             Randoms.RandomServer rsvr = new Highpoint.Sage.Randoms.RandomServer(012345, 1000);
             Randoms.IRandomChannel rch = rsvr.GetRandomChannel(987654321, 1000);
             DateTime timeCursor = new DateTime(2009, 1, 1, 0, 0, 0);
@@ -956,7 +956,7 @@ namespace Highpoint.Sage.SimCore
         [Highpoint.Sage.Utility.FieldDescription("Test the Executive's capability to execute a simple event join.")]
         public void TestEventJoinDetachable()
         {
-            IExecutive exec1 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.Executive", Guid.NewGuid());
+            IExecutive exec1 = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.Executive", Guid.NewGuid());
             DateTime setupTime = new DateTime(2008, 11, 24, 12, 15, 44);
             ExecEventType eet = ExecEventType.Detachable; // Don't change this one. Join must be done on a detachable event.
             exec1.RequestEvent(new ExecEventReceiver(JoinDetachableSetup), setupTime, 0.0, null, eet);
@@ -1174,7 +1174,7 @@ namespace Highpoint.Sage.SimCore
 
         #region IExecEventSelector Members
 
-        public bool SelectThisEvent(Highpoint.Sage.SimCore.ExecEventReceiver eer, DateTime when, double priority, object userData, Highpoint.Sage.SimCore.ExecEventType eet)
+        public bool SelectThisEvent(Highpoint.Sage.Core.ExecEventReceiver eer, DateTime when, double priority, object userData, Highpoint.Sage.Core.ExecEventType eet)
         {
 
             return (_type.Equals(eer.Target.GetType()));

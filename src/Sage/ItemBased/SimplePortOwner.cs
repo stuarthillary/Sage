@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.ItemBased.Ports;
 using System.Collections.Generic;
 

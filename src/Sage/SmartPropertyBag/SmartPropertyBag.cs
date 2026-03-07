@@ -9,7 +9,7 @@ using _Debug = System.Diagnostics.Debug;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable VirtualMemberNeverOverriden.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

@@ -2,7 +2,7 @@
 
 
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore; // For executive.
+using Highpoint.Sage.Core; // For executive.
 using System;
 using System.Collections;
 

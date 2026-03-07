@@ -4,7 +4,7 @@
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable VirtualMemberNeverOverriden.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// An interface that, when implemented by an element in a smart property bag,

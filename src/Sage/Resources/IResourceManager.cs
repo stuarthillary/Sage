@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System.Collections;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable EventNeverSubscribedTo.Global
@@ -12,7 +12,7 @@ namespace Highpoint.Sage.Resources
     /// granting and recovery of resources. It executes a protocol for finding 
     /// the best resource for a given resource request.
     /// </summary>
-    /// <seealso cref="Highpoint.Sage.SimCore.IModelObject" />
+    /// <seealso cref="Highpoint.Sage.Core.IModelObject" />
     public interface IResourceManager : IModelObject
     {
 

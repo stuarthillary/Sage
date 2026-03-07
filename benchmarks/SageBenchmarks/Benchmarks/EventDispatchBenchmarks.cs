@@ -5,7 +5,7 @@
 //
 // HOT-PATH OBSERVATIONS (from code review — measure, don't speculate):
 //
-//   Executive (full-featured, Highpoint.Sage.SimCore.Executive):
+//   Executive (full-featured, Highpoint.Sage.Core.Executive):
 //     - Event queue: System.Collections.SortedList (ExecEventComparer)
 //     - Insert:  SortedList.Add()    — binary search O(log n) + element shift O(n) worst case
 //     - Dequeue: SortedList.GetKey(0) + RemoveAt(0) — the RemoveAt(0) shifts ALL remaining
@@ -13,7 +13,7 @@
 //     - Locking: lock(_events) on EVERY RequestEvent AND inside the dispatch loop.
 //     - Extras:  causality checks, diagnostics checks, pause/resume support, Monitor bookkeeping.
 //
-//   ExecutiveFastLight (heap-based, Highpoint.Sage.SimCore.ExecutiveFastLight):
+//   ExecutiveFastLight (heap-based, Highpoint.Sage.Core.ExecutiveFastLight):
 //     - Event queue: binary min-heap backed by _ExecEvent[]
 //     - Insert:  Enqueue() sift-up — O(log n); O(1) amortised for pre-sorted (ascending) input
 //     - Dequeue: Dequeue() sift-down — O(log n) always
@@ -35,7 +35,7 @@
 
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 
 namespace Highpoint.Sage.Benchmarks;

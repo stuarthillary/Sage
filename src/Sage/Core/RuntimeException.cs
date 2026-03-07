@@ -3,7 +3,7 @@
 using System;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// MissingParameterException is thrown when a required parameter is missing. Typically used in a late bound, read-from-name/value pair collection scenario.

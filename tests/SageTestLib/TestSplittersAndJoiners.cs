@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.ItemBased.SplittersAndJoiners;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;

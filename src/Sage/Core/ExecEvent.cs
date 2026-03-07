@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     internal class ExecEvent : IExecEvent
     {

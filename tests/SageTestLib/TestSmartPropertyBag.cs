@@ -6,7 +6,7 @@ using System.Collections;
 using System.Diagnostics;
 
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     [TestClass]

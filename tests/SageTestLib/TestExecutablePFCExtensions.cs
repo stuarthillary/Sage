@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System.Text;
 using Highpoint.Sage.Utility;
 using Highpoint.Sage.Graphs.PFC.Execution.Actions;

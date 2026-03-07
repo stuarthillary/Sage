@@ -116,7 +116,7 @@ namespace Highpoint.Sage.Utility
 
         }
 
-        sealed class Thingy : Highpoint.Sage.SimCore.IHasName
+        sealed class Thingy : Highpoint.Sage.Core.IHasName
         {
             private string _name;
             public Thingy(string name)

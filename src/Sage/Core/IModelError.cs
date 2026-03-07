@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

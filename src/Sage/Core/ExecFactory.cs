@@ -11,7 +11,7 @@ using Highpoint.Sage.Licensing;
 #endif // LICENSING_ENABLED
 
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>
@@ -128,9 +128,9 @@ namespace Highpoint.Sage.SimCore
             switch (execType)
             {
                 case ExecType.FullFeatured:
-                    return CreateExecutive(typeof(Highpoint.Sage.SimCore.Executive).FullName!, guid);
+                    return CreateExecutive(typeof(Highpoint.Sage.Core.Executive).FullName!, guid);
                 case ExecType.SingleThreaded:
-                    return CreateExecutive(typeof(Highpoint.Sage.SimCore.ExecutiveFastLight).FullName!, guid);
+                    return CreateExecutive(typeof(Highpoint.Sage.Core.ExecutiveFastLight).FullName!, guid);
                 default:
                     throw new ApplicationException("Attempt to create an instance of an unsupported executive (" + execType + ").");
             }

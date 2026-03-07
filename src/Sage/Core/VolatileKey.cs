@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// This class can be used as a key for an object into a Task Graph's graphContext, where the

@@ -9,7 +9,7 @@ namespace Highpoint.Sage.Materials
     /// This interface is implemented by any object that intends to help perform a material transfer
     /// by extracting the material of interest, and declaring how long it will take to transfer.
     /// </summary>
-    public interface IMaterialTransferHelper : IMaterialExtractor, SimCore.ICloneable
+    public interface IMaterialTransferHelper : IMaterialExtractor, Core.ICloneable
     {
         /// <summary>
         /// Indicates the duration of the transfer.

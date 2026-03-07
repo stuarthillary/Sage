@@ -3,7 +3,7 @@ using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Resources;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections;

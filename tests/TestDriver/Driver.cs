@@ -4,7 +4,7 @@ using Highpoint.Sage.Materials.Chemistry;
 
 namespace Highpoint.Sage.Testing
 {
-    using SimCore;
+    using Core;
     using Resources;
     using _Debug = System.Diagnostics.Debug;
 
@@ -877,15 +877,15 @@ namespace Highpoint.Sage.Testing
             //new Highpoint.Sage.Materials.Chemistry.MaterialTester().TestRemoval();
             //new Highpoint.Sage.Materials.Chemistry.TransferSpecTester101().TestMassScaling();
             // --  Drop 1 Tests.
-            //new Highpoint.Sage.SimCore.ExecTester().TestBaseFunctionality();
-            //new Highpoint.Sage.SimCore.ExecTester().TestBatchedFunctionality();
-            //new Highpoint.Sage.SimCore.ExecTester().TestThreadSepFunctionality();
-            //new Highpoint.Sage.SimCore.StateMachineTester().TestStateMachine1();
-            //new Highpoint.Sage.SimCore.StateMachineTester().TestTransitionFailure();
-            //new Highpoint.Sage.SimCore.StateMachineTester().TestTransitionSuccess();
-            //new Highpoint.Sage.SimCore.StateMachineTester().TestTransitionChainSuccess();
-            //new Highpoint.Sage.SimCore.StateMachineTester().TestTransitionMultipleHandlers();
-            //new Highpoint.Sage.SimCore.StateMachineTester().TestTransitionMultipleHandlersSorted();
+            //new Highpoint.Sage.Core.ExecTester().TestBaseFunctionality();
+            //new Highpoint.Sage.Core.ExecTester().TestBatchedFunctionality();
+            //new Highpoint.Sage.Core.ExecTester().TestThreadSepFunctionality();
+            //new Highpoint.Sage.Core.StateMachineTester().TestStateMachine1();
+            //new Highpoint.Sage.Core.StateMachineTester().TestTransitionFailure();
+            //new Highpoint.Sage.Core.StateMachineTester().TestTransitionSuccess();
+            //new Highpoint.Sage.Core.StateMachineTester().TestTransitionChainSuccess();
+            //new Highpoint.Sage.Core.StateMachineTester().TestTransitionMultipleHandlers();
+            //new Highpoint.Sage.Core.StateMachineTester().TestTransitionMultipleHandlersSorted();
 
             // --  Automatic tests.
             // [deleted] new Highpoint.Sage.Graphs.Tasks.TaskTester().TestAdvancedGraphFunctionality();
@@ -915,11 +915,11 @@ namespace Highpoint.Sage.Testing
 
             // new ValidationSequenceTester().TestRevalidationSequence();
 
-            //new Highpoint.Sage.SimCore.SmartPropertyBagTester().TestSubsidiaries();
-            //new Highpoint.Sage.SimCore.SmartPropertyBagTester().TestMementoCaching();
-            //new Highpoint.Sage.SimCore.SmartPropertyBagTester().TestMementoRestorationAndEquality();
-            //new Highpoint.Sage.SimCore.SmartPropertyBagTester().TestEnumerationAndIsLeaf();
-            // ---- new Highpoint.Sage.SimCore.SmartPropertyBagTester().TestStringsAndBooleans();
+            //new Highpoint.Sage.Core.SmartPropertyBagTester().TestSubsidiaries();
+            //new Highpoint.Sage.Core.SmartPropertyBagTester().TestMementoCaching();
+            //new Highpoint.Sage.Core.SmartPropertyBagTester().TestMementoRestorationAndEquality();
+            //new Highpoint.Sage.Core.SmartPropertyBagTester().TestEnumerationAndIsLeaf();
+            // ---- new Highpoint.Sage.Core.SmartPropertyBagTester().TestStringsAndBooleans();
             // This has a bug - aliases are not reflected as having changed.
 
             //new Highpoint.Sage.Algebra.Interpolations101().TestInterpolationFrom2Points();
@@ -983,17 +983,17 @@ namespace Highpoint.Sage.Testing
             //
             // Working tests
             //
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveCount();
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveCountLessParameter();
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutivePriority();
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveWhen();
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveUnRequestHash();
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveUnRequestTarget();
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveUnRequestDelegate();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveCount();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveCountLessParameter();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutivePriority();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveWhen();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveUnRequestHash();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveUnRequestTarget();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveUnRequestDelegate();
             //
             // Tests with issues
             //
-            //new Highpoint.Sage.SimCore.ExecTesterAEL().TestExecutiveUnRequestSelector();
+            //new Highpoint.Sage.Core.ExecTesterAEL().TestExecutiveUnRequestSelector();
 
 #endregion
 

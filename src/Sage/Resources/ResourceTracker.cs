@@ -2,7 +2,7 @@
 
 using _Debug = System.Diagnostics.Debug;
 using System.Collections;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 // ReSharper disable UnusedMemberInSuper.Global
 
 namespace Highpoint.Sage.Resources

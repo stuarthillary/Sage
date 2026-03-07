@@ -7,7 +7,7 @@ using System.Threading;
 using _Debug = System.Diagnostics.Debug;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Delegate DetachableEventAbortHandler is the signature implemented by a method intended to respond to the aborting of a detachable event.

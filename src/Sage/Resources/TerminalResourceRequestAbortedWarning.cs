@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System.Globalization;
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="exec">The executive under whose control this warning occurred.</param>
         /// <param name="mgr">The Resource Manager from which the resource was obtained.</param>
         /// <param name="req">The request through which the resource was obtained.</param>
-        /// <param name="idec">The <see cref="Highpoint.Sage.SimCore.IDetachableEventController"/> that controls the thread in which the resource was last manipulated.</param>
+        /// <param name="idec">The <see cref="Highpoint.Sage.Core.IDetachableEventController"/> that controls the thread in which the resource was last manipulated.</param>
         public TerminalResourceRequestAbortedWarning(IExecutive exec, IResourceManager mgr, IResourceRequest req, IDetachableEventController idec)
         {
             _idec = idec;

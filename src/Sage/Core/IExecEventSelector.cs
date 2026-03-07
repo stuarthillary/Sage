@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Implemented by an object that can select events, typically for removal from the

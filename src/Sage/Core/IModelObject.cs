@@ -66,7 +66,7 @@ using System;
 /// }
 /// </code>
 /// </summary>
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Implemented by an object that 'belongs' to a model, or that needs to know its

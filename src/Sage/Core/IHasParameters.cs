@@ -3,7 +3,7 @@
 
 using System.Collections;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Implemented by any object that has a dictionary of parameters.

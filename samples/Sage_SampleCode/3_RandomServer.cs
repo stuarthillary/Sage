@@ -1,9 +1,9 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 
 namespace Demo.RandomServer
 {
     using Highpoint.Sage.Randoms;
-    using Highpoint.Sage.SimCore;
+    using Highpoint.Sage.Core;
     using System;
     using System.ComponentModel;
 

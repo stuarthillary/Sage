@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     public enum ExecType
     {

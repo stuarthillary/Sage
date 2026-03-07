@@ -1,6 +1,6 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Randoms;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections.Generic;
@@ -20,9 +20,9 @@ namespace Demo.StateMachine
             transitions it to running, in which state the executive processes all of its events. After running, it returns to idle")]
             public static void Run()
             {
-                Highpoint.Sage.SimCore.Model m = new Highpoint.Sage.SimCore.Model("Demo Model");
+                Highpoint.Sage.Core.Model m = new Highpoint.Sage.Core.Model("Demo Model");
 
-                Highpoint.Sage.SimCore.StateMachine sm = m.StateMachine;
+                Highpoint.Sage.Core.StateMachine sm = m.StateMachine;
                 sm.TransitionCompletedSuccessfully +=
                     (model, data) =>
                         Console.WriteLine("Model transitioned successfully to the {0} state.", m.StateMachine.State);
@@ -45,9 +45,9 @@ namespace Demo.StateMachine
             the model's ""Start()"" method, performs setup.")]
             public static void Run()
             {
-                Highpoint.Sage.SimCore.Model m = new DemoModel("Demo Model");
+                Highpoint.Sage.Core.Model m = new DemoModel("Demo Model");
 
-                Highpoint.Sage.SimCore.StateMachine sm = m.StateMachine;
+                Highpoint.Sage.Core.StateMachine sm = m.StateMachine;
                 sm.TransitionCompletedSuccessfully +=
                     (model, data) =>
                         Console.WriteLine("Model transitioned successfully to the {0} state.", m.StateMachine.State);
@@ -75,7 +75,7 @@ here to try to avoid confusion.")]
             public static void Run()
             {
                 // Create the model.
-                Highpoint.Sage.SimCore.Model m = new Highpoint.Sage.SimCore.Model("Model");
+                Highpoint.Sage.Core.Model m = new Highpoint.Sage.Core.Model("Model");
 
                 // Add the model objects to it.
                 List<StateAwareDemoObject> tools = new List<StateAwareDemoObject>();
@@ -166,7 +166,7 @@ here to try to avoid confusion.")]
             }
         }
 
-        class DemoModel : Highpoint.Sage.SimCore.Model
+        class DemoModel : Highpoint.Sage.Core.Model
         {
             public DemoModel(string name) : base(name)
             {
@@ -195,7 +195,7 @@ here to try to avoid confusion.")]
                 /// </summary>
                 Running
             }
-            protected override Highpoint.Sage.SimCore.StateMachine CreateStateMachine()
+            protected override Highpoint.Sage.Core.StateMachine CreateStateMachine()
             {
                 bool[,] transitionMatrix = //        To
                     new bool[,] { { //        IDL    INI    RUN    
@@ -209,7 +209,7 @@ here to try to avoid confusion.")]
 
                 Enum initialState = States.Idle;
 
-                return new Highpoint.Sage.SimCore.StateMachine(this, transitionMatrix, followOnStates, initialState);
+                return new Highpoint.Sage.Core.StateMachine(this, transitionMatrix, followOnStates, initialState);
             }
 
             // This is the state we wish to transition to, if the model is to be started.

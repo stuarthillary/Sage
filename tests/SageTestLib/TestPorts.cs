@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.ItemBased.Ports;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

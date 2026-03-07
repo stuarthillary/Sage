@@ -15,7 +15,7 @@ using Highpoint.Sage.DynamicConstruction;
 #endif
 
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

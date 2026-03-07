@@ -4,7 +4,7 @@ using Highpoint.Sage.Persistence;
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable VirtualMemberNeverOverriden.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// A structure that is used in the creation of a hierarchical dictionary. Such

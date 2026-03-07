@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// An error that is registered as a result of an exception having been thrown, unhandled, by the model.

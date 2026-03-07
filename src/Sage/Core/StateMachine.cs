@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using _Debug = System.Diagnostics.Debug;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// This delegate is implemented by a method that is intended to perform part

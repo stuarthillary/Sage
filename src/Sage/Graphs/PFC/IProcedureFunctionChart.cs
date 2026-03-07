@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Graphs.PFC.Execution;
 using Highpoint.Sage.Graphs.PFC.Expressions;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -15,7 +15,7 @@ namespace Highpoint.Sage.Graphs.PFC
     /// <para></para><b>IMPORTANT NOTE: Any class implementing IProcedureFunctionChart must have a constructor
     /// that accepts a IProcedureFunctionChart, in order for serialization to work properly.</b>
     /// </summary>
-    public interface IProcedureFunctionChart : IModelObject, IXmlSerializable, SimCore.ICloneable
+    public interface IProcedureFunctionChart : IModelObject, IXmlSerializable, Core.ICloneable
     {
 
         /// <summary>

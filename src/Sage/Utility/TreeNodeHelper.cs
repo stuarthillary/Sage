@@ -193,7 +193,7 @@ namespace Highpoint.Sage.Utility
                 {
                     _childFinder ??= new Hashtable();
                     ITreeNodeProxy tnp = node;
-                    SimCore.IHasIdentity ihi = (SimCore.IHasIdentity)tnp.Ward;
+                    Core.IHasIdentity ihi = (Core.IHasIdentity)tnp.Ward;
 
                     //if ( m_childFinder.Contains(ihi.Guid) ) Console.WriteLine();
 
@@ -225,7 +225,7 @@ namespace Highpoint.Sage.Utility
                 if (_autoIndex)
                 {
                     ITreeNodeProxy tnp = node;
-                    SimCore.IHasIdentity ihi = (SimCore.IHasIdentity)tnp.Ward;
+                    Core.IHasIdentity ihi = (Core.IHasIdentity)tnp.Ward;
                     _childFinder?.Remove(ihi.Guid);
                 }
                 OnLostChild?.Invoke(this, node);

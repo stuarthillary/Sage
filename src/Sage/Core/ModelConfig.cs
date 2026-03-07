@@ -6,7 +6,7 @@ using System.Diagnostics;
 using _Debug = System.Diagnostics.Debug;
 
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

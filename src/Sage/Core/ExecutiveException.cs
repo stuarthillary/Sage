@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// A marker class that indicates that a given exception was thrown by the executive, rather than

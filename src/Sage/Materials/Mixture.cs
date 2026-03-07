@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility.Mementos;
 using System;
 using System.Collections;
@@ -904,10 +904,10 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Obtains the <see cref="Highpoint.Sage.SimCore.WriteLock"/> that represents this mixture.
+        /// Obtains the <see cref="Highpoint.Sage.Core.WriteLock"/> that represents this mixture.
         /// </summary>
         /// <param name="mixture">The mixture.</param>
-        /// <returns>The <see cref="Highpoint.Sage.SimCore.WriteLock"/> that represents this mixture.</returns>
+        /// <returns>The <see cref="Highpoint.Sage.Core.WriteLock"/> that represents this mixture.</returns>
         public static explicit operator WriteLock(Mixture mixture)
         {
             return mixture._writeLock;

@@ -5,7 +5,7 @@ using Highpoint.Sage.ItemBased.SinksAndSources;
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Resources;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;

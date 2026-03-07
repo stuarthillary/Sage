@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 
 namespace Highpoint.Sage.ItemBased.Connectors
 {

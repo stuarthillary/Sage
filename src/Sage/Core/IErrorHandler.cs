@@ -3,7 +3,7 @@
 
 using System.Collections;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Implemented by an object that is able to handle (and perhaps resolve) an error.

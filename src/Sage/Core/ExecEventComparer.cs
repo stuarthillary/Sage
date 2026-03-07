@@ -3,7 +3,7 @@
 using System.Collections;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     internal class ExecEventComparer : IComparer
     {

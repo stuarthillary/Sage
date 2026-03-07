@@ -63,11 +63,11 @@ namespace Highpoint.Sage.Workflow {
 
             #region IModelObject Members
 
-            public Highpoint.Sage.SimCore.IModel Model {
+            public Highpoint.Sage.Core.IModel Model {
                 get { throw new Exception("The method or operation is not implemented."); }
             }
 
-            public void InitializeIdentity(Highpoint.Sage.SimCore.IModel model, string name, string description, Guid guid) {
+            public void InitializeIdentity(Highpoint.Sage.Core.IModel model, string name, string description, Guid guid) {
                 throw new Exception("The method or operation is not implemented.");
             }
 
@@ -97,11 +97,11 @@ namespace Highpoint.Sage.Workflow {
         class DummyCase : IWorkflowCase {
             #region IModelObject Members
 
-            public Highpoint.Sage.SimCore.IModel Model {
+            public Highpoint.Sage.Core.IModel Model {
                 get { throw new Exception("The method or operation is not implemented."); }
             }
 
-            public void InitializeIdentity(Highpoint.Sage.SimCore.IModel model, string name, string description, Guid guid) {
+            public void InitializeIdentity(Highpoint.Sage.Core.IModel model, string name, string description, Guid guid) {
                 throw new Exception("The method or operation is not implemented.");
             }
 

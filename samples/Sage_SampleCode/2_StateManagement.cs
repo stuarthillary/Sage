@@ -1,10 +1,10 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable InconsistentNaming
 
 namespace Demo.StateManagement
 {
     using Highpoint.Sage.Randoms;
-    using Highpoint.Sage.SimCore;
+    using Highpoint.Sage.Core;
     using System;
     using System.ComponentModel;
 

@@ -3,7 +3,7 @@
 
 using System.Collections;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// An interface implemented by anything that is known by a name. The name is not necessarily required to be unique.

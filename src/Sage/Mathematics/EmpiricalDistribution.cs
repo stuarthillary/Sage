@@ -3,7 +3,7 @@
 using System;
 using System.Reflection;
 using _Debug = System.Diagnostics.Debug;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Randoms;
 
 namespace Highpoint.Sage.Mathematics
@@ -168,7 +168,7 @@ namespace Highpoint.Sage.Mathematics
         }
 
         /// <summary>
-        /// Used by the <see cref="T:Highpoint.Sage.SimCore.InitializationManager"/> in the sequenced execution of an initialization protocol.
+        /// Used by the <see cref="T:Highpoint.Sage.Core.InitializationManager"/> in the sequenced execution of an initialization protocol.
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>

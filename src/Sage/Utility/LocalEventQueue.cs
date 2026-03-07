@@ -4,7 +4,7 @@
 
 // TODO: Convert to Canned Heap implementation.
 
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using _Debug = System.Diagnostics.Debug;
 
@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="exec">The executive that this LocalEventQueue services.</param>
         /// <param name="capacity">The capacity.</param>
-        /// <param name="eer">The <see cref="Highpoint.Sage.SimCore.ExecEventReceiver"/> that this LocalEventQueue manages callbacks into.</param>
+        /// <param name="eer">The <see cref="Highpoint.Sage.Core.ExecEventReceiver"/> that this LocalEventQueue manages callbacks into.</param>
         public LocalEventQueue(IExecutive exec, int capacity, ExecEventReceiver eer)
         {
             _exec = exec;

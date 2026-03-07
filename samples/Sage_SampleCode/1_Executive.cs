@@ -1,9 +1,9 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
 
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

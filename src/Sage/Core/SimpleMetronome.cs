@@ -3,7 +3,7 @@
 using Highpoint.Sage.Utility;
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Simple Metronome class is an object that uses a model's executive

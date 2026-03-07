@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System.Text;
 using Highpoint.Sage.Utility;
 

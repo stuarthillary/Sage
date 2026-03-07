@@ -4,7 +4,7 @@ using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.ItemBased.Queues;
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Resources;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections.Generic;
 

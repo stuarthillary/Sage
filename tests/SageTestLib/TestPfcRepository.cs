@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.PFC;
 using Highpoint.Sage.Utility;
 using System;
@@ -134,7 +134,7 @@ namespace SageTestLib
         public static ProcedureFunctionChart CreateTestPfc()
         {
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "SFC 1");
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "SFC 1");
             ((PfcElementFactory)pfc.ElementFactory).SetRepeatable(Guid.Empty); // Ensures Guids are repeatable.
 
             #region Create Nodes
@@ -202,7 +202,7 @@ namespace SageTestLib
         public static ProcedureFunctionChart CreateTestPfc2()
         {
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "SFC 1");
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "SFC 1");
 
             #region Create Nodes
 
@@ -254,7 +254,7 @@ namespace SageTestLib
         public static ProcedureFunctionChart CreateTestPfc3()
         {
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "SFC 1");
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "SFC 1");
 
             #region Create Nodes
 
@@ -319,7 +319,7 @@ namespace SageTestLib
         public static ProcedureFunctionChart CreateTestPfc4()
         {
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "SFC 1");
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "SFC 1");
 
             #region Create Nodes
 
@@ -370,7 +370,7 @@ namespace SageTestLib
 
             // Flip-flop pattern.
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "SFC 1");
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "SFC 1");
 
             #region Create Nodes
 
@@ -429,7 +429,7 @@ namespace SageTestLib
             GuidGenerator guidGen = new GuidGenerator(seedGuid, mask, rotate);
             PfcElementFactory pfcef = new PfcElementFactory(guidGen);
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "Name", "", guidGen.Next(), pfcef);
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "Name", "", guidGen.Next(), pfcef);
 
             IPfcStepNode start = pfc.CreateStep("Start", "", Guid.Empty);
             IPfcStepNode step1 = pfc.CreateStep("Step1", "", Guid.Empty);
@@ -593,7 +593,7 @@ namespace SageTestLib
         public static ProcedureFunctionChart CreateLoopTestPfc()
         {
 
-            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.SimCore.Model("Test model", Guid.NewGuid()), "SFC 1");
+            ProcedureFunctionChart pfc = new ProcedureFunctionChart(new Highpoint.Sage.Core.Model("Test model", Guid.NewGuid()), "SFC 1");
 
             #region Create Nodes
 

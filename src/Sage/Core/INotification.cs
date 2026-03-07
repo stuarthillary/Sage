@@ -1,7 +1,7 @@
 #nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// This interface is implemented by an object that provides notification of some event.

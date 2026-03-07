@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +10,7 @@ namespace Highpoint.Sage.ItemBased.Ports
     /// Class PlaceholderPortOwner is a class to which the duties of PortOwner can be delegated.
     /// </summary>
     /// <seealso cref="Highpoint.Sage.ItemBased.Ports.IPortOwner" />
-    /// <seealso cref="Highpoint.Sage.SimCore.IHasName" />
+    /// <seealso cref="Highpoint.Sage.Core.IHasName" />
     internal class PortOwnerProxy : IPortOwner, IHasName
     {
         private readonly string _name;

@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Mathematics.Scaling;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 
 namespace Highpoint.Sage.Materials

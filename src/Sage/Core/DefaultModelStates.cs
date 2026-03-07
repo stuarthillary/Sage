@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// The two default states for a model. The Model's state machine can be replaced with a

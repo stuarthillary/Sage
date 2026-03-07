@@ -3,7 +3,7 @@
 using System;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// A CausalityException is raised if the executive encounters a request to fire an event at a time earlier than the

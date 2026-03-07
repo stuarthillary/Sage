@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>
@@ -147,10 +147,10 @@ namespace Highpoint.Sage.SimCore
         #region IDictionary Members
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object is read-only.
+        /// Gets a value indicating whether the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object is read-only.
         /// </summary>
         /// <value></value>
-        /// <returns>true if the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object is read-only; otherwise, false.</returns>
+        /// <returns>true if the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object is read-only; otherwise, false.</returns>
         public bool IsReadOnly
         {
             get
@@ -160,10 +160,10 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Returns an <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionaryEnumerator"></see> object for the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Returns an <see cref="T:Highpoint.Sage.Core.ModelObjectDictionaryEnumerator"></see> object for the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <returns>
-        /// An <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionaryEnumerator"></see> object for the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// An <see cref="T:Highpoint.Sage.Core.ModelObjectDictionaryEnumerator"></see> object for the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </returns>
         public IDictionaryEnumerator GetEnumerator()
         {
@@ -217,10 +217,10 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Removes the element with the specified key from the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Removes the element with the specified key from the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <param name="key">The key of the element to remove.</param>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object is read-only.-or- The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> has a fixed size. </exception>
+        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object is read-only.-or- The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> has a fixed size. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         public void Remove(Guid key)
         {
@@ -236,10 +236,10 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Removes the element with the specified key from the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Removes the element with the specified key from the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <param name="key">The key of the element to remove.</param>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object is read-only.-or- The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> has a fixed size. </exception>
+        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object is read-only.-or- The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> has a fixed size. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         public void Remove(object key)
         {
@@ -248,11 +248,11 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Determines whether the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object contains an element with the specified key.
+        /// Determines whether the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object contains an element with the specified key.
         /// </summary>
-        /// <param name="key">The key to locate in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.</param>
+        /// <param name="key">The key to locate in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.</param>
         /// <returns>
-        /// true if the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> contains an element with the key; otherwise, false.
+        /// true if the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> contains an element with the key; otherwise, false.
         /// </returns>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         public bool Contains(Guid key)
@@ -261,11 +261,11 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Determines whether the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object contains an element with the specified key.
+        /// Determines whether the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object contains an element with the specified key.
         /// </summary>
-        /// <param name="key">The key to locate in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.</param>
+        /// <param name="key">The key to locate in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.</param>
         /// <returns>
-        /// true if the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> contains an element with the key; otherwise, false.
+        /// true if the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> contains an element with the key; otherwise, false.
         /// </returns>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         public bool Contains(object key)
@@ -275,19 +275,19 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Removes all elements from the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Removes all elements from the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object is read-only. </exception>
+        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object is read-only. </exception>
         public void Clear()
         {
             _dictionary.Clear();
         }
 
         /// <summary>
-        /// Gets an <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object containing the values in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Gets an <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object containing the values in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <value></value>
-        /// <returns>An <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object containing the values in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.</returns>
+        /// <returns>An <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object containing the values in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.</returns>
         public ICollection Values
         {
             get
@@ -297,13 +297,13 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Adds an element with the provided key and value to the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Adds an element with the provided key and value to the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <param name="key">The <see cref="T:System.Object"></see> to use as the key of the element to add.</param>
         /// <param name="value">The <see cref="T:System.Object"></see> to use as the value of the element to add.</param>
-        /// <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object. </exception>
+        /// <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> is read-only.-or- The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> has a fixed size. </exception>
+        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> is read-only.-or- The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> has a fixed size. </exception>
         public void Add(Guid key, IModelObject value)
         {
             if (_dictionary.Contains(key))
@@ -316,13 +316,13 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Adds an element with the provided key and value to the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Adds an element with the provided key and value to the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <param name="key">The <see cref="T:System.Object"></see> to use as the key of the element to add.</param>
         /// <param name="value">The <see cref="T:System.Object"></see> to use as the value of the element to add.</param>
-        /// <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object. </exception>
+        /// <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
-        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> is read-only.-or- The <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> has a fixed size. </exception>
+        /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> is read-only.-or- The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> has a fixed size. </exception>
         public void Add(object key, object value)
         {
             _Debug.Assert(key is Guid);
@@ -332,10 +332,10 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Gets an <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object containing the keys of the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.
+        /// Gets an <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object containing the keys of the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.
         /// </summary>
         /// <value></value>
-        /// <returns>An <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object containing the keys of the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object.</returns>
+        /// <returns>An <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object containing the keys of the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object.</returns>
         public ICollection Keys
         {
             get
@@ -345,10 +345,10 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Gets a value indicating whether the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object has a fixed size.
+        /// Gets a value indicating whether the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object has a fixed size.
         /// </summary>
         /// <value></value>
-        /// <returns>true if the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object has a fixed size; otherwise, false.</returns>
+        /// <returns>true if the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object has a fixed size; otherwise, false.</returns>
         public bool IsFixedSize
         {
             get
@@ -362,10 +362,10 @@ namespace Highpoint.Sage.SimCore
         #region ICollection Members
 
         /// <summary>
-        /// Gets a value indicating whether access to the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> is synchronized (thread safe).
+        /// Gets a value indicating whether access to the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> is synchronized (thread safe).
         /// </summary>
         /// <value></value>
-        /// <returns>true if access to the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> is synchronized (thread safe); otherwise, false.</returns>
+        /// <returns>true if access to the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> is synchronized (thread safe); otherwise, false.</returns>
         public bool IsSynchronized
         {
             get
@@ -375,10 +375,10 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Gets the number of elements contained in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see>.
+        /// Gets the number of elements contained in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see>.
         /// </summary>
         /// <value></value>
-        /// <returns>The number of elements contained in the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see>.</returns>
+        /// <returns>The number of elements contained in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see>.</returns>
         public int Count
         {
             get
@@ -388,24 +388,24 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// Copies the elements of the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> to an <see cref="T:System.Array"></see>, starting at a particular <see cref="T:System.Array"></see> index.
+        /// Copies the elements of the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> to an <see cref="T:System.Array"></see>, starting at a particular <see cref="T:System.Array"></see> index.
         /// </summary>
-        /// <param name="array">The one-dimensional <see cref="T:System.Array"></see> that is the destination of the elements copied from <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see>. The <see cref="T:System.Array"></see> must have zero-based indexing.</param>
+        /// <param name="array">The one-dimensional <see cref="T:System.Array"></see> that is the destination of the elements copied from <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see>. The <see cref="T:System.Array"></see> must have zero-based indexing.</param>
         /// <param name="index">The zero-based index in array at which copying begins.</param>
         /// <exception cref="T:System.ArgumentNullException">array is null. </exception>
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is less than zero. </exception>
-        /// <exception cref="T:System.ArgumentException">array is multidimensional.-or- index is equal to or greater than the length of array.-or- The number of elements in the source <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> is greater than the available space from index to the end of the destination array. </exception>
-        /// <exception cref="T:System.InvalidCastException">The type of the source <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see> cannot be cast automatically to the type of the destination array. </exception>
+        /// <exception cref="T:System.ArgumentException">array is multidimensional.-or- index is equal to or greater than the length of array.-or- The number of elements in the source <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> is greater than the available space from index to the end of the destination array. </exception>
+        /// <exception cref="T:System.InvalidCastException">The type of the source <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> cannot be cast automatically to the type of the destination array. </exception>
         public void CopyTo(Array array, int index)
         {
             _dictionary.CopyTo(array, index);
         }
 
         /// <summary>
-        /// Gets an object that can be used to synchronize access to the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see>.
+        /// Gets an object that can be used to synchronize access to the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see>.
         /// </summary>
         /// <value></value>
-        /// <returns>An object that can be used to synchronize access to the <see cref="T:Highpoint.Sage.SimCore.ModelObjectDictionary"></see>.</returns>
+        /// <returns>An object that can be used to synchronize access to the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see>.</returns>
         public object SyncRoot
         {
             get
@@ -422,7 +422,7 @@ namespace Highpoint.Sage.SimCore
         /// Returns an enumerator that iterates through a collection.
         /// </summary>
         /// <returns>
-        /// An <see cref="Highpoint.Sage.SimCore.ModelObjectDictionary"></see> object that can be used to iterate through the collection.
+        /// An <see cref="Highpoint.Sage.Core.ModelObjectDictionary"></see> object that can be used to iterate through the collection.
         /// </returns>
         IEnumerator IEnumerable.GetEnumerator()
         {

@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// The EnumStateMachine represents a simple state machine whose states are the values of the enum,

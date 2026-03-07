@@ -1,5 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
-using Highpoint.Sage.SimCore;
+/* This source code licensed under the GNU Affero General Public License */
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
 using System.ComponentModel;
@@ -19,9 +19,9 @@ If it's idle, calling ""Start()"" transitions it to running, in which state
 the executive processes all of its events. After running, it returns to idle.")]
             public static void Run()
             {
-                IModel m = new Highpoint.Sage.SimCore.Model("Demo Model");
+                IModel m = new Highpoint.Sage.Core.Model("Demo Model");
 
-                Highpoint.Sage.SimCore.StateMachine sm = m.StateMachine;
+                Highpoint.Sage.Core.StateMachine sm = m.StateMachine;
                 sm.TransitionCompletedSuccessfully +=
                     (model, data) =>
                         Console.WriteLine("Model transitioned successfully to the {0} state.", m.StateMachine.State);
@@ -51,9 +51,9 @@ the executive processes all of its events. After running, it returns to idle.")]
             the model's ""Start()"" method, performs setup.")]
             public static void Run()
             {
-                Highpoint.Sage.SimCore.Model m = new DemoModel1("Demo Model");
+                Highpoint.Sage.Core.Model m = new DemoModel1("Demo Model");
 
-                Highpoint.Sage.SimCore.StateMachine sm = m.StateMachine;
+                Highpoint.Sage.Core.StateMachine sm = m.StateMachine;
                 sm.TransitionCompletedSuccessfully += ReportStateTransition;
 
                 string[] stateNames = Enum.GetNames(sm.State.GetType());
@@ -90,7 +90,7 @@ It is the same as the ""StateMachine.Basic.SimpleEnumStateMachine"" demo.")]
             }
         }
 
-        internal class DemoModel1 : Highpoint.Sage.SimCore.Model
+        internal class DemoModel1 : Highpoint.Sage.Core.Model
         {
             public DemoModel1(string name) : base(name)
             {
@@ -122,7 +122,7 @@ It is the same as the ""StateMachine.Basic.SimpleEnumStateMachine"" demo.")]
                 Running
             }
 
-            protected override Highpoint.Sage.SimCore.StateMachine CreateStateMachine()
+            protected override Highpoint.Sage.Core.StateMachine CreateStateMachine()
             {
                 bool[,] transitionMatrix = //        To
                     new bool[,]
@@ -147,7 +147,7 @@ It is the same as the ""StateMachine.Basic.SimpleEnumStateMachine"" demo.")]
 
                 Enum initialState = States.Idle;
 
-                return new Highpoint.Sage.SimCore.StateMachine(this, transitionMatrix, followOnStates, initialState);
+                return new Highpoint.Sage.Core.StateMachine(this, transitionMatrix, followOnStates, initialState);
             }
 
             // This is the state we wish to transition to, if the model is to be started.

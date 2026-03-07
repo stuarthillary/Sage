@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Diagnostics;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;

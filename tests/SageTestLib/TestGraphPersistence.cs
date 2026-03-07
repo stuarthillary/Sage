@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Highpoint.Sage.Graphs;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Persistence;
 
 namespace Highpoint.Sage.Graphs.Tasks {

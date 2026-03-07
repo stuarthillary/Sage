@@ -10,14 +10,14 @@ namespace Highpoint.Sage.Graphs.PFC
         public static Predicate<IPfcElement> LinksOnly = new Predicate<IPfcElement>(delegate (IPfcElement element) { return element.ElementType.Equals(PfcElementType.Link); });
         public static Predicate<IPfcElement> TransitionsOnly = new Predicate<IPfcElement>(delegate (IPfcElement element) { return element.ElementType.Equals(PfcElementType.Transition); });
         public static Predicate<IPfcElement> NodesOnly = new Predicate<IPfcElement>(delegate (IPfcElement element) { return element.ElementType.Equals(PfcElementType.Transition) || element.ElementType.Equals(PfcElementType.Step); });
-        public static Predicate<T> ByName<T>(string targetName) where T : SimCore.IHasIdentity
+        public static Predicate<T> ByName<T>(string targetName) where T : Core.IHasIdentity
         {
             return new Predicate<T>(delegate (T element)
             {
                 return element.Name.Equals(targetName, StringComparison.Ordinal);
             });
         }
-        public static Predicate<T> ByGuid<T>(Guid targetGuid) where T : SimCore.IHasIdentity
+        public static Predicate<T> ByGuid<T>(Guid targetGuid) where T : Core.IHasIdentity
         {
             return new Predicate<T>(delegate (T element)
             {

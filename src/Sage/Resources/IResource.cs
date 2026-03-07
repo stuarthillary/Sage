@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 // ReSharper disable UnusedMemberInSuper.Global
 #pragma warning disable 1587
 

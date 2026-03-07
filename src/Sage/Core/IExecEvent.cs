@@ -4,7 +4,7 @@
 using System;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Interface IExecEvent is implemented by an internal class that keeps track of all of the key data

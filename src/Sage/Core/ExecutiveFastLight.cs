@@ -5,7 +5,7 @@ using Highpoint.Sage.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>
@@ -247,7 +247,7 @@ namespace Highpoint.Sage.SimCore
         }
 
         /// <summary>
-        /// The current <see cref="Highpoint.Sage.SimCore.ExecState"/> of this executive (running, stopped, paused, finished)...
+        /// The current <see cref="Highpoint.Sage.Core.ExecState"/> of this executive (running, stopped, paused, finished)...
         /// </summary>
         /// <value></value>
 		public ExecState State

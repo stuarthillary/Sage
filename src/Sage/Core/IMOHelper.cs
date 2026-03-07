@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     #region Sample Implementation of IModelObject
 #if NOT_DEFINED

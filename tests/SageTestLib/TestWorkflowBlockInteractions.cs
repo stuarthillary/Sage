@@ -15,7 +15,7 @@ using System.IO;
 using System.Text;
 using Highpoint.Sage.ItemBased;
 using Highpoint.Sage.ItemBased.Ports;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System.Reflection;
 
 namespace Highpoint.Sage.Workflow {

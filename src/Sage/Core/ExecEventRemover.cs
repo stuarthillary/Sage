@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     internal delegate List<ExecEvent> FilterMethod(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison);
 

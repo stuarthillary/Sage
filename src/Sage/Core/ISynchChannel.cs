@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Implemented by a synch channel. A synch channel is obtained from a Synchronizer, and

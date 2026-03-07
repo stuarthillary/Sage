@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.PFC;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

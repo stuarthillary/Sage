@@ -1,4 +1,4 @@
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System.Numerics;
 
 namespace Highpoint.Sage.Mathematics;

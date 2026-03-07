@@ -1,7 +1,7 @@
 #nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Interface IResettable is implemented by any <see cref="IModelObject" /> that can be reset.

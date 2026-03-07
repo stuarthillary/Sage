@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 
-using Highpoint.Sage.SimCore; // For executive.
+using Highpoint.Sage.Core; // For executive.
 
 namespace Highpoint.Sage.Graphs
 {

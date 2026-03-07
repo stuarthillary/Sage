@@ -4,7 +4,7 @@ using Highpoint.Sage.Materials.Chemistry.Emissions;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using Highpoint.Sage.Materials.Emissions;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections;
 using System.Collections.Specialized;

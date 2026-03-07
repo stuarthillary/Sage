@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Mathematics;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections.Generic;
 using _Debug = System.Diagnostics.Debug;

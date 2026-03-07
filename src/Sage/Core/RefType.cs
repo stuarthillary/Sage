@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// An enum that is used to describe the nature of a dependency relationship. It always refers to one

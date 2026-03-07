@@ -2,7 +2,7 @@
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

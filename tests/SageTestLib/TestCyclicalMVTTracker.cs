@@ -40,7 +40,7 @@ namespace SchedulerDemoMaterial
         [TestMethod]
         public void TestMVTTracker()
         {
-            Highpoint.Sage.SimCore.Model model = new Highpoint.Sage.SimCore.Model("MVTTracker model");
+            Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model("MVTTracker model");
             BasicReactionSupporter brs = new BasicReactionSupporter();
             InitializeForTesting(brs);
 
@@ -77,7 +77,7 @@ namespace SchedulerDemoMaterial
         [TestMethod]
         public void TestMVTrackerWithNullMixtures()
         {
-            Highpoint.Sage.SimCore.Model model = new Highpoint.Sage.SimCore.Model("MVTTracker model");
+            Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model("MVTTracker model");
             BasicReactionSupporter brs = new BasicReactionSupporter();
             InitializeForTesting(brs);
 

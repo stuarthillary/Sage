@@ -103,7 +103,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
                                     narrative += (" This is because its molecular weight is set to zero. Please provide an appropriate value.");
                                 }
 
-                                SimCore.GenericModelError error = new SimCore.GenericModelError(name, narrative, typeof(VaporPressureCalculator), substance);
+                                Core.GenericModelError error = new Core.GenericModelError(name, narrative, typeof(VaporPressureCalculator), substance);
                                 mixture.Model.AddError(error);
                             }
                         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
-    public class NameComparer<T> : IComparer<T> where T : SimCore.IHasName
+    public class NameComparer<T> : IComparer<T> where T : Core.IHasName
     {
         #region IComparer<T> Members
         /// <summary>

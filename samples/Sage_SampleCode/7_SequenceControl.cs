@@ -1,6 +1,6 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.Tasks;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -35,7 +35,7 @@ multiple instance execution (let's make three batches of brownies.)
 ")]
             public static void Run()
             {
-                Highpoint.Sage.SimCore.Model model = new Highpoint.Sage.SimCore.Model("TaskGraph 1", Guid.NewGuid());
+                Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model("TaskGraph 1", Guid.NewGuid());
                 DateTime startTime = new DateTime(2001, 3, 5, 7, 9, 11);
                 Hashtable graphContext1 = new Hashtable();
                 TestTask makeBrownies = new TestTask(model, "Make Brownies", 0);

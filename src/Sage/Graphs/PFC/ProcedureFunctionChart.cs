@@ -3,7 +3,7 @@
 using Highpoint.Sage.Diagnostics;
 using Highpoint.Sage.Graphs.PFC.Execution;
 using Highpoint.Sage.Graphs.PFC.Expressions;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections;

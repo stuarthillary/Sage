@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// Options for configuring executive threading and causality behavior.
@@ -45,7 +45,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Gets or sets the default executive type used when creating new executives.
         /// </summary>
-        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.SimCore.Executive, Highpoint.Sage";
+        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.Core.Executive, Highpoint.Sage";
     }
 }
 

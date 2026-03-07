@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Connectors;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 
 // 20080130 : Considered a generic version of ports (and therefore, blocks), but

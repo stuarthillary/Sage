@@ -1,5 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using System;
 namespace Highpoint.Sage.Utility
 {

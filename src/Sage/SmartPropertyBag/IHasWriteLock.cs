@@ -3,7 +3,7 @@
 
 // ReSharper disable UnusedMemberInSuper.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

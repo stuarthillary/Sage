@@ -2,7 +2,7 @@
 using Highpoint.Sage.Graphs;
 using Highpoint.Sage.Graphs.Analysis;
 using Highpoint.Sage.Graphs.Tasks;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;

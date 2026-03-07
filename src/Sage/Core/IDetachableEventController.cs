@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     /// <summary>
     /// This interface is implemented by a DetachableEventController - a DEC is associated

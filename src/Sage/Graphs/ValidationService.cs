@@ -122,9 +122,9 @@ namespace Highpoint.Sage.Graphs.Validity
                 if (!where.Equals(stackThinks, StringComparison.Ordinal))
                 {
                     string msg = "ERROR - Validation Service's \"Resume\" location (" + where + ")doesn't match the opposite \"Suspend\" location!";
-                    if (_root is SimCore.IModelObject)
+                    if (_root is Core.IModelObject)
                     {
-                        ((SimCore.IModelObject)_root).Model.AddWarning(new SimCore.GenericModelWarning("ValidationStackMismatch", msg, where, this));
+                        ((Core.IModelObject)_root).Model.AddWarning(new Core.GenericModelWarning("ValidationStackMismatch", msg, where, this));
                     }
                     else
                     {
@@ -469,7 +469,7 @@ namespace Highpoint.Sage.Graphs.Validity
             }
         }
 
-        private class ValidityNode : SimCore.IHasName
+        private class ValidityNode : Core.IHasName
         {
 
             #region >>> Private Fields <<<
@@ -501,9 +501,9 @@ namespace Highpoint.Sage.Graphs.Validity
                 _successors = new List<ValidityNode?>();
                 _children = new List<ValidityNode?>();
                 _predecessors = new List<ValidityNode>();
-                if (_mine is SimCore.IHasName)
+                if (_mine is Core.IHasName)
                 {
-                    _name = ((SimCore.IHasName)_mine).Name;
+                    _name = ((Core.IHasName)_mine).Name;
                 }
                 else
                 {

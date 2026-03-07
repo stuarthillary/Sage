@@ -1,7 +1,7 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Resources;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections.Generic;
@@ -88,7 +88,7 @@ non-deterministic issues of multithreading do not apply here.")]
             }
         }
 
-        class DemoModel : Highpoint.Sage.SimCore.Model
+        class DemoModel : Highpoint.Sage.Core.Model
         {
             protected readonly int NCustomers;
             protected readonly IDoubleDistribution InterarrivalTime;
@@ -329,7 +329,7 @@ TellerRequest : A resource request that asks for one teller, any teller.
 ")]
             public static void Run()
             {
-                Highpoint.Sage.SimCore.Model model = new Highpoint.Sage.SimCore.Model();
+                Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model();
                 MotorPool mp = new MotorPool(model);
                 foreach (int passengerCapacity in new[] { 1, 3, 4, 7, 9 })
                 {

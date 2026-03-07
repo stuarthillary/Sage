@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Randoms;
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;

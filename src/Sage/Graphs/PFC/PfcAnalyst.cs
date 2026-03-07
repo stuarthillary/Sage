@@ -662,7 +662,7 @@ namespace Highpoint.Sage.Graphs.PFC
         //    return depsorter.DependencySequence;
         //}
 
-        //class DependencySorter<T> : IEnumerable<T> where T : Highpoint.Sage.SimCore.IHasName {
+        //class DependencySorter<T> : IEnumerable<T> where T : Highpoint.Sage.Core.IHasName {
 
         //    public delegate List<T> ParentGetter(T t);
 
@@ -702,7 +702,7 @@ namespace Highpoint.Sage.Graphs.PFC
         //        }
         //    }
 
-        //    class Vertex<T1> : Dependencies.IDependencyVertex where T1 : Highpoint.Sage.SimCore.IHasName {
+        //    class Vertex<T1> : Dependencies.IDependencyVertex where T1 : Highpoint.Sage.Core.IHasName {
         //        System.Collections.ArrayList m_parents;
         //        Dictionary<T1, Vertex<T1>> m_dictionary;
         //        T1 m_element;

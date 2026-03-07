@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 // ReSharper disable ClassNeverInstantiated.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

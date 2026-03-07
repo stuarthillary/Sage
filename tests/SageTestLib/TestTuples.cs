@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Highpoint.Sage.Utility
 {
-    using Highpoint.Sage.SimCore;
+    using Highpoint.Sage.Core;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections;

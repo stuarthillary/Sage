@@ -1,5 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Highpoint.Sage.SimCore;
+using Highpoint.Sage.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
@@ -88,7 +88,7 @@ namespace SchedulerDemoMaterial
         }
 
         #region IAction Members
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Starting;
+        public event Highpoint.Sage.Core.ExecEventReceiver Starting;
         public void Run(IExecutive exec, object userData)
         {
             Console.WriteLine(exec.Now + " : " + _name + " is starting.");
@@ -102,7 +102,7 @@ namespace SchedulerDemoMaterial
                 Finishing(exec, userData);
             Console.WriteLine(exec.Now + " : " + _name + " is completing.");
         }
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Finishing;
+        public event Highpoint.Sage.Core.ExecEventReceiver Finishing;
         public string Name
         {
             get
@@ -131,7 +131,7 @@ namespace SchedulerDemoMaterial
 
         #region IAction Members
 
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Starting;
+        public event Highpoint.Sage.Core.ExecEventReceiver Starting;
 
         public void Run(IExecutive exec, object userData)
         {
@@ -143,7 +143,7 @@ namespace SchedulerDemoMaterial
                 Finishing(exec, userData);
         }
 
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Finishing;
+        public event Highpoint.Sage.Core.ExecEventReceiver Finishing;
 
         public string Name
         {
@@ -181,7 +181,7 @@ namespace SchedulerDemoMaterial
 
         #region IAction Members
 
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Starting;
+        public event Highpoint.Sage.Core.ExecEventReceiver Starting;
 
         public void Run(IExecutive exec, object userData)
         {
@@ -202,7 +202,7 @@ namespace SchedulerDemoMaterial
             Console.WriteLine(exec.Now + " : " + _name + " is completing.");
         }
 
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Finishing;
+        public event Highpoint.Sage.Core.ExecEventReceiver Finishing;
 
         public string Name
         {
@@ -252,7 +252,7 @@ namespace SchedulerDemoMaterial
 
         #region IAction Members
 
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Starting;
+        public event Highpoint.Sage.Core.ExecEventReceiver Starting;
 
         public void Run(IExecutive exec, object userData)
         {
@@ -274,7 +274,7 @@ namespace SchedulerDemoMaterial
             Console.WriteLine(exec.Now + " : " + _name + " is completing.");
         }
 
-        public event Highpoint.Sage.SimCore.ExecEventReceiver Finishing;
+        public event Highpoint.Sage.Core.ExecEventReceiver Finishing;
 
         public string Name
         {

@@ -6,7 +6,7 @@ using System.Threading;
 using _Debug = System.Diagnostics.Debug;
 // ReSharper disable UnusedParameter.Global
 
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
 
     /// <summary>

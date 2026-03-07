@@ -496,7 +496,7 @@ The library defines options POCOs. Consumers pass them in. If they don't, the li
 ### Options Classes (new types)
 
 ```csharp
-namespace Highpoint.Sage.SimCore
+namespace Highpoint.Sage.Core
 {
     public sealed class ExecutiveOptions
     {
@@ -509,7 +509,7 @@ namespace Highpoint.Sage.SimCore
 
     public sealed class ExecFactoryOptions
     {
-        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.SimCore.Executive, Sage";
+        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.Core.Executive, Sage";
     }
 }
 
