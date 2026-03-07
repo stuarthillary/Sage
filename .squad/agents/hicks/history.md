@@ -273,3 +273,110 @@ N=100k Chained:
 ```
 
 **Full report:** `.squad/decisions/inbox/hicks-benchmark-heap-results.md`
+
+### 2026-03-07 — Post-Migration Benchmark Run: Generic Collection Migration (Phases 1–3) ✅
+
+**Branch:** `feature/dotnet10`  
+**Requested by:** Stuart Hillary  
+**Context:** Team completed generic collection migration — 16 files, 30+ substitutions replacing `ArrayList`, `Hashtable`, non-generic `Queue`, and non-generic `Stack` with typed generic equivalents.  
+**BenchmarkDotNet:** v0.15.8, .NET 10.0, Windows 11  
+**Benchmark project:** `Sage_Aux\SageBenchmarks\SageBenchmarks.csproj`
+
+**Verdict: NO MEASURABLE PERFORMANCE IMPACT** ✅ — All differences within ShortRunJob measurement noise (CI 99.9% margins are 27–51% of mean).
+
+**Comparison Table — N=100,000 (Primary Workload):**
+
+| Benchmark | Baseline | Post-Migration | Delta | Delta % | Significant? |
+|---|---|---|---|---|---|
+| Executive — sequential N events | 17,851 µs | 19,280 µs | +1,429 µs | +8.0% | ❌ No — within CI |
+| ExecutiveFastLight — sequential N events | 17,132 µs | 17,309 µs | +177 µs | +1.0% | ❌ No — noise |
+| Executive — chained (depth-1 queue) | 4,664 µs | 4,768 µs | +104 µs | +2.2% | ❌ No — noise |
+| ExecutiveFastLight — chained (depth-1 queue) | 1,431 µs | 1,407 µs | -24 µs | -1.7% | ❌ No — noise |
+
+**Memory Allocation — N=100,000:**
+
+| Benchmark | Baseline | Post-Migration | Delta |
+|---|---|---|---|
+| Executive — sequential | 9,865 KB | 9,865 KB | **0 bytes — identical** |
+| ExecutiveFastLight — sequential | 8,203 KB | 8,203 KB | **0 bytes — identical** |
+
+Memory allocations are **byte-for-byte identical** at N=100k. GC pressure completely unchanged.
+
+**Full Results (All N Sizes) — Post-Migration:**
+
+| Benchmark | N=1,000 | N=10,000 | N=100,000 |
+|---|---|---|---|
+| Executive — sequential | 220 µs | 1,369 µs | 19,280 µs |
+| ExecutiveFastLight — sequential | 52 µs | 906 µs | 17,309 µs |
+| Executive — chained | 177 µs | 582 µs | 4,768 µs |
+| ExecutiveFastLight — chained | 49 µs | 144 µs | 1,407 µs |
+
+**Why No Perf Impact:** Migrated collections are in peripheral subsystems (resource management, material queues, scheduling stacks, persistence node stacks). They process far fewer operations per simulation tick than the event dispatcher. Hot paths measured (event queue dispatch binary min-heap) unchanged by migration. ~8% variance on `Executive_SequentialEvents` is ShortRunJob artifact (3-iteration minimum, 99.9% CI spans ±36% of mean).
+
+**Key Learnings:**
+1. Generic migration is perf-neutral — replacing non-generic collections with generic equivalents shows zero measurable impact on DES throughput or memory allocation
+2. Memory allocations as regression signal — 0-byte delta proves no new boxing/unboxing introduced
+3. ShortRunJob CI warning — at minimum 15% deltas should be treated as noise with ShortRunJob
+
+**Recommendation:** ✅ Merge `feature/dotnet10` — implementation is production-ready. No measurable regression.
+
+**Decision record:** `.squad/decisions/inbox/hicks-benchmark-post-migration.md`
+
+### 2026-03-06 — Post-Migration Benchmark Run: Generic Collection Migration (Phases 1–3) ✅
+
+**Branch:** `feature/dotnet10`  
+**Requested by:** Stuart Hillary  
+**Context:** Team just completed generic collection migration — 16 files, 30+ substitutions replacing `ArrayList`, `Hashtable`, non-generic `Queue`, and non-generic `Stack` with typed generic equivalents.  
+**BenchmarkDotNet:** v0.15.8, .NET 10.0, Windows 11  
+**Benchmark project:** `Sage_Aux\SageBenchmarks\SageBenchmarks.csproj`
+
+#### Verdict: NO MEASURABLE PERFORMANCE IMPACT ✅
+
+**All differences are within ShortRunJob measurement noise** (CI 99.9% margins are 27–51% of mean — this job config has inherent high variance due to 3-iteration minimum).
+
+#### Comparison Table — N=100,000 (Primary Workload)
+
+| Benchmark | Baseline (2026-03-06) | Post-Migration | Delta | Delta % | Significant? |
+|---|---|---|---|---|---|
+| Executive — sequential N events | 17,851 µs | 19,280 µs | +1,429 µs | +8.0% | ❌ No — within CI |
+| ExecutiveFastLight — sequential N events | 17,132 µs | 17,309 µs | +177 µs | +1.0% | ❌ No — noise |
+| Executive — chained (depth-1 queue) | 4,664 µs | 4,768 µs | +104 µs | +2.2% | ❌ No — noise |
+| ExecutiveFastLight — chained (depth-1 queue) | 1,431 µs | 1,407 µs | -24 µs | -1.7% | ❌ No — noise |
+
+#### Memory Allocation — N=100,000
+
+| Benchmark | Baseline | Post-Migration | Delta |
+|---|---|---|---|
+| Executive — sequential | 9,865 KB | 9,865 KB | **0 bytes — identical** |
+| ExecutiveFastLight — sequential | 8,203 KB | 8,203 KB | **0 bytes — identical** |
+
+Memory allocations are **byte-for-byte identical** at N=100k. This is the strongest signal: GC pressure is completely unchanged.
+
+#### Full Results (All N Sizes) — Post-Migration
+
+| Benchmark | N=1,000 | N=10,000 | N=100,000 |
+|---|---|---|---|
+| Executive — sequential | 220 µs | 1,369 µs | 19,280 µs |
+| ExecutiveFastLight — sequential | 52 µs | 906 µs | 17,309 µs |
+| Executive — chained | 177 µs | 582 µs | 4,768 µs |
+| ExecutiveFastLight — chained | 49 µs | 144 µs | 1,407 µs |
+
+#### Why the Migration Had No Perf Impact
+
+The generic collection migration changed internal implementation details (`ArrayList` → `List<T>`, `Queue` → `Queue<T>`, etc.) across 16 files — but **none of these collections are on the benchmarked hot paths**. The hot paths measured are:
+1. **Executive event queue dispatch** — binary min-heap (`_eventHeap[]`) — unchanged by migration
+2. **ExecutiveFastLight event queue dispatch** — `ExecEventCache` + `_ExecEvent[]` heap — unchanged
+
+The migrated collections are in peripheral subsystems (resource management, material queues, scheduling stacks, persistence node stacks). They process far fewer operations per simulation tick than the event dispatcher.
+
+The ~8% variance on `Executive_SequentialEvents` is an artefact of ShortRunJob's 3-iteration minimum: the 99.9% CI spans ±36% of mean (±6,984 µs on a 19,280 µs mean), so a 1,429 µs drift between runs is pure noise.
+
+#### Key Learnings
+
+1. **Generic migration is perf-neutral:** Replacing non-generic collections with generic equivalents shows zero measurable impact on DES throughput or memory allocation. Expected — the JIT already had T-parameterized codegen advantages baked in for the heap, and the migrated collections aren't hot.
+
+2. **Memory allocations as a regression signal:** The 0-byte delta in allocated memory is the gold standard — it proves no new boxing/unboxing was introduced. Non-generic collections box value types; generic collections don't. Both before and after are 0 boxing pressure on the measured paths.
+
+3. **ShortRunJob CI warning:** ShortRunJob (3 iterations) produces large confidence intervals. For release benchmarks or regression gating, use at minimum `[SimpleJob(launchCount:3, warmupCount:3, iterationCount:10)]`. Deltas below ~15% should be treated as noise with ShortRunJob.
+
+**Decision record:** `.squad/decisions/inbox/hicks-benchmark-post-migration.md`

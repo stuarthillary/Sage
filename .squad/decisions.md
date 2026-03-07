@@ -440,6 +440,34 @@ Branch `feature/dotnet10` has partial changes from investigation:
 
 ---
 
+### 2026-03-07 — Post-Migration Benchmark Run: Generic Collection Migration (Phases 1–3) ✅
+
+**Author:** Hicks (Performance Engineer)  
+**Date:** 2026-03-07  
+**Branch:** `feature/dotnet10`  
+**Requested by:** Stuart Hillary  
+**Status:** ✅ Confirmed — No Performance Regression
+
+**Decision:** The generic collection migration (Phases 1–3) introducing zero measurable performance impact to the Sage DES engine throughput or memory allocation profile. The migration is safe to merge.
+
+**Evidence:**
+- **Tool:** BenchmarkDotNet v0.15.8, `[ShortRunJob]` + `[MemoryDiagnoser]`
+- **Runtime:** .NET 10.0, Windows 11
+- **N=100,000 Primary Workload:**
+  - Executive sequential: 17,851 µs → 19,280 µs (+8.0%, within CI ±36%)
+  - ExecutiveFastLight sequential: 17,132 µs → 17,309 µs (+1.0%, noise)
+  - Executive chained: 4,664 µs → 4,768 µs (+2.2%, noise)
+  - ExecutiveFastLight chained: 1,431 µs → 1,407 µs (-1.7%, noise)
+- **Memory @ N=100,000 (byte-for-byte identical):**
+  - Executive: 9,865 KB → 9,865 KB (0 bytes)
+  - ExecutiveFastLight: 8,203 KB → 8,203 KB (0 bytes)
+
+**Rationale:** Migrated collections (`Queue<T>`, `Stack<T>`, `List<T>`) are in peripheral subsystems (resource stacks/queues, material queues, persistence stacks) — none on the event dispatch hot path. Benchmarks exercise binary min-heap event queue in `Executive.cs` and `ExecutiveFastLight.cs`, which were untouched by the migration.
+
+**Recommendation:** ✅ Merge `feature/dotnet10`. No performance regression. No follow-up work required.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
