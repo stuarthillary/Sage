@@ -125,3 +125,38 @@
 - Highest risk item: `Vertex.cs` XML deserialization (`DeserializeFrom`) hardcodes `(ArrayList)xmlsc.LoadObject(...)`. Change the cast to `(IList)` to be resilient. Validate with `TestGraphPersistence`.
 
 **Implementation order spec:** Leaf changes first → implementations → interfaces (forces compile errors) → callers → test files → validate all 310 tests.
+
+### 2026-07-15 — Configuration Modernization Architecture Assessment (COMPLETE ✅)
+
+**Status:** Architecture assessment complete. Decision record and Parker work spec written.
+
+**Deliverables:**
+- `.squad/decisions/inbox/ripley-config-modernization-arch.md` — full architecture decision
+- `.squad/decisions/inbox/ripley-config-modernization-parker-spec.md` — detailed implementation spec for Parker
+- `.squad/skills/library-safe-options/SKILL.md` — reusable pattern for library-safe options
+
+**Key findings:**
+
+1. **6 call sites** use `System.Configuration.ConfigurationManager` across 5 files:
+   - `Executive.cs` — reads `WorkerThreads`, `IgnoreCausalityViolations` from "Sage" section (constructor)
+   - `ExecutiveFastLight.cs` — reads `IgnoreCausalityViolations` from "Sage" + `ExecBreakAt` from "diagnostics" (constructor)
+   - `ExecFactory.cs` — reads `ExecutiveType` from "Sage" section (lazy, in `CreateExecutive(Guid)`)
+   - `ModelConfig.cs` — reads arbitrary keys from named section (constructor)
+   - `DiagnosticAids.cs` — reads `diagnostics` section for per-key trace flags (static, lazy-init)
+   - `EmissionsService.cs` — reads `EmissionsService` custom section via `IConfigurationSectionHandler` (singleton constructor)
+
+2. **All 6 sites have defaults** when config is missing — the library already works without app.config. This makes the migration safe: replace with options POCOs whose defaults match no-config behavior.
+
+3. **No simulation determinism risk** — config keys control thread pool sizing, causality enforcement, diagnostic output, and emissions model selection. None affect event ordering or RNG seeds.
+
+4. **Library-safe pattern chosen:** POCO options classes with optional constructor parameters (`options = null`, coalesced to `new Options()` in body). No `IOptions<T>`, no `Microsoft.Extensions.*` dependency in the library itself. DI extension methods deferred to a follow-up.
+
+5. **Only one public API concern:** `ModelConfig` is on `IModel.ModelConfig`. The class is preserved but rewritten to use `Dictionary<string, string>` internally. The `string sectionName` constructor is marked `[Obsolete]`.
+
+6. **`Utility/ConfigurationManager.cs`** is already dead code (entirely commented out). Delete during cleanup.
+
+7. **`EmissionsServiceConfigurationHandler`** implements `IConfigurationSectionHandler` — a System.Configuration artifact. Mark `[Obsolete]`, defer deletion.
+
+8. **Migration order:** DiagnosticAids (lowest risk) → Executive/ExecutiveFastLight (internal) → ExecFactory (public singleton, additive) → ModelConfig (public interface) → EmissionsService (complex but isolated) → remove package reference + cleanup.
+
+**Skill extracted:** `.squad/skills/library-safe-options/SKILL.md` — reusable pattern for removing ConfigurationManager from .NET class libraries without introducing DI dependencies.

@@ -468,6 +468,128 @@ Branch `feature/dotnet10` has partial changes from investigation:
 
 ---
 
+### Configuration Modernization — Remove System.Configuration.ConfigurationManager (PROPOSED)
+
+**Author:** Ripley (Lead / Architect)  
+**Date:** 2026-07-15  
+**Status:** Proposed  
+**Requested by:** Stuart Hillary
+
+---
+
+## Context
+
+Sage is a **class library** (Sage.dll). It currently depends on `System.Configuration.ConfigurationManager` (NuGet package) to read XML `app.config` sections at runtime. This couples the library to a host application's config file — a pattern that's hostile to modern .NET usage (containers, serverless, test isolation, library composition).
+
+Six files read from `ConfigurationManager`. The wrapper file `Utility/ConfigurationManager.cs` is already commented-out dead code.
+
+## Decision
+
+Replace all `System.Configuration.ConfigurationManager` usage with a **library-safe options pattern**: plain C# POCO options classes with sensible defaults, accepted via optional constructor parameters. No dependency on `Microsoft.Extensions.Options` or any DI container within the library itself.
+
+## Architecture
+
+### Core Principle: Library-Safe Options
+
+The library defines options POCOs. Consumers pass them in. If they don't, the library uses defaults. The library never reaches into ambient configuration.
+
+### Options Classes (new types)
+
+```csharp
+namespace Highpoint.Sage.SimCore
+{
+    public sealed class ExecutiveOptions
+    {
+        public int MaxWorkerThreads { get; set; } = 900;
+        public int MinWorkerThreads { get; set; } = 100;
+        public int MinIocThreads { get; set; } = 50;
+        public int MaxIocThreads { get; set; } = 100;
+        public bool IgnoreCausalityViolations { get; set; } = true;
+    }
+
+    public sealed class ExecFactoryOptions
+    {
+        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.SimCore.Executive, Sage";
+    }
+}
+
+namespace Highpoint.Sage.Diagnostics
+{
+    public sealed class DiagnosticsOptions
+    {
+        public Dictionary<string, bool> Flags { get; set; } = new();
+        public bool LogMissingDiagKeys { get; set; } = false;
+        public DateTime? ExecBreakAt { get; set; } = null;
+    }
+}
+
+namespace Highpoint.Sage.Materials.Chemistry.Emissions
+{
+    public sealed class EmissionsServiceOptions
+    {
+        public string EquationSet { get; set; } = "CTG";
+        public bool IgnoreUnknownModelTypes { get; set; } = false;
+        public bool Enabled { get; set; } = true;
+        public bool PermitOverEmission { get; set; } = false;
+        public bool PermitUnderEmission { get; set; } = false;
+        public IReadOnlyList<IEmissionModel>? Models { get; set; } = null;
+    }
+}
+```
+
+### Constructor Signature Changes
+
+| Class | Current | Proposed |
+|---|---|---|
+| `Executive` (internal) | `Executive(Guid execGuid)` | `Executive(Guid execGuid, ExecutiveOptions? options = null)` |
+| `ExecutiveFastLight` (internal) | `ExecutiveFastLight(Guid execGuid)` | `ExecutiveFastLight(Guid execGuid, ExecutiveOptions? options = null, DiagnosticsOptions? diagnosticsOptions = null)` |
+| `ExecFactory` (public, singleton) | `ExecFactory()` (private) | `ExecFactory(ExecFactoryOptions? options = null, ExecutiveOptions? executiveOptions = null)` — instance still created via `Instance`, but gains a `Configure(...)` static method |
+| `DiagnosticAids` (public, static) | N/A (static class) | `DiagnosticAids.Configure(DiagnosticsOptions options)` static method |
+| `ModelConfig` (public) | `ModelConfig(string sectionName)` | **Deprecate.** Replace with `SageModelOptions` POCO or remove entirely. |
+| `EmissionsService` (public, singleton) | `EmissionsService()` (private) | `EmissionsService(EmissionsServiceOptions? options = null)` + `Configure(EmissionsServiceOptions)` static method |
+
+### Migration Order
+
+1. **DiagnosticsOptions + DiagnosticAids** — lowest risk, static class, no public constructor changes
+2. **ExecutiveOptions + Executive + ExecutiveFastLight** — internal classes, no public API impact
+3. **ExecFactoryOptions + ExecFactory** — public singleton, but `Configure()` is additive
+4. **ModelConfig refactor** — public class on public interface, needs care
+5. **EmissionsServiceOptions + EmissionsService** — complex but isolated subsystem
+6. **Remove `System.Configuration.ConfigurationManager` PackageReference from Sage4.csproj**
+7. **Delete `Utility/ConfigurationManager.cs`** (already dead code)
+8. **Delete `EmissionsServiceConfigurationHandler`** class
+9. **Update/remove app.config references in error messages and XML doc comments**
+
+## What This Does NOT Change
+
+- `IExecutive` interface — unchanged
+- `IModel` interface — `ModelConfig` property type unchanged (class refactored internally)
+- Event dispatch semantics — unchanged
+- Threading model — unchanged (thread pool config just comes from options instead of XML)
+- Any simulation determinism properties
+
+## Risks
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| Static "configure once" semantics for DiagnosticAids | Low | Matches existing behavior. Document. |
+| ExecFactory reflection now needs 2-param constructor | Medium | Both constructors (1-param and 2-param) should be supported during transition |
+| EmissionsService singleton reset between tests | Medium | Add `EmissionsService.Reset()` for test isolation |
+| ModelConfig public API shape change | Low | Keep the class, change only internal implementation |
+| Thread pool config applied globally | Low | Already global today — no change in blast radius |
+
+## Constraints Satisfied
+
+- ✅ Usable without DI container (`new Executive(guid)` still works, uses defaults)
+- ✅ Supports DI consumers (options are plain POCOs, injectable)
+- ✅ No breaking public constructor changes (additive optional parameters only)
+- ✅ ConfigurationManager usage eliminated
+- ✅ No new package dependencies required (Microsoft.Extensions.Options NOT added)
+
+**Implementation spec:** See Parker work spec for detailed implementation steps.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
