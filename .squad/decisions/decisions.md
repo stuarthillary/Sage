@@ -1920,5 +1920,29 @@ Sage.slnx                   ← new XML solution (replaced Sage4-Everything.sln)
 - `Sage.slnx` is the new canonical solution entry point for Visual Studio 2022 17.10+ and `dotnet` CLI.
 - Build: 0 errors. Tests: 319/319 passing.
 
+---
+
+# Decision: Root Namespace Changed to Highpoint.Sage
+
+**Date:** 2026-07-16  
+**Author:** Parker  
+**Status:** Implemented ✅
+
+## Decision
+
+The root namespace for the Sage library is `Highpoint.Sage` (was `Sage`).  
+The assembly name remains `Sage` (output DLL is `Sage.dll`).
+
+## Details
+
+- `<RootNamespace>Highpoint.Sage</RootNamespace>` set in `src\Sage\Sage.csproj`
+- `<AssemblyName>Sage</AssemblyName>` retained (no change to output artifact name)
+- All `namespace Sage.*` declarations and `using Sage.*` directives were already migrated to `Highpoint.Sage.*` prior to this commit
+- Project file renamed `Sage4.csproj` → `Sage.csproj` in the same commit
+
+## Rationale
+
+Aligns the library namespace with the organization/product hierarchy (`Highpoint.Sage`) and removes the legacy `Sage4` versioning artifact from the project file name.
+
 
 
