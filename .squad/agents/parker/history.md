@@ -49,3 +49,10 @@
 - **Scope:** Enabled nullable globally, added #nullable disable to Sage sources, and annotated Core interfaces plus ExecEvent/SageOptions/DetachableEvent.
 - **Build/Test:** `dotnet build Sage4-Everything.sln` succeeded (warnings baseline); `dotnet test SageTestLib` total 319, passed 319.
 - **Notes:** 23 files now #nullable enable; 525 files still #nullable disable.
+
+### 2026-07-16 — Nullable Phase 2 Engine Internals ✅
+
+- **Scope:** Executive, ExecutiveFastLight, ExecFactory, ModelConfig, Model, and ExecEventRemover now rely on global nullable with warnings fixed (object? userData, nullable events/fields).
+- **Special handling:** ExecutiveFastLight heap internals preserved; nullable annotations and null-forgiving applied without altering queue logic.
+- **Build/Test:** `dotnet build Sage4-Everything.sln --no-incremental` succeeded; `dotnet test SageTestLib` total 319, passed 319.
+- **Notes:** 23 files now #nullable enable; 519 files still #nullable disable.

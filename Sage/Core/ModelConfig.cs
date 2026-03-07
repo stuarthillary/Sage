@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -20,13 +19,13 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Creates a new ModelConfig with no parameters.
         /// </summary>
-        public ModelConfig() : this((IDictionary<string, string>)null) { }
+        public ModelConfig() : this((IDictionary<string, string>?)null) { }
 
         /// <summary>
         /// Creates a new ModelConfig from the provided parameter map.
         /// </summary>
         /// <param name="parameters">The parameters to expose to the model.</param>
-        public ModelConfig(IDictionary<string, string> parameters)
+        public ModelConfig(IDictionary<string, string>? parameters)
         {
             _parameters = parameters == null
                 ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -40,6 +39,7 @@ namespace Highpoint.Sage.SimCore
         [Obsolete("ModelConfig no longer reads configuration sections. Use ModelConfig(IDictionary<string, string>) instead.")]
         public ModelConfig(string sectionName)
         {
+            _parameters = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             if (!string.IsNullOrWhiteSpace(sectionName))
             {
                 _Debug.WriteLine(
@@ -47,13 +47,13 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public string GetSimpleParameter(string key)
+        public string? GetSimpleParameter(string? key)
         {
             if (key == null)
                 return null;
 
-            string retval = null;
-            if (_parameters.TryGetValue(key, out string value))
+            string? retval = null;
+            if (_parameters.TryGetValue(key, out string? value))
                 retval = value;
             if (retval == null)
             {

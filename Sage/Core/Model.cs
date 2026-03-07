@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.Tasks;
@@ -54,9 +53,9 @@ namespace Highpoint.Sage.SimCore
         private static readonly bool _dumpErrors = Diagnostics.DiagnosticAids.Diagnostics("ModelErrors");
         private ulong _randomSeed = ulong.MaxValue;
         private bool _randomSeedSpecified = false;
-        private Randoms.RandomServer _randomServer = null;
+        private Randoms.RandomServer? _randomServer = null;
         private readonly ModelConfig _modelConfig;
-        private ExecController _execController;
+        private ExecController? _execController;
 
         #endregion
 
@@ -145,9 +144,7 @@ namespace Highpoint.Sage.SimCore
         {
             get
             {
-                if (_randomServer == null)
-                    _randomServer = new Randoms.RandomServer();
-                return _randomServer;
+                return _randomServer ??= new Randoms.RandomServer();
             }
             set
             {
@@ -208,7 +205,7 @@ namespace Highpoint.Sage.SimCore
         /// Gets the executive controller that governs the rate-throttling and frame-rendering event frequency of this model.
         /// </summary>
         /// <value>The executive controller.</value>
-        public ExecController ExecutiveController
+        public ExecController? ExecutiveController
         {
             get
             {
@@ -216,6 +213,9 @@ namespace Highpoint.Sage.SimCore
             }
             set
             {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
                 if (_execController == null)
                 {
                     _execController = value;
@@ -317,7 +317,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Event that is fired when a new resource has been created.
         /// </summary>
-        public event ResourceEvent ResourceCreatedEvent;
+        public event ResourceEvent? ResourceCreatedEvent;
 
         #endregion
 
@@ -348,7 +348,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Fired when a warning is added to the model.
         /// </summary>
-        public event WarningEvent WarningHappened;
+        public event WarningEvent? WarningHappened;
         /// <summary>
         /// An enumeration of all of the warnings currently applicable to this model.
         /// </summary>
@@ -391,11 +391,11 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Fired when an error happens in (is added to) a model.
         /// </summary>
-        public event ErrorEvent ErrorHappened;
+        public event ErrorEvent? ErrorHappened;
         /// <summary>
         /// Fired when an error is removed from a model.
         /// </summary>
-        public event ErrorEvent ErrorCleared;
+        public event ErrorEvent? ErrorCleared;
 
         #region ErrorHandlers
         /// <summary>
@@ -410,7 +410,7 @@ namespace Highpoint.Sage.SimCore
             {
                 if (theErrorHandler.HandleError(error))
                 {
-                    errors.Remove(error.Target, error);
+                    errors.Remove(error.Target!, error);
                     break;
                 }
             }
@@ -535,7 +535,7 @@ namespace Highpoint.Sage.SimCore
         {
             if (_diagnostics)
                 _Debug.WriteLine("Removing error " + theError.Narrative);
-            errors.Remove(theError.Target, theError);
+            errors.Remove(theError.Target!, theError);
             ErrorCleared?.Invoke(theError);
         }
 
@@ -736,31 +736,31 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Fired when the model has been commanded to start. Should only be used to queue up events in the executive.
         /// </summary>
-        public event ModelEvent Starting;
+        public event ModelEvent? Starting;
 
         /// <summary>
         /// Fired when the model has been commanded to stop.
         /// </summary>
-        public event ModelEvent Stopping;
+        public event ModelEvent? Stopping;
 
         /// <summary>
         /// Fired when the model has been commanded to reset.
         /// </summary>
-        public event ModelEvent Resetting;
+        public event ModelEvent? Resetting;
 
         /// <summary>
         /// Fired when the model has completed.
         /// </summary>
-        public event ModelEvent Completed;
+        public event ModelEvent? Completed;
 
         private readonly Dictionary<Type, Dictionary<string, object>> _services;
-        public void AddService<T>(T service, string name = null) where T : IModelService
+        public void AddService<T>(T service, string? name = null) where T : IModelService
         {
-            Dictionary<string, object> typedServices;
-            if (!_services.TryGetValue(typeof(T), out typedServices))
+            Dictionary<string, object>? typedServices;
+            if (!_services.TryGetValue(typeof(T), out typedServices) || typedServices == null)
             {
                 typedServices = new Dictionary<string, object>();
-                _services.Add(typeof(T), typedServices);
+                _services[typeof(T)] = typedServices;
             }
             typedServices.Add((name ?? ""), service);
 
@@ -776,12 +776,12 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public T GetService<T>(string name = null) where T : IModelService
+        public T? GetService<T>(string? name = null) where T : IModelService
         {
             bool exactTypeMatch = true;
             bool retvalFound; // is false.
-            object retval;
-            Dictionary<string, object> typedServices;
+            object? retval = null;
+            Dictionary<string, object>? typedServices;
             if (!_services.TryGetValue(typeof(T), out typedServices))
             {
                 exactTypeMatch = false;
@@ -819,13 +819,13 @@ namespace Highpoint.Sage.SimCore
             {
                 if (!exactTypeMatch)
                 {
-                    AddService((T)retval, name);
+                    AddService((T)retval!, name);
                 }
-                Debug.Assert(((T)retval).IsInitialized, string.Format("Service {0} stored under key \"{1}\" is not initialized. It must be explicitly initialized after being added to the model.", retval.GetType(), name));
-                return (T)retval;
+                Debug.Assert(((T)retval!).IsInitialized, string.Format("Service {0} stored under key \"{1}\" is not initialized. It must be explicitly initialized after being added to the model.", retval!.GetType(), name));
+                return (T)retval!;
             }
             else
-                return default(T);
+                return default;
         }
 
         /// <summary>
@@ -876,7 +876,7 @@ namespace Highpoint.Sage.SimCore
             Stopping?.Invoke(this);
         }
 
-        private ITransitionFailureReason OnStartRequested(IModel model)
+        private ITransitionFailureReason? OnStartRequested(IModel model)
         {
             foreach (IErrorHandler errorHandler in ErrorHandlers)
             {
@@ -891,7 +891,7 @@ namespace Highpoint.Sage.SimCore
         #endregion
 
         #region >>> Implementation of IHasIdentity <<<
-        private string _name = null;
+        private string _name = null!;
         /// <summary>
         /// The name of this model.
         /// </summary>
@@ -911,7 +911,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        private string _description = null;
+        private string? _description = null;
         /// <summary>
         /// A description of this Model.
         /// </summary>
@@ -956,10 +956,10 @@ namespace Highpoint.Sage.SimCore
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid"></param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             Debug.Assert(model == this);
-            IModel m_model = null; // To fake out the call below, since Model doesn't have this member field.
+            IModel? m_model = null; // To fake out the call below, since Model doesn't have this member field.
             IMOHelper.Initialize(ref m_model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
 

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -20,12 +19,12 @@ namespace Highpoint.Sage.SimCore
     internal sealed class Executive : MarshalByRefObject, IExecutive
     {
         private DateTime? _lastEventServiceTime = null;
-        private Exception _terminationException = null;
+        private Exception? _terminationException = null;
         private readonly ExecEventType _defaultEventType = ExecEventType.Synchronous;
         private ExecState _state = ExecState.Stopped;
         private DateTime _now = DateTime.MinValue;
         private const int InitialEventHeapCapacity = 16;
-        private ExecEvent[] _eventHeap;
+        private ExecEvent?[] _eventHeap;
         private int _eventHeapCapacity;
         private Stack<ExecEventRemover> _removals = new Stack<ExecEventRemover>();
         private double _currentPriorityLevel = double.MinValue;
@@ -39,7 +38,7 @@ namespace Highpoint.Sage.SimCore
         private int _numEventsInQueue = 0;
         private ExecEventType _currentEventType;
 
-        private DetachableEvent _currentDetachableEvent = null;
+        private DetachableEvent? _currentDetachableEvent = null;
 
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("Executive");
         private static bool _ignoreCausalityViolations = true;
@@ -51,13 +50,13 @@ namespace Highpoint.Sage.SimCore
 
         private int _executiveThreadId = Thread.CurrentThread.ManagedThreadId;
 
-        internal Executive(Guid execGuid, ExecutiveOptions options = null)
+        internal Executive(Guid execGuid, ExecutiveOptions? options = null)
         {
             options ??= new ExecutiveOptions();
             _guid = execGuid;
             _currentEventType = ExecEventType.None;
             _eventHeapCapacity = InitialEventHeapCapacity;
-            _eventHeap = new ExecEvent[_eventHeapCapacity + 1];
+            _eventHeap = new ExecEvent?[_eventHeapCapacity + 1];
 
 
             int desiredMinWorkerThreads = options.MinWorkerThreads;
@@ -203,7 +202,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="priority">The priority of the callback. Higher numbers mean higher priorities.</param>
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        public long RequestDaemonEvent(ExecEventReceiver eer, DateTime when, double priority, object userData)
+        public long RequestDaemonEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData)
         {
             return RequestEvent(eer, when, priority, userData, _defaultEventType, true);
         }
@@ -232,7 +231,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A code that can subsequently be used to identify the request, e.g. for removal.
         /// </returns>
-        public long RequestEvent(ExecEventReceiver eer, DateTime when, object userData)
+        public long RequestEvent(ExecEventReceiver eer, DateTime when, object? userData)
         {
             return RequestEvent(eer, when, 0.0, userData, _defaultEventType, false);
         }
@@ -251,7 +250,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="userData">An object of any type that the code scheduling the event (i.e. making this call) wants to
         /// have passed to the code executing the event (i.e. the body of the ExecEventReceiver.)</param>
         /// <returns>A long, which is a number that serves as a key. This key is used, for example, to unrequest the event.</returns>
-        public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData)
+        public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData)
         {
             return RequestEvent(eer, when, priority, userData, _defaultEventType, false);
         }
@@ -270,7 +269,7 @@ namespace Highpoint.Sage.SimCore
         /// have passed to the code executing the event (i.e. the body of the ExecEventReceiver.)</param>
         /// <param name="execEventType">Specifies the type of event dispatching to be employed for this event.</param>
         /// <returns>A long, which is a number that serves as a key. This key is used, for example, to unrequest the event.</returns>
-        public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData, ExecEventType execEventType)
+        public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData, ExecEventType execEventType)
         {
             return RequestEvent(eer, when, priority, userData, execEventType, false);
         }
@@ -309,7 +308,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <param name="execEventType">The way the event is to be served by the executive.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        public long RequestImmediateEvent(ExecEventReceiver eer, object userData, ExecEventType execEventType)
+        public long RequestImmediateEvent(ExecEventReceiver eer, object? userData, ExecEventType execEventType)
         {
             lock (_eventLock)
             {
@@ -317,7 +316,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        private long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData, ExecEventType execEventType, bool isDaemon)
+        private long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData, ExecEventType execEventType, bool isDaemon)
         {
             if (!_stopRequested && !_abortRequested)
             {
@@ -348,7 +347,10 @@ namespace Highpoint.Sage.SimCore
                         HeapEnqueue(newEvent);
                         if (_diagnostics)
                         {
-                            _Debug.WriteLine("Event requested for time " + when + ", to call back at " + eer.Target + "(" + eer.Target.GetHashCode() + ")." + eer.Method.Name);
+                            var target = eer.Target;
+                            var targetName = target?.ToString() ?? "<static>";
+                            var targetHash = target?.GetHashCode() ?? 0;
+                            _Debug.WriteLine($"Event requested for time {when}, to call back at {targetName}({targetHash}).{eer.Method.Name}");
                         }
                         return _nextReqHashCode;
                     }
@@ -386,7 +388,7 @@ namespace Highpoint.Sage.SimCore
             if (_numEventsInQueue == _eventHeapCapacity)
             {
                 _eventHeapCapacity = Math.Max(InitialEventHeapCapacity, _eventHeapCapacity * 2);
-                ExecEvent[] newHeap = new ExecEvent[_eventHeapCapacity + 1];
+                ExecEvent?[] newHeap = new ExecEvent?[_eventHeapCapacity + 1];
                 Array.Copy(_eventHeap, newHeap, _numEventsInQueue + 1);
                 _eventHeap = newHeap;
             }
@@ -394,7 +396,7 @@ namespace Highpoint.Sage.SimCore
             _numEventsInQueue++;
             int ndx = _numEventsInQueue;
             int parentNdx = ndx / 2;
-            while (parentNdx > 0 && CompareEvents(_eventHeap[parentNdx], ee) > 0)
+            while (parentNdx > 0 && CompareEvents(_eventHeap[parentNdx]!, ee) > 0)
             {
                 _eventHeap[ndx] = _eventHeap[parentNdx];
                 ndx = parentNdx;
@@ -410,8 +412,8 @@ namespace Highpoint.Sage.SimCore
                 throw new InvalidOperationException("Event heap is empty.");
             }
 
-            ExecEvent minEvent = _eventHeap[1];
-            ExecEvent relocatee = _eventHeap[_numEventsInQueue];
+            ExecEvent minEvent = _eventHeap[1]!;
+            ExecEvent relocatee = _eventHeap[_numEventsInQueue]!;
             _eventHeap[_numEventsInQueue] = null;
             _numEventsInQueue--;
 
@@ -424,9 +426,9 @@ namespace Highpoint.Sage.SimCore
             int child;
             while ((child = ndx * 2) <= _numEventsInQueue)
             {
-                if (child < _numEventsInQueue && CompareEvents(_eventHeap[child], _eventHeap[child + 1]) > 0)
+                if (child < _numEventsInQueue && CompareEvents(_eventHeap[child]!, _eventHeap[child + 1]!) > 0)
                     child++;
-                if (CompareEvents(_eventHeap[child], relocatee) >= 0)
+                if (CompareEvents(_eventHeap[child]!, relocatee) >= 0)
                     break;
                 _eventHeap[ndx] = _eventHeap[child];
                 ndx = child;
@@ -441,7 +443,7 @@ namespace Highpoint.Sage.SimCore
             List<ExecEvent> snapshot = new List<ExecEvent>(_numEventsInQueue);
             for (int i = 1; i <= _numEventsInQueue; i++)
             {
-                snapshot.Add(_eventHeap[i]);
+                snapshot.Add(_eventHeap[i]!);
             }
             return snapshot;
         }
@@ -463,7 +465,7 @@ namespace Highpoint.Sage.SimCore
             {
                 _eventHeapCapacity *= 2;
             }
-            _eventHeap = new ExecEvent[_eventHeapCapacity + 1];
+            _eventHeap = new ExecEvent?[_eventHeapCapacity + 1];
 
             foreach (ExecEvent ee in events)
             {
@@ -473,14 +475,14 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        private ExecEvent FindEventByKey(long eventKey)
+        private ExecEvent? FindEventByKey(long eventKey)
         {
             lock (_eventLock)
             {
                 for (int i = 1; i <= _numEventsInQueue; i++)
                 {
-                    ExecEvent ee = _eventHeap[i];
-                    if (ee.Key == eventKey)
+                    ExecEvent? ee = _eventHeap[i];
+                    if (ee != null && ee.Key == eventKey)
                         return ee;
                 }
             }
@@ -515,7 +517,7 @@ namespace Highpoint.Sage.SimCore
 
             private readonly Executive _exec;
             private readonly List<long> _eventCodes;
-            private IDetachableEventController _idec;
+            private IDetachableEventController _idec = null!; // Set in Join.
 
             public JoinSet(Executive exec, long[] eventCodes)
             {
@@ -523,7 +525,7 @@ namespace Highpoint.Sage.SimCore
                 _eventCodes = new List<long>(eventCodes);
                 foreach (long eventCode in eventCodes)
                 {
-                    ExecEvent targetEvent = _exec.FindEventByKey(eventCode);
+                    ExecEvent? targetEvent = _exec.FindEventByKey(eventCode);
                     if (targetEvent == null)
                     {
                         throw new InvalidOperationException($"Event {eventCode} not found in queue for Join operation.");
@@ -532,7 +534,7 @@ namespace Highpoint.Sage.SimCore
                 }
             }
 
-            private void ee_ServiceCompleted(long key, ExecEventReceiver eer, double priority, DateTime when, object userData, ExecEventType eventType)
+            private void ee_ServiceCompleted(long key, ExecEventReceiver eer, double priority, DateTime when, object? userData, ExecEventType eventType)
             {
                 _eventCodes.Remove(key);
                 if (_eventCodes.Count == 0)
@@ -544,7 +546,7 @@ namespace Highpoint.Sage.SimCore
             public void Join()
             {
                 Debug.Assert(_exec.CurrentEventType == ExecEventType.Detachable, "Cannot call Join on a non-Detachable event.");
-                _idec = _exec.CurrentEventController;
+                _idec = _exec.CurrentEventController!;
                 List<string> eventCodes = new List<string>();
                 _eventCodes.ForEach(delegate (long ec)
                 {
@@ -623,7 +625,7 @@ namespace Highpoint.Sage.SimCore
                 if (_executiveStartedSingleShot != null)
                 {
                     _executiveStartedSingleShot(this);
-                    _executiveStartedSingleShot = (ExecutiveEvent)Delegate.RemoveAll(_executiveStartedSingleShot, _executiveStartedSingleShot);
+                    _executiveStartedSingleShot = (ExecutiveEvent?)Delegate.RemoveAll(_executiveStartedSingleShot, _executiveStartedSingleShot);
                 }
                 #endregion Kickoff Events
 
@@ -690,7 +692,12 @@ namespace Highpoint.Sage.SimCore
                     {
                         _currentEventType = currentEvent.EventType;
                         if (_diagnostics)
-                            _Debug.WriteLine(string.Format(_eventSvcMsg, currentEvent, currentEvent.ExecEventReceiver.Target, currentEvent.ExecEventReceiver.Target.GetHashCode(), currentEvent.ExecEventReceiver.Method.Name));
+                        {
+                            var target = currentEvent.ExecEventReceiver.Target;
+                            var targetName = target?.ToString() ?? "<static>";
+                            var targetHash = target?.GetHashCode() ?? 0;
+                            _Debug.WriteLine(string.Format(_eventSvcMsg, currentEvent, targetName, targetHash, currentEvent.ExecEventReceiver.Method.Name));
+                        }
                         switch (currentEvent.EventType)
                         {
                             case ExecEventType.Synchronous:
@@ -736,7 +743,7 @@ namespace Highpoint.Sage.SimCore
                     {
                         if (_numEventsInQueue > _numDaemonEventsInQueue)
                         {
-                            DateTime nextEventTime = _eventHeap[1].When;
+                            DateTime nextEventTime = _eventHeap[1]!.When;
                             //DateTime nextEventTime = ((ExecEvent)m_events[0]).m_when;
                             if (nextEventTime > _now)
                             {
@@ -834,11 +841,17 @@ namespace Highpoint.Sage.SimCore
                     if (ee.ExecEventReceiver.Target is DetachableEvent)
                     {
                         ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
-                        _Debug.WriteLine(ee.Key + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + eer.Target + "(" + eer.Target.GetHashCode() + "), " + eer.Method.Name);
+                        var target = eer.Target;
+                        var targetName = target?.ToString() ?? "<static>";
+                        var targetHash = target?.GetHashCode() ?? 0;
+                        _Debug.WriteLine(ee.Key + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + targetName + "(" + targetHash + "), " + eer.Method.Name);
                     }
                     else
                     {
-                        _Debug.WriteLine(ee.Key + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + ee.ExecEventReceiver.Target + "(" + ee.ExecEventReceiver.Target.GetHashCode() + "), " + ee.ExecEventReceiver.Method.Name);
+                        var target = ee.ExecEventReceiver.Target;
+                        var targetName = target?.ToString() ?? "<static>";
+                        var targetHash = target?.GetHashCode() ?? 0;
+                        _Debug.WriteLine(ee.Key + ").\t" + ee.EventType + " Event is waiting to be fired at time " + ee.When + " into " + targetName + "(" + targetHash + "), " + ee.ExecEventReceiver.Method.Name);
                     }
                 }
                 _Debug.WriteLine("***********************************");
@@ -846,7 +859,7 @@ namespace Highpoint.Sage.SimCore
         }
 
 
-        public IDetachableEventController CurrentEventController
+        public IDetachableEventController? CurrentEventController
         {
             get
             {
@@ -871,7 +884,7 @@ namespace Highpoint.Sage.SimCore
         }
 
 
-        internal void SetCurrentEventController(DetachableEvent de)
+        internal void SetCurrentEventController(DetachableEvent? de)
         {
             //if ( m_currentDetachableEvent != null ) {
             //    throw new ExecutiveException("Attempt to overwrite the current detachable event!");
@@ -881,11 +894,11 @@ namespace Highpoint.Sage.SimCore
 
         private readonly object _pauseLock = new object();
         private readonly object _runLock = new object();
-        private PauseManager _pauser = null;
+        private PauseManager? _pauser = null;
 
         private class PauseManager
         {
-            private Thread _pauseMgr = null;
+            private Thread? _pauseMgr = null;
             private bool _abort;
             private readonly Executive _executive;
 
@@ -1036,11 +1049,11 @@ namespace Highpoint.Sage.SimCore
         public void Detach(object target)
         {
 
-            foreach (ExecutiveEvent md in new ExecutiveEvent[] { _clockAboutToChange, _executiveAborted, _executiveFinished, _executiveReset, _executiveStarted, _executiveStartedSingleShot, _executiveStopped })
+            foreach (ExecutiveEvent? md in new ExecutiveEvent?[] { _clockAboutToChange, _executiveAborted, _executiveFinished, _executiveReset, _executiveStarted, _executiveStartedSingleShot, _executiveStopped })
             {
                 if (md == null)
                     continue;
-                ExecutiveEvent tmp = md;
+                ExecutiveEvent? tmp = md;
                 List<ExecutiveEvent> lstDels = new List<ExecutiveEvent>();
                 foreach (ExecutiveEvent ee in md.GetInvocationList())
                 {
@@ -1052,11 +1065,11 @@ namespace Highpoint.Sage.SimCore
                 lstDels.ForEach(n => tmp -= n);
             }
 
-            foreach (EventMonitor em in new EventMonitor[] { _eventAboutToFire, _eventHasCompleted })
+            foreach (EventMonitor? em in new EventMonitor?[] { _eventAboutToFire, _eventHasCompleted })
             {
                 if (em == null)
                     continue;
-                EventMonitor tmp = em;
+                EventMonitor? tmp = em;
                 List<EventMonitor> lstDels = new List<EventMonitor>();
                 foreach (EventMonitor ee in em.GetInvocationList())
                 {
@@ -1077,17 +1090,17 @@ namespace Highpoint.Sage.SimCore
         // in a detachable event and adding a handler to an executive event. For that reason, all public
         // event members are methods with add {} and remove {} that defer to private event members. This
         // does not cause the aforementioned lockup.
-        private event ExecutiveEvent _executiveStarted;
-        private event ExecutiveEvent _executiveStartedSingleShot;
-        private event ExecutiveEvent _executiveStopped;
-        private event ExecutiveEvent _executivePaused;
-        private event ExecutiveEvent _executiveResumed;
-        private event ExecutiveEvent _executiveFinished;
-        private event ExecutiveEvent _executiveAborted;
-        private event ExecutiveEvent _executiveReset;
-        private event ExecutiveEvent _clockAboutToChange;
-        private event EventMonitor _eventAboutToFire;
-        private event EventMonitor _eventHasCompleted;
+        private event ExecutiveEvent? _executiveStarted;
+        private event ExecutiveEvent? _executiveStartedSingleShot;
+        private event ExecutiveEvent? _executiveStopped;
+        private event ExecutiveEvent? _executivePaused;
+        private event ExecutiveEvent? _executiveResumed;
+        private event ExecutiveEvent? _executiveFinished;
+        private event ExecutiveEvent? _executiveAborted;
+        private event ExecutiveEvent? _executiveReset;
+        private event ExecutiveEvent? _clockAboutToChange;
+        private event EventMonitor? _eventAboutToFire;
+        private event EventMonitor? _eventHasCompleted;
 
 
         public event ExecutiveEvent ExecutiveStarted_SingleShot
@@ -1315,9 +1328,11 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        private static void AsyncExecutor(object payload)
+        private static void AsyncExecutor(object? payload)
         {
-            object[] p = (object[])payload;
+            if (payload is not object[] p || p.Length < 2)
+                return;
+
             IExecutive executive = (IExecutive)p[0];
             ExecEvent execEvent = (ExecEvent)p[1];
             execEvent.ExecEventReceiver(executive, execEvent.UserData);

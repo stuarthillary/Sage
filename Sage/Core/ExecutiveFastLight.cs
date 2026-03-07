@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -57,7 +56,7 @@ namespace Highpoint.Sage.SimCore
                 }
             }
 
-            public _ExecEvent Take(ExecEventReceiver eer, DateTime when, object userData, long key, bool isDaemon)
+            public _ExecEvent Take(ExecEventReceiver eer, DateTime when, object? userData, long key, bool isDaemon)
             {
                 if (_head == _tail)
                 {
@@ -101,7 +100,7 @@ namespace Highpoint.Sage.SimCore
 
         private class _ExecEvent
         {
-            public ExecEventReceiver Eer
+            public ExecEventReceiver? Eer
             {
                 get;
                 internal set;
@@ -111,7 +110,7 @@ namespace Highpoint.Sage.SimCore
                 get;
                 internal set;
             }
-            public object UserData
+            public object? UserData
             {
                 get;
                 internal set;
@@ -135,7 +134,7 @@ namespace Highpoint.Sage.SimCore
                 IsDaemon = false;
             }
 
-            public _ExecEvent(ExecEventReceiver eer, DateTime when, object userData, long key, bool isDaemon)
+            public _ExecEvent(ExecEventReceiver eer, DateTime when, object? userData, long key, bool isDaemon)
             {
                 Eer = eer;
                 When = when.Ticks;
@@ -151,10 +150,10 @@ namespace Highpoint.Sage.SimCore
 		public static int InitialSize = 16;
 
         #region Private Fields
-        private ExecEventCache _execEventCache;
+        private ExecEventCache _execEventCache = null!; // Set in Reset.
         private Guid _execGuid;
 
-        private _ExecEvent[] _eventArray;
+        private _ExecEvent[] _eventArray = null!; // Set in Reset.
         private int _eventArraySize;
         private int _numEventsPending;
         private int _numNonDaemonEventsPending;
@@ -166,11 +165,11 @@ namespace Highpoint.Sage.SimCore
         private UInt32 _eventCount;
         private bool _stopRequested;
         private long _key;
-        private _ExecEvent _currentEvent;
+        private _ExecEvent _currentEvent = null!; // Set during event processing.
         private static readonly IReadOnlyList<DetachableEvent> _emptyDetachableEvents = Array.Empty<DetachableEvent>();
         private static bool _ignoreCausalityViolations = true;
 
-        private _ExecEvent _parentEvent;
+        private _ExecEvent _parentEvent = null!; // Set during enqueue.
 
         #endregion Private Fields
 
@@ -180,7 +179,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="execGuid">The GUID by which this executive will be known.</param>
         /// <param name="options">The executive options to apply.</param>
         /// <param name="diagnosticsOptions">The diagnostics options to apply.</param>
-        public ExecutiveFastLight(Guid execGuid, ExecutiveOptions options = null, DiagnosticsOptions diagnosticsOptions = null)
+        public ExecutiveFastLight(Guid execGuid, ExecutiveOptions? options = null, DiagnosticsOptions? diagnosticsOptions = null)
         {
             options ??= new ExecutiveOptions();
             diagnosticsOptions ??= new DiagnosticsOptions();
@@ -270,15 +269,16 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A code that can subsequently be used to identify the request, e.g. for removal.
         /// </returns>
-		public long RequestDaemonEvent(ExecEventReceiver eer, DateTime when, double priority, object userData)
+		public long RequestDaemonEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData)
         {
             if (when < _now)
             {
                 if (!_ignoreCausalityViolations)
                 {
-                    string who = eer.Target.GetType().FullName;
-                    if (eer.Target is IHasName)
-                        who = ((IHasName)eer.Target).Name;
+                    var target = eer.Target;
+                    string who = target?.GetType().FullName ?? "<static>";
+                    if (target is IHasName hasName)
+                        who = hasName.Name;
                     string method = eer.Method.Name + "(...)";
                     string msg = string.Format("Executive was asked to service an event prior to current time. This is a causality violation. The call was made from {0}.{1}.", who, method);
                     //throw new ApplicationException(msg);
@@ -320,7 +320,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A code that can subsequently be used to identify the request, e.g. for removal.
         /// </returns>
-        public long RequestEvent(ExecEventReceiver eer, DateTime when, object userData)
+        public long RequestEvent(ExecEventReceiver eer, DateTime when, object? userData)
         {
             return RequestEvent(eer, when, 0.0, userData);
         }
@@ -333,7 +333,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <param name="eet">The EventType that declares how the event is to be served by the executive.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        public long RequestImmediateEvent(ExecEventReceiver eer, object userData, ExecEventType eet)
+        public long RequestImmediateEvent(ExecEventReceiver eer, object? userData, ExecEventType eet)
         {
             throw new NotSupportedException("The selected executive type does not support contemporaneous enqueueing.");
         }
@@ -349,15 +349,16 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A code that can subsequently be used to identify the request, e.g. for removal.
         /// </returns>
-		public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData)
+		public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData)
         {
             if (when < _now)
             {
                 if (!_ignoreCausalityViolations)
                 {
-                    string who = eer.Target.GetType().FullName;
-                    if (eer.Target is IHasName)
-                        who = ((IHasName)eer.Target).Name;
+                    var target = eer.Target;
+                    string who = target?.GetType().FullName ?? "<static>";
+                    if (target is IHasName hasName)
+                        who = hasName.Name;
                     string method = eer.Method.Name + "(...)";
                     string msg = string.Format("Executive was asked to service an event prior to current time. This is a causality violation. The call was made from {0}.{1}.", who, method);
                     //throw new ApplicationException(msg);
@@ -386,7 +387,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A code that can subsequently be used to identify the request, e.g. for removal.
         /// </returns>
-		long IExecutive.RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData, ExecEventType execEventType)
+		long IExecutive.RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData, ExecEventType execEventType)
         {
             //if ( !execEventType.Equals(ExecEventType.Synchronous) ) throw new ApplicationException("This high performance exec can currently only handler synchronous events.");
             return RequestEvent(eer, when, priority, userData);
@@ -465,7 +466,7 @@ namespace Highpoint.Sage.SimCore
                 if (executiveStartedSingleShot != null)
                 {
                     executiveStartedSingleShot(this);
-                    executiveStartedSingleShot = (ExecutiveEvent)Delegate.RemoveAll(executiveStartedSingleShot, executiveStartedSingleShot);
+                    executiveStartedSingleShot = (ExecutiveEvent?)Delegate.RemoveAll(executiveStartedSingleShot, executiveStartedSingleShot);
                 }
 
                 if (_ignoreCausalityViolations)
@@ -489,16 +490,18 @@ namespace Highpoint.Sage.SimCore
             _runNumber++;
             while (_numNonDaemonEventsPending > 0 && !_stopRequested)
             {
-                _currentEvent = Dequeue();
+                _currentEvent = Dequeue()!;
                 _eventCount++;
+                var eer = _currentEvent.Eer!;
                 if (_now.Ticks > _currentEvent.When)
                 {
-                    string who = _currentEvent.Eer.Target.GetType().FullName;
-                    if (_currentEvent.Eer.Target is IHasName)
+                    var target = eer.Target;
+                    string who = target?.GetType().FullName ?? "<static>";
+                    if (target is IHasName hasName)
                     {
-                        who = ((IHasName)_currentEvent.Eer.Target).Name;
+                        who = hasName.Name;
                     }
-                    string method = _currentEvent.Eer.Method.Name + "(...)";
+                    string method = eer.Method.Name + "(...)";
                     if (true)
                     {
                         _currentEvent.When = _now.Ticks;// System.Diagnostics.Debugger.Break();
@@ -512,12 +515,12 @@ namespace Highpoint.Sage.SimCore
                 _now = new DateTime(_currentEvent.When);
                 if (eventAboutToFire != null)
                 {
-                    eventAboutToFire(_currentEvent.Key, _currentEvent.Eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
+                    eventAboutToFire(_currentEvent.Key, eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
                 }
-                _currentEvent.Eer(this, _currentEvent.UserData);
+                eer(this, _currentEvent.UserData);
                 if (eventHasCompleted != null)
                 {
-                    eventHasCompleted(_currentEvent.Key, _currentEvent.Eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
+                    eventHasCompleted(_currentEvent.Key, eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
                 }
                 _execEventCache.Return(_currentEvent);
             }
@@ -528,7 +531,7 @@ namespace Highpoint.Sage.SimCore
         DateTime _targetdate = DateTime.Parse(_targetdatestr);
         bool _hasTarget = false;
         bool _hasFired = false;
-        string _hoverHere;
+        string? _hoverHere;
 
         #endregion ELEMENTS IN SUPPORT OF TEMPORAL DEBUGGING
 
@@ -537,8 +540,9 @@ namespace Highpoint.Sage.SimCore
             _runNumber++;
             while (_numNonDaemonEventsPending > 0 && !_stopRequested)
             {
-                _currentEvent = Dequeue();
+                _currentEvent = Dequeue()!;
                 _eventCount++;
+                var eer = _currentEvent.Eer!;
                 _now = new DateTime(_currentEvent.When);
 
                 #region TEMPORAL DEBUGGING
@@ -554,12 +558,12 @@ namespace Highpoint.Sage.SimCore
 
                 if (eventAboutToFire != null)
                 {
-                    eventAboutToFire(_currentEvent.Key, _currentEvent.Eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
+                    eventAboutToFire(_currentEvent.Key, eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
                 }
-                _currentEvent.Eer(this, _currentEvent.UserData);
+                eer(this, _currentEvent.UserData);
                 if (eventHasCompleted != null)
                 {
-                    eventHasCompleted(_currentEvent.Key, _currentEvent.Eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
+                    eventHasCompleted(_currentEvent.Key, eer, 0.0, _now, _currentEvent.UserData, ExecEventType.Synchronous);
                 }
                 _execEventCache.Return(_currentEvent);
             }
@@ -633,7 +637,7 @@ namespace Highpoint.Sage.SimCore
         /// This high performance exec does not support detached events.
         /// </summary>
         /// <value></value>
-		public IDetachableEventController CurrentEventController
+		public IDetachableEventController? CurrentEventController
         {
             get
             {
@@ -710,12 +714,12 @@ namespace Highpoint.Sage.SimCore
         // in a detachable event and adding a handler to an executive event. For that reason, all public
         // event members are methods with add {} and remove {} that defer to private event members. This
         // does not cause the aforementioned lockup.
-        private event ExecutiveEvent executiveStarted;
-        private event ExecutiveEvent executiveStartedSingleShot;
-        private event ExecutiveEvent executiveStopped;
-        private event ExecutiveEvent executiveFinished;
-        private event EventMonitor eventAboutToFire;
-        private event EventMonitor eventHasCompleted;
+        private event ExecutiveEvent? executiveStarted;
+        private event ExecutiveEvent? executiveStartedSingleShot;
+        private event ExecutiveEvent? executiveStopped;
+        private event ExecutiveEvent? executiveFinished;
+        private event EventMonitor? eventAboutToFire;
+        private event EventMonitor? eventHasCompleted;
         //private event ExecutiveEvent m_executiveAborted;
         //private event ExecutiveEvent m_executiveReset;
         //private event ExecutiveEvent m_clockAboutToChange;
@@ -890,7 +894,7 @@ namespace Highpoint.Sage.SimCore
             _eventArray[ndx] = ee;
         }
 
-        private _ExecEvent Dequeue()
+        private _ExecEvent? Dequeue()
         {
             if (_numEventsPending == 0)
                 return null;

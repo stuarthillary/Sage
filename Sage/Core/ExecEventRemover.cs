@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -11,9 +10,9 @@ namespace Highpoint.Sage.SimCore
 
     internal class ExecEventRemover
     {
-        private readonly IExecEventSelector _ees = null;
+        private readonly IExecEventSelector? _ees = null;
         private readonly long _eventId;
-        private readonly object _target = null;
+        private readonly object? _target = null;
         private readonly FilterMethod _filterMethod;
 
         public ExecEventRemover(IExecEventSelector ees)
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.SimCore
             List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
             foreach (ExecEvent ee in events)
             {
-                if (!_ees.SelectThisEvent(ee.ExecEventReceiver, ee.When, ee.Priority, ee.UserData, ee.EventType))
+                if (!_ees!.SelectThisEvent(ee.ExecEventReceiver, ee.When, ee.Priority, ee.UserData, ee.EventType))
                 {
                     remainingEvents.Add(ee);
                 }
@@ -81,20 +80,20 @@ namespace Highpoint.Sage.SimCore
 
         private List<ExecEvent> FilterOnTarget(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-            ExecEvent eventToRemove = FindFirstMatchingEvent(events, comparison, MatchesTarget);
+            ExecEvent? eventToRemove = FindFirstMatchingEvent(events, comparison, MatchesTarget);
             return RemoveSingleEvent(events, eventToRemove);
         }
 
         private List<ExecEvent> FilterOnDelegate(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
-            ExecEvent eventToRemove = FindFirstMatchingEvent(events, comparison, MatchesDelegate);
+            ExecEvent? eventToRemove = FindFirstMatchingEvent(events, comparison, MatchesDelegate);
             return RemoveSingleEvent(events, eventToRemove);
         }
 
         private List<ExecEvent> FilterOnTargetAll(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
             List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
-            Type soughtTargetType = _target.GetType();
+            Type soughtTargetType = _target!.GetType();
             Type eventTargetType;
 
             foreach (ExecEvent ee in events)
@@ -102,12 +101,13 @@ namespace Highpoint.Sage.SimCore
                 if (ee.ExecEventReceiver.Target is DetachableEvent)
                 {
                     ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
-                    eventTargetType = eer.Target.GetType();
+                    var target = eer.Target;
+                    eventTargetType = target?.GetType() ?? eer.Method.ReflectedType!;
                 }
                 else
                 {
                     // The callback could be static, so if it is, then we need the targetType a different way.
-                    eventTargetType = ee.ExecEventReceiver.Target == null ? ee.ExecEventReceiver.Method.ReflectedType : ee.ExecEventReceiver.Target.GetType();
+                    eventTargetType = ee.ExecEventReceiver.Target?.GetType() ?? ee.ExecEventReceiver.Method.ReflectedType!;
                 }
 
                 // We're comparing at the object level - we can't compare any higher, since we
@@ -126,10 +126,10 @@ namespace Highpoint.Sage.SimCore
         private List<ExecEvent> FilterOnDelegateAll(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison)
         {
             List<ExecEvent> remainingEvents = new List<ExecEvent>(events.Count);
-            object eventTarget;
+            object? eventTarget;
             foreach (ExecEvent ee in events)
             {
-                DetachableEvent de = ee.ExecEventReceiver.Target as DetachableEvent;
+                DetachableEvent? de = ee.ExecEventReceiver.Target as DetachableEvent;
                 if (de != null)
                 {
                     eventTarget = de.RootEvent.ExecEventReceiver.Target;
@@ -139,7 +139,7 @@ namespace Highpoint.Sage.SimCore
                     eventTarget = ee.ExecEventReceiver;
                 }
 
-                if (!((Delegate)eventTarget).Equals((Delegate)_target))
+                if (!((Delegate)eventTarget!).Equals((Delegate)_target!))
                 {
                     remainingEvents.Add(ee);
                 }
@@ -148,7 +148,7 @@ namespace Highpoint.Sage.SimCore
             return remainingEvents;
         }
 
-        private static ExecEvent FindFirstMatchingEvent(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison, Predicate<ExecEvent> predicate)
+        private static ExecEvent? FindFirstMatchingEvent(IReadOnlyList<ExecEvent> events, Comparison<ExecEvent> comparison, Predicate<ExecEvent> predicate)
         {
             List<ExecEvent> orderedEvents = new List<ExecEvent>(events);
             orderedEvents.Sort(comparison);
@@ -160,7 +160,7 @@ namespace Highpoint.Sage.SimCore
             return null;
         }
 
-        private static List<ExecEvent> RemoveSingleEvent(IReadOnlyList<ExecEvent> events, ExecEvent eventToRemove)
+        private static List<ExecEvent> RemoveSingleEvent(IReadOnlyList<ExecEvent> events, ExecEvent? eventToRemove)
         {
             if (eventToRemove == null)
                 return new List<ExecEvent>(events);
@@ -176,7 +176,7 @@ namespace Highpoint.Sage.SimCore
 
         private bool MatchesTarget(ExecEvent ee)
         {
-            object eventTarget;
+            object? eventTarget;
             if (ee.ExecEventReceiver.Target is DetachableEvent)
             {
                 ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
@@ -195,7 +195,7 @@ namespace Highpoint.Sage.SimCore
 
         private bool MatchesDelegate(ExecEvent ee)
         {
-            object eventTarget;
+            object? eventTarget;
             if (ee.ExecEventReceiver.Target is DetachableEvent)
             {
                 ExecEventReceiver eer = ((ExecEvent)((DetachableEvent)ee.ExecEventReceiver.Target).RootEvent).ExecEventReceiver;
@@ -206,7 +206,7 @@ namespace Highpoint.Sage.SimCore
                 eventTarget = ee.ExecEventReceiver;
             }
 
-            return ((Delegate)eventTarget).Equals((Delegate)_target);
+            return ((Delegate)eventTarget!).Equals((Delegate)_target!);
         }
     }
 }
