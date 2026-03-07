@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>SageBenchmarks</AssemblyName>
+    <AssemblyName>Sage.Benchmarks</AssemblyName>
+    <RootNamespace>Highpoint.Sage.Benchmarks</RootNamespace>
     <IsPackable>false</IsPackable>
     <Nullable>enable</Nullable>
     <!-- BenchmarkDotNet requires Release builds for accurate results; Directory.Build.props

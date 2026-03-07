@@ -1,5 +1,5 @@
 // Sage DES Engine — BenchmarkDotNet baseline
-// Run with:  dotnet run -c Release --project Sage_Aux\SageBenchmarks\SageBenchmarks.csproj
+// Run with:  dotnet run -c Release --project benchmarks\SageBenchmarks\Sage.Benchmarks.csproj
 // Quick validation run:  dotnet run -c Release -- --filter *
 // Specific class:        dotnet run -c Release -- --filter *EventDispatch*
 
