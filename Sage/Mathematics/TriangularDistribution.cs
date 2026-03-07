@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Randoms;
@@ -20,8 +19,8 @@ namespace Highpoint.Sage.Mathematics
 
         #region Private Fields
 
-        private ICDF _tcdf;
-        private IRandomChannel _random;
+        private ICDF? _tcdf;
+        private IRandomChannel? _random;
 
         #endregion
 
@@ -45,7 +44,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="lowBound">The low bound.</param>
         /// <param name="mode">The mode.</param>
         /// <param name="highBound">The high bound.</param>
-        public TriangularDistribution(IModel model, string name, Guid guid, double lowBound, double mode, double highBound)
+        public TriangularDistribution(IModel? model, string name, Guid guid, double lowBound, double mode, double highBound)
         {
             _model = model;
             _name = name;
@@ -128,7 +127,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="mean">The mean of the TriangularDistribution.</param>
         /// <param name="highBound">The high bound of the TriangularDistribution.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Low Bound", RefType.Owned, typeof(double), "The low boundary of this triangular distribution.")]
             double lowBound,
             [InitializerArg(1, "Mean Value", RefType.Owned, typeof(double), "The mean value of this triangular distribution.")]
@@ -147,7 +146,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
             double lowBound = (double)p[0];
@@ -163,7 +162,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The object's name.</param>
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -177,11 +176,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value>The user-friendly name for this object.</value>
         public string Name => _name;
-        private string _description = "A Triangular Distribution";
+        private string? _description = "A Triangular Distribution";
         /// <summary>
         /// A description of this Triangular Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -189,12 +188,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

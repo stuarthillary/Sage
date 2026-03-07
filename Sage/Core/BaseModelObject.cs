@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -13,16 +12,16 @@ namespace Highpoint.Sage.SimCore
         }
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string? _name = null;         // deferred-init via InitializeIdentity
         private Guid _guid = Guid.Empty;
-        private IModel _model = null;
-        private string _description = null;
+        private IModel? _model = null;        // deferred-init via InitializeIdentity
+        private string? _description = null;
 
         /// <summary>
         /// The IModel to which this object belongs.
         /// </summary>
         /// <value>The object's Model.</value>
-        public IModel Model
+        public IModel? Model
         {
             [System.Diagnostics.DebuggerStepThrough]
             get
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.SimCore
         /// The name by which this object is known. Typically not required to be unique in a pan-model context.
         /// </summary>
         /// <value>The object's name.</value>
-        public string Name
+        public string? Name
         {
             [System.Diagnostics.DebuggerStepThrough]
             get

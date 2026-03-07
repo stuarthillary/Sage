@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -135,12 +134,12 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Fired when a resource is added to the pool.
         /// </summary>
-        public event ResourceManagerEvent ResourceAdded;
+        public event ResourceManagerEvent? ResourceAdded;
 
         /// <summary>
         /// Fired when a resource is removed from the pool.
         /// </summary>
-        public event ResourceManagerEvent ResourceRemoved;
+        public event ResourceManagerEvent? ResourceRemoved;
 #pragma warning restore CS0067
 
         #endregion
@@ -492,7 +491,7 @@ namespace Highpoint.Sage.Resources
 		/// null reference (Nothing in Visual Basic).
 		/// Any Object derived type can be assigned to this property.
 		/// </summary>
-		public object Tag
+		public object? Tag
         {
             get; set;
         }

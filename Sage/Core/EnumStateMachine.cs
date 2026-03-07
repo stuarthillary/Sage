@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -22,7 +21,7 @@ namespace Highpoint.Sage.SimCore
         private DateTime _lastStateChange;
         private Dictionary<TEnum, TimeSpan> _stateTimes;
         private readonly bool _trackTransitions;
-        private List<TransitionRecord> _transitions;
+        private List<TransitionRecord>? _transitions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumStateMachine{TEnum}"/> class.
@@ -136,7 +135,7 @@ namespace Highpoint.Sage.SimCore
         /// Gets the list of transitions experienced in the last run of the executive.
         /// </summary>
         /// <value>The transitions.</value>
-        public IReadOnlyList<TransitionRecord> Transitions
+        public IReadOnlyList<TransitionRecord>? Transitions
         {
             get
             {

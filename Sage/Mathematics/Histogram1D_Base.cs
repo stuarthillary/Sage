@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -26,12 +25,12 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// The raw data array that provides the underlying histogram data.
         /// </summary>
-        private T[] _rawData;
+        private T[]? _rawData;
 
         protected uint[] _bins = [];
 
 
-        private LabelProvider1d _labelProvider;
+        private LabelProvider1d? _labelProvider;
         #endregion
 
         /// <summary>
@@ -280,11 +279,11 @@ namespace Highpoint.Sage.Mathematics
         /// <value>The object's name.</value>
         public string Name => _name;
 
-        private readonly string _description = null;
+        private readonly string? _description = null;
         /// <summary>
         /// A description of this Histogram1D_Base.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         /// <summary>
         /// The Guid for this object. Typically required to be unique.

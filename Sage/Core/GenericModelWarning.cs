@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.SimCore
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.SimCore
         private readonly object _target;
         private readonly string _name;
         private readonly string _narrative;
-        private readonly object _subject = null;
+        private readonly object? _subject = null;
 
         /// <summary>
         /// Creates an instance of a basic implementation of IModelWarning.
@@ -20,7 +19,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="narrative">A longer narrative of the warning.</param>
         /// <param name="target">The target of the warning - where the warning happened.</param>
         /// <param name="subject">The subject of the warning - who probably caused it.</param>
-        public GenericModelWarning(string name, string narrative, object target, object subject)
+        public GenericModelWarning(string name, string narrative, object target, object? subject)
         {
             _name = name;
             _narrative = narrative;
@@ -62,7 +61,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// The subject of the warning - who probably caused it.
         /// </summary>
-        public object Subject
+        public object? Subject
         {
             get
             {
@@ -81,5 +80,3 @@ namespace Highpoint.Sage.SimCore
 
 
 }
-
-

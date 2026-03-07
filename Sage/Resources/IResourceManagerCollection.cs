@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -25,7 +24,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="guid">The guid for which the resource manager is requested.</param>
         /// <returns>The resource manager for the quid that was requested.</returns>
-        IResourceManager GetResourceManager(Guid guid);
+        IResourceManager? GetResourceManager(Guid guid);
 
         /// <summary>
         /// Returns a collection of all resource managers known to this collection.

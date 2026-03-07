@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -19,10 +18,10 @@ namespace Highpoint.Sage.Resources
         #region Private Members
         private readonly ArrayList _record;
         private readonly ArrayList _targets;
-        private readonly IModel _model;
+        private readonly IModel? _model;
         private bool _enabled = true;
         private static bool _allEnabled = true;
-        private ResourceEventRecordFilter _rerFilter;
+        private ResourceEventRecordFilter? _rerFilter;
 
         #endregion
 
@@ -159,7 +158,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="bulkRecords">The collection of resource records to be added to this collection.</param>
         /// <param name="clearAllFirst">If true, this tracker's ResourceEventRecord internal collection is cleared out before the new records are added.</param>
         /// <param name="sortCriteria">An IComparer that can compare ResourceEventRecord objects. See ResourceEventRecord.By...() methods.</param>
-        public void BulkLoad(ICollection bulkRecords, bool clearAllFirst, IComparer sortCriteria)
+        public void BulkLoad(ICollection bulkRecords, bool clearAllFirst, IComparer? sortCriteria)
         {
             if (clearAllFirst)
                 _record.Clear();

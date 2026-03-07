@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
@@ -31,7 +30,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>A metronome that meets the criteria.</returns>
         public static SimpleMetronome CreateMetronome(IExecutive exec, DateTime startAt, DateTime finishAfter, TimeSpan period)
         {
-            SimpleMetronome retval = null;
+            SimpleMetronome? retval = null;
             foreach (SimpleMetronome ms in _channels)
             {
                 if (ms.Executive.Equals(exec) && ms.StartAt.Equals(startAt) && ms.FinishAt.Equals(finishAfter) && ms.Period.Equals(period))
@@ -60,7 +59,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>SimpleMetronome.</returns>
         public static SimpleMetronome CreateMetronome(IExecutive exec, TimeSpan period)
         {
-            SimpleMetronome retval = null;
+            SimpleMetronome? retval = null;
 
             foreach (SimpleMetronome ms in _channels)
             {
@@ -100,7 +99,7 @@ namespace Highpoint.Sage.SimCore
         /// no inferred sequence to these notifications. If a dependency order is required, then
         /// the Metronome_Dependencies class should be used.
         /// </summary>
-        public event ExecEventReceiver TickEvent;
+        public event ExecEventReceiver? TickEvent;
 
         protected override void FireEvents(IExecutive exec, object userData)
         {

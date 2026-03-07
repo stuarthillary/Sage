@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -47,7 +46,7 @@ namespace Highpoint.Sage.Mathematics
 
         #region Private Fields
         private Units _units;
-        private IDoubleDistribution _baseDistribution;
+        private IDoubleDistribution? _baseDistribution;
 
         #endregion
 
@@ -69,7 +68,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of this TimeSpanDistribution.</param>
         /// <param name="distribution">The underlying IDoubleDistribution that will generate the values in this TimeSpanDistribution.</param>
         /// <param name="units">The units that will be applied to the values out of the underlying IDoubleDistribution.</param>
-        public TimeSpanDistribution(IModel model, string name, Guid guid, IDoubleDistribution distribution, Units units)
+        public TimeSpanDistribution(IModel? model, string name, Guid guid, IDoubleDistribution distribution, Units units)
         {
             _baseDistribution = distribution;
             _units = units;
@@ -116,7 +115,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="distribution">The GUID of the underlying double distribution which drives this TimeSpanDistribution.</param>
         /// <param name="units">The units (minutes, seconds, etc) that are applied to the underlying double distribution in deriving this TimeSpanDistribution's timespans.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Base distribution", RefType.Owned, typeof(IDoubleDistribution), "The double distribution that provides the profile of this TimeSpan distribution.")]
             Guid distribution,
             [InitializerArg(1, "TimeUnits", RefType.Owned, typeof(Units), "An enumeration - Seconds, Minutes, Hours, or Days.")]
@@ -133,7 +132,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
             _baseDistribution = (IDoubleDistribution)_model.ModelObjects[p[0]];
             _units = (Units)Enum.Parse(typeof(Units), (string)p[1]);
@@ -146,7 +145,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The name of the distribution.</param>
         /// <param name="description">The description of the distribution.</param>
         /// <param name="guid">The GUID of the distribution.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -160,11 +159,11 @@ namespace Highpoint.Sage.Mathematics
         /// <value></value>
         public string Name => _name;
 
-        private string _description = "A Timespan Distribution";
+        private string? _description = "A Timespan Distribution";
         /// <summary>
         /// A description of this Timespan Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -172,12 +171,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
 
         #region ITimeSpanDistribution Members

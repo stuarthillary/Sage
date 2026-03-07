@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -20,17 +19,17 @@ namespace Highpoint.Sage.SimCore
     {
 
         #region Private Fields
-        private IExecutive _executive;
+        private IExecutive? _executive;
         private double _logScale;
         private double _linearScale;
         private int _frameRate;
-        private readonly object _userData;
-        private KickoffMgr _kickoffManager;
+        private readonly object? _userData;
+        private KickoffMgr? _kickoffManager;
         private readonly ExecutiveEvent _doThrottle;
         private TimeSpan _maxNap;
         private DateTime _realWorldStartTime;
         private DateTime _simWorldStartTime;
-        private Thread _renderThread;
+        private Thread? _renderThread;
         #endregion
 
         /// <summary>
@@ -72,7 +71,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="scale">The (logarithmic) run time scale. If set to double.MinValue, the model runs at full speed.</param>
         /// <param name="frameRate">The frame rate in render events per second. If zero, execution is unconstrained.</param>
         /// <param name="userData">The user data.</param>
-        public ExecController(double scale, int frameRate, object userData = null)
+        public ExecController(double scale, int frameRate, object? userData = null)
         {
             if (!Disable)
             {
@@ -229,7 +228,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// This event is expected to drive rendering at the prescribed frame rate.
         /// </summary>
-        public event ExecEventReceiver Render;
+        public event ExecEventReceiver? Render;
 
         public void Dispose()
         {
@@ -293,10 +292,10 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="exec"></param>
         /// <param name="userData"></param>
-        private void RetardExecution(IExecutive exec, object userData)
+        private void RetardExecution(IExecutive exec, object? userData)
         {
             if (Math.Abs(_linearScale) > double.Epsilon)
-                Thread.Sleep((TimeSpan)userData);
+                Thread.Sleep((TimeSpan)userData!);
         }
 
 
@@ -358,7 +357,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        private void DoRender(IExecutive exec, object userData)
+        private void DoRender(IExecutive exec, object? userData)
         {
             if (_frameRate > 0)
                 Render?.Invoke(exec, userData);

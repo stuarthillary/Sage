@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using System;
@@ -132,18 +131,18 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Fired when a model object is added to this ModelObjectDictionary
         /// </summary>
-        public event ModelObjectEvent NewModelObjectAdded;
+        public event ModelObjectEvent? NewModelObjectAdded;
 
         /// <summary>
         /// Fired when a model object is removed from this ModelObjectDictionary
         /// </summary>
-        public event ModelObjectEvent ExistingModelObjectRemoved;
+        public event ModelObjectEvent? ExistingModelObjectRemoved;
 
         /// <summary>
         /// This event is fired any time someone asks for a model object, and the
         /// ModelObjectDictionary does not have a record of such an object.
         /// </summary>
-        public event GuidEvent UnknownModelObjectRequested;
+        public event GuidEvent? UnknownModelObjectRequested;
 
         #region IDictionary Members
 
@@ -177,7 +176,7 @@ namespace Highpoint.Sage.SimCore
         /// key is considered illegal. All other Guids, if not contained in the dictionary, will
         /// result in the firing of the UnknownModelObjectRequested event.
         /// </summary>
-        public IModelObject this[Guid key]
+        public IModelObject? this[Guid key]
         {
             get
             {

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -16,13 +15,13 @@ namespace Highpoint.Sage.Resources
 
         #region Private Fields
 
-        private readonly IResource _resource;
+        private readonly IResource? _resource;
         private double _quantityDesired;
         private double _quantityObtained;
         private double _capacity;
-        private object _tag;
+        private object? _tag;
         private Guid _tagGuid;
-        private IEditor _myEditor;
+        private IEditor? _myEditor;
 
         #endregion
 
@@ -185,7 +184,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
 		/// The identity of the entity that requested the resource.
 		/// </summary>
-		public IHasIdentity Requester
+		public IHasIdentity? Requester
         {
             get;
         }
@@ -194,7 +193,7 @@ namespace Highpoint.Sage.Resources
 		/// The identity of the entity that requested the resource.
 		/// </summary>
         [Obsolete("Use \"Requester\" instead.", false)]
-        public IHasIdentity ByWhom => Requester;
+        public IHasIdentity? ByWhom => Requester;
 
         /// <summary>
 		/// The identity of the entity that requested the resource.

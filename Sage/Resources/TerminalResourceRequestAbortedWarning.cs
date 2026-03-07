@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -16,8 +15,8 @@ namespace Highpoint.Sage.Resources
     public class TerminalResourceRequestAbortedWarning : IModelWarning
     {
         #region Private fields
-        private readonly IDetachableEventController _idec;
-        private readonly IExecutive _exec;
+        private readonly IDetachableEventController? _idec;
+        private readonly IExecutive? _exec;
         #endregion
 
         /// <summary>

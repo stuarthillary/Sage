@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Resources
@@ -15,7 +14,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="subject">The resource whose acquisition is being queried.</param>
         /// <param name="usingKey">The key that is to be presented by the prospective acquirer.</param>
         /// <returns>True if the acquire will be allowed, false if not.</returns>
-        bool CanAcquire(object subject, object usingKey);
+        bool CanAcquire(object? subject, object? usingKey);
     }
 }
 

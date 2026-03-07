@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Persistence;
 // ReSharper disable UnusedMember.Local
@@ -18,8 +17,8 @@ namespace Highpoint.Sage.SimCore
     /// </summary>
     public struct HierarchicalDictionaryEntry : IXmlPersistable
     {
-        private object _key;
-        private object _value;
+        private object? _key;
+        private object? _value;
         private bool _isLeaf;
         /// <summary>
         /// Creates a HierarchicalDictionaryEntry.
@@ -27,7 +26,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="key">The key by which the object is known in the dictionary.</param>
         /// <param name="val">The object value of the entry in the dictionary.</param>
         /// <param name="isLeaf">True if this is a semantic leaf-node.</param>
-        public HierarchicalDictionaryEntry(object key, object val, bool isLeaf)
+        public HierarchicalDictionaryEntry(object? key, object? val, bool isLeaf)
         {
             _key = key;
             _isLeaf = isLeaf;
@@ -36,12 +35,12 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// The key by which the object is known in the dictionary.
         /// </summary>
-        public object Key => _key;
+        public object? Key => _key;
 
         /// <summary>
         /// The object value of the entry in the dictionary.
         /// </summary>
-        public object Value => _value;
+        public object? Value => _value;
 
         /// <summary>
         /// True if this is a semantic leaf-node.

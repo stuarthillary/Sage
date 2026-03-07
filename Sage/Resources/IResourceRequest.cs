@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -63,7 +62,7 @@ namespace Highpoint.Sage.Resources
         /// grant a given resource to the requester. It is used in conjunction with resource earmarking.
         /// (See IAccessRegulator) 
         /// </summary>
-        object Key
+        object? Key
         {
             get;
         }
@@ -84,7 +83,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// If non-null, this infers a specific, needed resource.
         /// </summary>
-        IResource RequiredResource
+        IResource? RequiredResource
         {
             get; set;
         }
@@ -101,7 +100,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// This is a reference to the actual resource that was obtained.
         /// </summary>
-        IResource ResourceObtained
+        IResource? ResourceObtained
         {
             get; set;
         }
@@ -118,7 +117,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// This is a reference to the resource manager that granted access to the resource.
         /// </summary>
-        IResourceManager ResourceObtainedFrom
+        IResourceManager? ResourceObtainedFrom
         {
             get; set;
         }
@@ -126,7 +125,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// This is a reference to the object requesting the resource.
         /// </summary>
-        IHasIdentity Requester
+        IHasIdentity? Requester
         {
             get; set;
         }
@@ -136,7 +135,7 @@ namespace Highpoint.Sage.Resources
         /// manager to select the resource to be granted from the pool of available
         /// resources.
         /// </summary>
-        ResourceSelectionStrategy ResourceSelectionStrategy
+        ResourceSelectionStrategy? ResourceSelectionStrategy
         {
             get;
         }
@@ -147,7 +146,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="resourceManager">The resource manager from which the resource is desired. Can be null, if a default manager has been provided.</param>
         /// <param name="blockAwaitingReservation">If true, this call blocks until the resource is available.</param>
         /// <returns>true if the reservation was successful, false otherwise.</returns>
-        bool Reserve(IResourceManager resourceManager, bool blockAwaitingReservation);
+        bool Reserve(IResourceManager? resourceManager, bool blockAwaitingReservation);
 
         /// <summary>
         /// Releases the resource previously obtained by this ResourceRequest.
@@ -162,7 +161,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="resourceManager">The resource manager from which the resource is desired. Can be null, if a default manager has been provided.</param>
         /// <param name="blockAwaitingAcquisition">If true, this call blocks until the resource is available.</param>
         /// <returns>true if the acquisition was successful, false otherwise.</returns>
-        bool Acquire(IResourceManager resourceManager, bool blockAwaitingAcquisition);
+        bool Acquire(IResourceManager? resourceManager, bool blockAwaitingAcquisition);
 
         /// <summary>
         /// Releases the resource previously obtained by this ResourceRequest.
@@ -174,7 +173,7 @@ namespace Highpoint.Sage.Resources
         /// example due to resource deadlocking. It can be null, in which case no deadlock
         /// detection is provided for the implementing type of ResourceRequest.
         /// </summary>
-        DetachableEventAbortHandler AbortHandler
+        DetachableEventAbortHandler? AbortHandler
         {
             get;
         }
@@ -190,7 +189,7 @@ namespace Highpoint.Sage.Resources
         /// Creates a fresh replica of this resource request, without any of the in-progress data. This replica can
         /// be used to generate another, similar resource request that can acquire its own resource.
         /// </summary>
-        ResourceRequestSource Replicate
+        ResourceRequestSource? Replicate
         {
             get;
         }
@@ -199,7 +198,7 @@ namespace Highpoint.Sage.Resources
         /// This is the resource manager from which a resource is obtained if none is provided in the reserve or
         /// acquire API calls.
         /// </summary>
-        IResourceManager DefaultResourceManager
+        IResourceManager? DefaultResourceManager
         {
             get; set;
         }
@@ -210,7 +209,7 @@ namespace Highpoint.Sage.Resources
         /// with an opportunity to say, "No, I don't want that any more", or perhaps to get ready for receipt
         /// of the resource in question.
         /// </summary>
-        ResourceRequestCallback AsyncGrantConfirmationCallback
+        ResourceRequestCallback? AsyncGrantConfirmationCallback
         {
             get; set;
         }
@@ -218,7 +217,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Called after a resource request is granted asynchronously.
         /// </summary>
-        ResourceRequestCallback AsyncGrantNotificationCallback
+        ResourceRequestCallback? AsyncGrantNotificationCallback
         {
             get; set;
         }
@@ -226,7 +225,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Data maintained by this resource request on behalf of the requester.
         /// </summary>
-        object UserData
+        object? UserData
         {
             set; get;
         }

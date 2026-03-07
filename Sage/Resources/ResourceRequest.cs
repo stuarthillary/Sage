@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -37,7 +36,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// An event that is fired if the priority of this request is changed.
         /// </summary>
-        public event RequestPriorityChangeEvent PriorityChangeEvent;
+        public event RequestPriorityChangeEvent? PriorityChangeEvent;
         private double _priority;
         /// <summary>
         /// An indication of the priority of this request. A larger number indicates a higher priority.
@@ -65,7 +64,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="blockAwaitingAcquisition">if set to <c>true</c> [block awaiting acquisition].</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         /// <exception cref="ApplicationException">Acquire API on resource request was called with neither an explicit nor a default resource manager.</exception>
-        public bool Reserve(IResourceManager resourceManager, bool blockAwaitingAcquisition)
+        public bool Reserve(IResourceManager? resourceManager, bool blockAwaitingAcquisition)
         {
             if (resourceManager == null && DefaultResourceManager == null)
             {
@@ -91,7 +90,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="blockAwaitingAcquisition">If true, this call blocks until the resource is available.</param>
         /// <returns>true if the acquisition was successful, false otherwise.</returns>
         /// <exception cref="ApplicationException">Acquire API on resource request was called with neither an explicit nor a default resource manager.</exception>
-        public bool Acquire(IResourceManager resourceManager, bool blockAwaitingAcquisition)
+        public bool Acquire(IResourceManager? resourceManager, bool blockAwaitingAcquisition)
         {
             if (resourceManager == null && DefaultResourceManager == null)
             {
@@ -115,7 +114,7 @@ namespace Highpoint.Sage.Resources
         /// (See IAccessRegulator)
         /// </summary>
         /// <value>The key.</value>
-        public object Key
+        public object? Key
         {
             set; get;
         }
@@ -124,7 +123,7 @@ namespace Highpoint.Sage.Resources
         /// This is a reference to the resource manager that granted access to the resource.
         /// </summary>
         /// <value>The resource obtained from.</value>
-        public IResourceManager ResourceObtainedFrom
+        public IResourceManager? ResourceObtainedFrom
         {
             get; set;
         }
@@ -187,7 +186,7 @@ namespace Highpoint.Sage.Resources
         /// If non-null, this infers a specific, needed resource.
         /// </summary>
         /// <value>The required resource.</value>
-        public IResource RequiredResource
+        public IResource? RequiredResource
         {
             [System.Diagnostics.DebuggerStepThrough]
             get;
@@ -199,7 +198,7 @@ namespace Highpoint.Sage.Resources
         /// This is a reference to the object requesting the resource.
         /// </summary>
         /// <value>The requester.</value>
-        public IHasIdentity Requester
+        public IHasIdentity? Requester
         {
             [System.Diagnostics.DebuggerStepThrough]
             get; [System.Diagnostics.DebuggerStepThrough]
@@ -210,7 +209,7 @@ namespace Highpoint.Sage.Resources
         /// This is a reference to the actual resource that was obtained.
         /// </summary>
         /// <value>The resource obtained.</value>
-        public IResource ResourceObtained
+        public IResource? ResourceObtained
         {
             [System.Diagnostics.DebuggerStepThrough]
             get;
@@ -233,7 +232,7 @@ namespace Highpoint.Sage.Resources
         /// resources.
         /// </summary>
         /// <value>The resource selection strategy.</value>
-        public virtual ResourceSelectionStrategy ResourceSelectionStrategy => null;
+        public virtual ResourceSelectionStrategy? ResourceSelectionStrategy => null;
 
         /// <summary>
         /// This method is called if the resource request is pending, and gets aborted, for
@@ -247,14 +246,14 @@ namespace Highpoint.Sage.Resources
         /// it picks up the IResourceRequest identity, and is passed on through this event, which
         /// includes the IResourceRequest.
         /// </summary>
-        public event ResourceRequestAbortEvent ResourceRequestAborting;
+        public event ResourceRequestAbortEvent? ResourceRequestAborting;
 
         /// <summary>
         /// Creates a fresh replica of this resource request, without any of the in-progress data. This replica can
         /// be used to generate another, similar resource request that can acquire its own resource.
         /// </summary>
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Global
-        public ResourceRequestSource Replicate
+        public ResourceRequestSource? Replicate
         {
             get; set;
         }
@@ -275,7 +274,7 @@ namespace Highpoint.Sage.Resources
         /// This is the resource manager from which a resource is obtained if none is provided in the reserve or
         /// acquire API calls.
         /// </summary>
-        public IResourceManager DefaultResourceManager
+        public IResourceManager? DefaultResourceManager
         {
             get; set;
         }
@@ -286,7 +285,7 @@ namespace Highpoint.Sage.Resources
         /// with an opportunity to say, "No, I don't want that any more", or perhaps to get ready for receipt
         /// of the resource in question.
         /// </summary>
-        public ResourceRequestCallback AsyncGrantConfirmationCallback
+        public ResourceRequestCallback? AsyncGrantConfirmationCallback
         {
             get; set;
         }
@@ -294,7 +293,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Called after a resource request is granted asynchronously.
         /// </summary>
-        public ResourceRequestCallback AsyncGrantNotificationCallback
+        public ResourceRequestCallback? AsyncGrantNotificationCallback
         {
             get; set;
         }
@@ -302,7 +301,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Data maintained by this resource request on behalf of the requester.
         /// </summary>
-        public object UserData
+        public object? UserData
         {
             get; set;
         }

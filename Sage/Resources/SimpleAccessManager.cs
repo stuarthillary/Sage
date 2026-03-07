@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -28,7 +27,7 @@ namespace Highpoint.Sage.Resources
 
         private readonly Hashtable _monitoredObjects;
         private readonly bool _autoDeleteEmptyStacks;
-        private Stack<IAccessRegulator> _defaultAccessRegulators;
+        private Stack<IAccessRegulator>? _defaultAccessRegulators;
 
         #endregion
 
@@ -57,7 +56,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="accReg">Access Regulator to be pushed.</param>
         /// <param name="subject">The resource to which this regulator is to apply, or null, if it applies to all of them.</param>
-        public void PushAccessRegulator(IAccessRegulator accReg, IResource subject)
+        public void PushAccessRegulator(IAccessRegulator accReg, IResource? subject)
         {
             if (subject == null)
             {
@@ -83,7 +82,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="subject">The resource to be regulated, or null if all are to be regulated.</param>
         /// <returns>The AccessRegulator being popped, or null, if the stack was empty.</returns>
-        public IAccessRegulator PopAccessRegulator(IResource subject)
+        public IAccessRegulator? PopAccessRegulator(IResource? subject)
         {
             IAccessRegulator retval = null;
             if (subject == null)
@@ -111,7 +110,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="subject">The resource whose acquisition is being queried.</param>
         /// <param name="usingKey">The key that is to be presented by the prospective acquirer.</param>
         /// <returns>True if the acquire will be allowed, false if not.</returns>
-        public bool CanAcquire(object subject, object usingKey)
+        public bool CanAcquire(object? subject, object? usingKey)
         {
             Stack<IAccessRegulator> myStack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
             if (myStack != null)

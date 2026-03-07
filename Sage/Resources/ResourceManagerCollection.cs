@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -62,7 +61,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="guid">The guid for which the resource manager is requested.</param>
         /// <returns>The resource manager for the quid that was requested.</returns>
-        public IResourceManager GetResourceManager(Guid guid)
+        public IResourceManager? GetResourceManager(Guid guid)
         {
             return (IResourceManager)_resourceMgrs[guid];
         }
@@ -79,12 +78,12 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Fired when a resource manager is added to the model.
         /// </summary>
-        public event ResourceManagerChangeListener ResourceManagerAdded;
+        public event ResourceManagerChangeListener? ResourceManagerAdded;
 
         /// <summary>
         /// Fired when a resource manager is removed from the model.
         /// </summary>
-        public event ResourceManagerChangeListener ResourceManagerRemoved;
+        public event ResourceManagerChangeListener? ResourceManagerRemoved;
     }
 }
 

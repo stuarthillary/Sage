@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -17,8 +16,8 @@ namespace Highpoint.Sage.Mathematics
 
         #region Private Fields
 
-        private ExponentialCDF _cdf;
-        private IRandomChannel _random;
+        private ExponentialCDF? _cdf;
+        private IRandomChannel? _random;
 
         #endregion
 
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of this exponential distribution.</param>
         /// <param name="location">The mean, or location of the Exponential distribution.</param>
         /// <param name="scale">The scale, or beta of the Exponential distribution.</param>
-        public ExponentialDistribution(IModel model, string name, Guid guid, double location, double scale)
+        public ExponentialDistribution(IModel? model, string name, Guid guid, double location, double scale)
         {
             _model = model;
             _name = name;
@@ -114,7 +113,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="location">The location (i.e. center) of the ExponentialDistribution.</param>
         /// <param name="scale">The scale (i.e. shape) of the ExponentialDistribution.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Location", RefType.Owned, typeof(double), "The mean of the Exponential distribution.")]
 			double location,
             [InitializerArg(1, "Scale", RefType.Owned, typeof(double), "The beta of the Exponential distribution.")]
@@ -130,7 +129,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p) {
+        public void _Initialize(IModel model, object?[] p) {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
             double location = (double)p[0];
             double scale = (double)p[1];
@@ -144,7 +143,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The object's name.</param>
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid) {
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid) {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
         #endregion
@@ -156,11 +155,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value>The user-friendly name for this object.</value>
         public string Name => _name;
-        private string _description = "An Exponential Distribution";
+        private string? _description = "An Exponential Distribution";
         /// <summary>
         /// A description of this Exponential Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -168,12 +167,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

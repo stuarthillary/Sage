@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -19,8 +18,8 @@ namespace Highpoint.Sage.Mathematics
     public class EmpiricalDistribution : IDoubleDistribution {
 
         #region Private Fields
-        private EmpiricalCDF _cdf;
-        private IRandomChannel _random;
+        private EmpiricalCDF? _cdf;
+        private IRandomChannel? _random;
         #endregion
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="xVals">The X values that form the empirical data inflection points.</param>
         /// <param name="yVals">The Y values that form the empirical data inflection points.</param>
         /// <param name="idi">An implementer of IDoubleInterpolator that this distribution will use to ascertain values between provided inflection points.</param>
-        public EmpiricalDistribution(IModel model, string name, Guid guid, double[] xVals, double[] yVals, IDoubleInterpolator idi)
+        public EmpiricalDistribution(IModel? model, string name, Guid guid, double[] xVals, double[] yVals, IDoubleInterpolator idi)
         {
             _model = model;
             _name = name;
@@ -64,7 +63,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The guid that identifies this distribution.</param>
         /// <param name="xVals">The X values that form the empirical data inflection points.</param>
         /// <param name="yVals">The Y values that form the empirical data inflection points.</param>
-        public EmpiricalDistribution(IModel model, string name, Guid guid, double[] xVals, double[] yVals)
+        public EmpiricalDistribution(IModel? model, string name, Guid guid, double[] xVals, double[] yVals)
             : this(model, name, guid, xVals, yVals, new LinearDoubleInterpolator()) { }
 
         #region IDoubleDistribution Members
@@ -130,7 +129,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="yVals">The y values that make up the Cumulative Density Function of this EmpiricalDistribution.</param>
         /// <param name="interpolatorType">The type of the interpolator that this EmpiricalDistribution should use.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "XValues", RefType.Owned, typeof(double[]), "The X values that form the empirical data inflection points.")]
 			double[] xVals,
             [InitializerArg(1, "YValues", RefType.Owned, typeof(double[]), "The Y values that form the empirical data inflection points.")]
@@ -157,7 +156,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="xVals">The x values that make up the Cumulative Density Function of this EmpiricalDistribution.</param>
         /// <param name="yVals">The y values that make up the Cumulative Density Function of this EmpiricalDistribution.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "XValues", RefType.Owned, typeof(double[]), "The X values that form the empirical data inflection points.")]
 			double[] xVals,
             [InitializerArg(1, "YValues", RefType.Owned, typeof(double[]), "The Y values that form the empirical data inflection points.")]
@@ -173,7 +172,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p) {
+        public void _Initialize(IModel model, object?[] p) {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
             double[] xVals = (double[])_model.ModelObjects[p[0]];
             double[] yVals = (double[])_model.ModelObjects[p[1]];
@@ -195,7 +194,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The object's name.</param>
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid) {
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid) {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
         #endregion
@@ -207,11 +206,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public string Name => _name;
-        private string _description = "An Empirical Distribution";
+        private string? _description = "An Empirical Distribution";
         /// <summary>
         /// A description of this Empirical Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -219,12 +218,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this Empirical Distribution, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -93,7 +92,7 @@ namespace Highpoint.Sage.Resources
         /// individual ResourceRequests access to specified resources.
         /// </summary>
         /// <value>The access regulator.</value>
-        IAccessRegulator AccessRegulator
+        IAccessRegulator? AccessRegulator
         {
             set; get;
         }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Randoms;
@@ -43,7 +42,7 @@ namespace Highpoint.Sage.Mathematics
         private static readonly double pLow = 0.02425;
         private static readonly double pHigh = 1.0 - pLow;
 
-        private IRandomChannel _random;
+        private IRandomChannel? _random;
         private double _mean;
         private double _stdev;
 
@@ -65,7 +64,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
         /// <param name="mean">The mean.</param>
         /// <param name="stdev">The stdev.</param>
-        public NormalDistribution(IModel model, string name, Guid guid, double mean, double stdev)
+        public NormalDistribution(IModel? model, string name, Guid guid, double mean, double stdev)
         {
             _model = model;
             _name = name;
@@ -198,7 +197,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="mean">The mean of this NormalDistribution.</param>
         /// <param name="stdev">The standard deviation of this NormalDistribution.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Mean", RefType.Owned, typeof(double), "Mean value for this distribution.")]
             double mean,
             [InitializerArg(1, "StdDev", RefType.Owned, typeof(double), "Standard Deviation for this distribution.")]
@@ -216,7 +215,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
             _mean = (double)p[0];
@@ -230,7 +229,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The object's name.</param>
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -243,11 +242,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public string Name => _name;
-        private string _description = "A Normal Distribution";
+        private string? _description = "A Normal Distribution";
         /// <summary>
         /// A description of this Normal Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -255,12 +254,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this NormalDistribution, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

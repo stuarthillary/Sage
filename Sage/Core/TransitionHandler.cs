@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -141,20 +140,20 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public IReadOnlyList<ITransitionFailureReason> DoPrepare(IModel model, object userData)
+        public IReadOnlyList<ITransitionFailureReason> DoPrepare(IModel model, object? userData)
         {
             List<ITransitionFailureReason> al = new List<ITransitionFailureReason>();
             for (int i = 0; i < prepareHandlers.Count; i++)
             {
                 PrepareTransitionEvent pte = prepareHandlers.GetValueAtIndex(i);
-                ITransitionFailureReason result = pte(model, userData);
+                ITransitionFailureReason? result = pte(model, userData);
                 if (result != null)
                     al.Add(result);
             }
             return al;
         }
 
-        public void DoCommit(IModel model, object userData)
+        public void DoCommit(IModel model, object? userData)
         {
             for (int i = 0; i < commitHandlers.Count; i++)
             {
@@ -163,7 +162,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public void DoRollback(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> failureReasons)
+        public void DoRollback(IModel model, object? userData, IReadOnlyList<ITransitionFailureReason> failureReasons)
         {
             for (int i = 0; i < rollbackHandlers.Count; i++)
             {

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -40,7 +39,7 @@ namespace Highpoint.Sage.Resources
         /// <returns>
         /// True if the acquire will be allowed, false if not.
         /// </returns>
-		public bool CanAcquire(object subject, object usingKey)
+		public bool CanAcquire(object? subject, object? usingKey)
         {
             return ((_subject.Equals(subject) || subject.Equals(_subject)) && _keys.Contains(usingKey));
         }

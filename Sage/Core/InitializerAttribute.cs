@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -14,7 +13,7 @@ namespace Highpoint.Sage.SimCore
         public static readonly string DEFAULT_NAME = "_Initialize";
 
         readonly InitializationType _type;
-        readonly string _secondaryInitializerName = null;
+        readonly string? _secondaryInitializerName = null;
         public InitializerAttribute(InitializationType type) : this(type, DEFAULT_NAME) { }
 
         public InitializerAttribute(InitializationType type, string secondaryInitializerName)

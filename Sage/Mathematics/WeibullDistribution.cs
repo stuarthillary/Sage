@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Randoms;
@@ -17,7 +16,7 @@ namespace Highpoint.Sage.Mathematics
         #region Private Fields
 
         //private WeibullCDF m_cdf = null;
-        private IRandomChannel _random;
+        private IRandomChannel? _random;
         private double _location;
         private double _scale;
         private double _invGamma;
@@ -42,7 +41,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="shape">The shape parameter. Must be &gt; 0. &lt; 1 looks like an L, ~1 looks like a '/', and &gt; 1 looks like a '/\_'</param>
         /// <param name="location">The location parameter. Where the distribution is, on the X axis.</param>
         /// <param name="scale">The scale parameter.</param>
-        public WeibullDistribution(IModel model, string name, Guid guid, double shape, double location, double scale)
+        public WeibullDistribution(IModel? model, string name, Guid guid, double shape, double location, double scale)
         {
             if (shape <= 0 || scale <= 0)
             {
@@ -135,7 +134,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="location">The location of this WeibullDistribution.</param>
         /// <param name="scale">The scale of this WeibullDistribution.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Shape", RefType.Owned, typeof(double), "The shape parameter. Must be > 0. <1 looks like an L, ~1 looks like a '/', and > 1 looks like a '/\\_'")]
             double shape,
             [InitializerArg(1, "Location", RefType.Owned, typeof(double), "The location parameter. Where the distribution is, on the X axis.")]
@@ -160,7 +159,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
             double shape = (double)p[0];
@@ -179,7 +178,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The object's name.</param>
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -193,11 +192,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public string Name => _name;
-        private string _description = "A Weibull Distribution";
+        private string? _description = "A Weibull Distribution";
         /// <summary>
         /// A description of this Weibull Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -205,12 +204,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this Weibull Distribution, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

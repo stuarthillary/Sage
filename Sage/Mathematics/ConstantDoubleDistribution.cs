@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -30,7 +29,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The name that this distribution goes by.</param>
         /// <param name="guid">The Guid of this distribution.</param>
         /// <param name="val">The (double) value that this distribution always serves up.</param>
-        public ConstantDoubleDistribution(IModel model, string name, Guid guid, double val)
+        public ConstantDoubleDistribution(IModel? model, string name, Guid guid, double val)
         {
             _value = val;
         }
@@ -92,7 +91,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of this ConstantDoubleDistribution.</param>
         /// <param name="val">The value that this ConstantDoubleDistribution always returns.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Value", RefType.Owned, typeof(double), "The constant value for this distribution.")]
             double val)
         {
@@ -108,7 +107,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
             _value = (double)p[0];
         }
@@ -120,7 +119,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The name of this ConstantDoubleDistribution.</param>
         /// <param name="description">The description of this ConstantDoubleDistribution.</param>
         /// <param name="guid">The GUID of this ConstantDoubleDistribution.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -133,11 +132,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public string Name => _name;
-        private string _description = "A Constant Double Distribution";
+        private string? _description = "A Constant Double Distribution";
         /// <summary>
         /// A description of this Constant Double Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -146,12 +145,12 @@ namespace Highpoint.Sage.Mathematics
         /// <value></value>
         public Guid Guid => _guid;
 
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

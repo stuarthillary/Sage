@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -16,25 +15,25 @@ namespace Highpoint.Sage.SimCore
     /// reason for failing the transition, or null if the implementer of the 
     /// delegate condones the completion of the transition.
     /// </summary>
-    public delegate ITransitionFailureReason PrepareTransitionEvent(IModel model, object userData);
+    public delegate ITransitionFailureReason? PrepareTransitionEvent(IModel model, object? userData);
     /// <summary>
     /// This delegate is implemented by a method that is intended to be notified
     /// of the successful attempt to perform a transition, and to take part in
     /// the commitment of that transition attempt. 
     /// </summary>
-    public delegate void CommitTransitionEvent(IModel model, object userData);
+    public delegate void CommitTransitionEvent(IModel model, object? userData);
     /// <summary>
     /// This delegate is implemented by a method that is intended to be notified
     /// of the unsuccessful attempt to perform a transition, and to take part in
     /// the rollback of that transition attempt. 
     /// </summary>
-    public delegate void RollbackTransitionEvent(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasons);
+    public delegate void RollbackTransitionEvent(IModel model, object? userData, IReadOnlyList<ITransitionFailureReason> reasons);
 
     /// <summary>
     /// Implemented by a method that is to be called once the state machine
     /// completes transition to a specified state.
     /// </summary>
-    public delegate void StateMethod(IModel model, object userData);
+    public delegate void StateMethod(IModel model, object? userData);
 
     /// <summary>
     /// A table-driven, two-phase-transaction state machine. The user configures
@@ -96,15 +95,15 @@ namespace Highpoint.Sage.SimCore
         private int _nextState;
         private bool _transitionInProgress = false;
         private int _numStates;
-        private IModel _model;
+        private IModel? _model;
         private readonly Array _enumValues;
-        private readonly StateMethod[] _stateMethods;
-        private readonly Enum[] _followOnStates;
-        private Dictionary<Enum, int> _stateTranslationTable;
-        private Enum[] _equivalentStates;
+        private readonly StateMethod?[] _stateMethods;
+        private readonly Enum[]? _followOnStates;
+        private Dictionary<Enum, int> _stateTranslationTable = null!; // deferred-init via InitializeStateTranslationTable()
+        private Enum[]? _equivalentStates;
 
         private bool _stateMachineStructureLocked = false;
-        private MergedTransitionHandler[][] _mergedTransitionHandlers;
+        private MergedTransitionHandler[][]? _mergedTransitionHandlers;
 
         #endregion
 
@@ -123,7 +122,7 @@ namespace Highpoint.Sage.SimCore
         /// a given state has completed successfully.</param>
         /// <param name="initialState">Specifies the state in the state machine that is
         /// to be the initial state.</param>
-        public StateMachine(bool[,] transitionMatrix, Enum[] followOnStates, Enum initialState)
+        public StateMachine(bool[,] transitionMatrix, Enum[]? followOnStates, Enum initialState)
             : this(null, transitionMatrix, followOnStates, initialState) { }
 
         /// <summary>
@@ -139,7 +138,7 @@ namespace Highpoint.Sage.SimCore
         /// a given state has completed successfully.</param>
         /// <param name="initialState">Specifies the state in the state machine that is
         /// to be the initial state.</param>
-        public StateMachine(IModel model, bool[,] transitionMatrix, Enum[] followOnStates, Enum initialState)
+        public StateMachine(IModel? model, bool[,] transitionMatrix, Enum[]? followOnStates, Enum initialState)
         {
             _model = model;
             _enumValues = Enum.GetValues(initialState.GetType());
@@ -301,7 +300,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="newStateMethod">The method to be called.</param>
         /// <param name="forWhichState">The state in which the new method should be called.</param>
         /// <returns>The old state method, or null if there was none assigned.</returns>
-        public StateMethod SetStateMethod(StateMethod newStateMethod, Enum forWhichState)
+        public StateMethod? SetStateMethod(StateMethod newStateMethod, Enum forWhichState)
         {
             int iWhichState = GetStateNumber(forWhichState);
             StateMethod oldStateMethod = _stateMethods[iWhichState];
@@ -318,7 +317,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>A  list of ITransitionFailureReasons. (Empty if successful.)</returns>
         public IReadOnlyList<ITransitionFailureReason> DoTransition(Enum toWhatState)
         {
-            return DoTransition(toWhatState, null);
+            return DoTransition(toWhatState, null) ?? Array.Empty<ITransitionFailureReason>();
         }
 
         public bool StructureLocked
@@ -343,7 +342,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>
         /// A  list of ITransitionFailureReasons. (Empty if successful.)
         /// </returns>
-        public IReadOnlyList<ITransitionFailureReason> DoTransition(Enum toWhatState, object userData)
+        public IReadOnlyList<ITransitionFailureReason>? DoTransition(Enum toWhatState, object? userData)
         {
             Debug.Assert(_model != null, "Did you forget to set the model on the State Machine?");
             try
@@ -452,7 +451,7 @@ namespace Highpoint.Sage.SimCore
             {
                 foreach (Enum t in states)
                 {
-                    retval = DoTransition(t).ToList();
+                    retval = (DoTransition(t) ?? Array.Empty<ITransitionFailureReason>()).ToList();
                 }
             }
             catch (TransitionFailureException tfe)
@@ -471,7 +470,7 @@ namespace Highpoint.Sage.SimCore
         /// </returns>
         public bool IsStateQuiescent(Enum whichState)
         {
-            return _followOnStates[GetStateNumber(whichState)].Equals(whichState);
+            return _followOnStates?[GetStateNumber(whichState)].Equals(whichState) ?? true;
         }
 
         /// <summary>
@@ -504,7 +503,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// This event fires when a transition completes successfully, and reaches the intended new state.
         /// </summary>
-        public event StateMethod TransitionCompletedSuccessfully;
+        public event StateMethod? TransitionCompletedSuccessfully;
 
         public void Detach(object obj)
         {

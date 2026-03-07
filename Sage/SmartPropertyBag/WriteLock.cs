@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -24,7 +23,7 @@ namespace Highpoint.Sage.SimCore
 
         private bool _writable;
         private readonly ArrayList _children;
-        private string _whereApplied;
+        private string? _whereApplied;
         private static readonly bool _locationTracingEnabled = Diagnostics.DiagnosticAids.Diagnostics("WriteLockTracing");
 
         #endregion 
@@ -44,7 +43,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Fires when the object that this lock is overseeing, changes its writability status.
         /// </summary>
-        public event WritabilityChangeEvent WritabilityChanged;
+        public event WritabilityChangeEvent? WritabilityChanged;
 
         /// <summary>
         /// Gets a value indicating whether this instance is currently writable.
@@ -74,7 +73,7 @@ namespace Highpoint.Sage.SimCore
                     _whereApplied = "";
                     for (int i = st.FrameCount - 1; i > 0; i--)
                     {
-                        _whereApplied += st.GetFrame(i).ToString();
+                        _whereApplied += st.GetFrame(i)?.ToString();
                     }
                 }
             }
@@ -89,7 +88,7 @@ namespace Highpoint.Sage.SimCore
         /// Gets the location in a hierarchy of write-locked objects where the write-lock was applied.
         /// </summary>
         /// <value>The where applied.</value>
-        public string WhereApplied => _whereApplied;
+        public string? WhereApplied => _whereApplied;
 
         /// <summary>
         /// Adds a dependent child object to this WriteLock.

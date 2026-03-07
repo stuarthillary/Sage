@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -31,7 +30,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of this LognormalDistribution.</param>
         /// <param name="mean">The mean value of this LognormalDistribution.</param>
         /// <param name="stdev">The standard deviation of this LognormalDistribution.</param>
-        public LognormalDistribution(IModel model, string name, Guid guid, double mean, double stdev)
+        public LognormalDistribution(IModel? model, string name, Guid guid, double mean, double stdev)
             : base(model, name, guid, mean, stdev) { }
 
         #region IDistribution Members
@@ -78,7 +77,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="mean">The mean of this LognormalDistribution.</param>
         /// <param name="stdev">The standard deviation of this LognormalDistribution.</param>
         [Initializer(InitializationType.PreRun, "_Initialize_LogNormal")]
-        public new void Initialize(IModel model, string name, string description, Guid guid,
+        public new void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "Mean", RefType.Owned, typeof(double), "Mean value for this distribution.")]
             double mean,
             [InitializerArg(1, "StdDev", RefType.Owned, typeof(double), "Standard Deviation for this distribution.")]

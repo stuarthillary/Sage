@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -13,8 +12,8 @@ namespace Highpoint.Sage.SimCore
         private readonly object _target;
         private readonly string _name;
         private readonly string _narrative;
-        private readonly object _subject = null;
-        private readonly Exception _innerException;
+        private readonly object? _subject = null;
+        private readonly Exception? _innerException;
         private readonly bool _autoClear = false;
 
         /// <summary>
@@ -24,7 +23,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="narrative">A longer narrative of the error.</param>
         /// <param name="target">The target of the error - where the error happened.</param>
         /// <param name="subject">The subject of the error - who probably caused it.</param>
-        public GenericModelError(string name, string narrative, object target, object subject)
+        public GenericModelError(string name, string narrative, object target, object? subject)
         : this(name, narrative, target, subject, null) { }
 
         /// <summary>
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="target">The target of the error - where the error happened.</param>
         /// <param name="subject">The subject of the error - who probably caused it.</param>
         /// <param name="innerException">An exception that may have been caught in the detection of this error.</param>
-        public GenericModelError(string name, string narrative, object target, object subject, Exception innerException)
+        public GenericModelError(string name, string narrative, object target, object? subject, Exception? innerException)
         {
             _name = name;
             _narrative = narrative;
@@ -78,7 +77,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// The subject of the error - who probably caused it.
         /// </summary>
-        public object Subject
+        public object? Subject
         {
             get
             {
@@ -88,7 +87,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// The exception, if any, that generated this ModelError.
         /// </summary>
-        public Exception InnerException
+        public Exception? InnerException
         {
             get
             {
@@ -121,5 +120,3 @@ namespace Highpoint.Sage.SimCore
 
 
 }
-
-

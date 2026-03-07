@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Dependencies;
 using System;
@@ -12,10 +11,10 @@ namespace Highpoint.Sage.SimCore
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="parameters">The parameters.</param>
-    public delegate void Initializer(IModel model, object[] parameters);
+    public delegate void Initializer(IModel model, object?[] parameters);
 
     public delegate void InitializationEvent(int generation);
-    public delegate void InitializationAction(Initializer initializer, object[] parameters);
+    public delegate void InitializationAction(Initializer initializer, object?[] parameters);
 
     /// <summary>
     /// The InitializationManager provides methods and mechanisms for running the initialization of a model.
@@ -26,18 +25,18 @@ namespace Highpoint.Sage.SimCore
         #region Private Fields
 
         private static readonly object _token = new object();
-        private List<object[]> _zeroDependencyInitializers;
-        private GraphSequencer _gs;
-        private Dictionary<Guid, Dv> _verts;
-        private IModel _model;
+        private List<object[]> _zeroDependencyInitializers = null!; // deferred-init via Clear()
+        private GraphSequencer _gs = null!;                         // deferred-init via Clear()
+        private Dictionary<Guid, Dv> _verts = null!;               // deferred-init via Clear()
+        private IModel? _model;
         private int _generation = -1;
         private readonly Action<IModel> _initAction;
 
         #endregion 
 
-        public event InitializationAction InitializationAction;
-        public event InitializationEvent InitializationBeginning;
-        public event InitializationEvent InitializationCompleted;
+        public event InitializationAction? InitializationAction;
+        public event InitializationEvent? InitializationBeginning;
+        public event InitializationEvent? InitializationCompleted;
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance has been initialized yet.
@@ -109,7 +108,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        public void AddInitializationTask(Initializer initializer, params object[] parameters)
+        public void AddInitializationTask(Initializer initializer, params object?[] parameters)
         {
 
             bool zeroDependencies = true;
@@ -133,7 +132,7 @@ namespace Highpoint.Sage.SimCore
                 Guid myGuid = Guid.Empty;
                 try
                 {
-                    myGuid = (Guid)initializer.Target.GetType().GetProperty("Guid").GetValue(initializer.Target, new object[] { });
+                    myGuid = (Guid)initializer.Target!.GetType().GetProperty("Guid")!.GetValue(initializer.Target, Array.Empty<object>())!;
                 }
                 catch (NullReferenceException)
                 {
@@ -194,7 +193,7 @@ namespace Highpoint.Sage.SimCore
             return dv;
         }
 
-        private void model_ModelInitializing(IModel model, object userData)
+        private void model_ModelInitializing(IModel model, object? userData)
         {
 
             lock (_token)
@@ -241,17 +240,17 @@ namespace Highpoint.Sage.SimCore
                     {
                         if (i != 0)
                             sb.Append("->");
-                        object target = ((Dv)cycleMembers[i]).Initializer.Target;
+                        object target = ((Dv)cycleMembers[i]).Initializer!.Target!;
                         Type mbrType = target.GetType();
-                        string name = null;
-                        System.Reflection.PropertyInfo nameProp = mbrType.GetProperty("Name");
+                        string? name = null;
+                        System.Reflection.PropertyInfo? nameProp = mbrType.GetProperty("Name");
                         if (nameProp == null)
                         {
                             name = "(unknown " + cycleMembers[i].GetType().Name + ")";
                         }
                         else
                         {
-                            name = (string)nameProp.GetValue(target, new object[] { });
+                            name = (string?)nameProp.GetValue(target, Array.Empty<object>());
                         }
                         sb.Append(name);
                     }
@@ -302,9 +301,9 @@ namespace Highpoint.Sage.SimCore
             //			}
         }
 
-        public static object[] Merge(object[] p1, object[] p2)
+        public static object?[] Merge(object?[] p1, object?[] p2)
         {
-            object[] p3 = new object[p1.Length + p2.Length];
+            object?[] p3 = new object?[p1.Length + p2.Length];
             p1.CopyTo(p3, 0);
             p2.CopyTo(p3, p1.Length);
             return p3;
@@ -314,11 +313,11 @@ namespace Highpoint.Sage.SimCore
 
         private class Dv : IDependencyVertex
         {
-            private string _name;
-            private Initializer _initializer;
+            private string? _name;
+            private Initializer? _initializer;
             private Guid _myGuid;
             private readonly ArrayList _predecessors;
-            private object[] _parameters;
+            private object?[]? _parameters;
 
             public Dv(Guid myGuid)
             {
@@ -336,7 +335,7 @@ namespace Highpoint.Sage.SimCore
                     return _myGuid;
                 }
             }
-            public Initializer Initializer
+            public Initializer? Initializer
             {
                 get
                 {
@@ -347,7 +346,7 @@ namespace Highpoint.Sage.SimCore
                     _initializer = value;
                 }
             }
-            public object[] Parameters
+            public object?[]? Parameters
             {
                 get
                 {
@@ -363,7 +362,7 @@ namespace Highpoint.Sage.SimCore
             {
                 if (_initializer != null)
                 {
-                    _initializer(model, _parameters);
+                    _initializer(model, _parameters ?? Array.Empty<object?>());
                 }
                 else
                 {
@@ -373,7 +372,7 @@ namespace Highpoint.Sage.SimCore
                 }
             }
 
-            public string Name
+            public string? Name
             {
                 get
                 {
@@ -394,8 +393,8 @@ namespace Highpoint.Sage.SimCore
                 {
                     if (_name == null)
                     {
-                        object tgt = _initializer.Target;
-                        _name = (string)tgt.GetType().GetProperty("Name").GetValue(tgt, new object[] { });
+                        object tgt = _initializer!.Target!;
+                        _name = (string)tgt.GetType().GetProperty("Name")!.GetValue(tgt, Array.Empty<object>())!;
                     }
                     return _name;
                 }
@@ -412,9 +411,9 @@ namespace Highpoint.Sage.SimCore
 
             public override string ToString()
             {
-                object tgt = _initializer.Target;
-                string objType = (string)tgt.GetType().FullName;
-                string name = (string)tgt.GetType().GetProperty("Name").GetValue(tgt, new object[] { });
+                object tgt = _initializer!.Target!;
+                string objType = tgt.GetType().FullName!;
+                string name = (string)tgt.GetType().GetProperty("Name")!.GetValue(tgt, Array.Empty<object>())!;
                 return objType + " named " + name;
             }
 

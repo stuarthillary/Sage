@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -167,7 +166,7 @@ namespace Highpoint.Sage.SimCore
         /// Gets the default value of this InitializerArgAttribute.
         /// </summary>
         /// <value>The default value.</value>
-		public object DefaultValue
+		public object? DefaultValue
         {
             get
             {

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -100,7 +99,7 @@ namespace Highpoint.Sage.Resources
         /// Gets or sets the manager of the resource.
         /// </summary>
         /// <value>The manager.</value>
-        IResourceManager Manager
+        IResourceManager? Manager
         {
             get; set;
         }

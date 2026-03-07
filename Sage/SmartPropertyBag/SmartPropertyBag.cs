@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Utility.Mementos;
@@ -60,7 +59,7 @@ namespace Highpoint.Sage.SimCore
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("SmartPropertyBag");
         private readonly WriteLock _writeLock = new WriteLock(true);
         private readonly IDictionary _dictionary = new Hashtable();
-        private IMemento _memento;
+        private IMemento? _memento;
 
         #endregion Private Fields
 
@@ -84,7 +83,7 @@ namespace Highpoint.Sage.SimCore
             /// Retrieves the underlying value object contained in this entry.
             /// </summary>
             /// <returns>The underlying value object contained in this entry.</returns>
-            object GetValue();
+            object? GetValue();
         }
 
         /// <summary>
@@ -168,9 +167,9 @@ namespace Highpoint.Sage.SimCore
                 }
             }
             private MementoHelper _ssh;
-            private SmartPropertyBag _spb;
+            private SmartPropertyBag? _spb;
             private IMemento _memento;
-            private string _key;
+            private string? _key;
             public SPBAlias(SmartPropertyBag whichBag, string key)
             {
                 _ssh = new MementoHelper(this, true);
@@ -180,8 +179,8 @@ namespace Highpoint.Sage.SimCore
                 _memento = new SPBAliasMemento(this);
             }
 
-            public string OtherKey => _key;
-            public SmartPropertyBag OtherBag => _spb;
+            public string? OtherKey => _key;
+            public SmartPropertyBag? OtherBag => _spb;
 
             public IMemento Memento
             {
@@ -200,17 +199,18 @@ namespace Highpoint.Sage.SimCore
                 if (!(otherGuy is SPBAlias))
                     return false;
                 SPBAlias spba = (SPBAlias)otherGuy;
-                if (_key.Equals(spba._key, StringComparison.Ordinal) && _spb.Equals(spba._spb))
+                if (string.Equals(_key, spba._key, StringComparison.Ordinal) && object.Equals(_spb, spba._spb))
                     return true;
                 return false;
             }
 
             #region IHasValue Implementation
-            public object GetValue()
+            public object? GetValue()
             {
-                object val = _spb[_key];
-                if (val is IHasValue)
-                    val = ((IHasValue)val).GetValue();
+                if (_spb == null || _key == null) return null;
+                object? val = _spb[_key];
+                if (val is IHasValue hasVal)
+                    val = hasVal.GetValue();
                 return val;
             }
             public bool IsLeaf => true;
@@ -249,9 +249,9 @@ namespace Highpoint.Sage.SimCore
             /// <param name="xmlsc">The XmlSerializatonContext from which this object is to be reconstituted.</param>
             public void DeserializeFrom(XmlSerializationContext xmlsc)
             {
-                _spb = (SmartPropertyBag)xmlsc.LoadObject("Aliased_Bag");
-                _key = (string)xmlsc.LoadObject("key");
-                _ssh.AddChild(_spb.GetContentsOfKey(_key));
+                _spb = (SmartPropertyBag?)xmlsc.LoadObject("Aliased_Bag");
+                _key = (string?)xmlsc.LoadObject("key");
+                _ssh.AddChild(_spb!.GetContentsOfKey(_key!));
             }
 
             #endregion
@@ -281,7 +281,7 @@ namespace Highpoint.Sage.SimCore
                     alias._key = _orig._key;
                     alias._spb = _orig._spb;
                     alias._ssh = new MementoHelper(alias, true);
-                    alias._ssh.AddChild(alias._spb.GetContentsOfKey(alias._key));
+                    alias._ssh.AddChild(alias._spb!.GetContentsOfKey(alias._key!));
                     alias._memento = new SPBAliasMemento(alias);
 
                     OnLoadCompleted?.Invoke(this);
@@ -319,7 +319,7 @@ namespace Highpoint.Sage.SimCore
                 /// This holds a reference to the memento, if any, that contains this memento.
                 /// </summary>
                 /// <value></value>
-                public IMemento Parent
+                public IMemento? Parent
                 {
                     get; set;
                 }
@@ -363,7 +363,7 @@ namespace Highpoint.Sage.SimCore
             }
 
             #region Implementation of IHasValue
-            public object GetValue()
+            public object? GetValue()
             {
                 return _del();
             }
@@ -443,7 +443,7 @@ namespace Highpoint.Sage.SimCore
                 /// This holds a reference to the memento, if any, that contains this memento.
                 /// </summary>
                 /// <value></value>
-                public IMemento Parent
+                public IMemento? Parent
                 {
                     get; set;
                 }
@@ -492,7 +492,7 @@ namespace Highpoint.Sage.SimCore
             }
 
             #region Implementation of IHasValue
-            public object GetValue()
+            public object? GetValue()
             {
                 return _value;
             }
@@ -547,7 +547,7 @@ namespace Highpoint.Sage.SimCore
                     vh.SetValue(_value);
                     return vh;
                 }
-                public object GetValue()
+                public object? GetValue()
                 {
                     return _value;
                 }
@@ -587,7 +587,7 @@ namespace Highpoint.Sage.SimCore
                 /// This holds a reference to the memento, if any, that contains this memento.
                 /// </summary>
                 /// <value></value>
-                public IMemento Parent
+                public IMemento? Parent
                 {
                     get; set;
                 }
@@ -608,7 +608,7 @@ namespace Highpoint.Sage.SimCore
                 }
             }
             private readonly MementoHelper _ssh;
-            private string _value;
+            private string? _value;
             public SPBStringHolder()
             {
                 _ssh = new MementoHelper(this, true);
@@ -621,13 +621,13 @@ namespace Highpoint.Sage.SimCore
                 }
                 set
                 {
-                    _value = (string)((SPBStringHolderMemento)value).GetValue();
+                    _value = (string?)((SPBStringHolderMemento)value).GetValue();
                 }
             }
 
-            public void SetValue(string val)
+            public void SetValue(string? val)
             {
-                if (!val.Equals(_value, StringComparison.Ordinal))
+                if (!string.Equals(val, _value, StringComparison.Ordinal))
                 {
                     _value = val;
                     _ssh.ReportChange();
@@ -635,7 +635,7 @@ namespace Highpoint.Sage.SimCore
             }
 
             #region Implementation of IHasValue
-            public object GetValue()
+            public object? GetValue()
             {
                 return _value;
             }
@@ -647,7 +647,7 @@ namespace Highpoint.Sage.SimCore
             public bool HasChanged => _ssh.HasChanged;
             public bool ReportsOwnChanges => _ssh.ReportsOwnChanges;
 
-            public static explicit operator string(SPBStringHolder spbvh)
+            public static explicit operator string?(SPBStringHolder spbvh)
             {
                 return spbvh._value;
             }
@@ -657,7 +657,7 @@ namespace Highpoint.Sage.SimCore
                 if (!(otherGuy is SPBStringHolder))
                     return false;
                 SPBStringHolder spbvh = (SPBStringHolder)otherGuy;
-                return _value.Equals(spbvh._value, StringComparison.Ordinal);
+                return string.Equals(_value, spbvh._value, StringComparison.Ordinal);
             }
 
             #region >>> Serialization Support (incl. IXmlPersistable Members) <<<
@@ -670,7 +670,7 @@ namespace Highpoint.Sage.SimCore
             public void DeserializeFrom(XmlSerializationContext xmlsc)
             {
                 //base.DeserializeFrom(xmlsc);
-                _value = (string)xmlsc.LoadObject("Value");
+                _value = (string?)xmlsc.LoadObject("Value");
             }
             #endregion
 
@@ -678,11 +678,11 @@ namespace Highpoint.Sage.SimCore
             {
 
                 #region Private Fields
-                private readonly string _value;
+                private readonly string? _value;
 
                 #endregion
 
-                public SPBStringHolderMemento(string val)
+                public SPBStringHolderMemento(string? val)
                 {
                     _value = val;
                 }
@@ -692,7 +692,7 @@ namespace Highpoint.Sage.SimCore
                     sh.SetValue(_value);
                     return sh;
                 }
-                public object GetValue()
+                public object? GetValue()
                 {
                     return _value;
                 }
@@ -712,7 +712,7 @@ namespace Highpoint.Sage.SimCore
                     if (!(otheOneMemento is SPBStringHolderMemento))
                         return false;
 
-                    if (_value.Equals(((SPBStringHolderMemento)otheOneMemento)._value, StringComparison.Ordinal))
+                    if (string.Equals(_value, ((SPBStringHolderMemento)otheOneMemento)._value, StringComparison.Ordinal))
                         return true;
 
                     return false;
@@ -734,14 +734,14 @@ namespace Highpoint.Sage.SimCore
                 /// This holds a reference to the memento, if any, that contains this memento.
                 /// </summary>
                 /// <value></value>
-                public IMemento Parent
+                public IMemento? Parent
                 {
                     get; set;
                 }
             }
         }
 
-        private class SPBBooleanHolder : IHasValue, ISPBTreeNode, IXmlPersistable
+        private class SPBBooleanHolder: IHasValue, ISPBTreeNode, IXmlPersistable
         {
             public event MementoChangeEvent MementoChangeEvent
             {
@@ -782,7 +782,7 @@ namespace Highpoint.Sage.SimCore
             }
 
             #region Implementation of IHasValue
-            public object GetValue()
+            public object? GetValue()
             {
                 return _value;
             }
@@ -839,7 +839,7 @@ namespace Highpoint.Sage.SimCore
                     bh.SetValue(_value);
                     return bh;
                 }
-                public object GetValue()
+                public object? GetValue()
                 {
                     return _value;
                 }
@@ -881,14 +881,14 @@ namespace Highpoint.Sage.SimCore
                 /// This holds a reference to the memento, if any, that contains this memento.
                 /// </summary>
                 /// <value></value>
-                public IMemento Parent
+                public IMemento? Parent
                 {
                     get; set;
                 }
             }
         }
 
-        //		internal class SPBEnumerator : IEnumerator {
+        //		internal class SPBEnumerator: IEnumerator {
         //
         //			IEnumerator m_enumerator;
         //			public SPBEnumerator(SmartPropertyBag spb){
@@ -942,9 +942,9 @@ namespace Highpoint.Sage.SimCore
             ArrayList al = new ArrayList();
             foreach (DictionaryEntry de in _dictionary)
             {
-                IHasValue value = de.Value as IHasValue;
-                object val = (value != null ? value.GetValue() : de.Value);
-                ISPBTreeNode node = de.Value as ISPBTreeNode;
+                IHasValue? value = de.Value as IHasValue;
+                object? val = (value != null ? value.GetValue() : de.Value);
+                ISPBTreeNode? node = de.Value as ISPBTreeNode;
                 bool isLeaf = !(node != null && !node.IsLeaf);
                 al.Add(new HierarchicalDictionaryEntry(de.Key, val, isLeaf));
             }
@@ -1127,7 +1127,7 @@ namespace Highpoint.Sage.SimCore
         /// as "Batch", then the following code would retrieve the SKU directly:
         /// <code>string theSKU = (string)myPallet["Crates.123-45.SKU"];</code>
         /// </summary>
-        public virtual object this[string key]
+        public virtual object? this[string key]
         {
             get
             {
@@ -1217,7 +1217,7 @@ namespace Highpoint.Sage.SimCore
         /// <returns>The contents of the key.</returns>
         protected ISupportsMementos GetContentsOfKey(string key)
         {
-            ISupportsMementos contents = (ISupportsMementos)_dictionary[key];
+            ISupportsMementos? contents = (ISupportsMementos?)_dictionary[key];
             if (contents == null)
             {
                 string msg = "Application code called SmartPropertyBag with a key, \"" + key +
@@ -1241,7 +1241,7 @@ namespace Highpoint.Sage.SimCore
             {
                 string lclKey = key.Substring(0, firstDotNdx);
                 string subKey = key.Substring(firstDotNdx + 1, key.Length - firstDotNdx - 1);
-                ISupportsMementos ism = (ISupportsMementos)this[lclKey];
+                ISupportsMementos? ism = (ISupportsMementos?)this[lclKey];
                 SmartPropertyBag bag = ism as SmartPropertyBag;
                 if (bag != null)
                 {
@@ -1262,7 +1262,7 @@ namespace Highpoint.Sage.SimCore
             {
                 string lclKey = key.Substring(0, firstDotNdx);
                 string subKey = key.Substring(firstDotNdx + 1, key.Length - firstDotNdx - 1);
-                ISupportsMementos ism = (ISupportsMementos)this[lclKey];
+                ISupportsMementos? ism = (ISupportsMementos?)this[lclKey];
                 if (ism == null)
                 {
                     AddChildSPB(lclKey, new SmartPropertyBag());
@@ -1308,7 +1308,7 @@ namespace Highpoint.Sage.SimCore
             {
                 if (!_writeLock.IsWritable)
                     throw new WriteProtectionViolationException(this, _writeLock);
-                if (!_ssh.HasChanged && _memento.Equals(value))
+                if (!_ssh.HasChanged && (_memento?.Equals(value) ?? false))
                     return;
                 SmartPropertyBagMemento spbm = (SmartPropertyBagMemento)value;
                 spbm.Load(this);
@@ -1339,7 +1339,7 @@ namespace Highpoint.Sage.SimCore
             SmartPropertyBag spb = otherGuy as SmartPropertyBag;
             if (_dictionary.Count != spb?._dictionary.Count)
                 return false;
-            foreach (DictionaryEntry de in spb._dictionary)
+            foreach (DictionaryEntry de in spb!._dictionary)
             {
                 if (!_dictionary.Contains(de.Key))
                     return false;
@@ -1537,12 +1537,12 @@ namespace Highpoint.Sage.SimCore
             /// This holds a reference to the memento, if any, that contains this memento.
             /// </summary>
             /// <value></value>
-            public IMemento Parent
+            public IMemento? Parent
             {
                 get; set;
             }
         }
-        #region >>> Serialization Support (incl. IXmlPersistable Members) <<<
+        #region >>> Serialization Support(incl. IXmlPersistable Members) <<<
         /// <summary>
         /// Stores this object to the specified XmlSerializationContext.
         /// </summary>

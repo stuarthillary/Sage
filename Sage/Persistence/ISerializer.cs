@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -28,7 +27,7 @@ namespace Highpoint.Sage.Persistence
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>System.Object.</returns>
-        object LoadObject(object key);
+        object? LoadObject(object key);
 
         /// <summary>
         /// Resets this instance.

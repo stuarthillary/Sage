@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Diagnostics;
@@ -30,35 +29,35 @@ namespace Highpoint.Sage.Resources
         private static readonly bool diagnostics = DiagnosticAids.Diagnostics("Resources");
         private readonly RscWaiterList _waiters;
         private readonly ResourceRequestAbortEvent _onResourceRequestAborting;
-        private IAccessRegulator _accessRegulator;
+        private IAccessRegulator? _accessRegulator;
         private List<IResource> _resources;
-        private IModel _model;
+        private IModel? _model;
         #endregion
 
         /// <summary>
         /// This event is fired when a resource is requested from this pool.
         /// </summary>
-        public event ResourceStatusEvent ResourceRequested;
+        public event ResourceStatusEvent? ResourceRequested;
 
         /// <summary>
         /// This event is fired when a resource is acquired from this pool.
         /// </summary>
-        public event ResourceStatusEvent ResourceAcquired;
+        public event ResourceStatusEvent? ResourceAcquired;
 
         /// <summary>
         /// This event is fired when a resource is released back into this pool.
         /// </summary>
-        public event ResourceStatusEvent ResourceReleased;
+        public event ResourceStatusEvent? ResourceReleased;
 
         /// <summary>
         /// This event is fired when a resource is added to the available resources in this pool.
         /// </summary>
-        public event ResourceManagerEvent ResourceAdded;
+        public event ResourceManagerEvent? ResourceAdded;
 
         /// <summary>
         /// This event is fired when a resource is removed from the available resources in this pool.
         /// </summary>
-        public event ResourceManagerEvent ResourceRemoved;
+        public event ResourceManagerEvent? ResourceRemoved;
 
         /// <summary>
         /// Creates a new resource manager.
@@ -86,7 +85,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -312,7 +311,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// The access regulator that governs which requestors may acquire which resources.
         /// </summary>
-        public IAccessRegulator AccessRegulator
+        public IAccessRegulator? AccessRegulator
         {
             set
             {
@@ -463,14 +462,14 @@ namespace Highpoint.Sage.Resources
         #endregion
 
         #region Implementation of IModelObject
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this object.
         /// </summary>
         /// <value>The name.</value>
         public string Name => _name;
 
-        private string _description;
+        private string? _description;
         /// <summary>
         /// A description of this Resource Manager.
         /// </summary>

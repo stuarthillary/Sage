@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -67,7 +66,7 @@ namespace Highpoint.Sage.Persistence
         /// </summary>
         /// <param name="oldGuid">The old unique identifier.</param>
         /// <returns>IModelObject.</returns>
-        public IModelObject GetModelObjectThatHad(Guid oldGuid)
+        public IModelObject? GetModelObjectThatHad(Guid oldGuid)
         {
             return Model.ModelObjects[oldGuid];
         }

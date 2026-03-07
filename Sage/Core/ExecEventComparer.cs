@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -8,10 +7,10 @@ namespace Highpoint.Sage.SimCore
 {
     internal class ExecEventComparer : IComparer
     {
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
-            ExecEvent ee1 = (ExecEvent)x;
-            ExecEvent ee2 = (ExecEvent)y;
+            ExecEvent ee1 = (ExecEvent)x!;
+            ExecEvent ee2 = (ExecEvent)y!;
             /*if ( EE1.m_ticks < EE2.m_ticks) return -1;
             if ( EE1.m_ticks > EE2.m_ticks ) return  1;
             if ( EE1.m_priority < EE2.m_priority ) return  1;
@@ -36,4 +35,3 @@ namespace Highpoint.Sage.SimCore
         }
     }
 }
-

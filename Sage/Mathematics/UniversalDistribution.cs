@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Randoms;
@@ -19,8 +18,8 @@ namespace Highpoint.Sage.Mathematics
     {
 
         #region Private Fields
-        private ICDF _cdf;
-        private IRandomChannel _random;
+        private ICDF? _cdf;
+        private IRandomChannel? _random;
         #endregion
 
         /// <summary>
@@ -37,7 +36,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The name assigned to this distribution.</param>
         /// <param name="guid">The guid that identifies this distribution.</param>
         /// <param name="cumulativeDensityFunction">An implementer of ICDF that this distribution will use to ascertain values.</param>
-        public UniversalDistribution(IModel model, string name, Guid guid, ICDF cumulativeDensityFunction)
+        public UniversalDistribution(IModel? model, string name, Guid guid, ICDF cumulativeDensityFunction)
         {
             InitializeIdentity(model, name, null, guid);
             _random = (Model == null ? GlobalRandomServer.Instance : Model.RandomServer).GetRandomChannel();
@@ -113,7 +112,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of this UniversalDistribution.</param>
         /// <param name="cdfGuid">The Cumulative Density Function of this UniversalDistribution.</param>
         [Initializer(InitializationType.PreRun)]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "CumulativeDensityFunction", RefType.Owned, typeof(ICDF), "The Cumulative Density Function that will drive this Universal Distribution.")]
       Guid cdfGuid)
         {
@@ -128,7 +127,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <param name="model">The model into which this object is to be initialized.</param>
         /// <param name="p">The parameters that will be used to initialize this object.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
             _cdf = (ICDF)_model.ModelObjects[p[0]];
@@ -142,7 +141,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The object's name.</param>
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -155,11 +154,11 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public string Name => _name;
-        private string _description = "An Empirical Distribution";
+        private string? _description = "An Empirical Distribution";
         /// <summary>
         /// A description of this Empirical Distribution.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string? Description => _description ?? _name;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -167,12 +166,12 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         /// <value></value>
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel? _model;
         /// <summary>
         /// The model that owns this Empirical Distribution, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 

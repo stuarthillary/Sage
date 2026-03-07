@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Mathematics
     /// </summary>
     public class CosineDoubleInterpolator : IDoubleInterpolator
     {
-        private double[] _xVals, _yVals;
+        private double[]? _xVals, _yVals;
         private bool _hasData;
 
         #region IDoubleInterpolator Members

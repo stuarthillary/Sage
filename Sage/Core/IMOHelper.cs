@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -71,7 +70,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="description">The description to initialize the IModelObject's field with.</param>
         /// <param name="m_guid">The m_guid field in the IModelObject.</param>
         /// <param name="guid">The GUID to initialize the IModelObject's field with.</param>
-        public static void Initialize(ref IModel m_model, IModel model, ref string m_name, string name, ref string m_description, string description, ref Guid m_guid, Guid guid)
+        public static void Initialize(ref IModel? m_model, IModel model, ref string? m_name, string name, ref string? m_description, string description, ref Guid m_guid, Guid guid)
         {
 
             if (m_model == null && m_guid.Equals(Guid.Empty))

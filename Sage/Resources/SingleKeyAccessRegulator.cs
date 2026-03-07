@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Resources
@@ -13,8 +12,8 @@ namespace Highpoint.Sage.Resources
 
         #region Private Fields
 
-        private readonly object _key;
-        private readonly object _subject;
+        private readonly object? _key;
+        private readonly object? _subject;
 
         #endregion
 
@@ -23,7 +22,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="subject">The subject.</param>
         /// <param name="key">The key.</param>
-        public SingleKeyAccessRegulator(object subject, object key)
+        public SingleKeyAccessRegulator(object? subject, object? key)
         {
             _subject = subject;
             _key = key;
@@ -37,7 +36,7 @@ namespace Highpoint.Sage.Resources
         /// <returns>
         /// True if the acquire will be allowed, false if not.
         /// </returns>
-		public bool CanAcquire(object subject, object usingKey)
+		public bool CanAcquire(object? subject, object? usingKey)
         {
             return ((_subject == null || _subject.Equals(subject) || subject.Equals(_subject)) && _key.Equals(usingKey));
         }

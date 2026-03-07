@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 // Note - code in this file is separately licensed as specified below.
 using System;
@@ -15,14 +14,14 @@ namespace Highpoint.Sage.Mathematics
     /// </summary>
     public class LinearRegression
     {
-        double[,] _v;            // Least squares and var/covar matrix
-        public double[] C;        // Coefficients
-        public double[] Sec;      // Std Error of coefficients
+        double[,]? _v;            // Least squares and var/covar matrix
+        public double[]? C;        // Coefficients
+        public double[]? Sec;      // Std Error of coefficients
         double _rysq;            // Multiple correlation coefficient
         double _sdv;             // Standard deviation of errors
         double _fReg;            // Fisher F statistic for regression
-        double[] _ycalc;         // Calculated values of Y
-        double[] _dy;            // Residual values of Y
+        double[]? _ycalc;         // Calculated values of Y
+        double[]? _dy;            // Residual values of Y
 
         public double FisherF => _fReg;
 

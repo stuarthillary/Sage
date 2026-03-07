@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -15,7 +14,7 @@ namespace Highpoint.Sage.SimCore
         /// Creates a ModelExceptionError around a thrown exception.
         /// </summary>
         /// <param name="ex">The exception that caused this error.</param>
-        public ModelExceptionError(Exception ex) : base("Model Exception Error", ex.Message, null, null)
+        public ModelExceptionError(Exception ex) : base("Model Exception Error", ex.Message, null!, null)
         {
             _exception = ex;
         }
@@ -35,5 +34,3 @@ namespace Highpoint.Sage.SimCore
 
 
 }
-
-

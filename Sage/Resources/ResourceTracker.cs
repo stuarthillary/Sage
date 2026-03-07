@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using _Debug = System.Diagnostics.Debug;
@@ -27,7 +26,7 @@ namespace Highpoint.Sage.Resources
         private readonly ArrayList _record;
         private readonly IResource _target;
         private readonly IModel _model;
-        private ResourceEventRecordFilter _rerFilter;
+        private ResourceEventRecordFilter? _rerFilter;
 
         #endregion 
 

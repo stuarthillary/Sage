@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -19,10 +18,10 @@ namespace Highpoint.Sage.Resources
 
         #region Private Fields
         private double _permissibleOverbook;
-        private IResource _wrappedByWhom;
-        private string _name;
+        private IResource? _wrappedByWhom;
+        private string? _name;
         private Guid _guid = Guid.Empty;
-        private IModel _model;
+        private IModel? _model;
         #endregion
 
         /// <summary>
@@ -103,7 +102,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -233,7 +232,7 @@ namespace Highpoint.Sage.Resources
             }
         }
 
-        public IResourceManager Manager
+        public IResourceManager? Manager
         {
             get; set;
         }
@@ -287,16 +286,16 @@ namespace Highpoint.Sage.Resources
             Available = InitialAvailable;
         }
 
-        public event ResourceStatusEvent RequestEvent;
-        public event ResourceStatusEvent ReservedEvent;
-        public event ResourceStatusEvent UnreservedEvent;
-        public event ResourceStatusEvent AcquiredEvent;
-        public event ResourceStatusEvent ReleasedEvent;
+        public event ResourceStatusEvent? RequestEvent;
+        public event ResourceStatusEvent? ReservedEvent;
+        public event ResourceStatusEvent? UnreservedEvent;
+        public event ResourceStatusEvent? AcquiredEvent;
+        public event ResourceStatusEvent? ReleasedEvent;
 
         #endregion
 
-        public string Name => _name;
-        private string _description;
+        public string? Name => _name;
+        private string? _description;
         /// <summary>
         /// A description of this Resource.
         /// </summary>

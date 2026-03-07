@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -14,7 +13,7 @@ namespace Highpoint.Sage.Mathematics
     /// </summary>
     public class SmallDoubleInterpolable : IWriteableInterpolable, IXmlPersistable
     {
-        private double[] _xVals, _yVals;
+        private double[]? _xVals, _yVals;
         private int _nEntries;
         private readonly IDoubleInterpolator _interpolator;
 

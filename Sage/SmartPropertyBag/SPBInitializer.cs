@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// The key to be initialized when this initializer runs.
         /// </summary>
-        public string Key
+        public string? Key
         {
             get; set;
         }
@@ -53,7 +52,7 @@ namespace Highpoint.Sage.SimCore
         /// The string value to be placed under the specified key in the SPB when
         /// this initializer runs.
         /// </summary>
-        public string StringValue
+        public string? StringValue
         {
             get; set;
         }
@@ -151,7 +150,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="spb">The SmartPropertyBag to be initialized.</param>
         public void Initialize(SmartPropertyBag spb)
         {
-            string[] keys = Key.Split('.');
+            string[] keys = Key!.Split('.');
             SmartPropertyBag theSpb = spb;
             int i;
             for (i = 0; i < keys.Length - 1; i++)
@@ -159,7 +158,7 @@ namespace Highpoint.Sage.SimCore
                 try
                 {
                     SmartPropertyBag parent = theSpb;
-                    theSpb = (SmartPropertyBag)theSpb[keys[i]];
+                    theSpb = (SmartPropertyBag)theSpb[keys[i]]!;
                     if (theSpb == null)
                     {
                         if (ForceCreation)
@@ -209,7 +208,7 @@ namespace Highpoint.Sage.SimCore
                             theSpb.AddValue(keys[i], DoubleValue);
                             break;
                         case InitType.String:
-                            theSpb.AddString(keys[i], StringValue);
+                            theSpb.AddString(keys[i], StringValue!);
                             break;
                     }
                 }
@@ -297,10 +296,10 @@ namespace Highpoint.Sage.SimCore
     {
         #region IComparer Members
 
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
-            SPBInitializer spbiX = (SPBInitializer)x;
-            SPBInitializer spbiY = (SPBInitializer)y;
+            SPBInitializer spbiX = (SPBInitializer)x!;
+            SPBInitializer spbiY = (SPBInitializer)y!;
             return Comparer.Default.Compare(spbiX.Key, spbiY.Key);
         }
 
