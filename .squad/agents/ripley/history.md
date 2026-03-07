@@ -160,3 +160,31 @@
 8. **Migration order:** DiagnosticAids (lowest risk) → Executive/ExecutiveFastLight (internal) → ExecFactory (public singleton, additive) → ModelConfig (public interface) → EmissionsService (complex but isolated) → remove package reference + cleanup.
 
 **Skill extracted:** `.squad/skills/library-safe-options/SKILL.md` — reusable pattern for removing ConfigurationManager from .NET class libraries without introducing DI dependencies.
+
+### 2026-07-15 — Nullable Reference Types Migration Architecture (COMPLETE ✅)
+
+**Status:** Architecture assessment complete. Decision record and Parker work spec written.
+
+**Deliverables:**
+- `.squad/decisions/inbox/ripley-nullable-arch.md` — full architecture decision with phased plan
+- `.squad/decisions/inbox/ripley-nullable-parker-spec.md` — Phase 1 implementation spec for Parker
+
+**Key findings:**
+
+1. **4,446 nullable warnings** when `<Nullable>enable</Nullable>` is set in Sage4.csproj. Build succeeds (0 errors).
+
+2. **Warning type distribution:** CS8618 (constructor init) dominates at 1,378 (31%). CS8625 (null literal) at 988 (22%). CS8600 (null conversion) at 812 (18%). These three account for 71% of all warnings.
+
+3. **Module distribution:** Graphs (1,160) > ItemBased (656) > Materials (568) > Core (502) > Utility (484) > Mathematics (290) > Resources (264) > Persistence (186) > Scheduling (134) > SmartPropertyBag (120) > Dependencies (28) > SystemDynamics (28) > Randoms (24).
+
+4. **Persistence is the worst per-file:** 186 warnings in 7 files = 26.6 warnings/file. XML serialization code is inherently null-heavy.
+
+5. **Recommended approach: Global enable + suppress (Option 1).** Add `<Nullable>enable</Nullable>` to csproj, prepend `#nullable disable` to all files, remove pragma file-by-file as each is annotated. This is Microsoft's recommended approach and provides clear migration tracking.
+
+6. **SageTestLib deferred indefinitely.** Test files routinely pass null as test inputs — nullable annotations in tests add noise without safety benefit.
+
+7. **Permanent `#nullable disable` files identified:** WeakHashTable.cs (weak reference collection), Persistence/XmlSerializationContext.cs, Persistence/CreationContext.cs (XML deserialization pipelines).
+
+8. **Locked exclusions respected:** `object userData` → annotate as `object?` but do NOT genericize. `IDictionary graphContext` → keep non-generic, annotate as nullable only where null is actually passed.
+
+9. **4-phase plan:** Phase 1 (Core interfaces + SageOptions + ExecEvent, ~21 files, 1-2 hours), Phase 2 (Core engine implementations, ~12 files, 4-6 hours), Phase 3 (remaining modules in 12 batches by risk, weeks), Phase 4 (cleanup + WarningsAsErrors enforcement).

@@ -743,3 +743,452 @@ Implemented Ripley’s Phase 2 collection API changes across Core and Graphs whi
 - `dotnet test E:\source\Sage\Sage_Aux\SageTestLib\SageTestLib.csproj --no-build -v minimal`
   - **Result:** total 319, passed 316, skipped 3
 
+
+---
+
+# Decision: Nullable Reference Types — Migration Architecture
+
+**Author:** Ripley (Lead / Architect)  
+**Date:** 2026-07-15  
+**Status:** Approved  
+**Requested by:** Stuart Hillary (PM)
+
+---
+
+## Context
+
+Stuart requested enabling `#nullable enable` across the Sage codebase. This decision documents the scope assessment, risk analysis, and phased migration plan.
+
+## Scope Assessment
+
+### Warning Count
+
+With `<Nullable>enable</Nullable>` in Sage4.csproj:
+
+- **Total nullable warnings: 4,446**
+- **548 source files** across 14 module directories
+- **0 errors** — the build succeeds, these are all warnings
+
+### Warning Type Breakdown
+
+| Warning | Count | Description | Difficulty |
+|---------|-------|-------------|------------|
+| CS8618 | 1,378 | Non-nullable property/field not initialized in constructor | **HARD** — requires constructor refactoring or `= null!` |
+| CS8625 | 988 | Cannot convert null literal to non-nullable reference type | MEDIUM — annotate parameter/field as nullable |
+| CS8600 | 812 | Converting null literal or possible null to non-nullable type | MEDIUM — add null checks or annotate |
+| CS8602 | 368 | Dereference of a possibly null reference | MEDIUM — add null guards |
+| CS8603 | 358 | Possible null reference return | MEDIUM — annotate return type or guard |
+| CS8604 | 160 | Possible null reference argument | LOW — caller annotation fixes |
+| CS8767 | 142 | Nullability mismatch with interface implementation | LOW — signature alignment |
+| CS8601 | 116 | Possible null reference assignment | MEDIUM |
+| CS8605 | 68 | Unboxing a possibly null value | LOW |
+| CS8765 | 26 | Nullability of parameter doesn't match overridden member | LOW |
+| Other | 30 | CS8714, CS8629, CS8766, CS8622, CS8612, CS8631, CS8892 | LOW |
+
+**Key insight:** CS8618 (constructor initialization) dominates at 31% of all warnings. These are the hardest to fix correctly because they require understanding initialization semantics — some fields are intentionally set post-construction (e.g., via `Initialize()` patterns), and blindly adding `= null!` suppresses the warning but doesn't improve safety.
+
+### Warning Distribution by Module
+
+| Module | Warnings | Files | Warnings/File | Risk |
+|--------|----------|-------|---------------|------|
+| Graphs | 1,160 | 96 | 12.1 | HIGH — PFC subsystem, IDictionary graphContext |
+| ItemBased | 656 | 73 | 9.0 | MEDIUM — port/connector patterns |
+| Materials | 568 | 65 | 8.7 | MEDIUM — substance/mixture chemistry |
+| Core | 502 | 64 | 7.8 | HIGH — engine contracts, most impactful |
+| Utility | 484 | 76 | 6.4 | MEDIUM — mixed: some clean, some legacy |
+| Mathematics | 290 | 53 | 5.5 | LOW — mostly value-type math |
+| Resources | 264 | 30 | 8.8 | MEDIUM — resource management |
+| Persistence | 186 | 7 | 26.6 | HIGH — XML serialization, many casts |
+| Scheduling | 134 | 24 | 5.6 | LOW-MEDIUM |
+| SmartPropertyBag | 120 | 9 | 13.3 | MEDIUM — dynamic property bags |
+| Dependencies | 28 | 4 | 7.0 | LOW |
+| SystemDynamics | 28 | 40 | 0.7 | LOW — cleanest module |
+| Randoms | 24 | 6 | 4.0 | LOW |
+
+### SageTestLib Assessment
+
+**Recommendation: DEFER.** SageTestLib has 62 test files. Tests routinely pass null, use `Assert.IsNotNull` patterns, and assign nulls freely. Enabling nullable in tests would generate hundreds of warnings with zero safety benefit — tests are meant to probe edge cases including null inputs. SageTestLib should remain without `#nullable enable` indefinitely.
+
+---
+
+## Risk Assessment
+
+### HIGH RISK — Handle With Care
+
+1. **Public interface annotation changes** — Adding `?` to return types on `IExecutive`, `IModel`, `IExecEvent` is a **source-compatible breaking change**. Callers that previously assumed non-null will now get warnings. This is correct behavior but must be documented.
+
+2. **CS8618 in Core engine classes** — `Executive.cs` (66 warnings), `ExecutiveFastLight.cs` (58), `Model.cs` (52). These have complex initialization patterns (factory construction, post-init configuration). Using `= null!` here suppresses the warning but the null-safety guarantee is a lie.
+
+3. **Persistence module** (186 warnings in 7 files = 26.6/file) — XML deserialization involves heavy `object` casting and null coercion. High false-positive rate.
+
+4. **`object userData` parameters** — 40 files use this pattern. These are intentionally `object` (not `object?`) in the delegate signature `ExecEventReceiver(IExecutive exec, object userData)`. However, callers frequently pass `null`. The correct annotation is `object? userData` on the delegate, which is a **public API change** that must propagate to all 40+ files.
+
+5. **`IDictionary graphContext`** — 41 files, 50+ signatures. Must annotate as `IDictionary? graphContext` where null is passed, `IDictionary graphContext` where guaranteed non-null. Requires per-call-site analysis.
+
+### MEDIUM RISK — Routine But Voluminous
+
+6. **EventedList.cs** (90 CS8618 warnings) — Generic event-sourced list, heavily parameterized. Tedious but mechanical.
+
+7. **Graphs module** (1,160 warnings) — Largest module. PFC subsystem alone has 496 warnings. Must be batched carefully.
+
+### LOW RISK — Mechanical Fixes
+
+8. **Mathematics, Randoms, SystemDynamics** — Mostly value types, clean patterns, few warnings.
+
+### Files That Should Get `#nullable disable`
+
+| File | Reason |
+|------|--------|
+| `Utility/WeakHashTable.cs` | Legacy weak-reference collection implementing non-generic `IDictionary`. 15-20 expected warnings, all false positives from the `WeakReference.Target` null pattern. Not worth annotating — the type is inherently null-producing by design. |
+| `Persistence/XmlSerializationContext.cs` | XML serialization with heavy `object` casting. Nullable annotations would be misleading — the deserialization pipeline produces nulls by design that are checked downstream. |
+| `Persistence/CreationContext.cs` | Same serialization pipeline. Object stacks, null coercion. |
+
+---
+
+## Recommended Approach: Option 1 — Global Enable + Suppress
+
+### Decision
+
+**Use Option 1: `<Nullable>enable</Nullable>` globally in Sage4.csproj, with `#nullable disable` at the top of files not yet migrated.**
+
+### Justification
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **1. Global + suppress** ✅ | Progressive disclosure — every new file is nullable by default. Clear migration tracking (count of `#nullable disable` remaining). One csproj change. | Initial noise: must add disable to ~548 files up front. |
+| 2. File-by-file enable | No upfront work. | New files aren't nullable by default. No global tracking. Easy to forget. Opposite of .NET ecosystem direction. |
+| 3. Per-project | Clean separation. | SageTestLib doesn't need it. Only two projects, so this collapses to Option 1 for Sage4.csproj anyway. |
+
+**Why Option 1 wins at 4,446 warnings:**
+- The warning count is large but not catastrophic. Most warnings are mechanical (CS8625, CS8600, CS8602).
+- Global enable means every new file Parker writes is automatically nullable-checked — no discipline required.
+- The `#nullable disable` pragma is a clear, grepable migration marker. We can track progress: `grep -r "#nullable disable" Sage/ | wc -l`.
+- This is the approach recommended by Microsoft for existing codebases and used by ASP.NET Core's own migration.
+
+### Implementation Mechanics
+
+1. Add `<Nullable>enable</Nullable>` to Sage4.csproj
+2. Run a script to prepend `#nullable disable` to every `.cs` file under `Sage/`
+3. Remove `#nullable disable` from files as they are annotated and cleaned
+4. Files in the `#nullable disable` list above keep their pragma permanently
+
+---
+
+## Phased Migration Plan
+
+### Phase 1 — Core Contracts (Priority: HIGHEST)
+
+**Goal:** Establish nullable annotations on the public interfaces that everything depends on. These set the contract for all downstream implementations.
+
+| File | Warnings | Notes |
+|------|----------|-------|
+| `Core/IExecutive.cs` | 0 (interface) | Annotate return types and parameters. `RequestEvent` userData → `object? userData`. `IDictionary graphContext` → stays `IDictionary`. |
+| `Core/IExecEvent.cs` | 0 (interface) | `object UserData` → `object? UserData` (nullable — callers pass null freely). |
+| `Core/IModel.cs` | 4 | Two CS8625 defaults. Annotate nullable parameters. |
+| `Core/IModelObject.cs` | 0 | Annotate `Name`, `Description`, `Guid` nullability. |
+| `Core/IHasName.cs` | 8 | Fix `IComparer` parameter nullability to match BCL. |
+| `Core/IHasIdentity.cs` | 0 | Review — likely clean. |
+| `Core/IErrorHandler.cs` | 0 | Review. |
+| `Core/IModelError.cs` | 0 | Review. |
+| `Core/IModelWarning.cs` | 0 | Review. |
+| `Core/IModelService.cs` | 0 | Review. |
+| `Core/INotification.cs` | 0 | Review. |
+| `Core/IDetachableEventController.cs` | 0 | Review. |
+| `Core/IExecEventSelector.cs` | 0 | Review. |
+| `Core/IInitializationManager.cs` | 0 | Review. |
+| `Core/IHasParameters.cs` | 0 | Review. |
+| `Core/IResettable.cs` | 0 | Review. |
+| `Core/ISynchronizer.cs` | 0 | Review. |
+| `Core/ISynchChannel.cs` | 0 | Review. |
+| `Core/ITransitionHandler.cs` | 0 | Review. |
+| `Core/ITransitionFailureReason.cs` | 0 | Review. |
+| `Core/SageOptions.cs` | 2 | Fix `Models` property initialization. |
+| `Core/ExecEvent.cs` | 8 | Internal — annotate `UserData` as `object?`. |
+
+**Estimated effort:** 1–2 hours  
+**Risk:** LOW for interfaces (additive annotations). MEDIUM for `object? userData` propagation — this is a public API surface change. Callers will see new warnings if they assume non-null.
+
+### Phase 2 — Engine Internals
+
+**Goal:** Annotate the core executive implementations that power the simulation engine.
+
+| File | Warnings | Notes |
+|------|----------|-------|
+| `Core/Executive.cs` | 66 | Heavy CS8618. Post-construction initialization pattern. Many fields need `= null!` or constructor refactoring. |
+| `Core/ExecutiveFastLight.cs` | 58 | Same patterns as Executive. |
+| `Core/ExecFactory.cs` | 22 | Singleton with reflection construction. |
+| `Core/ExecController.cs` | 28 | Rate throttling, frame dispatch. |
+| `Core/Model.cs` | 52 | Simulation container. Complex initialization. |
+| `Core/StateMachine.cs` | 30 | Two-phase-commit state machine. |
+| `Core/DetachableEvent.cs` | 26 | Thread signaling, suspend/resume. |
+| `Core/ExecEventRemover.cs` | 24 | Heap operations. |
+| `Core/InitializationManager.cs` | 90 | Highest warning count in Core. Complex dependency tracking. |
+| `Core/ModelConfig.cs` | 14 | Configuration bridge. |
+| `Core/BaseModelObject.cs` | 6 | Base class. |
+| `Core/ModelObjectDictionary.cs` | 24 | Object registry. |
+
+**Estimated effort:** 4–6 hours  
+**Risk:** MEDIUM-HIGH. Constructor initialization patterns require careful analysis. `InitializationManager.cs` (90 warnings) may benefit from partial `#nullable disable` on specific methods.
+
+### Phase 3 — Remaining Modules (Batch by namespace)
+
+**Assign to Parker in priority order based on warning density and risk.**
+
+| Batch | Module | Warnings | Files | Priority | Notes |
+|-------|--------|----------|-------|----------|-------|
+| 3A | SystemDynamics | 28 | 40 | HIGH (easy win) | Cleanest module, 0.7 warnings/file |
+| 3B | Randoms | 24 | 6 | HIGH (easy win) | Mostly value types |
+| 3C | Dependencies | 28 | 4 | HIGH (easy win) | Small, isolated |
+| 3D | Mathematics | 290 | 53 | MEDIUM | Linear algebra, interpolation. Mostly value types. |
+| 3E | Scheduling | 134 | 24 | MEDIUM | TimePeriod has 48 CS8618 warnings — review carefully. |
+| 3F | Resources | 264 | 30 | MEDIUM | Resource/ResourceManager pattern. |
+| 3G | SmartPropertyBag | 120 | 9 | MEDIUM | Dynamic property system. May need partial disable. |
+| 3H | Utility | 484 | 76 | MEDIUM-HIGH | Mixed. WeakHashTable gets permanent disable. EventedList (90) is tedious. |
+| 3I | ItemBased | 656 | 73 | HIGH effort | Port/connector patterns. |
+| 3J | Materials | 568 | 65 | HIGH effort | Chemistry/mixture model. |
+| 3K | Graphs | 1,160 | 96 | HIGHEST effort | PFC (496 alone). IDictionary graphContext everywhere. |
+| 3L | Persistence | 186 | 7 | SPECIAL | 26.6 warnings/file. Most files should get permanent `#nullable disable`. |
+
+### Phase 4 — Cleanup
+
+- Remove all remaining `#nullable disable` pragmas (except permanent ones)
+- Add `<WarningsAsErrors>$(WarningsAsErrors);CS8600;CS8602;CS8603</WarningsAsErrors>` to prevent regression
+- Final full build + test validation
+
+---
+
+## Architectural Constraints (ENFORCED)
+
+These constraints are **non-negotiable** and override any mechanical warning-fixing instinct:
+
+1. **`object userData`** — Annotate as `object? userData` where callers pass null (which is most places). Do NOT change to generic `T`. This is an intentional heterogeneous payload pattern. The `ExecEventReceiver` delegate signature changes to `object? userData`.
+
+2. **`IDictionary graphContext`** — Keep non-generic `IDictionary`. Annotate as `IDictionary? graphContext` ONLY where null is actually passed (check call sites). Most graph execution paths guarantee non-null context.
+
+3. **`WeakHashTable`** — Permanent `#nullable disable`. Not worth annotating.
+
+4. **Persistence files** — Default to `#nullable disable` unless a specific file is clean enough to annotate.
+
+5. **Public API `T` → `T?` changes** — Every return type change from `T` to `T?` on a public interface must be listed in a "Breaking Changes" section of the PR description. These are source-compatible but semantically breaking.
+
+6. **`= null!`** — Use sparingly and only for fields that are guaranteed initialized before use (e.g., set in `Initialize()` called from constructor). Never use on fields that might actually be null at runtime.
+
+---
+
+## Success Criteria
+
+- All 319 tests pass after each phase
+- Warning count decreases monotonically
+- Zero `#nullable disable` pragmas remain except the permanent exclusion list
+- No new `= null!` suppressions without a comment explaining why
+
+---
+
+## References
+
+- [Microsoft: Update a codebase to use nullable reference types](https://learn.microsoft.com/en-us/dotnet/csharp/nullable-migration-strategies)
+- Existing decisions: Collection Modernization Strategy, Phase 2 Public API Spec
+- Locked exclusions: `object userData` (40 files), `IDictionary graphContext` (41 files)
+
+
+---
+
+# Parker Work Spec: Nullable Reference Types — Phase 1 Implementation
+
+**Author:** Ripley (Lead / Architect)  
+**Date:** 2026-07-15  
+**For:** Parker (.NET Developer)  
+**Decision ref:** `ripley-nullable-arch.md`
+
+---
+
+## Objective
+
+Enable `<Nullable>enable</Nullable>` globally in Sage4.csproj and annotate the Phase 1 files (Core interfaces + key types). All other files get `#nullable disable` at the top until their phase.
+
+## Prerequisites
+
+- Branch from `main`: `feature/nullable-phase1`
+- Baseline: all 319 tests passing
+- Read `ripley-nullable-arch.md` for full context and constraints
+
+## Step-by-Step Instructions
+
+### Step 1: Enable Nullable Globally
+
+Edit `Sage/Sage4.csproj`:
+
+```xml
+<PropertyGroup>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Sage</AssemblyName>
+    <Nullable>enable</Nullable>
+</PropertyGroup>
+```
+
+**Do NOT enable nullable in SageTestLib.csproj.** Tests are deferred indefinitely.
+
+### Step 2: Add `#nullable disable` to All Source Files
+
+Run this PowerShell script from the repo root to prepend `#nullable disable` to every `.cs` file under `Sage/`:
+
+```powershell
+Get-ChildItem -Path "Sage" -Filter "*.cs" -Recurse | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    if ($content -notmatch '#nullable') {
+        $newContent = "#nullable disable`r`n" + $content
+        Set-Content $_.FullName $newContent -NoNewline
+    }
+}
+```
+
+**Commit this as a separate commit** with message:
+```
+chore: add #nullable disable to all source files
+
+Preparatory step for nullable reference types migration.
+Every file starts with #nullable disable and will have it
+removed as the file is annotated in subsequent phases.
+```
+
+### Step 3: Remove `#nullable disable` From Phase 1 Files and Annotate
+
+For each file below, remove the `#nullable disable` line at the top (replacing with `#nullable enable` is NOT needed since it's globally enabled — just remove the disable pragma).
+
+Then fix the nullable warnings in that file per the annotations below.
+
+---
+
+### Phase 1 Files — Annotation Guide
+
+#### Core Interfaces (remove `#nullable disable`, annotate)
+
+**`Core/IExecEvent.cs`**
+- `object UserData` → `object? UserData` (callers routinely pass null)
+- Review all other properties — DateTime, double, long, ExecEventType are value types (no change needed)
+
+**`Core/IExecutive.cs`**
+- `ExecEventReceiver` delegate: change `object userData` → `object? userData`
+- All `RequestEvent` overloads: `object? userData` parameter
+- `IDictionary graphContext` parameters: keep as `IDictionary` (non-nullable). Check each overload — if any call site passes null, annotate that specific overload as `IDictionary? graphContext`
+- Return types: review `CurrentEvent` — can it return null? If yes → `IExecEvent?`
+- `EventList` return: `IReadOnlyList<IExecEvent>` (non-nullable list, non-nullable elements — events in the list always exist)
+
+**`Core/IModel.cs`**
+- Fix the two CS8625 warnings (null default parameters) — change parameter types to nullable where null is a valid default
+- `Executive` property: should be non-nullable (always set in construction)
+- `ModelConfig` property: review — nullable if optional
+- `ModelObjects` dictionary: non-nullable
+- String parameters for names/descriptions: `string?` where optional, `string` where required
+
+**`Core/IModelObject.cs`**
+- `Name` property: `string` (non-nullable — all model objects have names)
+- `Description` property: `string?` (may not be set)
+- `Model` property: `IModel?` (may be detached from model)
+
+**`Core/IHasName.cs`**
+- `HasNameComparer.Compare(object x, object y)` → `Compare(object? x, object? y)` to match `IComparer.Compare` BCL signature
+- `HasNameEqualityComparer` — same pattern, align with BCL nullable signatures
+
+**`Core/IHasIdentity.cs`**
+- `Guid` is a value type — no nullable changes needed
+- Review `Name` if present
+
+**`Core/IErrorHandler.cs`**, **`Core/IModelError.cs`**, **`Core/IModelWarning.cs`**
+- Error/warning message strings: `string` (non-nullable — errors always have messages)
+- `Subject` properties: `object?` (may be null)
+- `InnerException`: `Exception?`
+
+**`Core/IModelService.cs`**, **`Core/INotification.cs`**, **`Core/IDetachableEventController.cs`**, **`Core/IExecEventSelector.cs`**, **`Core/IInitializationManager.cs`**, **`Core/IHasParameters.cs`**, **`Core/IResettable.cs`**, **`Core/ISynchronizer.cs`**, **`Core/ISynchChannel.cs`**, **`Core/ITransitionHandler.cs`**, **`Core/ITransitionFailureReason.cs`**
+- Review each. Most are simple interfaces with few nullable concerns.
+- Apply nullable annotations based on semantic intent: parameters that can be null get `?`, those that can't stay non-nullable.
+
+#### Core Types (remove `#nullable disable`, annotate)
+
+**`Core/SageOptions.cs`**
+- Fix `IReadOnlyList<IEmissionModel> Models` property — change to `IReadOnlyList<IEmissionModel>? Models` or initialize to empty list
+- All other properties already have initializers — should be clean
+
+**`Core/ExecEvent.cs`** (internal)
+- `UserData` field/property → `object? UserData`
+- `ExecEventReceiver` field → non-nullable (always set in constructor)
+- Constructor: ensure all reference fields are initialized
+- `ToString()`: guard null `UserData` in string interpolation
+
+---
+
+## CONSTRAINTS — Read Before Coding
+
+1. **`object userData`** → `object? userData`. Do NOT change to generic. Do NOT change to `dynamic`. This is intentional.
+
+2. **`IDictionary graphContext`** → Keep `IDictionary` (non-generic). Only add `?` if a specific call site passes null. Default assumption: non-nullable.
+
+3. **Do NOT use `= null!`** on interface properties or in interface default implementations. It's meaningless on interfaces.
+
+4. **Do NOT change** `WeakHashTable.cs`, any file in `Persistence/`, or any file outside `Core/` in this phase. Those files keep their `#nullable disable`.
+
+5. **Public API changes** — Every return type or parameter type that changes from `T` to `T?` on a public interface: add a line to the PR description under "## Nullable API Changes". These are source-compatible but consumers will see new warnings.
+
+6. **When in doubt about a property's nullability** — check usage in test files and callers. If any caller passes/assigns null, the property is nullable. If no caller does, it's non-nullable.
+
+## Validation
+
+After all Phase 1 changes:
+
+```powershell
+# Build must succeed with 0 errors
+dotnet build Sage4-Everything.sln --no-incremental -v minimal
+
+# All tests must pass
+dotnet test Sage_Aux\SageTestLib\SageTestLib.csproj
+
+# Count remaining warnings — should be LESS than 4,446
+dotnet build Sage4-Everything.sln --no-incremental -v minimal 2>&1 | Select-String "warning CS8" | Measure-Object -Line
+
+# Count files still with #nullable disable
+Get-ChildItem Sage -Filter *.cs -Recurse | Select-String "#nullable disable" | Measure-Object -Line
+```
+
+**Expected outcome:**
+- 0 build errors
+- 319/319 tests passing
+- Warning count should drop by ~20–30 (interface files have few warnings, but fixing them enables downstream fixes)
+- ~527 files still have `#nullable disable` (548 total minus ~21 Phase 1 files)
+
+## Commit Strategy
+
+1. **Commit 1:** `chore: enable nullable reference types globally` — csproj change only
+2. **Commit 2:** `chore: add #nullable disable to all source files` — bulk pragma addition
+3. **Commit 3:** `feat: annotate Core interfaces with nullable reference types` — Phase 1 annotations
+4. **Commit 4:** `feat: annotate Core types (SageOptions, ExecEvent) with nullable reference types` — Phase 1 types
+
+Each commit must build clean and pass all tests.
+
+## After Phase 1
+
+Report back:
+- Final warning count
+- Any files that proved harder than expected
+- Any API changes that might surprise consumers
+- Ready/not-ready assessment for Phase 2
+
+Phase 2 spec will be written after Phase 1 results are reviewed.
+
+
+---
+
+# ConfigurationManager Migration Complete (Parker)
+
+**Date:** 2026-07-15  
+**Owner:** Parker  
+**Status:** Complete
+
+## Summary
+- Replaced ConfigurationManager usage with POCO options (ExecutiveOptions, ExecFactoryOptions, DiagnosticsOptions, EmissionsServiceOptions).
+- Added Configure hooks for DiagnosticAids, ExecFactory, and EmissionsService; EmissionsService supports Reset for test isolation.
+- ModelConfig now uses Dictionary-backed values with SetSimpleParameter; legacy section constructor marked obsolete.
+- Removed System.Configuration.ConfigurationManager package reference and deleted Utility/ConfigurationManager.cs.
+
+## Verification
+- `dotnet build E:\source\Sage\Sage4-Everything.sln --no-incremental -v minimal`
+- `dotnet test E:\source\Sage\Sage_Aux\SageTestLib\SageTestLib.csproj --no-build -v minimal` (319/319)
