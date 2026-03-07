@@ -1,4 +1,38 @@
-
+### 2026-03-07 — Project Renames: Benchmarks, Examples, Tests ✅
+
+**Scope:** Three project renames coordinated as naming-convention rollout  
+**Status:** All three renames complete; build clean, 319/319 tests passing
+
+#### Benchmarks Rename: `SageBenchmarks.csproj` → `Sage.Benchmarks.csproj`
+- Project file renamed via `git mv`
+- AssemblyName: `Sage.Benchmarks` | RootNamespace: `Highpoint.Sage.Benchmarks`
+- Updated `Sage.slnx` reference path
+- EventDispatchBenchmarks.cs already used correct namespace
+- Program.cs path comments updated
+
+#### Examples Rename: `Sample.Examples.csproj` → `Sage.Examples.csproj` (correction)
+- Previous rename to `Sample.Examples` was inconsistent with established pattern
+- Corrected to `Sage.Examples.csproj` to align with main library (`Sage.csproj`) and benchmarks
+- AssemblyName: `Sage.Examples` | RootNamespace: `Highpoint.Sage.Examples` (preserved)
+- Updated `Sage.slnx` reference
+- Folder `samples\Sage_SampleCode\` remains unchanged
+
+#### Test Project Rename: `SageTestLib.csproj` → `Sage.Tests.csproj`
+- Project file renamed via `git mv`
+- AssemblyName: `Sage.Tests` | RootNamespace: `Highpoint.Sage.Tests`
+- Updated `Sage.slnx` and `TestDriver.csproj` references
+
+**Namespace Standardization in Test Files (8 files):**
+- Scheduling tests (3 files): `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+- PFC tests (2 files): `PFCDemoMaterial`, `SageTestLib` → `Highpoint.Sage.Tests.Graphs.PFC`
+- Utility tests (2 files): `SageTestLib` → `Highpoint.Sage.Tests.Utility`
+- Mathematics tests (1 file): `SageTestLib` → `Highpoint.Sage.Tests.Mathematics`
+- Updated cross-references in TestPfcAnalyst.cs (alias) and TestDriver/Driver.cs (7 fully-qualified types)
+
+**Key Insight:** AssemblyName (short, for DLL output) and RootNamespace (full, for code) don't need to match. Main library uses `Highpoint.Sage` for both; other projects use shortened assembly names with full namespaces.
+
+**Rationale:** Consolidates all four projects (main library, benchmarks, examples, tests) under consistent naming pattern `Sage.{Component}.csproj` with `Highpoint.Sage.{Component}` namespaces.
+
 ### 2026-07-16 — Rename namespace Highpoint.Sage.SimCore → Highpoint.Sage.Core ✅
 
 - **Scope:** 268 files changed across src, tests, benchmarks, and samples
@@ -109,7 +143,33 @@
 - **Nullability fixes:** IPort nullable annotations, ConnectorFactory nullable handling, Queue.cs naming collision resolved with fully-qualified System.Collections.Generic.Queue<T>, event delegates made nullable, IModel? propagated throughout.
 - **Critical fix:** Corrected Connectors.cs to preserve original Debug.Assert behavior for null models instead of throwing exceptions (test compatibility).
 - **Build/Test:** `dotnet build Sage4.csproj` clean; `dotnet test SageTestLib` 319/319 passing.
-- **Remaining:** 297 files still `#nullable disable` (251 enabled total).
+- **Remaining:** 297 files still `#nullable disable` (251 enabled total).
+
+### 2026-07-16 — Test Project Rename to Sage.Tests ✅
+
+- **Scope:** Renamed test project from `SageTestLib.csproj` to `Sage.Tests.csproj` with comprehensive namespace refactoring.
+- **Project file:** `tests\SageTestLib\SageTestLib.csproj` → `tests\SageTestLib\Sage.Tests.csproj` (via `git mv`, history preserved)
+- **RootNamespace/AssemblyName:** Set `RootNamespace = Highpoint.Sage.Tests` and `AssemblyName = Sage.Tests` in project file
+- **Sage.slnx:** Updated project reference from `SageTestLib.csproj` → `Sage.Tests.csproj`
+- **TestDriver.csproj:** Updated ProjectReference from `SageTestLib.csproj` → `Sage.Tests.csproj`
+- **Namespace migration:** Fixed messy namespaces in 8 test files:
+  - `SageTestLib` → appropriate sub-namespaces under `Highpoint.Sage.Tests.*`
+  - `PFCDemoMaterial` → `Highpoint.Sage.Tests.Graphs.PFC`
+  - `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+- **File-by-file namespace mapping:**
+  - ProtoActions.cs: `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+  - TestCyclicalMVTTracker.cs: `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+  - TestTasks2.cs: `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+  - TestPfcAnalyst.cs: `PFCDemoMaterial` → `Highpoint.Sage.Tests.Graphs.PFC`
+  - TestEventedList.cs: `SageTestLib` → `Highpoint.Sage.Tests.Utility` (tests EventedList)
+  - TestHeap.cs: `SageTestLib` → `Highpoint.Sage.Tests.Utility` (tests Heap)
+  - TestPfcRepository.cs: `SageTestLib` → `Highpoint.Sage.Tests.Graphs.PFC` (creates PFCs)
+  - TestRationalizer.cs: `SageTestLib` → `Highpoint.Sage.Tests.Mathematics` (tests Rationalizer)
+- **Cross-references fixed:**
+  - TestPfcAnalyst.cs using alias: `using Pfcs = SageTestLib.TestPfcRepository;` → `using Pfcs = Highpoint.Sage.Tests.Graphs.PFC.TestPfcRepository;`
+  - TestDriver/Driver.cs: 7 fully-qualified type references updated from old namespaces to new namespaces
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test Sage.Tests.csproj` 319/319 passing
+- **Decision:** Test project now fully aligned with team naming convention (Sage.Tests) matching pattern of other projects (Sage.csproj, Sage.Benchmarks.csproj, Sage.Examples.csproj)
 
 ### 2026-03-07 — Nullable Phase 6 (Materials) ✅
 

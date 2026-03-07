@@ -1,3 +1,166 @@
+# Benchmarks Project Rename
+
+**Date:** 2026-07-16  
+**Agent:** Parker (by request from Stuart)  
+**Status:** ✅ Complete
+
+## Decision
+
+Renamed the benchmarks project from `SageBenchmarks.csproj` to `Sage.Benchmarks.csproj` to align with team naming conventions.
+
+## Implementation
+
+- **Project file:** `benchmarks\SageBenchmarks\SageBenchmarks.csproj` → `benchmarks\SageBenchmarks\Sage.Benchmarks.csproj` (via `git mv`, history preserved)
+- **AssemblyName:** `Sage.Benchmarks`
+- **RootNamespace:** `Highpoint.Sage.Benchmarks`
+- **Sage.slnx:** Updated project reference path
+- **Namespace:** EventDispatchBenchmarks.cs already used `Highpoint.Sage.Benchmarks` (correct)
+- **Comments:** Updated path references in Program.cs
+
+## Verification
+
+- **Build:** `dotnet build Sage.slnx` — 0 errors
+- **Tests:** `dotnet test SageTestLib` — 319/319 passing
+
+## Rationale
+
+This change aligns the benchmarks project with the team's naming pattern established for the main library (`Sage.csproj`), samples (`Sample.Examples.csproj`), and the `Highpoint.Sage.*` namespace convention. The folder name `benchmarks\SageBenchmarks\` remains unchanged to maintain compatibility with existing paths, while only the .csproj filename changes.
+
+
+---
+
+# Examples Project Rename Correction
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-07-16  
+**Status:** Complete ✅  
+**Requested by:** Stuart Hillary
+
+## Decision
+
+Corrected the examples project name from `Sample.Examples.csproj` to `Sage.Examples.csproj` to align with team naming conventions established for other projects (Sage.csproj, Sage.Benchmarks.csproj).
+
+## What Changed
+
+- **Project file:** Renamed `samples\Sage_SampleCode\Sample.Examples.csproj` → `samples\Sage_SampleCode\Sage.Examples.csproj` (via `git mv`)
+- **AssemblyName:** Updated from `Sample.Examples` to `Sage.Examples`
+- **RootNamespace:** Preserved as `Highpoint.Sage.Examples` (no change needed)
+- **Sage.slnx:** Updated project reference from `Sample.Examples.csproj` → `Sage.Examples.csproj`
+
+## Rationale
+
+The previous rename (to Sample.Examples) was inconsistent with the established naming pattern where project files match the assembly name prefix. The main library is `Sage.csproj` producing `Highpoint.Sage.dll`, benchmarks are `Sage.Benchmarks.csproj`, so examples should be `Sage.Examples.csproj`.
+
+## Verification
+
+- `dotnet build Sage.slnx` → 0 errors
+- `dotnet test tests\SageTestLib\SageTestLib.csproj` → 319/319 passing
+
+## Notes
+
+- Only the project file name and AssemblyName changed
+- RootNamespace remains `Highpoint.Sage.Examples` as intended
+- The containing folder `Sage_SampleCode` was not renamed (Stuart's guidance)
+- Git history preserved via `git mv`
+
+
+---
+
+# Test Project Rename: SageTestLib → Sage.Tests
+
+**Date:** 2026-07-16  
+**Author:** Parker  
+**Status:** Complete  
+
+## Context
+
+The test project was named `SageTestLib.csproj` which didn't follow the established project naming convention used across the solution. Additionally, several test files used inconsistent namespace patterns (`SageTestLib`, `PFCDemoMaterial`, `SchedulerDemoMaterial`) instead of following the `Highpoint.Sage.Tests.*` hierarchy.
+
+## Decision
+
+Rename the test project to `Sage.Tests.csproj` to align with the naming pattern established by:
+- `Sage.csproj` (main library)
+- `Sage.Benchmarks.csproj` (benchmarks)
+- `Sage.Examples.csproj` (samples)
+
+Standardize all test file namespaces to use the `Highpoint.Sage.Tests.*` pattern, with sub-namespaces matching the modules being tested.
+
+## Implementation
+
+### Project Rename
+- Renamed `tests\SageTestLib\SageTestLib.csproj` → `tests\SageTestLib\Sage.Tests.csproj` using `git mv`
+- Set `AssemblyName = Sage.Tests` (DLL output name)
+- Set `RootNamespace = Highpoint.Sage.Tests` (default namespace for new files)
+- Updated references in `Sage.slnx` and `TestDriver.csproj`
+
+### Namespace Standardization
+
+**8 files with non-standard namespaces updated:**
+
+1. **Scheduling tests** (3 files):
+   - `ProtoActions.cs`: `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+   - `TestCyclicalMVTTracker.cs`: `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+   - `TestTasks2.cs`: `SchedulerDemoMaterial` → `Highpoint.Sage.Tests.Scheduling`
+
+2. **PFC tests** (2 files):
+   - `TestPfcAnalyst.cs`: `PFCDemoMaterial` → `Highpoint.Sage.Tests.Graphs.PFC`
+   - `TestPfcRepository.cs`: `SageTestLib` → `Highpoint.Sage.Tests.Graphs.PFC`
+
+3. **Utility tests** (2 files):
+   - `TestEventedList.cs`: `SageTestLib` → `Highpoint.Sage.Tests.Utility`
+   - `TestHeap.cs`: `SageTestLib` → `Highpoint.Sage.Tests.Utility`
+
+4. **Mathematics tests** (1 file):
+   - `TestRationalizer.cs`: `SageTestLib` → `Highpoint.Sage.Tests.Mathematics`
+
+### Cross-Reference Updates
+
+- **TestPfcAnalyst.cs**: Updated using alias from `using Pfcs = SageTestLib.TestPfcRepository;` to `using Pfcs = Highpoint.Sage.Tests.Graphs.PFC.TestPfcRepository;`
+- **TestDriver/Driver.cs**: Updated 7 fully-qualified type references from old namespaces to new namespaces
+
+## Rationale
+
+### Namespace Mapping Strategy
+
+Each test file's namespace was chosen based on what it tests:
+- Tests for `Highpoint.Sage.Utility.*` → `Highpoint.Sage.Tests.Utility`
+- Tests for `Highpoint.Sage.Mathematics.*` → `Highpoint.Sage.Tests.Mathematics`
+- Tests for `Highpoint.Sage.Graphs.PFC.*` → `Highpoint.Sage.Tests.Graphs.PFC`
+- Scheduling-related tests → `Highpoint.Sage.Tests.Scheduling`
+
+This creates a clear parallel structure between source and test namespaces.
+
+### AssemblyName vs RootNamespace
+
+- `AssemblyName = Sage.Tests` (short, DLL name)
+- `RootNamespace = Highpoint.Sage.Tests` (full, default namespace)
+
+This pattern matches the main library:
+- `AssemblyName = Highpoint.Sage` (full company prefix for DLL)
+- `RootNamespace = Highpoint.Sage` (matches)
+
+And the other projects:
+- Benchmarks: `AssemblyName = Sage.Benchmarks`, `RootNamespace = Highpoint.Sage.Benchmarks`
+- Examples: `AssemblyName = Sage.Examples`, `RootNamespace = Highpoint.Sage.Examples`
+
+The key insight: **AssemblyName and RootNamespace don't have to match**. AssemblyName controls the output DLL name, while RootNamespace controls default namespace for new files.
+
+## Verification
+
+- **Build:** `dotnet build Sage.slnx` — 0 errors
+- **Tests:** `dotnet test Sage.Tests.csproj` — 319/319 passing (0 failures)
+- **Git history:** Preserved via `git mv`
+
+## Impact
+
+- ✅ All test files now follow consistent namespace conventions
+- ✅ Project naming consistent across the solution
+- ✅ No breaking changes (all tests pass)
+- ✅ Git history preserved for renamed project file
+
+
+---
+
 # Decisions — Sage DES Engine
 
 Collective technical and architectural decisions for the Sage discrete event simulation library (feature/dotnet10 branch).
@@ -2065,4 +2228,5 @@ The samples project needed to be renamed to follow team naming conventions and a
 ## Alternatives Considered
 
 None. This was a directed refactoring task.
+
 
