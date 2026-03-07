@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <AssemblyName>Sage</AssemblyName>
+    <RootNamespace>Highpoint.Sage</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>

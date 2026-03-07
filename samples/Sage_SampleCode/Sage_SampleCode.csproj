@@ -7,6 +7,6 @@
     <WarningsAsErrors>$(WarningsAsErrors);CA1307;CA1309;CA1310</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sage\Sage4.csproj" />
+    <ProjectReference Include="..\..\src\Sage\Sage.csproj" />
   </ItemGroup>
 </Project>

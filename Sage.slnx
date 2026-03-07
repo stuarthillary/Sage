@@ -2,7 +2,7 @@
   <Folder Name="/License/">
     <File Path="_LICENSE.txt" />
   </Folder>
-  <Project Path="src\Sage\Sage4.csproj" />
+  <Project Path="src\Sage\Sage.csproj" />
   <Project Path="benchmarks\SageBenchmarks\SageBenchmarks.csproj" />
   <Project Path="tests\TestDriver\TestDriver.csproj" />
   <Project Path="tests\SageTestLib\SageTestLib.csproj" />

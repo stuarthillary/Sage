@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Sage\Sage4.csproj" />
+    <ProjectReference Include="..\..\src\Sage\Sage.csproj" />
   </ItemGroup>
 
 </Project>
