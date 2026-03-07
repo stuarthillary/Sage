@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -17,13 +16,13 @@ namespace Highpoint.Sage.ItemBased.Queues
     {
 
         #region Member Variables
-        private System.Collections.Generic.Queue<object> _queue;
-        private SimpleInputPort _input;
-        private SimpleOutputPort _output;
+        private System.Collections.Generic.Queue<object> _queue = null!; // Set in Initialize().
+        private SimpleInputPort _input = null!; // Set in Initialize().
+        private SimpleOutputPort _output = null!; // Set in Initialize().
         private int _max;
-        private IModel _model;
-        private string _name = String.Empty;
-        private string _description = String.Empty;
+        private IModel _model = null!; // Set in InitializeIdentity().
+        private string _name = null!; // Set in InitializeIdentity().
+        private string _description = null!; // Set in InitializeIdentity().
         private Guid _guid = Guid.Empty;
         #endregion Member Variables
 
@@ -107,15 +106,17 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// <param name="guid">The GUID of this queue.</param>
         /// <param name="max">The maximum number of items that can be held in this queue.</param>
         [Initializer(InitializationType.PreRun, "_Initialize")]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "max", RefType.Owned, typeof(int), "The largest number of objects the queue can hold.")]
             int max)
         {
 
-            InitializeIdentity(model, name, description, guid);
+            InitializeIdentity(model, name, description ?? string.Empty, guid);
 
             IMOHelper.RegisterWithModel(this);
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, max);
+            InitializationManager? initManager = model.GetService<InitializationManager>();
+            ArgumentNullException.ThrowIfNull(initManager);
+            initManager.AddInitializationTask(_Initialize, max);
         }
 
 
@@ -165,9 +166,8 @@ namespace Highpoint.Sage.ItemBased.Queues
             if (data != null)
             {
                 _queue.Enqueue(data);
-                if (ObjectEnqueued != null)
-                    ObjectEnqueued(this, data);
-                LevelChangedEvent(Count - 1, Count, this);
+                ObjectEnqueued?.Invoke(this, data);
+                LevelChangedEvent?.Invoke(Count - 1, Count, this);
                 _output.NotifyDataAvailable();
             }
             return true;
@@ -181,24 +181,23 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// <param name="queue">The queue on which the change occurred.</param>
         public void OnQueueLevelChanged(int previous, int current, IQueue queue)
         {
-            if (current == 0 && QueueEmptyEvent != null)
-                QueueEmptyEvent(this);
-            if (current == _max && QueueFullEvent != null)
-                QueueFullEvent(this);
+            if (current == 0)
+                QueueEmptyEvent?.Invoke(this);
+            if (current == _max)
+                QueueFullEvent?.Invoke(this);
         }
 
         private void OnOutputPortDataAccepted(object data, IPort where)
         {
-            if (ObjectDequeued != null)
-                ObjectDequeued(this, data);
+            ObjectDequeued?.Invoke(this, data);
         }
 
-        private object ProvideData(IOutputPort op, object selector)
+        private object? ProvideData(IOutputPort op, object selector)
         {
             if (_queue.Count > 0)
             {
                 object data = _queue.Dequeue();
-                LevelChangedEvent(Count + 1, Count, this);
+                LevelChangedEvent?.Invoke(Count + 1, Count, this);
                 // Commented out the following because this functionality is now provided
                 // (as it was before, also) through OnPortDataAccepted. Since the Queue
                 // functionality assumes that if ProvideData is called, the data will be
@@ -212,7 +211,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             }
         }
 
-        private object PeekData(IOutputPort op, object selector)
+        private object? PeekData(IOutputPort op, object selector)
         {
             if (_queue.Count > 0)
             {
@@ -238,11 +237,11 @@ namespace Highpoint.Sage.ItemBased.Queues
             }
         }
 
-        public event QueueMilestoneEvent QueueFullEvent;
-        public event QueueMilestoneEvent QueueEmptyEvent;
-        public event QueueLevelChangeEvent LevelChangedEvent;
-        public event QueueOccupancyEvent ObjectEnqueued;
-        public event QueueOccupancyEvent ObjectDequeued;
+        public event QueueMilestoneEvent? QueueFullEvent;
+        public event QueueMilestoneEvent? QueueEmptyEvent;
+        public event QueueLevelChangeEvent? LevelChangedEvent;
+        public event QueueOccupancyEvent? ObjectEnqueued;
+        public event QueueOccupancyEvent? ObjectDequeued;
 
         #region IPortOwner Implementation
         /// <summary>
@@ -263,7 +262,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -274,7 +273,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -324,7 +323,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// The model to which this Queue belongs.
         /// </summary>
         /// <value>The Queue's description.</value>
-        public IModel Model
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -372,9 +371,9 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// <param name="name">The Queue's new name value.</param>
         /// <param name="description">The Queue's new description value.</param>
         /// <param name="guid">The Queue's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

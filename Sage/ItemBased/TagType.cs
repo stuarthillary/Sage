@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -48,6 +47,7 @@ namespace Highpoint.Sage.ItemBased
         /// <param name="values">The values.</param>
         public TagType(string typeName, bool extensible, params string[] values)
         {
+            _typeName = typeName;
             _values = new List<string>(values);
             _constrained = true;
             _extensible = extensible;
@@ -71,7 +71,7 @@ namespace Highpoint.Sage.ItemBased
         /// Gets the value candidates list for this tag type. If the tag type is unconstrained, it returns null.
         /// </summary>
         /// <value>The value candidates.</value>
-        public ReadOnlyCollection<string> ValueCandidates
+        public ReadOnlyCollection<string>? ValueCandidates
         {
             get
             {
@@ -141,7 +141,7 @@ namespace Highpoint.Sage.ItemBased
         {
             if (isConstrained)
             {
-                if (!ValueCandidates.Contains(initialValue))
+                if (!ValueCandidates!.Contains(initialValue))
                 {
                     if (isExtensible)
                     {

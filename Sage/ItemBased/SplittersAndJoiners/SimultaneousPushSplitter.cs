@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -27,16 +26,20 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
             return new DataArrivalHandler(OnDataArrived);
         }
 
-        protected override DataProvisionHandler GetDataProvisionHandler(int i)
+        protected override DataProvisionHandler? GetDataProvisionHandler(int i)
         {
             return null;
         }
-        protected override DataProvisionHandler GetPeekHandler(int i)
+        protected override DataProvisionHandler? GetPeekHandler(int i)
         {
             return null;
         }
-        protected bool OnDataArrived(object data, IInputPort ip)
+        protected bool OnDataArrived(object? data, IInputPort ip)
         {
+            if (data == null)
+            {
+                return false;
+            }
             foreach (SimpleOutputPort op in m_outputs)
                 op.OwnerPut(data);
             return true;

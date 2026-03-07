@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.ItemBased
@@ -11,6 +10,6 @@ namespace Highpoint.Sage.ItemBased
         /// <summary>
         /// Fired when a PulseSource delivers its 'Do It!' command.
         /// </summary>
-        event PulseEvent PulseEvent;
+        event PulseEvent? PulseEvent;
     }
 }

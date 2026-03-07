@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Connectors;
@@ -26,7 +25,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             }
         }
         private readonly SimpleInputPort _input;
-        private readonly ISelectionStrategy _selStrategy = null;
+        private readonly ISelectionStrategy _selStrategy;
         
 
         public MultiQueueHead(IModel model, string name, Guid guid, ArrayList queues, ISelectionStrategy selStrategy)
@@ -41,20 +40,25 @@ namespace Highpoint.Sage.ItemBased.Queues
             {
                 string portName = name + "#" + i;
                 Outputs[i] = new SimpleOutputPort(model, portName, Guid.NewGuid(), this, new DataProvisionHandler(OnDataPullOut), null);
-                ConnectorFactory.Connect(Outputs[i], ((Queue)queues[i]).Input);
+                Queue queue = queues[i] as Queue ?? throw new ApplicationException("Queue selection list contained a non-queue entry.");
+                ConnectorFactory.Connect(Outputs[i], queue.Input);
             }
         }
 
-        private object OnDataPullOut(IOutputPort op, object selector)
+        private object? OnDataPullOut(IOutputPort op, object selector)
         {
             return _input.OwnerTake(selector);
         } // Forces an upstream read.
-        private bool OnDataPushIn(object data, IInputPort ip)
+        private bool OnDataPushIn(object? data, IInputPort ip)
         {
             if (data != null)
             {
                 Queue queue = (Queue)_selStrategy.GetNext(null);
-                IOutputPort outPort = (IOutputPort)queue.Input.Peer;
+                IOutputPort? outPort = queue.Input.Peer as IOutputPort;
+                if (outPort == null)
+                {
+                    return false;
+                }
                 //_Debug.WriteLine("Arbitrarily putting data to " + queue.ToString());
                 return ((SimpleOutputPort)outPort).OwnerPut(data); // Cast is okay - it's my port.
             }
@@ -115,7 +119,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -126,7 +130,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }

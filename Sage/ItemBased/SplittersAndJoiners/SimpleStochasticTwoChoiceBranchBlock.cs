@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Randoms;
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
             _percentageOut0 = percentageOut0;
             _randomChannel = model.RandomServer.GetRandomChannel();
         }
-        protected override IPort ChoosePort(object dataObject)
+        protected override IPort? ChoosePort(object? dataObject)
         {
             if (_randomChannel.NextDouble() <= _percentageOut0)
                 return outputs[0];

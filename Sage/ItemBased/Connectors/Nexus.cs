@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Connectors;
@@ -23,7 +22,7 @@ namespace Highpoint.Sage.ItemBased
     {
 
         #region Private Fields
-        private IPortSelector _portSelector;
+        private IPortSelector? _portSelector;
         private readonly DataProvisionHandler _cantTakeOrPeekFromNexus;
         private readonly DataArrivalHandler _canAlwaysAcceptData;
         private int _inCount = 0;
@@ -32,7 +31,7 @@ namespace Highpoint.Sage.ItemBased
 
         public Nexus(IModel model, string name, Guid guid) : this(model, name, guid, null) { }
 
-        public Nexus(IModel model, string name, Guid guid, IPortSelector portSelector)
+        public Nexus(IModel model, string name, Guid guid, IPortSelector? portSelector)
         {
             InitializeIdentity(model, name, null, guid);
 
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.ItemBased
         /// it will emerge.
         /// </summary>
         /// <value>The port selector.</value>
-		public IPortSelector PortSelector
+ 		public IPortSelector? PortSelector
         {
             get
             {
@@ -69,7 +68,7 @@ namespace Highpoint.Sage.ItemBased
         /// <param name="port">The port.</param>
 		public void Bind(IPort port)
         {
-            IPort myNewPort = null;
+            IPort? myNewPort = null;
             if (port is IInputPort)
             {
                 myNewPort = new SimpleOutputPort(_model, "Output" + (_outCount++), Guid.NewGuid(), this, _cantTakeOrPeekFromNexus, _cantTakeOrPeekFromNexus);
@@ -84,14 +83,14 @@ namespace Highpoint.Sage.ItemBased
                 throw new ApplicationException("Unknown port type " + port.GetType().Name + " encountered.");
             }
             // m_ports.AddPort(myNewPort); <-- Done in port's ctor.
-            ConnectorFactory.Connect(port, myNewPort);
+            ConnectorFactory.Connect(port, myNewPort!); // Port was assigned based on input type.
         }
 
 
         internal virtual IOutputPort SelectNextPort(object serviceObject)
         {
             // TODO: Make this an extensible set of strategies.
-            IOutputPort nextPort = null;
+            IOutputPort? nextPort = null;
             if (_portSelector != null)
                 nextPort = (IOutputPort)_portSelector.SelectPort(_ports);
             if (nextPort == null)
@@ -111,7 +110,7 @@ namespace Highpoint.Sage.ItemBased
             return true;
         }
 
-        private void OnPortDataAccepted(object serviceObject, IPort port)
+        private void OnPortDataAccepted(object? serviceObject, IPort port)
         {
             if (serviceObject == null)
             {
@@ -123,7 +122,7 @@ namespace Highpoint.Sage.ItemBased
             }
         }
 
-        private static object CantTakeOrPeekFromNexus(IOutputPort port, object selector)
+        private static object? CantTakeOrPeekFromNexus(IOutputPort port, object selector)
         {
             return null;
         }
@@ -147,7 +146,7 @@ namespace Highpoint.Sage.ItemBased
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -158,7 +157,7 @@ namespace Highpoint.Sage.ItemBased
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -203,7 +202,7 @@ namespace Highpoint.Sage.ItemBased
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             [DebuggerStepThrough]
@@ -221,8 +220,8 @@ namespace Highpoint.Sage.ItemBased
                 return _guid;
             }
         }
-        private IModel _model;
-        public IModel Model
+        private IModel _model = null!; // Set in InitializeIdentity().
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -230,7 +229,7 @@ namespace Highpoint.Sage.ItemBased
                 return _model;
             }
         }
-        private string _description;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The description for this object. Typically used for human-readable representations.
         /// </summary>
@@ -244,9 +243,9 @@ namespace Highpoint.Sage.ItemBased
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 

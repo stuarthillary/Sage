@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -15,11 +14,11 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// Permits a caller to retrieve a port by its guid.
         /// </summary>
-        IPort this[Guid key] { get; }
+        IPort? this[Guid key] { get; }
         /// <summary>
         /// Permits a caller to retrieve a port by its name.
         /// </summary>
-        IPort this[string name] { get; }
+        IPort? this[string name] { get; }
         /// <summary>
         /// Gets the <see cref="Highpoint.Sage.ItemBased.Ports.IPort"/> with the specified index, i.
         /// </summary>
@@ -47,12 +46,12 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// Fired when a port has been added to this IPortSet.
         /// </summary>
-        event PortEvent PortAdded;
+        event PortEvent? PortAdded;
 
         /// <summary>
         /// Fired when a port has been removed from this IPortSet.
         /// </summary>
-        event PortEvent PortRemoved;
+        event PortEvent? PortRemoved;
 
         /// <summary>
         /// Returns a collection of the keys that belong to ports known to this PortSet.

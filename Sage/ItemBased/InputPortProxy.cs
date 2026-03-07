@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Connectors;
@@ -19,7 +18,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         #region Private Fields
         private readonly IInputPort _ward;
         private readonly IPortOwner _owner;
-        private IConnector _externalConnector;
+        private IConnector? _externalConnector;
         private readonly IConnector _internalConnector;
         private readonly IOutputPort _wardPartner;
         private readonly PortSet _portSet;
@@ -35,9 +34,9 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="guid">The GUID of the new <see cref="T:InputPortProxy"/>.</param>
         /// <param name="owner">The owner of this proxy port.</param>
         /// <param name="ward">The ward - the internal port which this proxy port will represent.</param>
-        public InputPortProxy(IModel model, string name, string description, Guid guid, IPortOwner owner, IInputPort ward)
+        public InputPortProxy(IModel model, string name, string? description, Guid guid, IPortOwner owner, IInputPort ward)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
 
             _portSet = new PortSet();
             _internalPortOwner = new PortOwnerProxy(name + ".Internal");
@@ -50,7 +49,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             IMOHelper.RegisterWithModel(this);
         }
 
-        private object takeHandler(IOutputPort from, object selector)
+        private object? takeHandler(IOutputPort from, object selector)
         {
             if (_externalConnector != null)
             {
@@ -62,7 +61,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
         }
 
-        private object peekHandler(IOutputPort from, object selector)
+        private object? peekHandler(IOutputPort from, object selector)
         {
             if (_externalConnector != null)
             {
@@ -113,7 +112,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// IPortOwner that owns this port.
         /// </summary>
         /// <value>The new dataArrivalHandler.</value>
-        public DataArrivalHandler PutHandler
+        public DataArrivalHandler? PutHandler
         {
             get
             {
@@ -133,7 +132,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// This property represents the connector object that this port is associated with.
         /// </summary>
         /// <value></value>
-        public IConnector Connector
+        public IConnector? Connector
         {
             get
             {
@@ -157,7 +156,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// This property contains the owner of the port.
         /// </summary>
         /// <value></value>
-        public IPortOwner Owner
+        public IPortOwner? Owner
         {
             get
             {
@@ -183,11 +182,11 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// other end of a connected connector.
         /// </summary>
         /// <value></value>
-        public IPort Peer
+        public IPort? Peer
         {
             get
             {
-                return Connector.Upstream;
+                return Connector?.Upstream;
             }
         }
 
@@ -200,7 +199,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <returns>
         /// The default out-of-band data from this port.
         /// </returns>
-        public object GetOutOfBandData()
+        public object? GetOutOfBandData()
         {
             return _ward.GetOutOfBandData();
         }
@@ -212,7 +211,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="selector">The key of the sought metadata.</param>
         /// <returns>The desired out-of-band metadata.</returns>
-        public object GetOutOfBandData(object selector)
+        public object? GetOutOfBandData(object selector)
         {
             return _ward.GetOutOfBandData(selector);
         }
@@ -233,10 +232,14 @@ namespace Highpoint.Sage.ItemBased.Ports
 
         public void DetachHandlers()
         {
-            IInputPort iip = _internalConnector.Downstream;
-            IPortOwner ipo = iip.Owner;
+            IInputPort? iip = _internalConnector.Downstream;
+            if (iip == null)
+            {
+                return;
+            }
+            IPortOwner? ipo = iip.Owner;
             _internalConnector.Disconnect();
-            ipo.RemovePort(iip);
+            ipo?.RemovePort(iip);
             iip.DetachHandlers();
         }
 
@@ -259,86 +262,142 @@ namespace Highpoint.Sage.ItemBased.Ports
 
         #region IPortEvents Members
 
-        public event PortDataEvent PortDataPresented
+        public event PortDataEvent? PortDataPresented
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.PortDataPresented += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.PortDataPresented -= value;
             }
         }
 
-        public event PortDataEvent PortDataAccepted
+        public event PortDataEvent? PortDataAccepted
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.PortDataAccepted += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.PortDataAccepted -= value;
             }
         }
 
-        public event PortDataEvent PortDataRejected
+        public event PortDataEvent? PortDataRejected
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.PortDataRejected += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.PortDataRejected -= value;
             }
         }
 
-        public event PortEvent BeforeConnectionMade
+        public event PortEvent? BeforeConnectionMade
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.BeforeConnectionMade += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.BeforeConnectionMade -= value;
             }
         }
 
-        public event PortEvent AfterConnectionMade
+        public event PortEvent? AfterConnectionMade
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.AfterConnectionMade += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.AfterConnectionMade -= value;
             }
         }
 
-        public event PortEvent BeforeConnectionBroken
+        public event PortEvent? BeforeConnectionBroken
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.BeforeConnectionBroken += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.BeforeConnectionBroken -= value;
             }
         }
 
-        public event PortEvent AfterConnectionBroken
+        public event PortEvent? AfterConnectionBroken
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.AfterConnectionBroken += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _ward.AfterConnectionBroken -= value;
             }
         }
@@ -347,16 +406,16 @@ namespace Highpoint.Sage.ItemBased.Ports
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         private Guid _guid = Guid.Empty;
-        private IModel _model;
-        private string _description = null;
+        private IModel _model = null!; // Set in InitializeIdentity().
+        private string _description = null!; // Set in InitializeIdentity().
 
         /// <summary>
         /// The IModel to which this object belongs.
         /// </summary>
         /// <value>The object's Model.</value>
-        public IModel Model
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -382,14 +441,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// The description for this object. Typically used for human-readable representations.
         /// </summary>
         /// <value>The object's description.</value>
-        public string Description
-        {
-            [DebuggerStepThrough]
-            get
-            {
-                return (_description ?? "No description for " + _name);
-            }
-        }
+        public string Description => (_description ?? "No description for " + _name);
 
         /// <summary>
         /// The Guid for this object. Typically required to be unique in a pan-model context.
@@ -411,9 +463,9 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

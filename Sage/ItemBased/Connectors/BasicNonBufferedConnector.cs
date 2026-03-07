@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -15,8 +14,8 @@ namespace Highpoint.Sage.ItemBased.Connectors
     {
 
         #region Private Fields
-        private IOutputPort _upstream;
-        private IInputPort _downstream;
+        private IOutputPort? _upstream;
+        private IInputPort? _downstream;
         private bool _inUse;
         #endregion
 
@@ -29,9 +28,9 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// <param name="guid">The GUID.</param>
         /// <param name="input">The input.</param>
         /// <param name="output">The output.</param>
-        public BasicNonBufferedConnector(IModel model, string name, string description, Guid guid, IPort input, IPort output)
+        public BasicNonBufferedConnector(IModel model, string name, string? description, Guid guid, IPort input, IPort output)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
             Connect(input, output);
             IMOHelper.RegisterWithModel(this);
             _inUse = false;
@@ -51,14 +50,14 @@ namespace Highpoint.Sage.ItemBased.Connectors
             _inUse = false;
         }
 
-        public IInputPort Downstream
+        public IInputPort? Downstream
         {
             get
             {
                 return _downstream;
             }
         }
-        public IOutputPort Upstream
+        public IOutputPort? Upstream
         {
             get
             {
@@ -99,7 +98,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// </summary>
         public void NotifyDataAvailable()
         {
-            _downstream.NotifyDataAvailable();
+            _downstream!.NotifyDataAvailable(); // Connector is expected to be attached.
         }
 
         internal void Attach(IInputPort input, IOutputPort output)
@@ -124,42 +123,42 @@ namespace Highpoint.Sage.ItemBased.Connectors
             _downstream = null;
         }
 
-        public object GetOutOfBandData()
+        public object? GetOutOfBandData()
         {
-            return _downstream.GetOutOfBandData();
+            return _downstream!.GetOutOfBandData(); // Connector is expected to be attached.
         }
-        public object GetOutOfBandData(object key)
+        public object? GetOutOfBandData(object key)
         {
-            return _downstream.GetOutOfBandData(key);
+            return _downstream!.GetOutOfBandData(key); // Connector is expected to be attached.
         }
         public bool IsPeekable
         {
             get
             {
-                return _upstream.IsPeekable;
+                return _upstream!.IsPeekable; // Connector is expected to be attached.
             }
         }
-        public object Peek(object selector)
+        public object? Peek(object selector)
         {
-            return _upstream.Peek(selector);
+            return _upstream!.Peek(selector); // Connector is expected to be attached.
         }
-        public object Take(object selector)
+        public object? Take(object selector)
         {
-            return _upstream.Take(selector);
+            return _upstream!.Take(selector); // Connector is expected to be attached.
         }
-        public bool Put(object data)
+        public bool Put(object? data)
         {
-            return _downstream.Put(data);
+            return _downstream!.Put(data!); // Connector is expected to be attached.
         }
 
         #region Member Variables
 
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         private string _name = String.Empty;
-        private string _description = String.Empty;
+        private string _description = null!; // Set in InitializeIdentity().
         private Guid _guid = Guid.Empty;
-        private IPort _input = null;
-        private IPort _output = null;
+        private IPort? _input = null;
+        private IPort? _output = null;
         #endregion Member Variables
 
         #region Initialization
@@ -168,7 +167,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         //TODO: Make sure that what happens in any other ctors also happens in the Initialize method.
 
         [Initializer(InitializationType.PreRun, "_Initialize")]
-        public void Initialize(IModel model, string name, string description, Guid guid,
+        public void Initialize(IModel model, string name, string? description, Guid guid,
             [InitializerArg(0, "inputPortOwner", RefType.Owned, typeof(IPortOwner), "The upstream port owner attached to this connector")]
             Guid inputPortOwner,
            [InitializerArg(1, "inputPortName", RefType.Owned, typeof(string), "The name of the port on the upstream port owner")]
@@ -186,7 +185,9 @@ namespace Highpoint.Sage.ItemBased.Connectors
 
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(new Initializer(_Initialize), inputPortOwner, inputPortName, outputPortOwner, outputPortName);
+            InitializationManager? initManager = model.GetService<InitializationManager>();
+            ArgumentNullException.ThrowIfNull(initManager);
+            initManager.AddInitializationTask(new Initializer(_Initialize), inputPortOwner, inputPortName, outputPortOwner, outputPortName);
         }
 
         /// <summary>
@@ -197,10 +198,10 @@ namespace Highpoint.Sage.ItemBased.Connectors
         public void _Initialize(IModel model, object[] p)
         {
             IPortOwner ipo = (IPortOwner)model.ModelObjects[p[0]];
-            _input = ipo.Ports[(string)p[1]];
+            _input = ipo.Ports[(string)p[1]] ?? throw new ApplicationException("Input port not found.");
             IPortOwner opo = (IPortOwner)model.ModelObjects[p[2]];
-            _output = ipo.Ports[(string)p[3]];
-            Connect(_input, _output);
+            _output = ipo.Ports[(string)p[3]] ?? throw new ApplicationException("Output port not found.");
+            Connect(_input!, _output!); // Ports are validated above.
         }
 
 
@@ -212,7 +213,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// The model to which this BasicNonBufferedConnector belongs.
         /// </summary>
         /// <value>The BasicNonBufferedConnector's description.</value>
-        public IModel Model
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -257,9 +258,9 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// <param name="name">The BasicNonBufferedConnector's new name value.</param>
         /// <param name="description">The BasicNonBufferedConnector's new description value.</param>
         /// <param name="guid">The BasicNonBufferedConnector's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion
@@ -278,10 +279,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
                 if (_inUse != value)
                 {
                     _inUse = value;
-                    if (PropertyChanged != null)
-                    {
-                        PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("InUse"));
-                    }
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs("InUse"));
                 }
             }
         }
@@ -290,7 +288,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
 
         #region INotifyPropertyChanged Members
 
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
 
         #endregion
 
@@ -302,28 +300,44 @@ namespace Highpoint.Sage.ItemBased.Connectors
         public void LoadFromXElement(XElement self, DeserializationContext deserializationContext)
         {
 
-            IModel model = null;
-            string connectorName = self.Attribute("connectorName").Value;
-            string connectorDesc = self.Attribute("connectorDesc").Value;
-            Guid connectorGuidWas = XmlConvert.ToGuid(self.Attribute("connectorGuid").Value);
+            IModel model = deserializationContext.Model;
+            XAttribute? connectorNameAttr = self.Attribute("connectorName");
+            ArgumentNullException.ThrowIfNull(connectorNameAttr);
+            string connectorName = connectorNameAttr.Value;
+            XAttribute? connectorDescAttr = self.Attribute("connectorDesc");
+            ArgumentNullException.ThrowIfNull(connectorDescAttr);
+            string connectorDesc = connectorDescAttr.Value;
+            XAttribute? connectorGuidAttr = self.Attribute("connectorGuid");
+            ArgumentNullException.ThrowIfNull(connectorGuidAttr);
+            Guid connectorGuidWas = XmlConvert.ToGuid(connectorGuidAttr.Value);
             Guid connectorGuidIs = Guid.NewGuid();
             deserializationContext.SetNewGuidForOldGuid(connectorGuidWas, connectorGuidIs);
             IMOHelper.Initialize(ref _model, model, ref _name, connectorName, ref _description, connectorDesc, ref _guid, connectorGuidIs);
             IMOHelper.RegisterWithModel(this);
 
-            XElement source = self.Element("Source");
-            Guid upstreamOwnerGuidWas = XmlConvert.ToGuid(source.Attribute("guid").Value);
+            XElement? source = self.Element("Source");
+            ArgumentNullException.ThrowIfNull(source);
+            XAttribute? sourceGuidAttr = source.Attribute("guid");
+            ArgumentNullException.ThrowIfNull(sourceGuidAttr);
+            Guid upstreamOwnerGuidWas = XmlConvert.ToGuid(sourceGuidAttr.Value);
             Guid upstreamOwnerGuidIs = Guid.NewGuid();
-            string upstreamPortName = source.Attribute("name").Value;
+            XAttribute? sourceNameAttr = source.Attribute("name");
+            ArgumentNullException.ThrowIfNull(sourceNameAttr);
+            string upstreamPortName = sourceNameAttr.Value;
             IPortOwner usmb = (IPortOwner)deserializationContext.GetModelObjectThatHad(upstreamOwnerGuidWas);
-            IOutputPort upstreamPort = (IOutputPort)usmb.Ports[upstreamPortName];
+            IOutputPort upstreamPort = usmb.Ports[upstreamPortName] as IOutputPort ?? throw new ApplicationException("Upstream port not found.");
 
-            XElement destination = self.Element("Destination");
-            Guid downstreamOwnerGuidWas = XmlConvert.ToGuid(destination.Attribute("guid").Value);
+            XElement? destination = self.Element("Destination");
+            ArgumentNullException.ThrowIfNull(destination);
+            XAttribute? destGuidAttr = destination.Attribute("guid");
+            ArgumentNullException.ThrowIfNull(destGuidAttr);
+            Guid downstreamOwnerGuidWas = XmlConvert.ToGuid(destGuidAttr.Value);
             Guid downstreamOwnerGuidIs = Guid.NewGuid();
-            string downstreamPortName = destination.Attribute("name").Value;
+            XAttribute? destNameAttr = destination.Attribute("name");
+            ArgumentNullException.ThrowIfNull(destNameAttr);
+            string downstreamPortName = destNameAttr.Value;
             IPortOwner dsmb = (IPortOwner)deserializationContext.GetModelObjectThatHad(downstreamOwnerGuidWas);
-            IInputPort downstreamPort = (IInputPort)dsmb.Ports[downstreamPortName];
+            IInputPort downstreamPort = dsmb.Ports[downstreamPortName] as IInputPort ?? throw new ApplicationException("Downstream port not found.");
 
             Connect(upstreamPort, downstreamPort);
         }
@@ -331,11 +345,13 @@ namespace Highpoint.Sage.ItemBased.Connectors
         public XElement AsXElement(string name)
         {
 
-            Guid upstreamOwnerGuid = Upstream.Owner != null ? Upstream.Owner is IModelObject ? ((IModelObject)Upstream.Owner).Guid : Guid.Empty : Guid.Empty;
-            string upstreamPortName = Upstream != null ? Upstream.Name : string.Empty;
+            IOutputPort? upstreamPort = Upstream;
+            Guid upstreamOwnerGuid = upstreamPort?.Owner is IModelObject upstreamOwner ? upstreamOwner.Guid : Guid.Empty;
+            string upstreamPortName = upstreamPort?.Name ?? string.Empty;
 
-            Guid downstreamOwnerGuid = Downstream.Owner != null ? Downstream.Owner is IModelObject ? ((IModelObject)Downstream.Owner).Guid : Guid.Empty : Guid.Empty;
-            string downstreamPortName = Downstream != null ? Downstream.Name : string.Empty;
+            IInputPort? downstreamPort = Downstream;
+            Guid downstreamOwnerGuid = downstreamPort?.Owner is IModelObject downstreamOwner ? downstreamOwner.Guid : Guid.Empty;
+            string downstreamPortName = downstreamPort?.Name ?? string.Empty;
 
             return new XElement(name,
                 new XAttribute("connectorName", Name),

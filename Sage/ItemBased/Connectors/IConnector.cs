@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -13,7 +12,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// Gets the upstream port.
         /// </summary>
         /// <value>The upstream port.</value>
-        IOutputPort Upstream
+        IOutputPort? Upstream
         {
             get;
         }
@@ -21,7 +20,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// Gets the downstream port.
         /// </summary>
         /// <value>The downstream port.</value>
-        IInputPort Downstream
+        IInputPort? Downstream
         {
             get;
         }
@@ -44,14 +43,14 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// Retrieves the default out-of-band data for this port. This data is set via an API on GenericPort.
         /// </summary>
         /// <returns>The default out-of-band data for this port.</returns>
-        object GetOutOfBandData();
+        object? GetOutOfBandData();
         /// <summary>
         /// Retrieves the out-of-band data corresponding to the provided key, for this port.
         /// This data is set via an API on GenericPort.
         /// </summary>
         /// <param name="key">The key (such as "Priority") associated with this port's out of band data.</param>
         /// <returns>The out-of-band data corresponding to the provided key.</returns>
-        object GetOutOfBandData(object key);
+        object? GetOutOfBandData(object key);
         /// <summary>
         /// Gets a value indicating whether this connector is peekable. The downstream port will call this API,
         /// resulting in a passed-through call to the upstream port, where it will declare whether it supports the
@@ -71,7 +70,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// determine which of potentially more than one available data element is
         /// to be provided to the requestor.</param>
         /// <returns>The object or item, if any, available on the upstream port. The item is left on the port.</returns>
-        object Peek(object selector);
+        object? Peek(object selector);
         /// <summary>
         /// Propagates a 'Take' operation through this connector to the upstream port.
         /// </summary>
@@ -79,13 +78,13 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// determine which of potentially more than one available data element is
         /// to be provided to the requestor.</param>
         /// <returns>The object or item, if any, available on the upstream port. The item is removed from the port.</returns>
-        object Take(object selector);
+        object? Take(object selector);
         /// <summary>
         /// Puts the specified data onto the downstream port, if possible.
         /// </summary>
         /// <param name="data">The item or data to be put to the downstream port.</param>
         /// <returns>true if the put operation was successful, otherwise (if the port was blocked), false.</returns>
-        bool Put(object data);
+        bool Put(object? data);
 
         /// <summary>
         /// Gets or sets a value indicating whether the connector is currently in use.

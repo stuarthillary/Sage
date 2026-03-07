@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.SimCore;
@@ -12,13 +11,13 @@ namespace Highpoint.Sage.ItemBased.Servers
     /// Implemented by an object wishing to receive notification of the commencement or completion
     /// of service of an object.
     /// </summary>
-    public delegate void ServiceEvent(IServer server, object serviceObject);
+    public delegate void ServiceEvent(IServer server, object? serviceObject);
 
     /// <summary>
     /// Implemented by an object wishing to participate in the decision of whether a service object
     /// can be serviced.
     /// </summary>
-    public delegate bool ServiceRequestEvent(IServer server, object serviceObject);
+    public delegate bool ServiceRequestEvent(IServer server, object? serviceObject);
 
     /// <summary>
     /// An object that implements IServer receives objects on an input port, and some time later,
@@ -69,12 +68,12 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <summary>
         /// Fired when service begins for a particular object.
         /// </summary>
-        event ServiceEvent ServiceBeginning;
+        event ServiceEvent? ServiceBeginning;
 
         /// <summary>
         /// Fired when service completes for a particular object.
         /// </summary>
-        event ServiceEvent ServiceCompleted;
+        event ServiceEvent? ServiceCompleted;
 
         //	}
         //
@@ -85,7 +84,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <summary>
         /// The periodicity of the server.
         /// </summary>
-        IPeriodicity Periodicity
+        IPeriodicity? Periodicity
         {
             get; set;
         }

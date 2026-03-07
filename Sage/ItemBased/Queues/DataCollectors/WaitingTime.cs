@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.SimCore;
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
         private readonly ArrayList _data;
         private readonly Hashtable _occupants;
         private readonly int _nBins;
-        private Histogram1D_TimeSpan _hist = null;
+        private Histogram1D_TimeSpan? _hist = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaitingTime"/> class.
@@ -47,9 +46,9 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         public void Reset()
@@ -84,15 +83,26 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
             }
         }
 
-        private void hostQueue_ObjectEnqueued(IQueue hostQueue, object serviceItem)
+        private void hostQueue_ObjectEnqueued(IQueue hostQueue, object? serviceItem)
         {
+            if (serviceItem == null)
+            {
+                return;
+            }
             _occupants.Add(serviceItem, _model.Executive.Now);
             //_Debug.WriteLine(m_model.Executive.Now + " : " + this.Name + " enqueueing " + serviceItem + ". It currently has " + hostQueue.Count + " occupants.");
         }
 
-        private void hostQueue_ObjectDequeued(IQueue hostQueue, object serviceItem)
+        private void hostQueue_ObjectDequeued(IQueue hostQueue, object? serviceItem)
         {
-            DateTime entry = (DateTime)_occupants[serviceItem];
+            if (serviceItem == null)
+            {
+                return;
+            }
+            if (_occupants[serviceItem] is not DateTime entry)
+            {
+                return;
+            }
             _occupants.Remove(serviceItem);
             TimeSpan duration = _model.Executive.Now - entry;
             //_Debug.WriteLine(m_model.Executive.Now + " : " + this.Name + " dequeueing " + serviceItem + " after " + duration + ". It currently has " + hostQueue.Count + " occupants.");
@@ -101,7 +111,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
         }
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             get
@@ -109,7 +119,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
                 return _name;
             }
         }
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// A description of this WaitingTime Histogram.
         /// </summary>
@@ -122,12 +132,12 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
 
     }

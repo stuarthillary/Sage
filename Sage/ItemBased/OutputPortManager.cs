@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -14,9 +13,9 @@ namespace Highpoint.Sage.ItemBased.Ports
 
         #region Private fields
         private readonly SimpleOutputPort _sop;
-        private object _buffer;
+        private object? _buffer;
         private bool _bufferValid;
-        private Action _valueComputeMethod;
+        private Action? _valueComputeMethod;
         private readonly List<OutputPortManager> _peers;
         #endregion
 
@@ -59,12 +58,12 @@ namespace Highpoint.Sage.ItemBased.Ports
             _sop.OwnerPut(Buffer);
         }
 
-        public object OnPeek(IOutputPort iop, object data)
+        public object? OnPeek(IOutputPort iop, object data)
         {
             return _buffer;
         }
 
-        public object OnTake(IOutputPort iop, object data)
+        public object? OnTake(IOutputPort iop, object data)
         {
             return Buffer;
         }
@@ -83,34 +82,40 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
         }
 
-        public object Buffer
+        public object? Buffer
         {
             get
             {
                 if (Diagnostics)
+                {
+                    var owner = _sop.Owner!; // Port managers always have an owner.
+                    var ownerName = owner is IHasIdentity ownerIdentity ? ownerIdentity.Name : "<unknown block>";
                     _Debug.WriteLine(
-                        $"Block {((IHasIdentity)_sop.Owner).Name}, port {_sop.Name} being asked to give its value - the buffer {(BufferValid ? "is" : "is not")} valid.");
+                        $"Block {ownerName}, port {_sop.Name} being asked to give its value - the buffer {(BufferValid ? "is" : "is not")} valid.");
+                }
                 if (!BufferValid)
                 {
                     try
                     {
-                        object oldValue = _buffer;
+                        object? oldValue = _buffer;
                         ComputeFunction();
-                        object newValue = _buffer;
+                        object? newValue = _buffer;
                         if (ValueHasChanged(oldValue, newValue))
                             PushAllBut(this);
 
                     }
                     catch (NullReferenceException nre)
                     {
-                        string ownerName = _sop.Owner as IHasIdentity != null ? (_sop.Owner as IHasIdentity).Name : "<unknown block>";
+                        var owner = _sop.Owner!; // Port managers always have an owner.
+                        string ownerName = owner as IHasIdentity != null ? ((IHasIdentity)owner).Name : "<unknown block>";
                         List<string> problemPorts = new List<string>();
-                        foreach (SimpleInputPort sip in _sop.Owner.Ports.Inputs)
+                        foreach (SimpleInputPort sip in owner.Ports.Inputs)
                         {
                             if (sip.OwnerTake(null) == null)
                             {
-                                string peerPortName = sip.Peer.Name;
-                                string peerOwnerName = sip.Peer.Owner as IHasIdentity != null ? (sip.Peer.Owner as IHasIdentity).Name : "<unknown block>";
+                                IPort? peerPort = sip.Peer;
+                                string peerPortName = peerPort?.Name ?? "<unconnected>";
+                                string peerOwnerName = peerPort?.Owner is IHasIdentity peerOwnerIdentity ? peerOwnerIdentity.Name : "<unknown block>";
                                 problemPorts.Add(string.Format("{0}, connected upstream to port \"{1}\" on block \"{2}\"", sip.Name, peerPortName, peerOwnerName));
                             }
                         }
@@ -118,13 +123,18 @@ namespace Highpoint.Sage.ItemBased.Ports
                         string msg = string.Format("The block \"{0}\" was unable to complete its compute function, probably because an upstream source was unable (or unrequested) to deliver a value in response to a pull. Suspect ports are {1}.",
                             ownerName, StringOperations.ToCommasAndAndedList(problemPorts));
 
-                        _sop.Model.AddError(new GenericModelError("Compute function failure", msg, _sop.Owner, StringOperations.ToCommasAndAndedList(problemPorts)));
+                        var model = _sop.Model!; // Model is required for output port errors.
+                        model.AddError(new GenericModelError("Compute function failure", msg, owner, StringOperations.ToCommasAndAndedList(problemPorts)));
                         throw new ApplicationException(msg, nre);
                     }
                 }
-                object retval = _buffer;
+                object? retval = _buffer;
                 if (Diagnostics)
-                    _Debug.WriteLine(string.Format("Block {0}, port {1} provided value {2}", ((IHasIdentity)_sop.Owner).Name, _sop.Name, retval));
+                {
+                    var owner = _sop.Owner!; // Port managers always have an owner.
+                    var ownerName = owner is IHasIdentity ownerIdentity ? ownerIdentity.Name : "<unknown block>";
+                    _Debug.WriteLine(string.Format("Block {0}, port {1} provided value {2}", ownerName, _sop.Name, retval));
+                }
                 switch (bufferPersistence)
                 {
                     case BufferPersistence.None:
@@ -173,7 +183,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
         }
 
-        private bool ValueHasChanged(object oldValue, object newValue)
+        private bool ValueHasChanged(object? oldValue, object? newValue)
         {
             if (oldValue == newValue)
                 return false;
@@ -181,7 +191,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 return true;
             if (newValue == null && oldValue != null)
                 return true;
-            return !oldValue.Equals(newValue);
+            return !oldValue!.Equals(newValue); // Both values are non-null here.
         }
 
         public override void ClearBuffer()

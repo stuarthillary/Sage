@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.SimCore;
@@ -8,7 +7,7 @@ using System.Collections.Generic;
 namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
 {
 
-    public delegate bool BooleanDecider(object obj);
+    public delegate bool BooleanDecider(object? obj);
 
     /// <summary>
     /// The SimpleBranchBlock takes an object off of one input port, makes a choice from among its
@@ -16,8 +15,8 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
     /// </summary>
     public abstract class SimpleBranchBlock : ISplitter, IPortOwner, IModelObject
     {
-        private PortSet _portSet;
-        protected IInputPort input;
+        private readonly PortSet _portSet;
+        protected IInputPort input = null!;
         public IInputPort Input
         {
             get
@@ -25,7 +24,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
                 return input;
             }
         }
-        protected IOutputPort[] outputs;
+        protected IOutputPort[] outputs = Array.Empty<IOutputPort>();
         public IOutputPort[] Outputs
         {
             get
@@ -56,9 +55,9 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         protected void SetUpInputPort()
@@ -71,16 +70,20 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         ///  Implemented by a method designed to respond to the arrival of data
         ///  on a port.
         /// </summary>
-        private bool OnDataArrived(object data, IInputPort port)
+        private bool OnDataArrived(object? data, IInputPort port)
         {
-            SimpleOutputPort outport = (SimpleOutputPort)ChoosePort(data);
+            if (data == null)
+            {
+                return false;
+            }
+            SimpleOutputPort? outport = ChoosePort(data) as SimpleOutputPort;
             if (outport == null)
                 return false;
             return outport.OwnerPut(data);
         }
 
         protected abstract void SetUpOutputPorts();
-        protected abstract IPort ChoosePort(object dataObject);
+        protected abstract IPort? ChoosePort(object? dataObject);
 
         #region IPortOwner Members
 
@@ -98,7 +101,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -109,7 +112,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -162,7 +165,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         #endregion
 
         #region Sample Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             get
@@ -170,7 +173,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
                 return _name;
             }
         }
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// A description of this SimpleBranchBlock.
         /// </summary>
@@ -183,12 +186,12 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
     }
 }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.ItemBased.Ports;
@@ -27,11 +26,11 @@ namespace Highpoint.Sage.ItemBased.Servers
         //public delegate IResourceRequest[] RscReqArrayGetter(object serverObject);
 
         #region >>> Private Fields <<<
-        private IInputPort _entryPort;
-        private IOutputPort _exitPort;
-        private IQueue _preQueue;
-        private IQueue _postQueue;
-        private IServer _server;
+        private IInputPort _entryPort = null!; // Set in Configure().
+        private IOutputPort _exitPort = null!; // Set in Configure().
+        private IQueue? _preQueue;
+        private IQueue? _postQueue;
+        private IServer _server = null!; // Set in Configure().
         #endregion
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="server">The inner server around which the queues will be placed.</param>
         /// <param name="preQueue">The </param>
         /// <param name="postQueue"></param>
-        public BufferedServer(IModel model, string name, Guid guid, IServer server, IQueue preQueue, IQueue postQueue)
+        public BufferedServer(IModel model, string name, Guid guid, IServer server, IQueue? preQueue, IQueue? postQueue)
             : this(model, name, guid)
         {
             Configure(server, preQueue, postQueue);
@@ -54,8 +53,8 @@ namespace Highpoint.Sage.ItemBased.Servers
             : this(model, name, guid)
         {
             IServer server = new SimpleServer(model, name + ".InnerServer", Guid.NewGuid(), new Periodicity(dist, timeUnits));
-            IQueue preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
-            IQueue postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
             Configure(server, preQueue, postQueue);
         }
 
@@ -63,8 +62,8 @@ namespace Highpoint.Sage.ItemBased.Servers
             : this(model, name, guid)
         {
             IServer server = new ResourceServer(model, name + ".InnerServer", Guid.NewGuid(), periodicity, rscReq);
-            IQueue preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
-            IQueue postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
             Configure(server, preQueue, postQueue);
         }
 
@@ -72,16 +71,16 @@ namespace Highpoint.Sage.ItemBased.Servers
             : this(model, name, guid)
         {
             IServer server = new SimpleServer(model, name + ".InnerServer", Guid.NewGuid(), periodicity);
-            IQueue preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
-            IQueue postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
             Configure(server, preQueue, postQueue);
         }
 
         public BufferedServer(IModel model, string name, Guid guid, IServer server, bool usePreQueue, bool usePostQueue)
             : this(model, name, guid)
         {
-            IQueue preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
-            IQueue postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? preQueue = usePreQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
+            IQueue? postQueue = usePostQueue ? new Queue(model, name + ".PreQueue", Guid.NewGuid()) : null;
             Configure(server, preQueue, postQueue);
         }
 
@@ -99,12 +98,12 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
-        private void Configure(IServer server, IQueue preQueue, IQueue postQueue)
+        private void Configure(IServer server, IQueue? preQueue, IQueue? postQueue)
         {
 
             _server = server;
@@ -138,7 +137,7 @@ namespace Highpoint.Sage.ItemBased.Servers
 
         }
 
-        public IPeriodicity Periodicity
+        public IPeriodicity? Periodicity
         {
             get
             {
@@ -146,12 +145,13 @@ namespace Highpoint.Sage.ItemBased.Servers
             }
             set
             {
+                ArgumentNullException.ThrowIfNull(value);
                 _server.Periodicity = value;
             }
 
         }
 
-        public IQueue PreQueue
+        public IQueue? PreQueue
         {
             get
             {
@@ -159,7 +159,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             }
         }
 
-        public IQueue PostQueue
+        public IQueue? PostQueue
         {
             get
             {
@@ -176,14 +176,18 @@ namespace Highpoint.Sage.ItemBased.Servers
         }
 
         // Always accept a service object. (Simplification - might not.)
-        private bool OnDataPresented(object patient, IInputPort port)
+        private bool OnDataPresented(object? patient, IInputPort port)
         {
             return true;
         }
 
         // Take from the entry port, and place it on the queue's input.
-        private void OnDataArrived(object data, IPort port)
+        private void OnDataArrived(object? data, IPort port)
         {
+            if (_preQueue == null || data == null)
+            {
+                return;
+            }
             _preQueue.Input.Put(data);
         }
 
@@ -206,7 +210,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -217,7 +221,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -263,7 +267,7 @@ namespace Highpoint.Sage.ItemBased.Servers
 
         #region Implementation of IModelObject
 
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             get
@@ -271,7 +275,7 @@ namespace Highpoint.Sage.ItemBased.Servers
                 return _name;
             }
         }
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// A description of this BufferedServer.
         /// </summary>
@@ -284,12 +288,12 @@ namespace Highpoint.Sage.ItemBased.Servers
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         #endregion
 
@@ -331,28 +335,44 @@ namespace Highpoint.Sage.ItemBased.Servers
             _server.RemoveFromService();
         }
 
-        public event ServiceEvent ServiceBeginning
+        public event ServiceEvent? ServiceBeginning
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _server.ServiceBeginning += value;
             }
 
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _server.ServiceBeginning -= value;
             }
         }
 
-        public event ServiceEvent ServiceCompleted
+        public event ServiceEvent? ServiceCompleted
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _server.ServiceCompleted += value;
             }
 
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _server.ServiceCompleted -= value;
             }
         }

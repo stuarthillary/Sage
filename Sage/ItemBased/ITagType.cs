@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections.ObjectModel;
 
@@ -30,7 +29,7 @@ namespace Highpoint.Sage.ItemBased
         /// Gets the value candidates list for this tag type. If the tag type is unconstrained, it returns null.
         /// </summary>
         /// <value>The value candidates.</value>
-        ReadOnlyCollection<string> ValueCandidates
+        ReadOnlyCollection<string>? ValueCandidates
         {
             get;
         }

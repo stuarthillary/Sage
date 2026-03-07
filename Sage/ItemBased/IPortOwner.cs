@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -23,7 +22,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port.</returns>
-        IPort AddPort(string channelTypeName);
+        IPort? AddPort(string channelTypeName);
 
         /// <summary>
         /// Adds a port to this object's port set in the specified role or channel with the provided Guid.
@@ -31,7 +30,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port.</returns>
-        IPort AddPort(string channelTypeName, Guid guid);
+        IPort? AddPort(string channelTypeName, Guid guid);
 
         /// <summary>
         /// Gets the names of supported port channels.

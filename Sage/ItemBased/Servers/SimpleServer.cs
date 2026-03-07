@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.SimCore;
@@ -56,7 +55,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             // AddPort(m_output); <-- Done in port's ctor.
             _periodicity = periodicity;
             m_input.DataAvailable += new PortEvent(OnServiceObjectAvailable);
-            string sso = _model.ModelConfig.GetSimpleParameter("SupportsServerObjects");
+            string? sso = _model.ModelConfig.GetSimpleParameter("SupportsServerObjects");
             _supportsServerObjects = (sso == null) ? false : bool.Parse(sso);
 
             IMOHelper.RegisterWithModel(this);
@@ -80,7 +79,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="exec">The executive controlling the timebase in which this server is
         /// to operate. Typically, model.Executive.</param>
         /// <param name="userData"></param>
-        private void PlaceInService(IExecutive exec, object userData)
+        private void PlaceInService(IExecutive exec, object? userData)
         {
             PlaceInService();
         }
@@ -118,7 +117,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             _inService = false;
         }
 
-        private void RemoveFromService(IExecutive exec, object userData)
+        private void RemoveFromService(IExecutive exec, object? userData)
         {
             RemoveFromService();
         }
@@ -128,7 +127,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// The periodicity of the server.
         /// </summary>
         /// <value></value>
-        public IPeriodicity Periodicity
+        public IPeriodicity? Periodicity
         {
             get
             {
@@ -136,6 +135,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             }
             set
             {
+                ArgumentNullException.ThrowIfNull(value);
                 _periodicity = value;
             }
         }
@@ -162,15 +162,19 @@ namespace Highpoint.Sage.ItemBased.Servers
         {
             if (m_input.Connector == null)
                 return;
-            object nextServiceObject = m_input.OwnerTake(null);
+            object? nextServiceObject = m_input.OwnerTake(null);
             if (nextServiceObject != null)
                 Process(nextServiceObject);
         }
 
-        private bool AcceptServiceObject(object nextServiceObject, IInputPort ip)
+        private bool AcceptServiceObject(object? nextServiceObject, IInputPort ip)
         {
             if (_inService && _available)
             {
+                if (nextServiceObject == null)
+                {
+                    return false;
+                }
                 Process(nextServiceObject);
                 return true;
             }
@@ -182,10 +186,9 @@ namespace Highpoint.Sage.ItemBased.Servers
 
         private void Process(object serviceObject)
         {
-            IServiceObject iso = serviceObject as IServiceObject;
+            IServiceObject? iso = serviceObject as IServiceObject;
 
-            if (ServiceBeginning != null)
-                ServiceBeginning(this, serviceObject);
+            ServiceBeginning?.Invoke(this, serviceObject);
             if (iso != null)
                 iso.OnServiceBeginning(this);
             _available = false;
@@ -194,13 +197,19 @@ namespace Highpoint.Sage.ItemBased.Servers
             _model.Executive.RequestEvent(new ExecEventReceiver(CompleteProcessing), when, 0.0, serviceObject);
         }
 
-        private void CompleteProcessing(IExecutive exec, object serviceObject)
+        private void CompleteProcessing(IExecutive exec, object? serviceObject)
         {
-            IServiceObject iso = serviceObject as IServiceObject;
+            if (serviceObject == null)
+            {
+                _available = true;
+                if (_inService)
+                    TryToCommenceService();
+                return;
+            }
+            IServiceObject? iso = serviceObject as IServiceObject;
             if (iso != null)
                 iso.OnServiceCompleting(this);
-            if (ServiceCompleted != null)
-                ServiceCompleted(this, serviceObject);
+            ServiceCompleted?.Invoke(this, serviceObject);
             _output.OwnerPut(serviceObject);
             _available = true;
             if (_inService)
@@ -210,11 +219,11 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <summary>
         /// Fires when the server begins servicing an object.
         /// </summary>
-        public event ServiceEvent ServiceBeginning;
+        public event ServiceEvent? ServiceBeginning;
         /// <summary>
         /// Fires when the server completes servicing an object.
         /// </summary>
-        public event ServiceEvent ServiceCompleted;
+        public event ServiceEvent? ServiceCompleted;
 
         #region IPortOwner Implementation
         /// <summary>
@@ -235,7 +244,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -246,7 +255,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -291,7 +300,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             get
@@ -299,7 +308,7 @@ namespace Highpoint.Sage.ItemBased.Servers
                 return _name;
             }
         }
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// A description of this SimpleServer.
         /// </summary>
@@ -312,12 +321,12 @@ namespace Highpoint.Sage.ItemBased.Servers
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         /// <summary>
         /// Initialize the identity of this model object, once.
@@ -326,9 +335,9 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

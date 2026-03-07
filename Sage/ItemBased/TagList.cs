@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -43,7 +42,7 @@ namespace Highpoint.Sage.ItemBased
         /// Gets the <see cref="Highpoint.Sage.ItemBased.ITag"/> with the specified name.
         /// </summary>
         /// <value></value>
-        public ITag this[string name]
+        public ITag? this[string name]
         {
             get
             {

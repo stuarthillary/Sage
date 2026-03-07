@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Resources;
 using Highpoint.Sage.SimCore;
@@ -56,8 +55,12 @@ namespace Highpoint.Sage.ItemBased.Servers
             }
         }
 
-        protected override bool CanWeProcessServiceObjectHandler(IServer server, object obj)
+        protected override bool CanWeProcessServiceObjectHandler(IServer server, object? obj)
         {
+            if (obj == null)
+            {
+                return false;
+            }
             IResourceRequest[] replicates = MultiRequestProcessor.Replicate(ref _requestTemplates);
             bool success = MultiRequestProcessor.ReserveAll(ref replicates, _useBlockingCalls);
             if (success)
@@ -65,15 +68,29 @@ namespace Highpoint.Sage.ItemBased.Servers
             return success;
         }
 
-        protected override void PreCommencementSetupHandler(IServer server, object obj)
+        protected override void PreCommencementSetupHandler(IServer server, object? obj)
         {
-            IResourceRequest[] replicates = (IResourceRequest[])_resourcesInUse[obj];
+            if (obj == null)
+            {
+                return;
+            }
+            if (_resourcesInUse[obj] is not IResourceRequest[] replicates)
+            {
+                return;
+            }
             MultiRequestProcessor.AcquireAll(ref replicates, _useBlockingCalls);
         }
 
-        protected override void PreCompletionTeardownHandler(IServer server, object obj)
+        protected override void PreCompletionTeardownHandler(IServer server, object? obj)
         {
-            IResourceRequest[] replicates = (IResourceRequest[])_resourcesInUse[obj];
+            if (obj == null)
+            {
+                return;
+            }
+            if (_resourcesInUse[obj] is not IResourceRequest[] replicates)
+            {
+                return;
+            }
             MultiRequestProcessor.ReleaseAll(ref replicates);
             _resourcesInUse.Remove(obj);
         }

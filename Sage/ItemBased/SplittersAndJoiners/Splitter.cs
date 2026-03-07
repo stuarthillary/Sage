@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -18,15 +17,15 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
     public abstract class Splitter : IPortOwner, ISplitter
     {
 
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         private Guid _guid = Guid.Empty;
-        private IModel _model;
-        private string _description = null;
+        private IModel _model = null!; // Set in InitializeIdentity().
+        private string _description = null!; // Set in InitializeIdentity().
 
-        public IInputPort Input;
-        protected SimpleInputPort m_input;
-        public IOutputPort[] Outputs;
-        protected SimpleOutputPort[] m_outputs;
+        public IInputPort Input = null!;
+        protected SimpleInputPort m_input = null!;
+        public IOutputPort[] Outputs = Array.Empty<IOutputPort>();
+        protected SimpleOutputPort[] m_outputs = Array.Empty<SimpleOutputPort>();
 
         public Splitter(IModel model, string name, Guid guid, int nOuts)
         {
@@ -46,8 +45,8 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
             IMOHelper.RegisterWithModel(this);
         }
         protected abstract DataArrivalHandler GetDataArrivalHandler();
-        protected abstract DataProvisionHandler GetPeekHandler(int i);
-        protected abstract DataProvisionHandler GetDataProvisionHandler(int i);
+        protected abstract DataProvisionHandler? GetPeekHandler(int i);
+        protected abstract DataProvisionHandler? GetDataProvisionHandler(int i);
 
         #region IPortOwner Implementation
         /// <summary>
@@ -68,7 +67,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -79,7 +78,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -149,7 +148,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// The IModel to which this object belongs.
         /// </summary>
         /// <value>The object's Model.</value>
-        public IModel Model
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -204,9 +203,9 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

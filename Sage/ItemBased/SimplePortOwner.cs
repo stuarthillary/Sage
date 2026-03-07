@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using Highpoint.Sage.SimCore;
@@ -26,7 +25,7 @@ namespace Highpoint.Sage.ItemBased
 		}
 
 		#region IPortOwner Members
-		private PortSet m_myPortSet = new PortSet();
+		private readonly PortSet m_myPortSet = new PortSet();
 		/// <summary>
 		/// The PortSet that contains all ports currently registered with this
 		/// SimplePortOwner.
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.ItemBased
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel) { return null; /*Implement AddPort(string channel); */}
+        public IPort? AddPort(string channel) { return null; /*Implement AddPort(string channel); */}
 
         /// <summary>
         /// Adds a port to this object's port set in the specified role or channel.
@@ -57,7 +56,7 @@ namespace Highpoint.Sage.ItemBased
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid) { return null; /*Implement AddPort(string channel); */}
+        public IPort? AddPort(string channelTypeName, Guid guid) { return null; /*Implement AddPort(string channel); */}
 
         /// <summary>
         /// Gets the names of supported port channels.
@@ -81,9 +80,9 @@ namespace Highpoint.Sage.ItemBased
 		#endregion
 
 		#region Implementation of IHasIdentity
-		private string m_name = null;
+		private readonly string m_name;
 		public string Name { get { return m_name; } }
-		private string m_description = null;
+		private string? m_description;
 		/// <summary>
 		/// A description of this SimplePortOwner.
 		/// </summary>

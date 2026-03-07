@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -24,7 +23,7 @@ namespace Highpoint.Sage.ItemBased
             _tagType = tagType;
             if (_tagType.isConstrained)
             {
-                _value = _tagType.ValueCandidates[0];
+                _value = _tagType.ValueCandidates![0];
             }
         }
         #region ITag Members
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.ItemBased
         /// <param name="newValue">The new value.</param>
         /// <returns><c>true</c> if setting the new value was successful, <c>false</c> otherwise.</returns>
         /// <exception cref="System.Exception">The method or operation is not implemented.</exception>
-        public bool SetValue(string newValue)
+        public bool SetValue(string? newValue)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -67,7 +66,7 @@ namespace Highpoint.Sage.ItemBased
         /// </summary>
         /// <value>The value.</value>
         /// <exception cref="System.Exception">The method or operation is not implemented.</exception>
-        public string Value
+        public string? Value
         {
             get { throw new Exception("The method or operation is not implemented."); }
         }

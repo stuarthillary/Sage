@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -22,7 +21,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
         private static ConnectorFactory ForModel(IModel model)
         {
             Guid key = GuidForModel(model);
-            if (!_connectorFactories.TryGetValue(key, out ConnectorFactory value))
+            if (!_connectorFactories.TryGetValue(key, out ConnectorFactory? value))
             {
                 value = new ConnectorFactory(model);
                 _connectorFactories.Add(key, value);
@@ -30,12 +29,12 @@ namespace Highpoint.Sage.ItemBased.Connectors
             return value;
         }
 
-        private static Guid GuidForModel(IModel model)
+        private static Guid GuidForModel(IModel? model)
         {
             return model?.Guid ?? Guid.Empty;
         }
 
-        private ConnectorFactory(IModel model)
+        private ConnectorFactory(IModel? model)
         {
             if (model != null)
             {
@@ -43,14 +42,14 @@ namespace Highpoint.Sage.ItemBased.Connectors
             }
         }
 
-        private void UpdateNextConnectorNumber(IModel model, string name = null)
+        private void UpdateNextConnectorNumber(IModel model, string? name = null)
         {
             List<string> names = new List<string>();
             if (!string.IsNullOrEmpty(name))
                 names.Add(name);
             foreach (IModelObject imo in model.ModelObjects.Values)
             {
-                IConnector conn = imo as IConnector;
+                IConnector? conn = imo as IConnector;
                 if (conn != null && conn.Name != null && conn.Name.StartsWith(_prefix, StringComparison.Ordinal))
                 {
                     names.Add(conn.Name);
@@ -67,22 +66,22 @@ namespace Highpoint.Sage.ItemBased.Connectors
             }
         }
 
-        public static IConnector Connect(IPort p1, IPort p2)
+        public static IConnector Connect(IPort? p1, IPort? p2)
         {
             return Connect(p1, p2, ConnectorType.BasicNonBuffered, null);
         }
 
-        public static IConnector Connect(IPort p1, IPort p2, string name)
+        public static IConnector Connect(IPort? p1, IPort? p2, string? name)
         {
             return Connect(p1, p2, ConnectorType.BasicNonBuffered, name);
         }
 
-        public static IConnector Connect(IPort p1, IPort p2, ConnectorType connType)
+        public static IConnector Connect(IPort? p1, IPort? p2, ConnectorType connType)
         {
             return Connect(p1, p2, ConnectorType.BasicNonBuffered, null);
         }
 
-        public static IConnector Connect(IPort p1, IPort p2, ConnectorType connType, string name)
+        public static IConnector Connect(IPort? p1, IPort? p2, ConnectorType connType, string? name)
         {
             if (p1 == null || p2 == null)
             {
@@ -91,10 +90,10 @@ namespace Highpoint.Sage.ItemBased.Connectors
 
             Debug.Assert(p1.Model == p2.Model);
 
-            return ForModel(p1.Model)._Connect(p1, p2, connType, name);
+            return ForModel(p1.Model!)._Connect(p1, p2, connType, name); // Nullable OK for ForModel
         }
 
-        private IConnector _Connect(IPort p1, IPort p2, ConnectorType connType, string name)
+        private IConnector _Connect(IPort p1, IPort p2, ConnectorType connType, string? name)
         {
 
             if (p1.Model != p2.Model)
@@ -115,12 +114,12 @@ namespace Highpoint.Sage.ItemBased.Connectors
             }
             else
             {
-                ForModel(p1.Model).UpdateNextConnectorNumber(p1.Model, name);
+                ForModel(p1.Model!).UpdateNextConnectorNumber(p1.Model!, name); // Model already checked above
             }
 
             if (connType.Equals(ConnectorType.BasicNonBuffered))
             {
-                return new BasicNonBufferedConnector(p1.Model, name, null, Guid.NewGuid(), p1, p2);
+                return new BasicNonBufferedConnector(p1.Model!, name, null, Guid.NewGuid(), p1, p2); // Model already checked above
             }
             else
             {
@@ -128,7 +127,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
             }
         }
 
-        private static string GetName(IPort port)
+        private static string GetName(IPort? port)
         {
             if (port == null)
                 return "<null>";

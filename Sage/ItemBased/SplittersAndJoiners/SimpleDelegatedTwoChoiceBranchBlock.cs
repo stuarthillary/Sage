@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.SimCore;
@@ -8,16 +7,16 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
 {
     public class SimpleDelegatedTwoChoiceBranchBlock : SimpleTwoChoiceBranchBlock
     {
-        public IOutputPort YesPort;
-        public IOutputPort NoPort;
-        private BooleanDecider _bd = null;
+        public IOutputPort YesPort = null!;
+        public IOutputPort NoPort = null!;
+        private BooleanDecider? _bd = null;
         public SimpleDelegatedTwoChoiceBranchBlock(IModel model, string name, Guid guid) : base(model, name, guid)
         {
             YesPort = Out0;
             NoPort = Out1;
         }
 
-        public BooleanDecider BooleanDeciderDelegate
+        public BooleanDecider? BooleanDeciderDelegate
         {
             get
             {
@@ -28,7 +27,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
                 _bd = value;
             }
         }
-        protected override IPort ChoosePort(object dataObject)
+        protected override IPort? ChoosePort(object? dataObject)
         {
             if (_bd != null)
             {

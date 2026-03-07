@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
@@ -43,7 +42,7 @@ namespace Highpoint.Sage.ItemBased.Ports
     /// Implemented by a method designed to provide data on an external
     /// entity's requesting it from a port.
     /// </summary>
-    public delegate object DataProvisionHandler(IOutputPort port, object selector);
+    public delegate object? DataProvisionHandler(IOutputPort port, object selector);
 
     /// <summary>
     /// Contains and provides IPort objects based on keys. PortOwner objects (those
@@ -55,8 +54,8 @@ namespace Highpoint.Sage.ItemBased.Ports
 
         #region Private fields
 
-        private IComparer<IPort> _sortOrderComparer = null;
-        private List<IPort> _sortedPorts = null;
+        private IComparer<IPort>? _sortOrderComparer = null;
+        private List<IPort>? _sortedPorts = null;
 
         private Hashtable _ports;
         private readonly ArrayList _presentedListeners;
@@ -110,7 +109,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     port.Index = ndx + 1;
                 }
                 _ports.Add(port.Guid, port);
-                SortedPorts = null;
+                _sortedPorts = null;
                 foreach (PortDataEvent dce in _presentedListeners)
                     port.PortDataPresented += dce;
                 foreach (PortDataEvent dce in _acceptedListeners)
@@ -130,10 +129,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     foreach (PortEvent pe in _acbListeners)
                         port.AfterConnectionBroken += pe;
 
-                if (PortAdded != null)
-                {
-                    PortAdded(port);
-                }
+                PortAdded?.Invoke(port);
 
             }
             else
@@ -158,7 +154,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
 
             _ports.Remove(port.Guid);
-            SortedPorts = null;
+            _sortedPorts = null;
             foreach (PortDataEvent dce in _presentedListeners)
                 port.PortDataPresented -= dce;
             foreach (PortDataEvent dce in _acceptedListeners)
@@ -178,22 +174,19 @@ namespace Highpoint.Sage.ItemBased.Ports
                 foreach (PortEvent pe in _acbListeners)
                     port.AfterConnectionBroken -= pe;
 
-            if (PortRemoved != null)
-            {
-                PortRemoved(port);
-            }
+                PortRemoved?.Invoke(port);
 
         }
 
         /// <summary>
         /// Fired when a port has been added to this IPortSet.
         /// </summary>
-        public event PortEvent PortAdded;
+        public event PortEvent? PortAdded;
 
         /// <summary>
         /// Fired when a port has been removed from this IPortSet.
         /// </summary>
-        public event PortEvent PortRemoved;
+        public event PortEvent? PortRemoved;
 
 
         /// <summary>
@@ -212,10 +205,14 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// This event is fired when data is presented to any input port in this
         /// PortSet from outside, or to any output port from inside.
         /// </summary>
-        public event PortDataEvent PortDataPresented
+        public event PortDataEvent? PortDataPresented
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _presentedListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.PortDataPresented += value;
@@ -232,10 +229,14 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// This event is fired whenever any input port accepts data presented to it
         /// from outside or any output port accepts data presented to it from inside. 
         /// </summary>
-        public event PortDataEvent PortDataAccepted
+        public event PortDataEvent? PortDataAccepted
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _acceptedListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.PortDataAccepted += value;
@@ -253,10 +254,14 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// to it from outside or an output port rejects data that is presented to it
         /// from inside.
         /// </summary>
-        public event PortDataEvent PortDataRejected
+        public event PortDataEvent? PortDataRejected
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _rejectedListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.PortDataRejected += value;
@@ -270,14 +275,18 @@ namespace Highpoint.Sage.ItemBased.Ports
         }
 
         #region Port Made/Broken Event Management
-        private ArrayList _bcmListeners, _acmListeners, _bcbListeners, _acbListeners;
+        private ArrayList? _bcmListeners, _acmListeners, _bcbListeners, _acbListeners;
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent BeforeConnectionMade
+        public event PortEvent? BeforeConnectionMade
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_bcmListeners == null)
                     _bcmListeners = new ArrayList();
                 _bcmListeners.Add(value);
@@ -286,6 +295,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (_bcmListeners == null)
+                {
+                    return;
+                }
                 _bcmListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.BeforeConnectionMade -= value;
@@ -295,10 +308,14 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately after the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent AfterConnectionMade
+        public event PortEvent? AfterConnectionMade
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_acmListeners == null)
                     _acmListeners = new ArrayList();
                 _acmListeners.Add(value);
@@ -307,6 +324,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (_acmListeners == null)
+                {
+                    return;
+                }
                 _acmListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.AfterConnectionMade -= value;
@@ -317,10 +338,14 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately before the port's connector property becomes null.
         /// </summary>
-        public event PortEvent BeforeConnectionBroken
+        public event PortEvent? BeforeConnectionBroken
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_bcbListeners == null)
                     _bcbListeners = new ArrayList();
                 _bcbListeners.Add(value);
@@ -329,6 +354,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (_bcbListeners == null)
+                {
+                    return;
+                }
                 _bcbListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.BeforeConnectionBroken -= value;
@@ -338,10 +367,14 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately after the port's connector property becomes null.
         /// </summary>
-        public event PortEvent AfterConnectionBroken
+        public event PortEvent? AfterConnectionBroken
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_acbListeners == null)
                     _acbListeners = new ArrayList();
                 _acbListeners.Add(value);
@@ -350,6 +383,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (_acbListeners == null)
+                {
+                    return;
+                }
                 _acbListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.AfterConnectionBroken -= value;
@@ -395,12 +432,12 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// Returns the port associated with the provided key.
         /// </summary>
-        public IPort this[Guid key]
+        public IPort? this[Guid key]
         {
             [DebuggerStepThrough]
             get
             {
-                return (IPort)_ports[key];
+                return (IPort?)_ports[key];
             }
         }
 
@@ -420,7 +457,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// Returns the port associated with the provided name.
         /// </summary>
-        public IPort this[string name]
+        public IPort? this[string name]
         {
             get
             {
@@ -497,7 +534,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="xmlsc">The specified XmlSerializationContext.</param>
         public void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _ports = (Hashtable)xmlsc.LoadObject("Ports");
+            _ports = (Hashtable)xmlsc.LoadObject("Ports")!; // Loaded from XML.
         }
 
         #endregion
@@ -554,23 +591,26 @@ namespace Highpoint.Sage.ItemBased.Ports
 
             #region IComparer<IPort> Members
 
-            public int Compare(IPort x, IPort y)
+            public int Compare(IPort? x, IPort? y)
             {
-                object obx = x.GetOutOfBandData(_oobDataKey);
-                object oby = y.GetOutOfBandData(_oobDataKey);
+                ArgumentNullException.ThrowIfNull(x);
+                ArgumentNullException.ThrowIfNull(y);
+
+                object? obx = x.GetOutOfBandData(_oobDataKey);
+                object? oby = y.GetOutOfBandData(_oobDataKey);
 
                 if (obx == null && oby == null)
                 {
                     return 0;
                 }
 
-                IComparable icx = obx as IComparable;
-                IComparable icy = oby as IComparable;
+                IComparable? icx = obx as IComparable;
+                IComparable? icy = oby as IComparable;
 
                 if (icx == null && icy == null)
                 {
                     string errMsg = string.Format("Attempt to sort port list on key {0} which is of type {1}, which does not implement IComparable and it must do so, in order to sort on it.",
-                        _oobDataKey, (obx == null ? oby.GetType().FullName : obx.GetType().FullName));
+                        _oobDataKey, (obx == null ? oby!.GetType().FullName : obx.GetType().FullName));
                     throw new ApplicationException(errMsg);
                 }
 

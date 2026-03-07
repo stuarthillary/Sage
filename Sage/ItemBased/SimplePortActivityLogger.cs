@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -10,7 +9,7 @@ namespace Highpoint.Sage.ItemBased
     internal class SimplePortActivityLogger
     {
         private readonly StringBuilder _contents = new StringBuilder();
-        private readonly IPort _port;
+        private readonly IPort? _port;
         public SimplePortActivityLogger(IPort port)
         {
             _port = port;
@@ -21,6 +20,7 @@ namespace Highpoint.Sage.ItemBased
 
         public SimplePortActivityLogger(IPortSet portSet)
         {
+            _port = null;
             foreach (IPort port in portSet)
             {
                 port.PortDataPresented += PortDataPresented;
@@ -31,17 +31,17 @@ namespace Highpoint.Sage.ItemBased
 
         void PortDataPresented(object data, IPort port)
         {
-            _contents.Append("A port on " + port.Owner + " was presented with " + data + "\r\n");
+            _contents.Append("A port on " + (port.Owner?.ToString() ?? "<unknown owner>") + " was presented with " + data + "\r\n");
         }
 
         void PortDataAccepted(object data, IPort port)
         {
-            _contents.Append("A port on " + port.Owner + " accepted " + data + "\r\n");
+            _contents.Append("A port on " + (port.Owner?.ToString() ?? "<unknown owner>") + " accepted " + data + "\r\n");
         }
 
         void PortDataRejected(object data, IPort port)
         {
-            _contents.Append("A port on " + port.Owner + " rejected " + data + "\r\n");
+            _contents.Append("A port on " + (port.Owner?.ToString() ?? "<unknown owner>") + " rejected " + data + "\r\n");
         }
 
         public string Contents

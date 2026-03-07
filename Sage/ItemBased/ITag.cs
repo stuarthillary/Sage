@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.ItemBased
@@ -8,7 +7,7 @@ namespace Highpoint.Sage.ItemBased
     /// </summary>
     public interface ITag : IReadOnlyTag
     {
-        bool SetValue(string newValue);
+        bool SetValue(string? newValue);
     }
 }
 

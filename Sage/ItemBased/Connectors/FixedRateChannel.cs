@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using _Debug = System.Diagnostics.Debug;
@@ -71,12 +70,12 @@ namespace Highpoint.Sage.ItemBased.Channels
 		private void ScheduleDequeueEvent(Bin bin){
 			_exec.RequestEvent(_dequeueEventHandler,_exec.Now+bin.ForwardBuffer,0.0,bin);
 		}
-		private void DequeueEventHandler(IExecutive exec, object bin){
+		private void DequeueEventHandler(IExecutive exec, object? bin){
 			_lastExitArrivalTime = exec.Now;
-			_exit.OwnerPut(((Bin)bin).Payload);
+			_exit.OwnerPut(((Bin)bin!).Payload); // Exec events always provide a bin payload.
 		}
-		private object CantTakeFromChannel(IOutputPort op, object selector){return null;}
-        private object CantPeekFromChannel(IOutputPort op, object selector){ return null;}
+		private object? CantTakeFromChannel(IOutputPort op, object selector){return null;}
+        private object? CantPeekFromChannel(IOutputPort op, object selector){ return null;}
 		
 		/// <summary>
 		/// The input port (i.e. the on-ramp).
@@ -104,7 +103,7 @@ namespace Highpoint.Sage.ItemBased.Channels
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel) { return null; /*Implement AddPort(string channel); */}
+        public IPort? AddPort(string channel) { return null; /*Implement AddPort(string channel); */}
 
         /// <summary>
         /// Adds a port to this object's port set in the specified role or channel.
@@ -112,7 +111,7 @@ namespace Highpoint.Sage.ItemBased.Channels
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid) { return null; /*Implement AddPort(string channel); */}
+        public IPort? AddPort(string channelTypeName, Guid guid) { return null; /*Implement AddPort(string channel); */}
 
         /// <summary>
         /// Gets the names of supported port channels.

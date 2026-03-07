@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.ItemBased.Ports
@@ -30,7 +29,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// IPortOwner that owns this port.
         /// </summary>
         /// <value>The new PutHandler.</value>
-        DataArrivalHandler PutHandler
+        DataArrivalHandler? PutHandler
         {
             get; set;
         }

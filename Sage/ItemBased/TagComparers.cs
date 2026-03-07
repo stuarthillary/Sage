@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -23,17 +22,22 @@ namespace Highpoint.Sage.ItemBased
 
         class _TagsByValue : IComparer<ITagHolder>
         {
-            private string _tagName = null;
+            private readonly string _tagName;
             public _TagsByValue(string tagName)
             {
                 _tagName = tagName;
             }
             #region IComparer<IHasTags> Members
 
-            public int Compare(ITagHolder x, ITagHolder y)
+            public int Compare(ITagHolder? x, ITagHolder? y)
             {
-                string s1 = x.Tags[_tagName].Value;
-                string s2 = y.Tags[_tagName].Value;
+                ArgumentNullException.ThrowIfNull(x);
+                ArgumentNullException.ThrowIfNull(y);
+
+                ITag? tag1 = x.Tags[_tagName];
+                ITag? tag2 = y.Tags[_tagName];
+                string? s1 = tag1?.Value;
+                string? s2 = tag2?.Value;
                 if (s1 == null && s2 == null)
                     return 0;
                 if (s1 == null)

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -32,8 +31,8 @@ namespace Highpoint.Sage.ItemBased.Ports
         private readonly SimpleInputPort _sip;
         private DataReadSource _readSource;
         private DataWriteAction _writeAction;
-        private List<OutputPortManager> _dependents = null;
-        private object _buffer = null;
+        private List<OutputPortManager>? _dependents = null;
+        private object? _buffer = null;
         #endregion
 
         #region Constructors
@@ -78,7 +77,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         {
             if (!(dependents.Length == 0 || _dependents == null || _dependents.Count == 0))
             {
-                string ownerBlock = _sip.Owner is IHasIdentity ? ((IHasIdentity)_sip.Owner).Name : "a block";
+                string ownerBlock = _sip.Owner is IHasIdentity ownerIdentity ? ownerIdentity.Name : "a block";
                 string msg = string.Format("Calling SetDependents on {1} clears {0} existent dependents. Call SetDependents(); first without dependents to indicate intentional clearance.",
                 _dependents.Count, ownerBlock);
                 Debug.Assert(false, msg);
@@ -90,14 +89,16 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
         }
 
-        public object Value
+        public object? Value
         {
             get
             {
                 if (Diagnostics)
-                    _Debug.WriteLine(
-                        $"Block {((IHasIdentity)_sip.Owner).Name}, port {_sip.Name} being asked to give its value.");
-                object retval;
+                {
+                    string ownerName = _sip.Owner is IHasIdentity ownerIdentity ? ownerIdentity.Name : "a block";
+                    _Debug.WriteLine($"Block {ownerName}, port {_sip.Name} being asked to give its value.");
+                }
+                object? retval;
                 switch (_readSource)
                 {
                     case DataReadSource.Buffer:
@@ -153,9 +154,10 @@ namespace Highpoint.Sage.ItemBased.Ports
                         _buffer = value;
                         if (_dependents == null)
                         {
+                            string ownerType = _sip.Owner?.GetType().Name ?? "<unknown>";
                             // TODO: Make this universal. (I.E. Require developer always to set values.)
                             throw new ApplicationException(
-                                $"Block type {_sip.Owner.GetType().Name} forgot to set dependents for input port {_sip.Name}.");
+                                $"Block type {ownerType} forgot to set dependents for input port {_sip.Name}.");
                         }
                         _dependents.ForEach(n => n.BufferValid = false);
                         break;
@@ -163,8 +165,9 @@ namespace Highpoint.Sage.ItemBased.Ports
                         _buffer = value;
                         if (_dependents == null)
                         {
+                            string ownerType = _sip.Owner?.GetType().Name ?? "<unknown>";
                             throw new ApplicationException(
-                                $"Push-on-write specified on a port with no dependents. Specify dependents for {_sip.Name}");
+                                $"Push-on-write specified on a port with no dependents. Specify dependents for {_sip.Name} on {ownerType}.");
                         }
                         else
                         {

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Mathematics;
@@ -47,6 +46,7 @@ namespace Highpoint.Sage.ItemBased
 
         public Periodicity(IDoubleDistribution distribution, long ticks)
         {
+            _distribution = distribution;
             SetPeriod(distribution, ticks);
         }
 

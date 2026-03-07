@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Connectors;
@@ -16,12 +15,12 @@ namespace Highpoint.Sage.ItemBased.Ports
     {
 
         #region Private Fields
-        private readonly IPortOwner _owner;
-        private IConnector _connector;
+        private readonly IPortOwner? _owner;
+        private IConnector? _connector;
         private int _makeBreakListeners = 0;
         private bool _intrinsic = false;
-        private object _defaultOutOfBandData;
-        private Hashtable _outOfBandData;
+        private object? _defaultOutOfBandData;
+        private Hashtable? _outOfBandData;
         private int _portIndex = UnassignedIndex;
         #endregion
 
@@ -35,7 +34,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="name">The name of the port.</param>
         /// <param name="guid">The GUIDof the port.</param>
         /// <param name="owner">The IPortOwner that will own this port.</param>
-        public GenericPort(IModel model, string name, Guid guid, IPortOwner owner)
+        public GenericPort(IModel model, string name, Guid guid, IPortOwner? owner)
         {
             if (string.IsNullOrEmpty(name) && owner != null)
             {
@@ -52,7 +51,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             //}
             if (_owner != null && _owner.Ports[guid] == null)
             {
-                owner.AddPort(this);
+                _owner.AddPort(this);
             }
 
             IMOHelper.RegisterWithModel(this);
@@ -115,7 +114,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// be permitted to set the connector to a new value. This is to prevent accidentally
         /// overwriting a connection in code.
         /// </summary>
-        public IConnector Connector
+        public IConnector? Connector
         {
             [DebuggerStepThrough]
             get
@@ -138,15 +137,15 @@ namespace Highpoint.Sage.ItemBased.Ports
                     string newPeerOwner;
                     if (this is IInputPort)
                     {
-                        peerKey = Connector.Upstream == null ? "<null>" : Connector.Upstream.Key.ToString();
-                        peerOwner = Connector.Upstream == null ? "<null>" : PossibleIHasIdentityAsString(Connector.Upstream.Owner);
+                        peerKey = _connector.Upstream == null ? "<null>" : _connector.Upstream.Key.ToString();
+                        peerOwner = _connector.Upstream == null ? "<null>" : PossibleIHasIdentityAsString(_connector.Upstream.Owner);
                         newPeerKey = value.Upstream == null ? "<null>" : value.Upstream.Key.ToString();
                         newPeerOwner = value.Upstream == null ? "<null>" : PossibleIHasIdentityAsString(value.Upstream.Owner);
                     }
                     else
                     {
-                        peerKey = Connector.Downstream == null ? "<null>" : Connector.Downstream.Key.ToString();
-                        peerOwner = Connector.Downstream == null ? "<null>" : PossibleIHasIdentityAsString(Connector.Downstream.Owner);
+                        peerKey = _connector.Downstream == null ? "<null>" : _connector.Downstream.Key.ToString();
+                        peerOwner = _connector.Downstream == null ? "<null>" : PossibleIHasIdentityAsString(_connector.Downstream.Owner);
                         newPeerKey = value.Downstream == null ? "<null>" : value.Downstream.Key.ToString();
                         newPeerOwner = value.Downstream == null ? "<null>" : PossibleIHasIdentityAsString(value.Downstream.Owner);
                     }
@@ -191,74 +190,106 @@ namespace Highpoint.Sage.ItemBased.Ports
         }
 
         #region Port Made/Broken Event Management
-        private event PortEvent _beforeConnectionMade;
+        private event PortEvent? _beforeConnectionMade;
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent BeforeConnectionMade
+        public event PortEvent? BeforeConnectionMade
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners++;
                 _beforeConnectionMade += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners--;
                 _beforeConnectionMade -= value;
             }
         }
 
-        private event PortEvent _afterConnectionMade;
+        private event PortEvent? _afterConnectionMade;
         /// <summary>
         /// This event fires immediately after the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent AfterConnectionMade
+        public event PortEvent? AfterConnectionMade
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners++;
                 _afterConnectionMade += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners--;
                 _afterConnectionMade -= value;
             }
         }
 
 
-        private event PortEvent _beforeConnectionBroken;
+        private event PortEvent? _beforeConnectionBroken;
         /// <summary>
         /// This event fires immediately before the port's connector property becomes null.
         /// </summary>
-        public event PortEvent BeforeConnectionBroken
+        public event PortEvent? BeforeConnectionBroken
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners++;
                 _beforeConnectionBroken += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners--;
                 _beforeConnectionBroken -= value;
             }
         }
 
-        private event PortEvent _afterConnectionBroken;
+        private event PortEvent? _afterConnectionBroken;
         /// <summary>
         /// This event fires immediately after the port's connector property becomes null.
         /// </summary>
-        public event PortEvent AfterConnectionBroken
+        public event PortEvent? AfterConnectionBroken
         {
             add
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners++;
                 _afterConnectionBroken += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _makeBreakListeners--;
                 _afterConnectionBroken -= value;
             }
@@ -268,7 +299,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This port's owner.
         /// </summary>
-        public IPortOwner Owner
+        public IPortOwner? Owner
         {
             get
             {
@@ -293,21 +324,21 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// implies presentation by an outsider, and for an output port, it implies 
         /// presentation by the port owner.
         /// </summary>
-        public event PortDataEvent PortDataPresented;
+        public event PortDataEvent? PortDataPresented;
 
         /// <summary>
         /// This event fires when data is accepted by a port. For an input port, this
         /// implies acceptance by an outsider, and for an output port, it implies 
         /// acceptance by the port owner.
         /// </summary>
-        public event PortDataEvent PortDataAccepted;
+        public event PortDataEvent? PortDataAccepted;
 
         /// <summary>
         /// This event fires when data is rejected by a port. For an input port, this
         /// implies rejection by an outsider, and for an output port, it implies 
         /// rejection by the port owner.
         /// </summary>
-        public event PortDataEvent PortDataRejected;
+        public event PortDataEvent? PortDataRejected;
 
         /// <summary>
         /// Handler for arrival of data. For an output port, this will be the PortOwner
@@ -352,7 +383,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// itself.
         /// </summary>
         /// <returns>The default out-of-band data from this port.</returns>
-        public object GetOutOfBandData()
+        public object? GetOutOfBandData()
         {
             return _defaultOutOfBandData;
         }
@@ -364,7 +395,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="key">The key of the sought metadata.</param>
         /// <returns></returns>
-        public object GetOutOfBandData(object key)
+        public object? GetOutOfBandData(object key)
         {
             if (_outOfBandData == null)
                 return null;
@@ -379,7 +410,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// Sets the default out-of-band data.
         /// </summary>
         /// <param name="defaultOobData">The default out-of-band data.</param>
-        public void SetDefaultOutOfBandData(object defaultOobData)
+        public void SetDefaultOutOfBandData(object? defaultOobData)
         {
             _defaultOutOfBandData = defaultOobData;
         }
@@ -389,7 +420,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="key">The key through which the out-of-band data is to be returned.</param>
         /// <param name="outOfBandData">The out-of-band data associated with the above key.</param>
-        public void SetOutOfBandData(object key, object outOfBandData)
+        public void SetOutOfBandData(object key, object? outOfBandData)
         {
             if (_outOfBandData == null)
                 _outOfBandData = new Hashtable();
@@ -409,7 +440,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// port is attached, or null if there is no attached conenctor
         /// or if there is no port on the other end.
         /// </summary>
-        public IPort Peer
+        public IPort? Peer
         {
             get
             {
@@ -447,10 +478,10 @@ namespace Highpoint.Sage.ItemBased.Ports
         public static int UnassignedIndex = -1;
 
         #region Implementation of IModelObject
-        private IModel _model;
-        private string _name = null;
+        private IModel _model = null!; // Set in InitializeIdentity().
+        private string _name = null!; // Set in InitializeIdentity().
         private Guid _guid = Guid.Empty;
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The user-friendly name for this object.
         /// </summary>
@@ -479,7 +510,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value></value>
-        public IModel Model
+        public IModel? Model
         {
             [DebuggerStepThrough]
             get
@@ -500,9 +531,9 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 
@@ -513,7 +544,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             throw new ApplicationException(errMsg);
         }
 
-        private string PossibleIHasIdentityAsString(object obj)
+        private string PossibleIHasIdentityAsString(object? obj)
         {
             if (obj == null)
             {
@@ -521,7 +552,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             else if (obj is IHasIdentity)
             {
-                return ((IHasIdentity)_owner).Name;
+                return ((IHasIdentity)obj).Name;
             }
             else
             {

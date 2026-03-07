@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -17,8 +16,8 @@ namespace Highpoint.Sage.ItemBased.Ports
     public class SimpleOutputPort : GenericPort, IOutputPort
     {
         private readonly DataProvisionHandler _nullSupplier;
-        private DataProvisionHandler _takeHandler;
-        private DataProvisionHandler _peekHandler;
+        private DataProvisionHandler? _takeHandler;
+        private DataProvisionHandler? _peekHandler;
         /// <summary>
         /// Creates a simple output port.
         /// It is the responsibility of the creator to add the port to the owner's PortSet.
@@ -29,7 +28,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="owner">The IPortOwner that will own this port.</param>
         /// <param name="takeHandler">The delegate that will be called when a peer calls 'Take()'. Null is okay.</param>
         /// <param name="peekHandler">The delegate that will be called when a peer calls 'Peek()'. Null is okay.</param>
-        public SimpleOutputPort(IModel model, string name, Guid guid, IPortOwner owner, DataProvisionHandler takeHandler, DataProvisionHandler peekHandler)
+        public SimpleOutputPort(IModel model, string name, Guid guid, IPortOwner owner, DataProvisionHandler? takeHandler, DataProvisionHandler? peekHandler)
             : base(model, name, guid, owner)
         {
             _nullSupplier = new DataProvisionHandler(SupplyNullData);
@@ -37,7 +36,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             _peekHandler = peekHandler ?? _nullSupplier;
         }
 
-        private object SupplyNullData(IOutputPort op, object selector)
+        private object? SupplyNullData(IOutputPort op, object selector)
         {
             return null;
         }
@@ -63,9 +62,9 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// determine which of potentially more than one available data element is
         /// to be provided to the requestor.</param>
         /// <returns>The current contents of the port.</returns>
-        public object Take(object selector)
+        public object? Take(object selector)
         {
-            object data = _takeHandler(this, selector);
+            object? data = _takeHandler!(this, selector); // Set to null only when detached.
             if (data != null)
             {
                 OnPresentingData(data);
@@ -81,7 +80,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         {
             get
             {
-                return _peekHandler != _nullSupplier;
+                return _peekHandler != null && _peekHandler != _nullSupplier;
             }
         }
 
@@ -96,15 +95,15 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <returns>
         /// The current contents of this port. Null if this port is not peekable.
         /// </returns>
-        public object Peek(object selector)
+        public object? Peek(object selector)
         {
-            return _peekHandler(this, selector);
+            return _peekHandler!(this, selector); // Set to null only when detached.
         }
 
         /// <summary>
         /// This event is fired when new data is available to be taken from a port.
         /// </summary>
-        public event PortEvent DataAvailable;
+        public event PortEvent? DataAvailable;
 
         /// <summary>
         /// This sets the DataProvisionHandler that this port will use to handle requests
@@ -113,7 +112,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// this port.
         /// </summary>
         /// <value>The take handler.</value>
-        public DataProvisionHandler TakeHandler
+        public DataProvisionHandler? TakeHandler
         {
             get
             {
@@ -132,7 +131,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// this port.
         /// </summary>
         /// <value>The peek handler.</value>
-        public DataProvisionHandler PeekHandler
+        public DataProvisionHandler? PeekHandler
         {
             get
             {
@@ -151,21 +150,21 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="newData">The object that is new data to be placed on the port.</param>
         /// <returns>True if the port was able to accept the data.</returns>
-        public bool OwnerPut(object newData)
+        public bool OwnerPut(object? newData)
         {
             if (HasBeenDetached)
                 DetachedPortInUse();
-            OnPresentingData(newData); // Fires the PortDataPresented event. No return value.
+            OnPresentingData(newData!); // Ports allow null payloads.
             bool b = false;
             if (Connector != null)
             {
                 // If we have a connector, present the data to it. Otherwise, just fire the rejection event.
-                b = Connector.Put(newData);
+                b = Connector.Put(newData!); // Ports allow null payloads.
             }
             if (b)
-                OnAcceptingData(newData);
+                OnAcceptingData(newData!);
             else
-                OnRejectingData(newData);
+                OnRejectingData(newData!);
             return b;
         }
 
@@ -181,10 +180,8 @@ namespace Highpoint.Sage.ItemBased.Ports
         {
             if (HasBeenDetached)
                 DetachedPortInUse();
-            if (DataAvailable != null)
-                DataAvailable(this);
-            if (Connector != null)
-                Connector.NotifyDataAvailable();
+            DataAvailable?.Invoke(this);
+            Connector?.NotifyDataAvailable();
         }
 
         /// <summary>

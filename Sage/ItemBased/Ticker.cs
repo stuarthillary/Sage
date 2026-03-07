@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -90,11 +89,10 @@ namespace Highpoint.Sage.ItemBased
             _model.Executive.RequestEvent(_execEventReceiver, _model.Executive.Now + waitDuration, 0.0, null);
             _nPulsesRemaining--;
         }
-        private void OnExecEvent(IExecutive exec, object userData)
+        private void OnExecEvent(IExecutive exec, object? userData)
         {
             //Console.WriteLine(exec.Now + " : firing ticker.");
-            if (PulseEvent != null)
-                PulseEvent();
+            PulseEvent?.Invoke();
             if (_running)
                 ScheduleNextEvent();
         }
@@ -102,6 +100,6 @@ namespace Highpoint.Sage.ItemBased
         /// <summary>
         /// Fired when this Ticker pulses.
         /// </summary>
- 		public event PulseEvent PulseEvent;
+  		public event PulseEvent? PulseEvent;
     }
 }

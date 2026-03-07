@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.ItemBased.Ports
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// determine which of potentially more than one available data element is
         /// to be provided to the requestor.</param>
         /// <returns>The current contents of the port.</returns>
-        object Take(object selector);
+        object? Take(object selector);
 
         /// <summary>
         /// True if Peek can be expected to return meaningful data.
@@ -37,12 +36,12 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <returns>
         /// The current contents of this port. Null if this port is not peekable.
         /// </returns>
-        object Peek(object selector);
+        object? Peek(object selector);
 
         /// <summary>
         /// This event is fired when new data is available to be taken from a port.
         /// </summary>
-        event PortEvent DataAvailable;
+        event PortEvent? DataAvailable;
 
 
         /// <summary>
@@ -52,7 +51,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// this port.
         /// </summary>
         /// <value>The take handler.</value>
-        DataProvisionHandler TakeHandler
+        DataProvisionHandler? TakeHandler
         {
             get; set;
         }
@@ -64,7 +63,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// this port.
         /// </summary>
         /// <value>The peek handler.</value>
-        DataProvisionHandler PeekHandler
+        DataProvisionHandler? PeekHandler
         {
             get; set;
         }

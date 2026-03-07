@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -26,7 +25,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <param name="owner">The IPortOwner that owns this port.</param>
         /// <param name="dah">The DataArrivalHandler that will respond to data arriving on
         /// this port having been pushed from its peer.</param>
-        public SimpleInputPort(IModel model, string name, Guid guid, IPortOwner owner, DataArrivalHandler dah)
+        public SimpleInputPort(IModel model, string name, Guid guid, IPortOwner owner, DataArrivalHandler? dah)
             : base(model, name, guid, owner)
         {
             if (dah != null)
@@ -42,13 +41,13 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event is fired when new data is available to be taken from a port.
         /// </summary>
-        public event PortEvent DataAvailable;
+        public event PortEvent? DataAvailable;
 
         private bool CantAcceptPushedData(object data, IInputPort ip)
         {
             return false;
         }
-        private DataArrivalHandler _dataArrivalHandler;
+        private DataArrivalHandler? _dataArrivalHandler;
 
         #region Implementation of IInputPort
         /// <summary>
@@ -63,7 +62,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 DetachedPortInUse();
             }
             OnPresentingData(newData);
-            bool b = _dataArrivalHandler(newData, this);
+            bool b = _dataArrivalHandler!(newData, this); // Set to null only when detached.
             if (b)
                 OnAcceptingData(newData);
             else
@@ -81,8 +80,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             {
                 DetachedPortInUse();
             }
-            if (DataAvailable != null)
-                DataAvailable(this);
+            DataAvailable?.Invoke(this);
         }
 
         /// <summary>
@@ -91,7 +89,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// IPortOwner that owns this port.
         /// </summary>
         /// <value>The DataArrivalHandler.</value>
-        public DataArrivalHandler PutHandler
+        public DataArrivalHandler? PutHandler
         {
             get
             {
@@ -125,13 +123,13 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// determine which of potentially more than one available data element is
         /// to be provided to the requestor.</param>
         /// <returns>A reference to the object, if any, that is on the upstream port.</returns>
-        public object OwnerPeek(object selector)
+        public object? OwnerPeek(object? selector)
         {
             if (HasBeenDetached)
             {
                 DetachedPortInUse();
             }
-            return Connector.Peek(selector);
+            return Connector!.Peek(selector!); // Connector is required for owner pulls.
         }
         /// <summary>
         /// The owner of an Input Port uses this to remove an object from the port.
@@ -140,13 +138,13 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// determine which of potentially more than one available data element is
         /// to be provided to the requestor.</param>
         /// <returns>The object that heretofore was on the input port.</returns>
-        public object OwnerTake(object selector)
+        public object? OwnerTake(object? selector)
         {
             if (HasBeenDetached)
             {
                 DetachedPortInUse();
             }
-            object obj = Connector.Take(selector);
+            object? obj = Connector!.Take(selector!); // Connector is required for owner pulls.
             if (obj != null)
             {
                 OnPresentingData(obj);

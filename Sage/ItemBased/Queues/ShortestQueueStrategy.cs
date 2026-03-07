@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -9,7 +8,7 @@ namespace Highpoint.Sage.ItemBased.Queues
     public class ShortestQueueStrategy : ISelectionStrategy
     {
 
-        ICollection _queues;
+        ICollection _queues = new ArrayList();
 
         public ShortestQueueStrategy()
         {
@@ -23,16 +22,17 @@ namespace Highpoint.Sage.ItemBased.Queues
             }
             set
             {
+                ArgumentNullException.ThrowIfNull(value);
                 _queues = value;
             }
         }
 
-        public object GetNext(object context)
+        public object GetNext(object? context)
         {
             if (_queues.Count == 0)
                 throw new ApplicationException("Queue selector has no queues to select from.");
             int emptiestCount = int.MaxValue;
-            Queue nextQueue = null;
+            Queue? nextQueue = null;
             foreach (Queue queue in _queues)
             {
                 if (queue.Count < emptiestCount)
@@ -41,7 +41,7 @@ namespace Highpoint.Sage.ItemBased.Queues
                     nextQueue = queue;
                 }
             }
-            return nextQueue;
+            return nextQueue ?? throw new ApplicationException("Queue selector has no queues to select from.");
         }
     }
 }

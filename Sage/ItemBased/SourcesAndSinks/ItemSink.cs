@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Ports;
@@ -13,12 +12,12 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
     /// <summary>
     /// Implemented by a method that is intended to consume objects.
     /// </summary>
-    public delegate void ObjectSink(object theObject);
+    public delegate void ObjectSink(object? theObject);
 
     public class ItemSink : IPortOwner, IModelObject
     {
 
-        public event ObjectSink ObjectSunk;
+        public event ObjectSink? ObjectSunk;
         private readonly SimpleInputPort _input;
         public IInputPort Input;
 
@@ -41,9 +40,9 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         /// <returns>
         /// 	<c>true</c> if this instance can accept pushed data; otherwise, <c>false</c>.
         /// </returns>
-		private bool CanAcceptPushedData(object data, IInputPort port)
+		private bool CanAcceptPushedData(object? data, IInputPort port)
         {
             return true;
         }
@@ -79,7 +78,7 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -90,7 +89,7 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -135,7 +134,7 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             get
@@ -143,7 +142,7 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
                 return _name;
             }
         }
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// A description of this ItemSink.
         /// </summary>
@@ -156,18 +155,17 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
         #endregion
 
         private void input_PortDataAccepted(object data, IPort where)
         {
-            if (ObjectSunk != null)
-                ObjectSunk(data);
+            ObjectSunk?.Invoke(data);
         }
     }
 }

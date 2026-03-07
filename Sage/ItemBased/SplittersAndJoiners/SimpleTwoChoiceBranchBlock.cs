@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.SimCore;
@@ -8,14 +7,15 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
 {
     public abstract class SimpleTwoChoiceBranchBlock : SimpleBranchBlock
     {
-        protected IOutputPort Out0, Out1;
+        protected IOutputPort Out0 = null!;
+        protected IOutputPort Out1 = null!;
         public SimpleTwoChoiceBranchBlock(IModel model, string name, Guid guid) : base(model, name, guid) { }
 
         protected override void SetUpOutputPorts()
         {
-            Out0 = new SimpleOutputPort(Model, "Out0", Guid.NewGuid(), this, null, null);
+            Out0 = new SimpleOutputPort(Model!, "Out0", Guid.NewGuid(), this, null, null); // Model is initialized in base ctor.
             // Ports.AddPort(m_out0); <-- Done in port's ctor.
-            Out1 = new SimpleOutputPort(Model, "Out1", Guid.NewGuid(), this, null, null);
+            Out1 = new SimpleOutputPort(Model!, "Out1", Guid.NewGuid(), this, null, null); // Model is initialized in base ctor.
             // Ports.AddPort(m_out1); <-- Done in port's ctor.
             outputs = new IOutputPort[] { Out0, Out1 };
         }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -15,10 +14,10 @@ namespace Highpoint.Sage.ItemBased
 
     public class PulseSource : IPulseSource, IDisposable
     {
-        private readonly IModel _model = null;
+        private readonly IModel _model;
         private IPeriodicity _periodicity;
         private readonly bool _initialPulse;
-        private readonly ExecEventReceiver _doPulse = null;
+        private readonly ExecEventReceiver _doPulse;
         public PulseSource(IModel model, IPeriodicity periodicity, bool initialPulse)
         {
             _model = model;
@@ -47,20 +46,19 @@ namespace Highpoint.Sage.ItemBased
             }
         }
 
-        private void DoPause(IExecutive exec, object userData)
+        private void DoPause(IExecutive exec, object? userData)
         {
             DateTime nextPulse = exec.Now + TimeSpanOperations.Max(TimeSpan.Zero, _periodicity.GetNext());
             exec.RequestDaemonEvent(_doPulse, nextPulse, 0.0, null);
         }
 
-        private void DoPulse(IExecutive exec, object userData)
+        private void DoPulse(IExecutive exec, object? userData)
         {
-            if (PulseEvent != null)
-                PulseEvent();
+            PulseEvent?.Invoke();
             DoPause(exec, null);
         }
 
-        public event PulseEvent PulseEvent;
+        public event PulseEvent? PulseEvent;
 
         public IPeriodicity Periodicity
         {

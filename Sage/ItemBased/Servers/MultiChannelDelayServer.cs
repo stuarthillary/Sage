@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Mathematics;
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         #region >>> Private Fields <<<
         private readonly SimpleInputPort _entryPort;
         private readonly SimpleOutputPort _exitPort;
-        TimeSpanDistribution _timeSpanDistribution;
+        TimeSpanDistribution _timeSpanDistribution = null!; // Set in ctor.
         private readonly ArrayList _inService;
         private readonly int _capacity;
         private int _pending;
@@ -67,9 +66,9 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         public TimeSpanDistribution DelayDistribution
@@ -85,7 +84,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         }
 
         // Always accept a service object. (Simplification - might not.)
-        private bool OnDataPresented(object patient, IInputPort port)
+        private bool OnDataPresented(object? patient, IInputPort port)
         {
             bool retval = false;
             lock (this)
@@ -98,22 +97,28 @@ namespace Highpoint.Sage.ItemBased.Servers
         }
 
         // Take from the entry port, and place it on the queue's input.
-        private bool OnDataArrived(object data, IInputPort port)
+        private bool OnDataArrived(object? data, IInputPort port)
         {
+            if (data == null)
+            {
+                return false;
+            }
             _inService.Add(data);
             _pending--;
-            if (ServiceBeginning != null)
-                ServiceBeginning(this, data);
+            ServiceBeginning?.Invoke(this, data);
             DateTime releaseTime = _model.Executive.Now + _timeSpanDistribution.GetNext();
             _model.Executive.RequestEvent(_releaseObject, releaseTime, 0.0, data);
             return true;
         }
 
-        private void ReleaseObject(IExecutive exec, object userData)
+        private void ReleaseObject(IExecutive exec, object? userData)
         {
+            if (userData == null)
+            {
+                return;
+            }
             _inService.Remove(userData);
-            if (ServiceCompleted != null)
-                ServiceCompleted(this, userData);
+            ServiceCompleted?.Invoke(this, userData);
             _exitPort.OwnerPut(userData);
         }
 
@@ -136,7 +141,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// </summary>
         /// <param name="channel">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channel)
+        public IPort? AddPort(string channel)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -147,7 +152,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="channelTypeName">The channel - usually "Input" or "Output", sometimes "Control", "Kanban", etc.</param>
         /// <param name="guid">The GUID to be assigned to the new port.</param>
         /// <returns>The newly-created port. Can return null if this is not supported.</returns>
-        public IPort AddPort(string channelTypeName, Guid guid)
+        public IPort? AddPort(string channelTypeName, Guid guid)
         {
             return null; /*Implement AddPort(string channel); */
         }
@@ -193,7 +198,7 @@ namespace Highpoint.Sage.ItemBased.Servers
 
         #region Implementation of IModelObject
 
-        private string _name = null;
+        private string _name = null!; // Set in InitializeIdentity().
         public string Name
         {
             get
@@ -201,7 +206,7 @@ namespace Highpoint.Sage.ItemBased.Servers
                 return _name;
             }
         }
-        private string _description = null;
+        private string _description = null!; // Set in InitializeIdentity().
         /// <summary>
         /// A description of this BufferedServer.
         /// </summary>
@@ -214,12 +219,12 @@ namespace Highpoint.Sage.ItemBased.Servers
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model;
+        private IModel _model = null!; // Set in InitializeIdentity().
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         #endregion
 
@@ -279,7 +284,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// This server has no periodicity, but rather a TimeSpanDistribution (since it
         /// services multiple objects at the same time.)
         /// </summary>
-        public IPeriodicity Periodicity
+        public IPeriodicity? Periodicity
         {
             get
             {
@@ -290,9 +295,9 @@ namespace Highpoint.Sage.ItemBased.Servers
             }
         }
 
-        public event ServiceEvent ServiceBeginning;
+        public event ServiceEvent? ServiceBeginning;
 
-        public event ServiceEvent ServiceCompleted;
+        public event ServiceEvent? ServiceCompleted;
 
         #endregion
     }

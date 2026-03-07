@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.ItemBased.Connectors;
@@ -23,7 +22,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This property represents the connector object that this port is associated with.
         /// </summary>
-        IConnector Connector
+        IConnector? Connector
         {
             get; set;
         }
@@ -31,7 +30,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This property contains the owner of the port.
         /// </summary>
-        IPortOwner Owner
+        IPortOwner? Owner
         {
             get;
         }
@@ -49,7 +48,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// port is connected, or null, if there is no connector, and/or no port on the
         /// other end of a connected connector.
         /// </summary>
-        IPort Peer
+        IPort? Peer
         {
             get;
         }
@@ -61,7 +60,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// itself.
         /// </summary>
         /// <returns>The default out-of-band data from this port.</returns>
-        object GetOutOfBandData();
+        object? GetOutOfBandData();
 
         /// <summary>
         /// Returns out-of-band data from this port. Out-of-band data is data that is
@@ -70,7 +69,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         /// <param name="selector">The key of the sought metadata.</param>
         /// <returns>The desired out-of-band metadata.</returns>
-        object GetOutOfBandData(object selector);
+        object? GetOutOfBandData(object selector);
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Highpoint.Sage.ItemBased.Ports.IPort"/> is intrinsic. An intrinsic
