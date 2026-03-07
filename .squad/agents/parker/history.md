@@ -102,3 +102,26 @@
 - **Build/Test:** `dotnet build Sage4-Everything.sln` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
 - **Remaining:** 136 files still `#nullable disable` (412 enabled total, 548 total in Sage/).
 - **Phase 7 completion:** All Graphs module files migrated successfully. Largest and most complex module done. Ready for Phase 8.
+
+### 2026-07-16 — Nullable Phase 8 (Persistence + Final Cleanup) ✅ **MIGRATION COMPLETE**
+
+- **Scope:** Removed `#nullable disable` from final 134 files across Core (35), Mathematics (53), Persistence (6), Resources (30), SmartPropertyBag (9), Presentation (1).
+- **Core files:** BaseModelObject, DefaultModelStates, DetachableEventSynchronizer, EnumStateMachine, ExceptionHandler, ExecController, IMOHelper, InitializationManager, InitializationException, InitializerArgAttribute, InitializerAttribute, InvalidTransitionHandler, MergedTransitionHandler, MetronomeBase, ModelExceptionError, ModelObjectDictionary, SimpleMetronome, StateMachine, TransitionFailureException, TransitionHandler, plus all enums (ExecEventType, ExecState, ExecType, InitializationType, RefType) and attributes (DefaultValueAttribute, TaskGraphVolatileAttribute, VolatileKey).
+- **Mathematics module:** All 53 files migrated — distributions (Binomial, Cauchy, Exponential, Normal, Lognormal, Poisson, Triangular, Uniform, Weibull, etc.), CDFs, histograms (1D for Double/DateTime/TimeSpan), interpolators, scaling adapters, regression, operations, extensions.
+- **Persistence module:** DeserializationContext, DynamicConstruction, IDirtyable, ISerializer, IXElementSerializable, IXmlPersistable (6 files). **Permanent disables preserved:** XmlSerializationContext, WeakHashTable (architectural complexity).
+- **Resources module:** All 30 files migrated — interfaces (IAccessManager, IAccessRegulator, IResource, IResourceManager, etc.), implementations (Resource, ResourceManager, ResourceTracker, etc.), requests, events, exceptions.
+- **SmartPropertyBag module:** All 9 files migrated — HierarchicalDictionaryEntry, SmartPropertyBag, WriteLock, SPBInitializer, IHasWriteLock, ISPBTreeNode, exceptions.
+- **Presentation:** Converters.cs migrated.
+- **Nullability patterns applied:**
+  - Event delegates all nullable (`event EventHandler? Name;`)
+  - `object userData` → `object?` throughout (kept non-generic as architectural decision)
+  - `IModel?`, `string?` for fields/properties that can be null
+  - `= null!` for deferred-init fields with comments
+  - `!` null-forgiving operator used sparingly with explanatory comments
+  - IComparer implementations: `Compare(object? x, object? y)`
+  - Generic model error/warning: nullable `subject` and `innerException`
+  - Dictionary lookups and `as` casts → nullable types
+- **Build/Test:** `dotnet build Sage4-Everything.sln --no-incremental` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
+- **Final count:** 2 files with `#nullable disable` (WeakHashTable.cs, XmlSerializationContext.cs) — both permanent exclusions by design.
+- **Coverage:** 546 of 548 files nullable-enabled (99.6% coverage).
+- **Phase 8 completion:** ✅ **NULLABLE REFERENCE TYPE MIGRATION COMPLETE.** All planned files migrated successfully. Zero regressions, full test coverage maintained.
