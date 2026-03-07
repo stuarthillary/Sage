@@ -1,5 +1,15 @@
-
-### 2026-03-07 — Rename Sage4.csproj → Sage.csproj, Set RootNamespace=Highpoint.Sage ✅
+
+### 2026-07-16 — Rename namespace Highpoint.Sage.SimCore → Highpoint.Sage.Core ✅
+
+- **Scope:** 268 files changed across src, tests, benchmarks, and samples
+- **Replacements:** `Highpoint.Sage.SimCore` (full prefix) replaced in 259 .cs files via bulk replace
+- **Partial qualifiers:** 9 additional files used bare `SimCore.X` references — fixed to `Core.X` or dropped prefix where `using Highpoint.Sage.Core;` was already present (IEdge.cs, IProcedureFunctionChart.cs)
+- **Ambiguity fix:** `IProcedureFunctionChart` used `ICloneable` which became ambiguous between `Highpoint.Sage.Core.ICloneable` and `System.ICloneable`; qualified as `Core.ICloneable`
+- **Config:** `tests\TestDriver\app.config` `ExecutiveType` value updated from `Highpoint.Sage.SimCore.Executive` → `Highpoint.Sage.Core.Executive`
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing
+- **Decision:** Namespace for Core module is `Highpoint.Sage.Core` (not `SimCore`)
+
+
 
 - **Project file:** `src\Sage\Sage4.csproj` → `src\Sage\Sage.csproj` (via `git mv`, history preserved)
 - **RootNamespace:** `Highpoint.Sage` added to Sage.csproj `<PropertyGroup>`

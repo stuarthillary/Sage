@@ -1984,3 +1984,23 @@ The root namespace for the Sage library has been changed from `Sage` to `Highpoi
 - `dotnet build Sage.slnx -v minimal` → 0 errors, 0 warnings baseline
 - `dotnet test tests\SageTestLib\SageTestLib.csproj` → 319/319 passing
 
+
+---
+
+# Decision: Core Module Namespace
+
+**Date:** 2026-07-16  
+**Author:** Parker  
+
+## Decision
+
+The namespace for the Core module is `Highpoint.Sage.Core` (not `Highpoint.Sage.SimCore`).
+
+## Rationale
+
+Files in `src\Sage\Core\` were using the legacy namespace suffix `SimCore`, a holdover from the original naming. The namespace has been aligned to match the folder/module convention: `Highpoint.Sage.Core`.
+
+## Scope
+
+All `*.cs` files across the repo — `src`, `tests`, `benchmarks`, and `samples` — now use `Highpoint.Sage.Core` for the Core module. The `ExecutiveType` config value in `TestDriver` was also updated.
+
