@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Sage\Sage4.csproj" />
+    <ProjectReference Include="..\..\src\Sage\Sage4.csproj" />
     <ProjectReference Include="..\SageTestLib\SageTestLib.csproj" />
   </ItemGroup>
 </Project>

@@ -20,6 +20,6 @@
     <PackageReference Include="coverlet.collector" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sage\Sage4.csproj" />
+    <ProjectReference Include="..\..\src\Sage\Sage4.csproj" />
   </ItemGroup>
 </Project>
