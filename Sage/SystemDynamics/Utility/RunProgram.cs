@@ -1,4 +1,4 @@
-#nullable disable
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,11 +11,11 @@ namespace Highpoint.Sage.SystemDynamics.Utility
         public static void Run(
             string[] args,
             Integrator integrator = Integrator.Euler,
-            XElement parameters = null,
-            string outputFileName = null,
-            string header = null,
-            Action<TextWriter, T1> toWrite = null,
-            T1 seed = null,
+            XElement? parameters = null,
+            string? outputFileName = null,
+            string? header = null,
+            Action<TextWriter, T1>? toWrite = null,
+            T1? seed = null,
             bool startExcel = false)
         {
             outputFileName = outputFileName ?? Path.GetTempPath() + typeof(T1).FullName + Guid.NewGuid() + string.Format("{0}.csv", integrator);

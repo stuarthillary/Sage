@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 /*###############################################################################
 #  Material previously published at http://builder.com/5100-6387_14-5025380.html
@@ -29,7 +28,7 @@ namespace Highpoint.Sage.Dependencies
         protected GraphCycleException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
         #endregion
 
-        private IList _members = null;
+        private IList _members = null!; // Set in constructors or during deserialization.
         /// <summary>
         /// Gets the members of the cycle.
         /// </summary>

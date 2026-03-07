@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -7,7 +6,7 @@ namespace Highpoint.Sage.Randoms
     internal class RandomChannel : IRandomChannel
     {
 
-        protected ULongGetter GetNextULong;
+        protected ULongGetter GetNextULong = null!; // Assigned in constructors.
         protected readonly MersenneTwisterFast Mtf;
 
         public RandomChannel(ulong seed)
@@ -70,7 +69,7 @@ namespace Highpoint.Sage.Randoms
         }
 
 
-        public void NextBytes(byte[] bytes)
+        public void NextBytes(byte[]? bytes)
         {
             if (bytes == null || bytes.Length == 0)
                 return;

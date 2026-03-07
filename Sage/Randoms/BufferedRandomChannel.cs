@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Threading;
 // ReSharper disable ClassNeverInstantiated.Global
@@ -11,13 +10,13 @@ namespace Highpoint.Sage.Randoms
         #region Private Fields
         private static readonly int min_Buffer_Size = 10;
         private readonly object _lockObject = new object();
-        private Thread _bufferThread;
+        private Thread? _bufferThread;
         private int _bufferSize;
-        private ulong[] _bufferA;
-        private ulong[] _bufferB;
-        private ulong[] _inUse;
+        private ulong[] _bufferA = System.Array.Empty<ulong>();
+        private ulong[] _bufferB = System.Array.Empty<ulong>();
+        private ulong[] _inUse = System.Array.Empty<ulong>();
         private int _nextInUseCell;
-        private ulong[] _beingFilled;
+        private ulong[] _beingFilled = System.Array.Empty<ulong>();
         private int _nFills;
         private int _nExpectedFills = 1;
         #endregion

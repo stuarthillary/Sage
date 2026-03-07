@@ -1,4 +1,4 @@
-#nullable disable
+
 using System.Collections.Generic;
 
 namespace Highpoint.Sage.SystemDynamics.Design

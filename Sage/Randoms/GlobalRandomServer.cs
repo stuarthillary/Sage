@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 // ReSharper disable ClassNeverInstantiated.Global
@@ -13,11 +12,11 @@ namespace Highpoint.Sage.Randoms
     {
         #region Private Fields
         private static readonly object @lock = new object();
-        private static volatile RandomServer _instance;
+        private static volatile RandomServer? _instance;
         private static ulong _seed = (ulong)DateTime.Now.Ticks;
         private static int _bufferSize;
         private static int _globalRandomChannelBufferSize;
-        private static IRandomChannel _globalRandomChannel;
+        private static IRandomChannel? _globalRandomChannel;
         private static ulong _globalRandomChannelSeed;
         #endregion
 
@@ -100,8 +99,9 @@ namespace Highpoint.Sage.Randoms
         /// Gets the global random channel.
         /// </summary>
         /// <value>The global random channel.</value>
-        public static IRandomChannel GlobalRandomChannel => _globalRandomChannel ??
-                                                            (_globalRandomChannel = Instance.GetRandomChannel(_globalRandomChannelSeed, _globalRandomChannelBufferSize));
+        public static IRandomChannel GlobalRandomChannel =>
+            _globalRandomChannel ??
+            (_globalRandomChannel = Instance.GetRandomChannel(_globalRandomChannelSeed, _globalRandomChannelBufferSize));
 
         /// <summary>
         /// Gets the singleton instance of the global random server.
@@ -119,7 +119,7 @@ namespace Highpoint.Sage.Randoms
                             _instance = new RandomServer(_seed, _bufferSize);
                     }
                 }
-                return _instance;
+                return _instance!; // Initialized above via double-checked locking.
             }
         }
     }

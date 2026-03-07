@@ -56,3 +56,10 @@
 - **Special handling:** ExecutiveFastLight heap internals preserved; nullable annotations and null-forgiving applied without altering queue logic.
 - **Build/Test:** `dotnet build Sage4-Everything.sln --no-incremental` succeeded; `dotnet test SageTestLib` total 319, passed 319.
 - **Notes:** 23 files now #nullable enable; 519 files still #nullable disable.
+
+### 2026-03-07 — Nullable Phase 4 (Dependencies/Randoms/SystemDynamics) ✅
+
+- **Scope:** Removed `#nullable disable` from Dependencies, Randoms, and SystemDynamics (incl. Design/Utility).
+- **Nullability fixes:** GraphSequencer/GraphCycleException annotations, Randoms buffering fields, StateBase Configure fields/collections and distro cache, RunProgram optional parameters.
+- **Build/Test:** `dotnet build Sage\Sage4.csproj` clean; `dotnet build Sage4-Everything.sln` blocked by permission prompt; `dotnet test SageTestLib` 319/319.
+- **Remaining:** 370 files still `#nullable disable` (178 enabled total).

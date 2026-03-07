@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 // ReSharper disable ClassNeverInstantiated.Global
@@ -49,6 +48,6 @@ namespace Highpoint.Sage.Randoms
 		/// Fills an array with random bytes.
 		/// </summary>
 		/// <param name="bytes"></param>
-		void NextBytes(byte[] bytes);
+        void NextBytes(byte[]? bytes);
     }
 }

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 /*###############################################################################
 #  Material previously published at http://builder.com/5100-6387_14-5025380.html
@@ -19,18 +18,15 @@ namespace Highpoint.Sage.Dependencies
     public class GraphSequencer : ISequencer
     {
 
-        private readonly ArrayList _vertices = null;
-        private IList _serviceSequenceList = null;
+        private readonly ArrayList _vertices = new ArrayList();
+        private IList? _serviceSequenceList;
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("GraphSequencer");
         private static readonly bool _diagnostics_StackCheck = Diagnostics.DiagnosticAids.Diagnostics("GraphSequencer.StackCheck");
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:GraphSequencer"/> class.
         /// </summary>
-        public GraphSequencer()
-        {
-            _vertices = new ArrayList();
-        }
+        public GraphSequencer() { }
 
         /// <summary>
         /// Call this with a collection of IDependencyVertex objects to add them to the
@@ -72,7 +68,7 @@ namespace Highpoint.Sage.Dependencies
         {
             if (_serviceSequenceList == null)
                 RecalculateServiceSequence();
-            return _serviceSequenceList;
+            return _serviceSequenceList!; // Set by RecalculateServiceSequence().
         }
 
         /// <summary>
@@ -143,7 +139,7 @@ namespace Highpoint.Sage.Dependencies
                     //foreach ( Vertex v in lstVerts ) _Debug.WriteLine(v.Underlying + " : " + v.Order);
 
                     // Move the least vertex to the ServiceOrder list.
-                    VertexRecord next = (VertexRecord)lstVerts[0];
+                    VertexRecord next = (VertexRecord)lstVerts[0]!;
                     lstVerts.RemoveAt(0);
                     _serviceSequenceList.Add(next.Underlying);
 
@@ -266,8 +262,15 @@ namespace Highpoint.Sage.Dependencies
 
         public class DefaultVertexComparer : IComparer
         {
-            public int Compare(object x, object y)
+            public int Compare(object? x, object? y)
             {
+                if (x is null && y is null)
+                    return 0;
+                if (x is null)
+                    return -1;
+                if (y is null)
+                    return 1;
+
                 VertexRecord v1 = (VertexRecord)x;
                 VertexRecord v2 = (VertexRecord)y;
 
@@ -310,7 +313,7 @@ namespace Highpoint.Sage.Dependencies
             {
                 foreach (IDependencyVertex idv in _underlying.PredecessorList)
                 {
-                    VertexRecord v = (VertexRecord)otherVertices[idv];
+                    VertexRecord v = (VertexRecord)otherVertices[idv]!; // Key exists from _vertices population.
                     v.Order++;
                 }
             }
@@ -319,7 +322,7 @@ namespace Highpoint.Sage.Dependencies
             {
                 foreach (IDependencyVertex idv in _underlying.PredecessorList)
                 {
-                    VertexRecord v = (VertexRecord)otherVertices[idv];
+                    VertexRecord v = (VertexRecord)otherVertices[idv]!; // Key exists from _vertices population.
                     v.Order--;
                 }
             }

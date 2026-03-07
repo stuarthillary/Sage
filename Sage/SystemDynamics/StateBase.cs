@@ -1,4 +1,4 @@
-#nullable disable
+
 using Highpoint.Sage.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -21,18 +21,18 @@ namespace Highpoint.Sage.SystemDynamics
         public abstract string[] StockNames();
         public abstract string[] FlowNames();
 
-        public List<Func<StateBase<T>, double>> Flows;
+        public List<Func<StateBase<T>, double>> Flows = null!; // Set during Configure().
 
-        public Func<StateBase<T>, double>[] StockGetters;
+        public Func<StateBase<T>, double>[] StockGetters = null!; // Set during Configure().
 
-        public Action<StateBase<T>, double>[] StockSetters;
+        public Action<StateBase<T>, double>[] StockSetters = null!; // Set during Configure().
 
-        public List<int[]> StockInflows;
-        public List<int[]> StockOutflows;
+        public List<int[]> StockInflows = null!; // Set during Configure().
+        public List<int[]> StockOutflows = null!; // Set during Configure().
 
         public abstract StateBase<T> Copy();
 
-        public abstract void Configure(XElement parameters = null);
+        public abstract void Configure(XElement? parameters = null);
 
         // Library functions go here.
 
@@ -49,8 +49,7 @@ namespace Highpoint.Sage.SystemDynamics
 
         private IDoubleDistribution getDistro(string key, Func<IDoubleDistribution> creator)
         {
-            IDoubleDistribution retval;
-            if (!_distros.TryGetValue(key, out retval))
+            if (!_distros.TryGetValue(key, out IDoubleDistribution? retval) || retval == null)
             {
                 retval = creator();
                 _distros.Add(key, retval);
@@ -456,7 +455,7 @@ namespace Highpoint.Sage.SystemDynamics
             private readonly double _delay;
             private readonly double _dt;
             private readonly int _nStages;
-            private double[] _hold;
+            private double[] _hold = Array.Empty<double>();
             private bool _hasInitialValue;
             private readonly string _myString;
 
@@ -594,7 +593,7 @@ namespace Highpoint.Sage.SystemDynamics
         {
             private readonly double _averagingTime;
             private readonly int _nStages;
-            private double[] _hold;
+            private double[] _hold = Array.Empty<double>();
             private bool _hasInitialValue;
             private readonly string _myString;
 

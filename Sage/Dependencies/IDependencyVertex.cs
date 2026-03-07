@@ -1,4 +1,4 @@
-#nullable disable
+
 /* This source code licensed under the GNU Affero General Public License */
 /*###############################################################################
 #  Material previously published at http://builder.com.com/5100-6387_14-5025380.html
