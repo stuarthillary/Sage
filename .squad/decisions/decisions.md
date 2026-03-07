@@ -2004,3 +2004,65 @@ Files in `src\Sage\Core\` were using the legacy namespace suffix `SimCore`, a ho
 
 All `*.cs` files across the repo — `src`, `tests`, `benchmarks`, and `samples` — now use `Highpoint.Sage.Core` for the Core module. The `ExecutiveType` config value in `TestDriver` was also updated.
 
+---
+
+# Decision: Samples Project Renamed to Sample.Examples
+
+**Date:** 2026-07-16  
+**Decided by:** Parker (on behalf of Stuart)  
+**Status:** Implemented ✅
+
+## Decision
+
+The samples project has been renamed from `Sage_SampleCode.csproj` to `Sample.Examples.csproj` with full namespace refactoring from `Demo.*` to `Highpoint.Sage.Examples.*`.
+
+## Context
+
+The samples project needed to be renamed to follow team naming conventions and align with the `Highpoint.Sage.*` namespace pattern used throughout the codebase.
+
+## Implementation Details
+
+### Project File
+- **Old:** `samples\Sage_SampleCode\Sage_SampleCode.csproj`
+- **New:** `samples\Sage_SampleCode\Sample.Examples.csproj`
+- **Method:** Used `git mv` to preserve history
+- **RootNamespace:** `Highpoint.Sage.Examples`
+- **AssemblyName:** `Sample.Examples`
+
+### Solution File
+- Updated `Sage.slnx` to reference `Sample.Examples.csproj` instead of `Sage_SampleCode.csproj`
+- Project path remains under `samples\Sage_SampleCode\` (folder not renamed)
+
+### Namespace Changes
+- All `namespace Demo.*` declarations → `namespace Highpoint.Sage.Examples.*`
+- All fully-qualified type references in Program.cs updated from `Demo.Executive.*` → `Highpoint.Sage.Examples.Executive.*`
+- Reflection logic updated to strip 24-character prefix (`Highpoint.Sage.Examples.`) instead of 5-character prefix (`Demo.`)
+
+### Files Modified
+- 9 C# source files: `1_Executive.cs`, `2_StateManagement.cs`, `3_RandomServer.cs`, `4_StateMachine.cs`, `5_IntroToModel.cs`, `6_Resources.cs`, `7_SequenceControl.cs`, `Domain.cs`, `Program.cs`
+- 1 solution file: `Sage.slnx`
+- 1 project file: renamed
+
+## Verification
+
+- **Build:** `dotnet build Sage.slnx` — 0 errors
+- **Tests:** `dotnet test tests\SageTestLib\SageTestLib.csproj` — 319/319 passing
+- **Commit:** fe47bd3
+
+## Consequences
+
+### Positive
+- Samples now follow team naming pattern (Sample.Examples)
+- Namespace aligns with `Highpoint.Sage.*` convention
+- Build and all tests passing
+
+### Neutral
+- Folder name `samples\Sage_SampleCode\` remains unchanged (only .csproj filename changed)
+
+### Negative
+- None identified
+
+## Alternatives Considered
+
+None. This was a directed refactoring task.
+

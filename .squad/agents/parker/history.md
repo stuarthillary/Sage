@@ -164,3 +164,15 @@
 - **Final count:** 2 files with `#nullable disable` (WeakHashTable.cs, XmlSerializationContext.cs) — both permanent exclusions by design.
 - **Coverage:** 546 of 548 files nullable-enabled (99.6% coverage).
 - **Phase 8 completion:** ✅ **NULLABLE REFERENCE TYPE MIGRATION COMPLETE.** All planned files migrated successfully. Zero regressions, full test coverage maintained.
+
+### 2026-07-16 — Samples Project Rename to Sample.Examples ✅
+
+- **Scope:** Renamed samples project from `Sage_SampleCode.csproj` to `Sample.Examples.csproj` with namespace refactoring.
+- **Project file:** `samples\Sage_SampleCode\Sage_SampleCode.csproj` → `samples\Sage_SampleCode\Sample.Examples.csproj` (via `git mv`, history preserved)
+- **RootNamespace/AssemblyName:** Set `RootNamespace = Highpoint.Sage.Examples` and `AssemblyName = Sample.Examples` in project file
+- **Sage.slnx:** Updated project reference from `Sage_SampleCode.csproj` → `Sample.Examples.csproj`
+- **Namespace migration:** All `Demo.*` namespaces renamed to `Highpoint.Sage.Examples.*` in 9 .cs files (1_Executive, 2_StateManagement, 3_RandomServer, 4_StateMachine, 5_IntroToModel, 6_Resources, 7_SequenceControl, Domain, Program)
+- **Code references:** Updated fully-qualified type references in Program.cs from `Demo.Executive.*` → `Highpoint.Sage.Examples.Executive.*` and reflection logic from `Demo.` prefix (5 chars) → `Highpoint.Sage.Examples.` prefix (24 chars)
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing
+- **Decision:** Samples project now follows team naming pattern (Sample.Examples) and Highpoint.Sage.Examples namespace convention
+
