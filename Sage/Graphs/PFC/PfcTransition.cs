@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.PFC.Execution;
 using System;
@@ -233,3 +234,4 @@ namespace Highpoint.Sage.Graphs.PFC
         }
     }
 }
+

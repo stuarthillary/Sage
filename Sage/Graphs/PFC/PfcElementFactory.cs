@@ -1,4 +1,5 @@
-﻿/* COPYRIGHT_NOTICE */
+#nullable disable
+/* COPYRIGHT_NOTICE */
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections.Generic;
@@ -479,3 +480,4 @@ namespace Highpoint.Sage.Graphs.PFC
         #endregion
     }
 }
+

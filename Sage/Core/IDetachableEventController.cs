@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 using System.Diagnostics;
@@ -44,7 +45,7 @@ namespace Highpoint.Sage.SimCore
 		/// When a detachable event is suspended, and if DetachableEventController diagnostics are turned on,
 		/// this will return a stackTrace of the location where the DEC is suspended.
 		/// </summary>
-		StackTrace SuspendedStackTrace
+		StackTrace? SuspendedStackTrace
         {
             get;
         }
@@ -62,7 +63,7 @@ namespace Highpoint.Sage.SimCore
         /// </summary>
         /// <param name="handler">The handler.</param>
         /// <param name="args">The args.</param>
-        void SetAbortHandler(DetachableEventAbortHandler handler, params object[] args);
+        void SetAbortHandler(DetachableEventAbortHandler handler, params object?[] args);
         /// <summary>
         /// Clears the abort handler.
         /// </summary>
@@ -82,3 +83,5 @@ namespace Highpoint.Sage.SimCore
         }
     }
 }
+
+

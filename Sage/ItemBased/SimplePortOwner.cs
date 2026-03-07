@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using Highpoint.Sage.SimCore;
@@ -95,3 +96,4 @@ namespace Highpoint.Sage.ItemBased
 
 	}
 }
+

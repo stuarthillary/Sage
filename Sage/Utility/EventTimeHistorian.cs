@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -103,3 +104,4 @@ namespace Highpoint.Sage.Utility
         private static readonly string _caller_Requested_Too_Many_Data_Points = "Caller tried to obtain statistics on the last {0} events in an historian that is only tracking {1} events.";
     }
 }
+

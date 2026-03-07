@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.SimCore
 {
@@ -24,14 +25,14 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// Target is the place that the notification occurred.
         /// </summary>
-        object Target
+        object? Target
         {
             get;
         }
         /// <summary>
         /// Subject is the thing that (probably) caused the notification.
         /// </summary>
-        object Subject
+        object? Subject
         {
             get;
         }
@@ -39,4 +40,6 @@ namespace Highpoint.Sage.SimCore
 
 
 }
+
+
 

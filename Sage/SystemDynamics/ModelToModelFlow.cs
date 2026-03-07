@@ -1,4 +1,5 @@
-﻿using System;
+#nullable disable
+using System;
 
 namespace Highpoint.Sage.SystemDynamics
 {
@@ -12,3 +13,4 @@ namespace Highpoint.Sage.SystemDynamics
         }
     }
 }
+

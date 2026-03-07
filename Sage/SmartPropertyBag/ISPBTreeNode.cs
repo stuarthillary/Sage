@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable UnusedMember.Local
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable VirtualMemberNeverOverriden.Global

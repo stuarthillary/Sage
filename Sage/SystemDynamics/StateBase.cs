@@ -1,4 +1,5 @@
-﻿using Highpoint.Sage.Mathematics;
+#nullable disable
+using Highpoint.Sage.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -707,3 +708,4 @@ namespace Highpoint.Sage.SystemDynamics
         #endregion
     }
 }
+

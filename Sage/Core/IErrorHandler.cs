@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
 
@@ -28,4 +29,6 @@ namespace Highpoint.Sage.SimCore
 
 
 }
+
+
 

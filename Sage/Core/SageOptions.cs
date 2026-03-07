@@ -1,3 +1,4 @@
+#nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -107,6 +108,8 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// <summary>
         /// Gets or sets the emission models available to the service.
         /// </summary>
-        public IReadOnlyList<IEmissionModel> Models { get; set; } = null;
+        public IReadOnlyList<IEmissionModel>? Models { get; set; } = null;
     }
 }
+
+

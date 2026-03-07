@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 
@@ -20,6 +21,8 @@ namespace Highpoint.Sage.SimCore
         /// <param name="userData">The user data that was presented with this event.</param>
         /// <param name="eet">The type of event (synchronous, batched, detachable, etc.)</param>
         /// <returns>True if this event is a candidate for the operation (e.g. removal), False if not.</returns>
-        bool SelectThisEvent(ExecEventReceiver eer, DateTime when, double priority, object userData, ExecEventType eet);
+        bool SelectThisEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData, ExecEventType eet);
     }
 }
+
+

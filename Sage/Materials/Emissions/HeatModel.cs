@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using System;
 using System.Collections;
@@ -161,3 +162,4 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         }
     }
 }
+

@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 // ReSharper disable CompareOfFloatsByEqualityOperator
@@ -59,3 +60,4 @@ namespace Highpoint.Sage.Materials.Chemistry
     }
 
 }
+

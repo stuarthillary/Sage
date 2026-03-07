@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -5,7 +6,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
 {
 
     /// <summary>
-    /// Extended Antoine Coefficients are always, and only, specified in °C and mmHg.
+    /// Extended Antoine Coefficients are always, and only, specified in ï¿½C and mmHg.
     /// </summary>
 	public class AntoinesCoefficientsExt : IAntoinesCoefficientsExt
     {
@@ -275,4 +276,5 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
         #endregion
     }
 }
+
 

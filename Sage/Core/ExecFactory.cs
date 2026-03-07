@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 //Comment this out to time-bound the ability to obtain and run an executive.
 #define TIME_BOUNDED
@@ -189,3 +190,4 @@ namespace Highpoint.Sage.SimCore
         }
     }
 }
+

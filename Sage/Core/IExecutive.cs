@@ -1,3 +1,4 @@
+#nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -10,12 +11,12 @@ namespace Highpoint.Sage.SimCore
     /// This delegate is implemented by any method that is to receive a time-based callback
     /// from the executive.
     /// </summary>
-    public delegate void ExecEventReceiver(IExecutive exec, object userData);
+    public delegate void ExecEventReceiver(IExecutive exec, object? userData);
 
     /// <summary>
     /// Implemented by any object that wishes to be notified as an event is firing.
     /// </summary>
-    public delegate void EventMonitor(long key, ExecEventReceiver eer, double priority, DateTime when, object userData, ExecEventType eventType);
+    public delegate void EventMonitor(long key, ExecEventReceiver eer, double priority, DateTime when, object? userData, ExecEventType eventType);
 
     /// <summary>
     /// Implemented by any method that wants to receive notification of an executive event
@@ -73,7 +74,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <param name="execEventType">The way the event is to be served by the executive.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        long RequestImmediateEvent(ExecEventReceiver eer, object userData, ExecEventType execEventType);
+        long RequestImmediateEvent(ExecEventReceiver eer, object? userData, ExecEventType execEventType);
         /// <summary>
         /// Requests that the executive queue up a daemon event to be serviced at a specific time and
         /// priority. If only daemon events are enqueued, the executive will not be kept alive.
@@ -83,7 +84,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="priority">The priority of the callback. Higher numbers mean higher priorities.</param>
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        long RequestDaemonEvent(ExecEventReceiver eer, DateTime when, double priority, object userData);
+        long RequestDaemonEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData);
         /// <summary>
         /// Requests that the executive queue up an event to be serviced at a specific time. Priority is assumed
         /// to be zero, and the userData object is assumed to be null.
@@ -100,7 +101,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="when">The date &amp; time at which the callback is to be made.</param>
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        long RequestEvent(ExecEventReceiver eer, DateTime when, object userData);
+        long RequestEvent(ExecEventReceiver eer, DateTime when, object? userData);
         /// <summary>
         /// Requests that the executive queue up an event to be serviced at a specific time and
         /// priority.
@@ -110,7 +111,7 @@ namespace Highpoint.Sage.SimCore
         /// <param name="priority">The priority of the callback. Higher numbers mean higher priorities.</param>
         /// <param name="userData">Object data to be provided in the callback.</param>
         /// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-        long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData);
+        long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData);
         /// <summary>
 		/// Requests that the executive queue up an event to be serviced at a specific time and
 		/// priority.
@@ -121,7 +122,7 @@ namespace Highpoint.Sage.SimCore
 		/// <param name="userData">Object data to be provided in the callback.</param>
 		/// <param name="execEventType">The way the event is to be served by the executive.</param>
 		/// <returns>A code that can subsequently be used to identify the request, e.g. for removal.</returns>
-		long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object userData, ExecEventType execEventType);
+		long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData, ExecEventType execEventType);
         /// <summary>
         /// Resubmits a copy of an event already in queue, optionally .
         /// </summary>
@@ -199,7 +200,7 @@ namespace Highpoint.Sage.SimCore
         /// The DetachableEventController associated with the currently-executing event, if it was
         /// launched as a detachable event. Otherwise, it returns null.
         /// </summary>
-        IDetachableEventController CurrentEventController
+        IDetachableEventController? CurrentEventController
         {
             get;
         }
@@ -299,3 +300,5 @@ namespace Highpoint.Sage.SimCore
 
     }
 }
+
+

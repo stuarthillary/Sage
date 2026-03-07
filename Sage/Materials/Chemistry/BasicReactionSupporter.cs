@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Persistence;
 using System;
@@ -72,3 +73,4 @@ namespace Highpoint.Sage.Materials.Chemistry
         #endregion
     }
 }
+

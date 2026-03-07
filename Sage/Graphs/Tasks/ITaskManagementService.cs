@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
 using System.Collections;
@@ -55,3 +56,4 @@ namespace Highpoint.Sage.Graphs.Tasks
         ICollection GetTasks(bool masterTasksOnly);
     }
 }
+

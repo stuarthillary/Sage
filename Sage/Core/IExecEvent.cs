@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 // ReSharper disable RedundantDefaultMemberInitializer
@@ -39,7 +40,7 @@ namespace Highpoint.Sage.SimCore
         /// Gets the user data to be provided to the method into which the event will be served.).
         /// </summary>
         /// <value>The user data.</value>
-        object UserData
+        object? UserData
         {
             get;
         }
@@ -76,3 +77,5 @@ namespace Highpoint.Sage.SimCore
         string ToString();
     }
 }
+
+

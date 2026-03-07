@@ -1,3 +1,4 @@
+#nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -14,7 +15,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// An exception that may have been caught in the detection of this error.
         /// </summary>
-        Exception InnerException
+        Exception? InnerException
         {
             get;
         }
@@ -31,4 +32,6 @@ namespace Highpoint.Sage.SimCore
 
 
 }
+
+
 

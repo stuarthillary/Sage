@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections.Generic;
 
@@ -78,3 +79,4 @@ namespace Highpoint.Sage.ItemBased.Ports
         private static List<IPortChannelInfo> stdinandoutlist = new List<IPortChannelInfo>(new IPortChannelInfo[] { stdinput, stdoutput });
     }
 }
+

@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections.Generic;
 
@@ -193,3 +194,4 @@ namespace Highpoint.Sage.Graphs.PFC
 
     }
 }
+

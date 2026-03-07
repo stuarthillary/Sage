@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 
@@ -14,7 +15,7 @@ namespace Highpoint.Sage.SimCore
         /// <summary>
         /// A description of this object.
         /// </summary>
-        string Description
+        string? Description
         {
             get;
         }
@@ -28,3 +29,5 @@ namespace Highpoint.Sage.SimCore
         }
     }
 }
+
+

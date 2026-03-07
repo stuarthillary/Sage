@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
 using PN = Highpoint.Sage.Materials.Chemistry.Emissions.EmissionModel.ParamNames;
@@ -156,3 +157,4 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         }
     }
 }
+

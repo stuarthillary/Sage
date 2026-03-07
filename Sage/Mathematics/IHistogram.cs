@@ -1,4 +1,5 @@
-﻿using Highpoint.Sage.SimCore;
+#nullable disable
+using Highpoint.Sage.SimCore;
 using System.Numerics;
 
 namespace Highpoint.Sage.Mathematics;

@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.PFC.Execution;
 using Highpoint.Sage.Graphs.PFC.Expressions;
@@ -68,3 +69,4 @@ namespace Highpoint.Sage.Graphs.PFC
 
     }
 }
+

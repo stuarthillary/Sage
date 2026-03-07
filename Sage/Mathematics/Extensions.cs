@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -330,3 +331,4 @@ namespace Highpoint.Sage.Mathematics
         internal class PercentileData { public double Min { get; set; } public LinearDoubleInterpolator Ldi { get; set; } };
     }
 }
+

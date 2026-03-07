@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 // ReSharper disable UnusedMemberInSuper.Global
@@ -33,6 +34,7 @@ namespace Highpoint.Sage.Mathematics
         All = 0x07
     }
 }
+
 
 
 

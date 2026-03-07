@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
 using Highpoint.Sage.SimCore; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
@@ -44,3 +45,4 @@ namespace Highpoint.Sage.Graphs
 		object Channel { get; set; }
 	}
 }
+

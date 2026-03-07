@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 // ReSharper disable InconsistentNaming
@@ -27,3 +28,4 @@ namespace Highpoint.Sage.Materials.Chemistry
         public static readonly double KELVIN_TO_CELSIUS = -273.15;
     }
 }
+

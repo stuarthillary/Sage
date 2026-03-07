@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -123,3 +124,4 @@ namespace Highpoint.Sage.Graphs
         }
     }
 }
+

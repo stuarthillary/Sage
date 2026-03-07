@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.SimCore
 {
@@ -13,4 +14,6 @@ namespace Highpoint.Sage.SimCore
 
 
 }
+
+
 

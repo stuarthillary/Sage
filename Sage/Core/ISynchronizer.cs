@@ -1,3 +1,4 @@
+#nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -25,3 +26,5 @@ namespace Highpoint.Sage.SimCore
         ISynchChannel GetSynchChannel(IComparable sequence);
     }
 }
+
+

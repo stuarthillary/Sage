@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+#nullable disable
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.SystemDynamics.Design
 {
@@ -72,3 +73,4 @@ namespace Highpoint.Sage.SystemDynamics.Design
         }
     }
 }
+

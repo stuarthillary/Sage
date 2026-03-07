@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -249,3 +250,4 @@ namespace Highpoint.Sage.Graphs.PFC
         }
     }
 }
+

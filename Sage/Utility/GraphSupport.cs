@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 #define PREANNOUNCE
 
@@ -181,3 +182,4 @@ namespace Highpoint.Sage.Utility {
     }  
 }
 #endif
+

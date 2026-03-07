@@ -1,4 +1,5 @@
-﻿namespace Highpoint.Sage.SystemDynamics
+#nullable disable
+namespace Highpoint.Sage.SystemDynamics
 {
     public enum Integrator
     {

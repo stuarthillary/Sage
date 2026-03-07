@@ -1,10 +1,11 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Randoms {
     /// <summary>
     /// This is a port of Takuji Nishimura and Makoto Matsumoto's famous
     /// Mersenne Twister Pseudorandom number generator. It was ported to C#
-    /// by Peter Bosch for Highpoint Software Systems, LLC's Sage®
+    /// by Peter Bosch for Highpoint Software Systems, LLC's Sageï¿½
     /// product. See the following, but be aware that the RandomServer
     /// architecture is independent of the PRNG being used, and is the property
     /// of, and copyrighted by, Highpoint Software Systems, LLC.
@@ -238,3 +239,4 @@ namespace Highpoint.Sage.Randoms {
 		/* These real versions are due to Isaku Wada, 2002/01/09 added */
 	}
 }
+

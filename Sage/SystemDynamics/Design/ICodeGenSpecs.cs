@@ -1,4 +1,5 @@
-﻿namespace Highpoint.Sage.SystemDynamics.Design
+#nullable disable
+namespace Highpoint.Sage.SystemDynamics.Design
 {
     public interface ICodeGenSpecs
     {
@@ -12,3 +13,4 @@
         }
     }
 }
+

@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
 
 namespace Highpoint.Sage.Materials.Chemistry.Emissions
@@ -53,3 +54,4 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         }
     }
 }
+

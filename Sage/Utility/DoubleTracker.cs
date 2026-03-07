@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Utility
@@ -129,3 +130,4 @@ namespace Highpoint.Sage.Utility
         //}
     }
 }
+

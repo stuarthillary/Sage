@@ -1,4 +1,5 @@
-﻿/* COPYRIGHT_NOTICE */
+#nullable disable
+/* COPYRIGHT_NOTICE */
 using Highpoint.Sage.Diagnostics;
 using Highpoint.Sage.Graphs.PFC.Execution;
 using Highpoint.Sage.Graphs.PFC.Expressions;
@@ -3375,3 +3376,4 @@ namespace Highpoint.Sage.Graphs.PFC
         }
     }
 }
+

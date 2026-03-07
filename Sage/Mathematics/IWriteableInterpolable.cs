@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -17,3 +18,4 @@ namespace Highpoint.Sage.Mathematics
         void SetYValue(double xValue, double yValue);
     }
 }
+

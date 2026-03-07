@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry;
@@ -1149,16 +1150,16 @@ namespace Highpoint.Sage.Materials.Thermodynamics
                 {
 
                     narrative = "Application has requested that the mixture, which is at " + TemperatureControllerContainerMixture.Temperature +
-                        " °C, be " + sDirection + " to " + TemperatureControllerSetpoint + " °C at a ramp rate of " +
-                        TemperatureRampRate.DegreesKelvin + " °C per " + TemperatureRampRate.PerTimePeriod +
+                        " ï¿½C, be " + sDirection + " to " + TemperatureControllerSetpoint + " ï¿½C at a ramp rate of " +
+                        TemperatureRampRate.DegreesKelvin + " ï¿½C per " + TemperatureRampRate.PerTimePeriod +
                         ", which it can never accomplish.";// Stack trace is : " + new System.Diagnostics.StackTrace().ToString();
 
                 }
                 else
                 {
                     narrative = "Application has requested that the mixture, which is at " + TemperatureControllerContainerMixture.Temperature +
-                        " °C, be " + sDirection + " to " + TemperatureControllerSetpoint + " °C, across a heat conductance of " + _kMix + " W/sec - but " +
-                        heatSrcName + " is at " + _tSrc + " °C, and cannot ever drive the mixture to" +
+                        " ï¿½C, be " + sDirection + " to " + TemperatureControllerSetpoint + " ï¿½C, across a heat conductance of " + _kMix + " W/sec - but " +
+                        heatSrcName + " is at " + _tSrc + " ï¿½C, and cannot ever drive the mixture to" +
                         " the target temperature.";// Stack trace is : " + new System.Diagnostics.StackTrace().ToString();
                 }
 
@@ -1292,8 +1293,8 @@ namespace Highpoint.Sage.Materials.Thermodynamics
                 string maxOrMin = ree.Equals(RangeEndError.High) ? "maximum" : "minimum";
                 double boundaryTemp = ree.Equals(RangeEndError.High) ? TemperatureControllerMaxSourceTemp : TemperatureControllerMinSourceTemp;
 
-                narrative = "Application has requested that the mixture be " + rasiedOrLowered + " to " + TemperatureControllerSetpoint + " °C, where the " +
-                        maxOrMin + " heat sink temperature is " + boundaryTemp + " °C. This cannot be accomplished.";
+                narrative = "Application has requested that the mixture be " + rasiedOrLowered + " to " + TemperatureControllerSetpoint + " ï¿½C, where the " +
+                        maxOrMin + " heat sink temperature is " + boundaryTemp + " ï¿½C. This cannot be accomplished.";
 
             }
 
@@ -1338,3 +1339,4 @@ namespace Highpoint.Sage.Materials.Thermodynamics
 
     }
 }
+

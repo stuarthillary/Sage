@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
 // ReSharper disable UnusedMemberInSuper.Global
@@ -38,3 +39,4 @@ namespace Highpoint.Sage.Graphs
 
     }
 }
+

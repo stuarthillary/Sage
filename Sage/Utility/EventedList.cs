@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -672,7 +673,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the first occurrence of an element that matches the
-        ///     conditions defined by match, if found; otherwise, –1.
+        ///     conditions defined by match, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentNullException:
@@ -698,7 +699,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the first occurrence of an element that matches the
-        ///     conditions defined by match, if found; otherwise, –1.
+        ///     conditions defined by match, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -730,7 +731,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the first occurrence of an element that matches the
-        ///     conditions defined by match, if found; otherwise, –1.
+        ///     conditions defined by match, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -778,7 +779,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the last occurrence of an element that matches the
-        ///     conditions defined by match, if found; otherwise, –1.
+        ///     conditions defined by match, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentNullException:
@@ -804,7 +805,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the last occurrence of an element that matches the
-        ///     conditions defined by match, if found; otherwise, –1.
+        ///     conditions defined by match, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -836,7 +837,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the last occurrence of an element that matches the
-        ///     conditions defined by match, if found; otherwise, –1.
+        ///     conditions defined by match, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -919,7 +920,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the first occurrence of item within the entire System.Collections.Generic.List&lt;T&gt;,
-        ///     if found; otherwise, –1.
+        ///     if found; otherwise, ï¿½1.
         public int IndexOf(T item)
         {
             return _base.IndexOf(item);
@@ -941,7 +942,7 @@ namespace Highpoint.Sage.Utility
         /// Returns:
         ///     The zero-based index of the first occurrence of item within the range of
         ///     elements in the System.Collections.Generic.List&lt;T&gt; that extends from index
-        ///     to the last element, if found; otherwise, –1.
+        ///     to the last element, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -970,7 +971,7 @@ namespace Highpoint.Sage.Utility
         /// Returns:
         ///     The zero-based index of the first occurrence of item within the range of
         ///     elements in the System.Collections.Generic.List&lt;T&gt; that starts at index and
-        ///     contains count number of elements, if found; otherwise, –1.
+        ///     contains count number of elements, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -993,7 +994,7 @@ namespace Highpoint.Sage.Utility
         ///
         /// Returns:
         ///     The zero-based index of the last occurrence of item within the entire the
-        ///     System.Collections.Generic.List&lt;T&gt;, if found; otherwise, –1.
+        ///     System.Collections.Generic.List&lt;T&gt;, if found; otherwise, ï¿½1.
         public int LastIndexOf(T item)
         {
             return _base.IndexOf(item);
@@ -1015,7 +1016,7 @@ namespace Highpoint.Sage.Utility
         /// Returns:
         ///     The zero-based index of the last occurrence of item within the range of elements
         ///     in the System.Collections.Generic.List&lt;T&gt; that extends from the first element
-        ///     to index, if found; otherwise, –1.
+        ///     to index, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:
@@ -1045,7 +1046,7 @@ namespace Highpoint.Sage.Utility
         /// Returns:
         ///     The zero-based index of the last occurrence of item within the range of elements
         ///     in the System.Collections.Generic.List&lt;T&gt; that contains count number of elements
-        ///     and ends at index, if found; otherwise, –1.
+        ///     and ends at index, if found; otherwise, ï¿½1.
         ///
         /// Exceptions:
         ///   System.ArgumentOutOfRangeException:

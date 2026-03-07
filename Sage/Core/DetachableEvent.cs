@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable enable
+/* This source code licensed under the GNU Affero General Public License */
 
 using System;
 using System.Diagnostics;
@@ -14,28 +15,28 @@ namespace Highpoint.Sage.SimCore
     /// <param name="exec">The executive whose detachable event is being aborted.</param>
     /// <param name="idec">The detachable event controller.</param>
     /// <param name="args">The arguments that were to have been provided to the ExecEventReceiver.</param>
-    public delegate void DetachableEventAbortHandler(IExecutive exec, IDetachableEventController idec, params object[] args);
+    public delegate void DetachableEventAbortHandler(IExecutive exec, IDetachableEventController idec, params object?[] args);
 
     public class DetachableEvent : IDetachableEventController
     {
 
         #region >>> Private Fields <<<
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("DetachableEventController");
-        private StackTrace _suspendedStackTrace = null;
+        private StackTrace? _suspendedStackTrace = null;
         private readonly Executive _exec;
         private readonly ExecEvent _currEvent;
         private bool _abortRequested = false;
         private DateTime _timeOfLastWait;
 
-        private ManualResetEventSlim _beginResetEvent = null;
-        private ManualResetEventSlim _resumeResetEvent = null;
-        private ManualResetEventSlim _suspendResetEvent = null;
+        private ManualResetEventSlim? _beginResetEvent = null;
+        private ManualResetEventSlim? _resumeResetEvent = null;
+        private ManualResetEventSlim? _suspendResetEvent = null;
 
         #endregion
 
-        private DetachableEventAbortHandler _abortHandler;
-        private object[] _args = null;
-        public void SetAbortHandler(DetachableEventAbortHandler handler, params object[] args)
+        private DetachableEventAbortHandler? _abortHandler;
+        private object?[]? _args = null;
+        public void SetAbortHandler(DetachableEventAbortHandler handler, params object?[] args)
         {
             _abortHandler = handler;
             _args = args;
@@ -51,7 +52,7 @@ namespace Highpoint.Sage.SimCore
         {
             if (_abortHandler != null)
             {
-                _abortHandler(_exec, this, _args);
+                _abortHandler(_exec, this, _args ?? Array.Empty<object>());
                 ClearAbortHandler();
             }
         }
@@ -107,7 +108,7 @@ namespace Highpoint.Sage.SimCore
             _exec.SetCurrentEventController(null);
 
             _suspendResetEvent = new ManualResetEventSlim(false);
-            _beginResetEvent.Set();
+            _beginResetEvent!.Set(); // Initialized in Begin before Suspend is called.
 
             if (_resumeResetEvent != null)
                 _resumeResetEvent.Set();
@@ -184,7 +185,7 @@ namespace Highpoint.Sage.SimCore
             }
         }
 
-        private void resume(IExecutive exec, object userData)
+        private void resume(IExecutive exec, object? userData)
         {
             // This method is always called on the Executive's event service thread.
 
@@ -196,7 +197,7 @@ namespace Highpoint.Sage.SimCore
 
             _exec.SetCurrentEventController(this);
             _resumeResetEvent = new ManualResetEventSlim(false);
-            _suspendResetEvent.Set();
+            _suspendResetEvent!.Set(); // Set when suspension begins before resume is invoked.
 
             _resumeResetEvent.Wait();
         }
@@ -223,7 +224,7 @@ namespace Highpoint.Sage.SimCore
         }
 
 
-        public StackTrace SuspendedStackTrace
+        public StackTrace? SuspendedStackTrace
         {
             get
             {
@@ -258,3 +259,5 @@ namespace Highpoint.Sage.SimCore
         private readonly string _errMsg1Explanation = "The caller is trying to suspend an event thread from a thread that was not launched as result of a detachable event.";
     }
 }
+
+

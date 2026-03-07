@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Materials.Thermodynamics
 {
@@ -27,3 +28,4 @@ namespace Highpoint.Sage.Materials.Thermodynamics
         Constant_RampRate
     }
 }
+

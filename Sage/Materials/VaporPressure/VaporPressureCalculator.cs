@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 //#define WE_TRUST_HENRYS_LAW_IMPLEMENTATION
 
@@ -311,7 +312,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
 //
 //--Extended Antoine equation
 //
-//log P = A - B/(C + T) + Dy÷n + Ey÷m + Fy÷k, where y = (T - To)/Tc
+//log P = A - B/(C + T) + Dyï¿½n + Eyï¿½m + Fyï¿½k, where y = (T - To)/Tc
 //
 //In these equations P represents vapor pressure and T the temperature. 'To'
 //is a boundary temperature. Below 'To' the simple Antoine equation is used,
@@ -332,3 +333,4 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
 //for each compound and used to generate additional information which accompanies the
 //tables. 
 #endregion
+

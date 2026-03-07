@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -163,3 +164,4 @@ namespace Highpoint.Sage.ItemBased
         #endregion
     }
 }
+

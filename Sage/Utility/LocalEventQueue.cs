@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 #define DEBUG_SORTING
 //#define USING_CANNED_HEAP
@@ -435,3 +436,4 @@ namespace Highpoint.Sage.Utility
 
     }
 }
+

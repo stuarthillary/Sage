@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using Highpoint.Sage.Utility;
@@ -199,3 +200,4 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
     }
 }
+

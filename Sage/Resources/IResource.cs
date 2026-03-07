@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -11,16 +12,16 @@ using Highpoint.Sage.SimCore;
 /// <para/>A continuous resource is a resource that can be acquired and released fractionally, and for which the acquired resource does not
 /// have an identity separate from the whole, such as acquiring 24.5 lbs of steam from a 200 lb steam header, or 40 kg of sodium nitrite
 /// from inventory.
-/// <para/>A discrete resource is a resource that can only be acquired 1 at a time (or 2 at a time, etc. – e.g. in integral quantities),
+/// <para/>A discrete resource is a resource that can only be acquired 1 at a time (or 2 at a time, etc. ï¿½ e.g. in integral quantities),
 /// and for which each integrally acquired resource has an identity and state, such as a piece of equipment, a barrel or a mixer.
-/// <para/>A consumable resource is a resource for which consumption and provision events are decoupled – that is, once a consumable
+/// <para/>A consumable resource is a resource for which consumption and provision events are decoupled ï¿½ that is, once a consumable
 /// resource has been removed from the pool, there is no guarantee that it will be returned to the pool. Typically, consumable resources
 /// are taken from a pool, and never returned. A different entity or set of entities is typically responsible for reprovisioning the pool,
 /// and the resources with which it reprovisions are unrelated to those formerly removed from the pool. While a consumable resource is not
 /// persistent, the pool (probably an Inventory object) is persistent.
 /// <para/>A persistent resource is a resource that is not consumed. It is taken from the pool, and later returned to the pool.
 /// <para/>Resource Object Model
-/// <para/>Creating and working with resources requires three types of entities – ResourceManager, Resource and ResourceRequest objects.
+/// <para/>Creating and working with resources requires three types of entities ï¿½ ResourceManager, Resource and ResourceRequest objects.
 /// ResourceManager objects are any that correctly implement IResourceManager, Resource objects are any that correctly implement
 /// IResource, and ResourceRequest object are any that correctly implement IResourceRequest. For convenience, the framework provides
 /// several implementations. Resource, ResourceManager and ResourceRequest are implementations of their respective interfaces, and
@@ -32,7 +33,7 @@ using Highpoint.Sage.SimCore;
 /// The resource desirer submits a resource request to the appropriate resource pool. The resource manager begins handing the resources
 /// to the request one by one, and the request scores each one. The request may examine any attribute of the resource (in addition to
 /// anything else the request is coded to consider), but must score each object. The score is a double. Double.MinValue means &quot;No,
-/// this is totally unsuitable,&quot; double.MaxValue means &quot;This is perfect. Give it to me now – I don’t need to see any more.&quot;
+/// this is totally unsuitable,&quot; double.MaxValue means &quot;This is perfect. Give it to me now ï¿½ I donï¿½t need to see any more.&quot;
 /// Any double in between is seen as a scalar value judgment, and if no resources received a double.MaxValue score, then after all
 /// resources have been scored, the one with the highest value is granted.
 /// <para/>
@@ -40,7 +41,7 @@ using Highpoint.Sage.SimCore;
 /// responsibility for the type (or instance) of resource it desires. In processing the request, the resource manager begins handing
 /// the resources to the request one by one, and the request scores each one. The request may examine any attribute of the resource
 /// (in addition to anything else the request is coded to consider), but must score each object. The score is a double. Double.MinValue
-/// means &quot;No, this is totally unsuitable,&quot; double.MaxValue means &quot;This is perfect. Give it to me now – I don’t need to
+/// means &quot;No, this is totally unsuitable,&quot; double.MaxValue means &quot;This is perfect. Give it to me now ï¿½ I donï¿½t need to
 /// see any more.&quot; Any double in between is seen as a scalar value judgment. During this processing the ResourceManager reserves
 /// any suitable resources one at a time, unreserving them only after reserving the next one if a better one is found, until finally
 /// when the best one has been found, it is acquired on behalf of the requster. If no suitable resource is requested and the request was
@@ -189,3 +190,4 @@ namespace Highpoint.Sage.Resources
 
     }
 }
+

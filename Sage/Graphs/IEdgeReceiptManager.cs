@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
 
 namespace Highpoint.Sage.Graphs
@@ -11,3 +12,4 @@ namespace Highpoint.Sage.Graphs
         void OnPreEdgeSatisfied(IDictionary graphContext, Edge edge);
     }
 }
+

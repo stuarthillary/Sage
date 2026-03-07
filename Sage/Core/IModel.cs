@@ -1,3 +1,4 @@
+#nullable enable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -76,7 +77,7 @@ namespace Highpoint.Sage.SimCore
         /// Gets the executive controller that governs the rate-throttling and frame-rendering event frequency of this model.
         /// </summary>
         /// <value>The executive controller.</value>
-        ExecController ExecutiveController
+        ExecController? ExecutiveController
         {
             get; set;
         }
@@ -290,7 +291,7 @@ namespace Highpoint.Sage.SimCore
         /// <typeparam name="T">The type of service we are adding.</typeparam>
         /// <param name="service">The service.</param>
         /// <param name="name">The name.</param>
-        void AddService<T>(T service, string name = null) where T : IModelService;
+        void AddService<T>(T service, string? name = null) where T : IModelService;
 
         /// <summary>
         /// Gets the service of the specified type, and known by the provided name.
@@ -298,6 +299,8 @@ namespace Highpoint.Sage.SimCore
         /// <typeparam name="T">The type of service we are looking for.</typeparam>
         /// <param name="identifier">The identifier.</param>
         /// <returns>T.</returns>
-        T GetService<T>(string identifier = null) where T : IModelService;
+        T? GetService<T>(string? identifier = null) where T : IModelService;
     }
 }
+
+

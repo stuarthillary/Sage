@@ -1,4 +1,5 @@
-﻿using System;
+#nullable disable
+using System;
 
 namespace Highpoint.Sage.Utility
 {
@@ -56,3 +57,4 @@ namespace Highpoint.Sage.Utility
         }
     }
 }
+

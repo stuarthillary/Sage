@@ -1,4 +1,5 @@
-﻿using System;
+#nullable disable
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Xml.Linq;
@@ -61,3 +62,4 @@ namespace Highpoint.Sage.SystemDynamics.Utility
         }
     }
 }
+

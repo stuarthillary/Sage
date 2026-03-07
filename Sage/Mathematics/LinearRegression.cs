@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 // Note - code in this file is separately licensed as specified below.
 using System;
@@ -269,3 +270,4 @@ namespace Highpoint.Sage.Mathematics
 
     }
 }
+

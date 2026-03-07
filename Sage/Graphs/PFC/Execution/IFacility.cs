@@ -1,4 +1,5 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+#nullable disable
+/* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Graphs.PFC.Execution
 {
@@ -6,3 +7,4 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
     {
     } // Don't know what this is, yet, but it provides access to resources and other running models & ec's.
 }
+

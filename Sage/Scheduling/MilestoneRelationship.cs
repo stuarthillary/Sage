@@ -1,3 +1,4 @@
+#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -259,3 +260,4 @@ namespace Highpoint.Sage.Scheduling
 //_Debug.WriteLine("Dependent   : " + m_dependent.Name   + " @ " +   m_dependent.DateTime.ToString());
 //_Debug.WriteLine("Delta       : " + m_delta.ToString());
 //_Debug.WriteLine(this.ToString());
+
