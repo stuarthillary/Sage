@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -19,9 +18,9 @@ namespace Highpoint.Sage.Utility
         private int _nEntries;
         private readonly int _direction;
         private readonly int _growthFactor;
-        private IComparable _parentEntry;
+        private IComparable? _parentEntry;
         private int _entryArraySize;
-        private IComparable[] _entryArray;
+        private IComparable?[] _entryArray;
 
         public Heap(HEAP_RULE direction, int initialCapacity, int growthFactor)
         {
@@ -50,7 +49,7 @@ namespace Highpoint.Sage.Utility
 
                 if (newEntry is string newString)
                 {
-                    while (parentNdx > 0 && string.Compare(newString, (string)_parentEntry, StringComparison.Ordinal) * _direction > 0)
+                    while (parentNdx > 0 && _parentEntry is string parentString && string.Compare(newString, parentString, StringComparison.Ordinal) * _direction > 0)
                     {
                         _entryArray[ndx] = _parentEntry;
                         ndx = parentNdx;
@@ -60,7 +59,7 @@ namespace Highpoint.Sage.Utility
                 }
                 else
                 {
-                    while (parentNdx > 0 && newEntry.CompareTo(_parentEntry) == _direction)
+                    while (parentNdx > 0 && _parentEntry != null && newEntry.CompareTo(_parentEntry) == _direction)
                     {
                         _entryArray[ndx] = _parentEntry;
                         ndx = parentNdx;
@@ -74,17 +73,17 @@ namespace Highpoint.Sage.Utility
 
         public int Count => _nEntries;
 
-        public IComparable Peek()
+        public IComparable? Peek()
         {
             return _entryArray[1];
         }
 
-        public IComparable Dequeue()
+        public IComparable? Dequeue()
         {
             if (_nEntries == 0)
                 return null;
-            IComparable leastEntry = _entryArray[1];
-            IComparable relocatee = _entryArray[_nEntries];
+            IComparable? leastEntry = _entryArray[1];
+            IComparable? relocatee = _entryArray[_nEntries];
             _nEntries--;
             int ndx = 1;
             int child = 2;
@@ -93,28 +92,38 @@ namespace Highpoint.Sage.Utility
             {
                 while (child <= _nEntries)
                 {
-                    if ((child < _nEntries) && string.Compare((string)_entryArray[child], (string)_entryArray[child + 1], StringComparison.Ordinal) * (int)_direction < 0)
+                    string? childValue = _entryArray[child] as string;
+                    string? nextValue = (child < _nEntries) ? _entryArray[child + 1] as string : null;
+                    if ((child < _nEntries) && string.Compare(childValue, nextValue, StringComparison.Ordinal) * (int)_direction < 0)
                         child++;
                     // m_entryArray[child] is the (e.g. in a minTree) lesser of the two children.
                     // Therefore, if m_entryArray[child] is greater than relocatee, put Relocatee
                     // in at ndx, and we're done. Otherwise, swap and drill down some more.
-                    if (string.Compare((string)_entryArray[child], relocateeString, StringComparison.Ordinal) * (int)_direction < 0)
+                    childValue = _entryArray[child] as string;
+                    if (string.Compare(childValue, relocateeString, StringComparison.Ordinal) * (int)_direction < 0)
                         break;
                     _entryArray[ndx] = _entryArray[child];
                     ndx = child;
                     child *= 2;
                 }
             }
-            else
+            else if (relocatee != null)
             {
                 while (child <= _nEntries)
                 {
-                    if ((child < _nEntries) && _entryArray[child].CompareTo(_entryArray[child + 1]) == (-_direction))
+                    IComparable? childEntry = _entryArray[child];
+                    IComparable? nextEntry = (child < _nEntries) ? _entryArray[child + 1] : null;
+                    if (childEntry == null || nextEntry == null)
+                        break;
+                    if ((child < _nEntries) && childEntry.CompareTo(nextEntry) == (-_direction))
                         child++;
                     // m_entryArray[child] is the (e.g. in a minTree) lesser of the two children.
                     // Therefore, if m_entryArray[child] is greater than relocatee, put Relocatee
                     // in at ndx, and we're done. Otherwise, swap and drill down some more.
-                    if (_entryArray[child].CompareTo(relocatee) == (-_direction))
+                    childEntry = _entryArray[child];
+                    if (childEntry == null)
+                        break;
+                    if (childEntry.CompareTo(relocatee) == (-_direction))
                         break;
                     _entryArray[ndx] = _entryArray[child];
                     ndx = child;
@@ -132,13 +141,13 @@ namespace Highpoint.Sage.Utility
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             for (int i = 1; i <= _nEntries; i++)
             {
-                string pt = (_entryArray[i] == null) ? "<null>" : _entryArray[i].ToString();
+                string pt = _entryArray[i]?.ToString() ?? "<null>";
                 string lc = "<empty>";
                 if ((i * 2) <= _nEntries)
-                    lc = _entryArray[i * 2].ToString();
+                    lc = _entryArray[i * 2]?.ToString() ?? "<null>";
                 string rc = "<empty>";
                 if (((i * 2) + 1) <= _nEntries)
-                    rc = _entryArray[(i * 2) + 1].ToString();
+                    rc = _entryArray[(i * 2) + 1]?.ToString() ?? "<null>";
                 bool ok = (lc == "<empty>" || string.Compare(pt, lc, StringComparison.Ordinal) == _direction) && (rc == "<empty>" || string.Compare(pt, rc, StringComparison.Ordinal) == _direction);
                 //if ( !ok ) System.Diagnostics.Debugger.Break();
                 sb.Append("(" + i + ") " + pt + " : left Child is " + lc + ", right child is " + rc + "." + (ok ? "OK\r\n" : "NOT_OK\r\n"));
@@ -149,7 +158,7 @@ namespace Highpoint.Sage.Utility
 
         private void GrowArray()
         {
-            IComparable[] tmp = _entryArray;
+            IComparable?[] tmp = _entryArray;
             _entryArraySize *= _growthFactor;
             _entryArray = new IComparable[_entryArraySize + 1];
             Array.Copy(tmp, _entryArray, _nEntries + 1);
@@ -159,13 +168,13 @@ namespace Highpoint.Sage.Utility
         {
             for (int i = 1; i <= _nEntries; i++)
             {
-                string pt = (_entryArray[i] == null) ? "<null>" : _entryArray[i].ToString();
+                string pt = _entryArray[i]?.ToString() ?? "<null>";
                 string lc = "<empty>";
                 if ((i * 2) <= _nEntries)
-                    lc = _entryArray[i * 2].ToString();
+                    lc = _entryArray[i * 2]?.ToString() ?? "<null>";
                 string rc = "<empty>";
                 if (((i * 2) + 1) <= _nEntries)
-                    rc = _entryArray[(i * 2) + 1].ToString();
+                    rc = _entryArray[(i * 2) + 1]?.ToString() ?? "<null>";
                 bool ok = (lc == "<empty>" || string.Compare(pt, lc, StringComparison.Ordinal) == _direction) && (rc == "<empty>" || string.Compare(pt, rc, StringComparison.Ordinal) == _direction);
                 //if ( !ok ) System.Diagnostics.Debugger.Break();
                 Console.WriteLine("(" + i + ") " + pt + " : left Child is " + lc + ", right child is " + rc + ". " + (ok ? "OK" : "NOT_OK"));
@@ -213,7 +222,7 @@ namespace Highpoint.Sage.Utility
             _direction = (int)direction;
             Count = 0;
             _growthFactor = growthFactor;
-            _parentEntry = default(T);
+            _parentEntry = default!; // Initialized during enqueue operations.
             _entryArraySize = initialCapacity;
             _entryArray = new T[_entryArraySize + 1];
             _comparer = comparer;
@@ -272,7 +281,7 @@ namespace Highpoint.Sage.Utility
         /// Peeks at the instance at the top of the heap.
         /// </summary>
         /// <returns>T.</returns>
-        public T Peek()
+        public T? Peek()
         {
             return _entryArray[1];
         }
@@ -281,10 +290,10 @@ namespace Highpoint.Sage.Utility
         /// Dequeues the instance at the top of the heap.
         /// </summary>
         /// <returns>T.</returns>
-        public T Dequeue()
+        public T? Dequeue()
         {
             if (Count == 0)
-                return default(T);
+                return default;
             T leastEntry = _entryArray[1];
             T relocatee = _entryArray[Count];
             Count--;
@@ -318,13 +327,20 @@ namespace Highpoint.Sage.Utility
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             for (int i = 1; i <= Count; i++)
             {
-                string pt = (_entryArray[i] == null) ? "<null>" : _entryArray[i].ToString();
+                object? entry = _entryArray[i];
+                string pt = entry?.ToString() ?? "<null>";
                 string lc = "<empty>";
                 if ((i * 2) <= Count)
-                    lc = _entryArray[i * 2].ToString();
+                {
+                    object? left = _entryArray[i * 2];
+                    lc = left?.ToString() ?? "<null>";
+                }
                 string rc = "<empty>";
                 if (((i * 2) + 1) <= Count)
-                    rc = _entryArray[(i * 2) + 1].ToString();
+                {
+                    object? right = _entryArray[(i * 2) + 1];
+                    rc = right?.ToString() ?? "<null>";
+                }
                 bool ok = (lc == "<empty>" || string.Compare(pt, lc, StringComparison.Ordinal) == _direction) && (rc == "<empty>" || string.Compare(pt, rc, StringComparison.Ordinal) == _direction);
                 //if ( !ok ) System.Diagnostics.Debugger.Break();
                 sb.Append("(" + i + ") " + pt + " : left Child is " + lc + ", right child is " + rc + "." + (ok ? "OK\r\n" : "NOT_OK\r\n"));
@@ -336,13 +352,20 @@ namespace Highpoint.Sage.Utility
         {
             for (int i = 1; i <= Count; i++)
             {
-                string String = (_entryArray[i] == null) ? "<null>" : _entryArray[i].ToString();
+                object? entry = _entryArray[i];
+                string String = entry?.ToString() ?? "<null>";
                 string lc = "<empty>";
                 if ((i * 2) <= Count)
-                    lc = _entryArray[i * 2].ToString();
+                {
+                    object? left = _entryArray[i * 2];
+                    lc = left?.ToString() ?? "<null>";
+                }
                 string rc = "<empty>";
                 if (((i * 2) + 1) <= Count)
-                    rc = _entryArray[(i * 2) + 1].ToString();
+                {
+                    object? right = _entryArray[(i * 2) + 1];
+                    rc = right?.ToString() ?? "<null>";
+                }
                 bool ok = (lc == "<empty>" || string.Compare(String, lc, StringComparison.Ordinal) == _direction) && (rc == "<empty>" || string.Compare(String, rc, StringComparison.Ordinal) == _direction);
                 //if ( !ok ) System.Diagnostics.Debugger.Break();
                 Console.WriteLine("(" + i + ") " + String + " : left Child is " + lc + ", right child is " + rc + ". " + (ok ? "OK" : "NOT_OK"));

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -63,70 +62,70 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Fired when the list is about to add an item.
         /// </summary>
-        public event ItemEvent AboutToAddItem;
+        public event ItemEvent? AboutToAddItem;
         /// <summary>
         /// Fired when the list has just added an item.
         /// </summary>
-        public event ItemEvent AddedItem;
+        public event ItemEvent? AddedItem;
 
         /// <summary>
         /// Fired when the list is about to remove an item.
         /// </summary>
-        public event ItemEvent AboutToRemoveItem;
+        public event ItemEvent? AboutToRemoveItem;
         /// <summary>
         /// Fired when the list has just removed an item.
         /// </summary>
-        public event ItemEvent RemovedItem;
+        public event ItemEvent? RemovedItem;
 
         /// <summary>
         /// Fired when the list is about to replace one item with another.
         /// </summary>
-        public event ItemsEvent AboutToReplaceItem;
+        public event ItemsEvent? AboutToReplaceItem;
         /// <summary>
         /// Fired when the list has just replaced one item with another.
         /// </summary>
-        public event ItemsEvent ReplacedItem;
+        public event ItemsEvent? ReplacedItem;
 
         /// <summary>
         /// Fired when the list is about to add some items.
         /// </summary>
-        public event CollectionEvent AboutToAddItems;
+        public event CollectionEvent? AboutToAddItems;
         /// <summary>
         /// Fired when the list has just added some items.
         /// </summary>
-        public event CollectionEvent AddedItems;
+        public event CollectionEvent? AddedItems;
 
         /// <summary>
         /// Fired when the list is about to remove some of its items.
         /// </summary>
-        public event PredicateEvent AboutToRemoveItems;
+        public event PredicateEvent? AboutToRemoveItems;
         /// <summary>
         /// Fired when the list has just had some of its items removed.
         /// </summary>
-        public event PredicateEvent RemovedItems;
+        public event PredicateEvent? RemovedItems;
 
         /// <summary>
         /// Fired when the list is about to remove a range of elements.
         /// </summary>
-        public event RangeEvent AboutToRemoveRange;
+        public event RangeEvent? AboutToRemoveRange;
         /// <summary>
         /// Fired when the list has just had a range of elements removed.
         /// </summary>
-        public event RangeEvent RemovedRange;
+        public event RangeEvent? RemovedRange;
 
         /// <summary>
         /// Fired when the list is about to be cleared of all of its members.
         /// </summary>
-        public event ListEvent AboutToClear;
+        public event ListEvent? AboutToClear;
         /// <summary>
         /// Fired when the list has just been cleared.
         /// </summary>
-        public event ListEvent Cleared;
+        public event ListEvent? Cleared;
 
         /// <summary>
         /// Fired when the list has just had its contents changed.
         /// </summary>
-        public event ListEvent ContentsChanged;
+        public event ListEvent? ContentsChanged;
 
         /// <summary>
         ///     Initializes a new instance of the System.Collections.Generic.List&lt;T&gt; class
@@ -634,7 +633,7 @@ namespace Highpoint.Sage.Utility
         /// Exceptions:
         ///   System.ArgumentNullException:
         ///     match is null.
-        public T Find(Predicate<T> match)
+        public T? Find(Predicate<T> match)
         {
             return _base.Find(match);
         }
@@ -762,7 +761,7 @@ namespace Highpoint.Sage.Utility
         /// Exceptions:
         ///   System.ArgumentNullException:
         ///     match is null.
-        public T FindLast(Predicate<T> match)
+        public T? FindLast(Predicate<T> match)
         {
             return _base.FindLast(match);
         }
@@ -1263,7 +1262,7 @@ namespace Highpoint.Sage.Utility
 
             #region IEnumerator Members
 
-            object System.Collections.IEnumerator.Current => m_enumerator.Current;
+            object System.Collections.IEnumerator.Current => m_enumerator.Current!; // Enumerator only accessed when valid.
 
             bool System.Collections.IEnumerator.MoveNext()
             {

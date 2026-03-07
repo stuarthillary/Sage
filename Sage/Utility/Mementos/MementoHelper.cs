@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -25,8 +24,8 @@ namespace Highpoint.Sage.Utility.Mementos
         private readonly ISupportsMementos _iss;
         private readonly MementoChangeEvent _childChangeHandler;
         private readonly bool _wrappeeReportsOwnChanges;
-        private ArrayList _children;        // children who report their own changes.
-        private ArrayList _problemChildren; // children who can't report their own changes.
+        private ArrayList? _children;        // children who report their own changes.
+        private ArrayList? _problemChildren; // children who can't report their own changes.
         private bool _hasChanged = true;
         #endregion
 
@@ -94,7 +93,7 @@ namespace Highpoint.Sage.Utility.Mementos
         /// <param name="child">The child.</param>
         public void RemoveChild(ISupportsMementos child)
         {
-            if (_children.Contains(child))
+            if (_children != null && _children.Contains(child))
                 child.MementoChangeEvent -= _childChangeHandler;
             _children?.Remove(child);
             _problemChildren?.Remove(child);
@@ -145,7 +144,7 @@ namespace Highpoint.Sage.Utility.Mementos
         /// <summary>
         /// Occurs when the memento supporter that wraps this helper has reported a change in its internal state.
         /// </summary>
-        public event MementoChangeEvent MementoChangeEvent;
+        public event MementoChangeEvent? MementoChangeEvent;
 
         /// <summary>
         /// Called by the memento supporter that wraps this helper, to let it know that a snapsot (a memento) has just been generated.

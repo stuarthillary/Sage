@@ -1,4 +1,3 @@
-#nullable disable
 using System;
 
 namespace Highpoint.Sage.Utility
@@ -23,12 +22,12 @@ namespace Highpoint.Sage.Utility
             _value = source;
         }
 
-        public static implicit operator TimeSpan?(XmlTimeSpan o)
+        public static implicit operator TimeSpan?(XmlTimeSpan? o)
         {
             return o?._value;
         }
 
-        public static implicit operator XmlTimeSpan(TimeSpan? o)
+        public static implicit operator XmlTimeSpan?(TimeSpan? o)
         {
             return o == null ? null : new XmlTimeSpan(o.Value);
         }
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Utility
             return o?._value ?? default(TimeSpan);
         }
 
-        public static implicit operator XmlTimeSpan(TimeSpan o)
+        public static implicit operator XmlTimeSpan?(TimeSpan o)
         {
             return o == default(TimeSpan) ? null : new XmlTimeSpan(o);
         }

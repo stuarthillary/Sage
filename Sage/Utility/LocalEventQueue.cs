@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 #define DEBUG_SORTING
 //#define USING_CANNED_HEAP
@@ -48,7 +47,8 @@ namespace Highpoint.Sage.Utility
             _exec = exec;
             _capacity = capacity;
             _eer = eer;
-            _targetName = ((IHasName)_eer.Target).Name;
+            IHasName? target = _eer.Target as IHasName;
+            _targetName = target?.Name ?? "<unknown>";
 
             _dequeueHandler = Dequeue;
 
@@ -190,7 +190,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="exec">The exec.</param>
         /// <param name="userData">The user data provided as a callback from the Executive.</param>
-		private void Dequeue(IExecutive exec, object userData)
+		private void Dequeue(IExecutive exec, object? userData)
         {
             _Debug.Assert(_head != _tail);
             _Debug.Assert(_circQueue[_head].When.Equals(exec.Now));
@@ -250,7 +250,7 @@ namespace Highpoint.Sage.Utility
 #else
                 if (_tail == _head)
                 {
-                    throw new ApplicationException("Attempting to read the head time of an empty LocalEventQueue in " + ((IHasName)_eer.Target).Name + ").");
+                    throw new ApplicationException("Attempting to read the head time of an empty LocalEventQueue in " + _targetName + ").");
                 }
                 return _circQueue[_head].When;
 #endif
@@ -274,7 +274,7 @@ namespace Highpoint.Sage.Utility
 #else
                 if (_tail == _head)
                 {
-                    throw new ApplicationException("Attempting to read the tail time of an empty LocalEventQueue in " + ((IHasName)_eer.Target).Name + ").");
+                    throw new ApplicationException("Attempting to read the tail time of an empty LocalEventQueue in " + _targetName + ").");
                 }
                 int last = _tail - 1;
                 if (last < 0)
@@ -336,7 +336,7 @@ namespace Highpoint.Sage.Utility
         {
 
             public DateTime When;
-            public object What;
+            public object? What;
             public bool HasBeenScheduled;
 
             /// <summary>
@@ -378,9 +378,11 @@ namespace Highpoint.Sage.Utility
             /// A 32-bit signed integer that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance is less than obj. Zero This instance is equal to obj. Greater than zero This instance is greater than obj.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">obj is not the same type as this instance. </exception>
-            public int CompareTo(object obj)
+            public int CompareTo(object? obj)
             {
-                DateTime dt = ((EventData)obj).When;
+                if (obj is not EventData other)
+                    throw new ArgumentException("Object is not an EventData instance.", nameof(obj));
+                DateTime dt = other.When;
                 if (When.Equals(dt))
                     dt = dt + TimeSpan.FromTicks(1);
                 return System.Collections.Comparer.Default.Compare(When.Ticks, dt.Ticks);

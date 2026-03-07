@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -54,7 +53,7 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// The parent of this object.
         /// </summary>
-        ITreeNode Parent
+        ITreeNode? Parent
         {
             get; set;
         }
@@ -96,7 +95,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="key">The key for the child being sought.</param>
         /// <returns>The child node that has the specified guid key.</returns>
-        ITreeNode GetChild(Guid key);
+        ITreeNode? GetChild(Guid key);
 
         /// <summary>
         /// Produces a string representation of the entire tree below this node.
@@ -107,32 +106,32 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Fires when this object is about to be removed from a parent's child list.
         /// </summary>
-        event TreeNodeInteractionEvent OnAboutToBeRemoved;
+        event TreeNodeInteractionEvent? OnAboutToBeRemoved;
 
         /// <summary>
         /// Fires after this object has been removed from a parent's child list.
         /// </summary>
-        event TreeNodeInteractionEvent OnWasRemoved;
+        event TreeNodeInteractionEvent? OnWasRemoved;
 
         /// <summary>
         /// Fires when this object is about to gain a new member of it's child list.
         /// </summary>
-        event TreeNodeInteractionEvent OnAboutToGainChild;
+        event TreeNodeInteractionEvent? OnAboutToGainChild;
 
         /// <summary>
         /// Fires after this object has gained a new member of it's child list.
         /// </summary>
-        event TreeNodeInteractionEvent OnGainedChild;
+        event TreeNodeInteractionEvent? OnGainedChild;
 
         /// <summary>
         /// Fires when this object is about to lose a new member of it's child list.
         /// </summary>
-        event TreeNodeInteractionEvent OnAboutToLoseChild;
+        event TreeNodeInteractionEvent? OnAboutToLoseChild;
 
         /// <summary>
         /// Fires after this object has lost a new member of it's child list.
         /// </summary>
-        event TreeNodeInteractionEvent OnLostChild;
+        event TreeNodeInteractionEvent? OnLostChild;
     }
 }
 

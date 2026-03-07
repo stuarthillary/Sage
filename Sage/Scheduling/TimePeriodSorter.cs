@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -15,12 +14,12 @@ namespace Highpoint.Sage.Scheduling
     /// </summary>
     public class TimePeriodSorter : IComparer<ITimePeriod>
     {
-        private static TimePeriodSorter _byIncreasingStartTime = null;
-        private static TimePeriodSorter _byIncreasingDuration = null;
-        private static TimePeriodSorter _byIncreasingEndTime = null;
-        private static TimePeriodSorter _byDecreasingStartTime = null;
-        private static TimePeriodSorter _byDecreasingDuration = null;
-        private static TimePeriodSorter _byDecreasingEndTime = null;
+        private static TimePeriodSorter? _byIncreasingStartTime;
+        private static TimePeriodSorter? _byIncreasingDuration;
+        private static TimePeriodSorter? _byIncreasingEndTime;
+        private static TimePeriodSorter? _byDecreasingStartTime;
+        private static TimePeriodSorter? _byDecreasingDuration;
+        private static TimePeriodSorter? _byDecreasingEndTime;
 
         private TimePeriodPart _sortOnWhat;
         private int _ascending;
@@ -33,8 +32,14 @@ namespace Highpoint.Sage.Scheduling
 
         #region IComparer<TimePeriod> Members
 
-        public int Compare(ITimePeriod tp1, ITimePeriod tp2)
+        public int Compare(ITimePeriod? tp1, ITimePeriod? tp2)
         {
+            if (ReferenceEquals(tp1, tp2))
+                return 0;
+            if (tp1 is null)
+                return -1;
+            if (tp2 is null)
+                return 1;
             switch (_sortOnWhat)
             {
                 case TimePeriodPart.StartTime:
@@ -54,11 +59,7 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                if (_byIncreasingStartTime == null)
-                {
-                    _byIncreasingStartTime = new TimePeriodSorter(TimePeriodPart.StartTime, true);
-                }
-                return _byIncreasingStartTime;
+                return _byIncreasingStartTime ??= new TimePeriodSorter(TimePeriodPart.StartTime, true);
             }
         }
 
@@ -66,11 +67,7 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                if (_byIncreasingDuration == null)
-                {
-                    _byIncreasingDuration = new TimePeriodSorter(TimePeriodPart.Duration, true);
-                }
-                return _byIncreasingDuration;
+                return _byIncreasingDuration ??= new TimePeriodSorter(TimePeriodPart.Duration, true);
             }
         }
 
@@ -78,22 +75,14 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                if (_byIncreasingEndTime == null)
-                {
-                    _byIncreasingEndTime = new TimePeriodSorter(TimePeriodPart.EndTime, true);
-                }
-                return _byIncreasingEndTime;
+                return _byIncreasingEndTime ??= new TimePeriodSorter(TimePeriodPart.EndTime, true);
             }
         }
         public static TimePeriodSorter ByDecreasingStartTime
         {
             get
             {
-                if (_byDecreasingStartTime == null)
-                {
-                    _byDecreasingStartTime = new TimePeriodSorter(TimePeriodPart.StartTime, false);
-                }
-                return _byDecreasingStartTime;
+                return _byDecreasingStartTime ??= new TimePeriodSorter(TimePeriodPart.StartTime, false);
             }
         }
 
@@ -101,11 +90,7 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                if (_byDecreasingDuration == null)
-                {
-                    _byDecreasingDuration = new TimePeriodSorter(TimePeriodPart.Duration, false);
-                }
-                return _byDecreasingDuration;
+                return _byDecreasingDuration ??= new TimePeriodSorter(TimePeriodPart.Duration, false);
             }
         }
 
@@ -113,11 +98,7 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                if (_byDecreasingEndTime == null)
-                {
-                    _byDecreasingEndTime = new TimePeriodSorter(TimePeriodPart.EndTime, false);
-                }
-                return _byDecreasingEndTime;
+                return _byDecreasingEndTime ??= new TimePeriodSorter(TimePeriodPart.EndTime, false);
             }
         }
     }

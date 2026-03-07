@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -13,7 +12,7 @@ namespace Highpoint.Sage.Diagnostics
     public class ExecEventLogger : IDisposable
     {
 
-        private System.IO.TextWriter _logFile;
+        private System.IO.TextWriter? _logFile;
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:EventLogger"/> class.
@@ -54,11 +53,11 @@ namespace Highpoint.Sage.Diagnostics
             }
         }
 
-        private void Executive_EventAboutToFire(long key, ExecEventReceiver eer, double priority, DateTime when, object userData, ExecEventType eventType)
+        private void Executive_EventAboutToFire(long key, ExecEventReceiver eer, double priority, DateTime when, object? userData, ExecEventType eventType)
         {
-            string method = eer.Method.ToString();
+            string method = eer.Method?.ToString() ?? "<null>";
             method = method.Replace(",", ":", StringComparison.Ordinal);
-            _logFile.WriteLine(when.ToString(CultureInfo.InvariantCulture) + ", " + priority + ", " + eer.Target + ", " + method + ", " +
+            _logFile?.WriteLine(when.ToString(CultureInfo.InvariantCulture) + ", " + priority + ", " + eer.Target + ", " + method + ", " +
                 (userData?.ToString() ?? "<null>") + ", " + eventType);
         }
     }

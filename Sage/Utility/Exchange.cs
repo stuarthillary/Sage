@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -87,7 +86,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="key">The key.</param>
         /// <param name="blocking">if set to <c>true</c> [blocking].</param>
         /// <returns>The Tuple stored under the specified key</returns>
-        public ITuple Read(object key, bool blocking)
+        public ITuple? Read(object key, bool blocking)
         {
             return (blocking ? BlockingRead(key) : NonBlockingRead(key));
         }
@@ -99,7 +98,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="blocking">if set to <c>true</c> the calling thread will not return until a Tuple has been found with the
         /// specified key value.</param>
         /// <returns>The Tuple stored under the specified key</returns>
-        public ITuple Take(object key, bool blocking)
+        public ITuple? Take(object key, bool blocking)
         {
             return (blocking ? BlockingTake(key) : NonBlockingTake(key));
         }
@@ -117,10 +116,10 @@ namespace Highpoint.Sage.Utility
 #endif
             #endregion
 
-            ITuple tuple;
+            ITuple? tuple;
             lock (_ts)
             {
-                tuple = (ITuple)_ts[key];
+                tuple = _ts[key] as ITuple;
             }
             if (tuple != null)
             {
@@ -129,9 +128,9 @@ namespace Highpoint.Sage.Utility
         }
 
         #region TupleEvents
-        public event TupleEvent TuplePosted;
-        public event TupleEvent TupleRead;
-        public event TupleEvent TupleTaken;
+        public event TupleEvent? TuplePosted;
+        public event TupleEvent? TupleRead;
+        public event TupleEvent? TupleTaken;
         #endregion
         #endregion
 
@@ -147,7 +146,9 @@ namespace Highpoint.Sage.Utility
             NonBlockingPost(tuple);
 
             #region Wait 'til next take against this key.
-            IDetachableEventController idec = _exec.CurrentEventController;
+            IDetachableEventController? idec = _exec.CurrentEventController;
+            if (idec == null)
+                throw new ApplicationException("Attempt to block without a detachable event controller.");
             _blockedPosters.Add(tuple.Key, idec);
             idec.Suspend();
             #endregion
@@ -180,20 +181,22 @@ namespace Highpoint.Sage.Utility
             #endregion
             while (true)
             {
-                ITuple tuple = NonBlockingRead(key);
+                ITuple? tuple = NonBlockingRead(key);
                 if (tuple != null)
                     return tuple;
                 #region Wait 'til next post against this key.
-                IDetachableEventController idec = _exec.CurrentEventController;
+                IDetachableEventController? idec = _exec.CurrentEventController;
+                if (idec == null)
+                    throw new ApplicationException("Attempt to block without a detachable event controller.");
                 _waitersToRead.Add(key, idec);
                 idec.Suspend();
                 #endregion
 
             }
         }
-        private ITuple NonBlockingRead(object key)
+        private ITuple? NonBlockingRead(object key)
         {
-            ITuple tuple = (ITuple)_ts[key];
+            ITuple? tuple = _ts[key] as ITuple;
             if (tuple != null)
             {
                 tuple.OnRead(this);
@@ -213,23 +216,25 @@ namespace Highpoint.Sage.Utility
 
             while (true)
             {
-                ITuple tuple = NonBlockingTake(key);
+                ITuple? tuple = NonBlockingTake(key);
                 if (tuple != null)
                     return tuple;
 
                 #region Wait 'til next take against this key.
-                IDetachableEventController idec = _exec.CurrentEventController;
+                IDetachableEventController? idec = _exec.CurrentEventController;
+                if (idec == null)
+                    throw new ApplicationException("Attempt to block without a detachable event controller.");
                 _waitersToTake.Add(key, idec);
                 idec.Suspend();
                 #endregion
             }
         }
-        private ITuple NonBlockingTake(object key)
+        private ITuple? NonBlockingTake(object key)
         {
-            ITuple tuple;
+            ITuple? tuple;
             lock (_ts)
             {
-                tuple = (ITuple)_ts[key];
+                tuple = _ts[key] as ITuple;
                 if (tuple != null)
                 {
 
@@ -237,7 +242,7 @@ namespace Highpoint.Sage.Utility
                     tuple.OnTaken(this);
                     TupleTaken?.Invoke(this, tuple);
 
-                    IDetachableEventController blockedPoster = (IDetachableEventController)_blockedPosters[tuple.Key];
+                    IDetachableEventController? blockedPoster = _blockedPosters[tuple.Key] as IDetachableEventController;
                     if (blockedPoster != null)
                     {
                         _blockedPosters.Remove(tuple.Key);
@@ -267,7 +272,8 @@ namespace Highpoint.Sage.Utility
             public BlockTilKeyGoneHandler(Exchange exchange, ITuple tuple)
             {
                 _exchange = exchange;
-                _idec = _exchange._exec.CurrentEventController;
+                _idec = _exchange._exec.CurrentEventController
+                    ?? throw new ApplicationException("Attempt to block without a detachable event controller.");
                 _tuple = tuple;
                 _myEvent = exchange_TupleTaken;
             }

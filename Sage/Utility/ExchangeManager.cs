@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -14,8 +13,8 @@ namespace Highpoint.Sage.Utility
     {
 
         #region Private Memebers
-        private Dictionary<Guid, ITupleSpace> _exchanges;
-        private IExecutive _exec;
+        private Dictionary<Guid, ITupleSpace>? _exchanges;
+        private IExecutive? _exec;
         #endregion
 
         /// <summary>
@@ -48,14 +47,16 @@ namespace Highpoint.Sage.Utility
                 {
                     if (_exchanges == null)
                     {
-                        _exchanges = new Dictionary<Guid, ITupleSpace> { { Guid.Empty, new Exchange(_exec) } };
+                        IExecutive exec = _exec ?? throw new InvalidOperationException("ExchangeManager has not been initialized.");
+                        _exchanges = new Dictionary<Guid, ITupleSpace> { { Guid.Empty, new Exchange(exec) } };
                     }
                 }
             }
 
-            if (!_exchanges.TryGetValue(exchangeIdentifier, out ITupleSpace value))
+            IExecutive currentExec = _exec ?? throw new InvalidOperationException("ExchangeManager has not been initialized.");
+            if (!_exchanges.TryGetValue(exchangeIdentifier, out ITupleSpace? value) || value == null)
             {
-                value = new Exchange(_exec);
+                value = new Exchange(currentExec);
                 _exchanges.Add(exchangeIdentifier, value);
             }
 

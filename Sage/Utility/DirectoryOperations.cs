@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.IO;
@@ -18,7 +17,7 @@ namespace Highpoint.Sage.Utility
         /// <returns>
         /// The full path name, ending in the DirectorySeparatorChar.
         /// </returns>
-        public static string GetAppDataDir(string subDir = null)
+        public static string GetAppDataDir(string? subDir = null)
         {
             //string moduleName = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
             //moduleName = moduleName.Substring(moduleName.LastIndexOf(Path.DirectorySeparatorChar) + 1);

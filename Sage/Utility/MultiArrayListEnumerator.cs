@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
 
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Utility
 	{
 		private readonly ArrayList[] _arrayLists;
 		private int _alCursor;
-		private IEnumerator _enumerator;
+		private IEnumerator? _enumerator;
 
 		public MultiArrayListEnumerator(ArrayList[] arrayLists)
 		{
@@ -38,11 +37,11 @@ namespace Highpoint.Sage.Utility
 			}
 			return false;
 		}
-		public object Current => _enumerator?.Current;
+		public object? Current => _enumerator?.Current;
 
 #endregion
 
-		private IEnumerator GetNextEnumerator(){
+		private IEnumerator? GetNextEnumerator(){
 			if ( _arrayLists.Length > (_alCursor+1) ) {
 				_alCursor++;
 				_enumerator = _arrayLists[_alCursor].GetEnumerator();

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections.Generic;
 
@@ -39,10 +38,10 @@ namespace Highpoint.Sage.Utility
         public string GetNextName(string seed, int nPlaces, bool zeroBased = false)
         {
             string key = seed + nPlaces;
-            if (!_uniqueNameData.TryGetValue(key, out UniqueNameData und))
+            if (!_uniqueNameData.TryGetValue(key, out UniqueNameData? und) || und == null)
             {
                 und = new UniqueNameData(nPlaces, zeroBased);
-                _uniqueNameData.Add(key, und);
+                _uniqueNameData[key] = und;
             }
 
             return seed + und.NextSuffix();

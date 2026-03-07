@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -24,11 +23,11 @@ namespace Highpoint.Sage.Scheduling
         /// <summary>
         /// The dependent milestone affected by this milestone.
         /// </summary>
-        protected IMilestone dependent;
+        protected IMilestone? dependent;
         /// <summary>
         /// The independent milestone monitored by this milestone.
         /// </summary>
-        protected IMilestone independent;
+        protected IMilestone? independent;
         /// <summary>
         /// A list of the reciprocal relationships to this relationship.
         /// </summary>
@@ -41,7 +40,7 @@ namespace Highpoint.Sage.Scheduling
         /// </summary>
         /// <param name="independent">The one that might be changed to kick off this rule.</param>
         /// <param name="dependent">The one upon which a resulting change is imposed by this rule.</param>
-        public MilestoneRelationship(IMilestone dependent, IMilestone independent)
+        public MilestoneRelationship(IMilestone? dependent, IMilestone? independent)
         {
             this.independent = independent;
             this.dependent = dependent;
@@ -68,7 +67,7 @@ namespace Highpoint.Sage.Scheduling
         /// Gets the dependent milestone.
         /// </summary>
         /// <value>The dependent milestone.</value>
-        public IMilestone Dependent
+        public IMilestone? Dependent
         {
             get
             {
@@ -80,7 +79,7 @@ namespace Highpoint.Sage.Scheduling
         /// Gets the independent milestone.
         /// </summary>
         /// <value>The independent milestone.</value>
-        public IMilestone Independent
+        public IMilestone? Independent
         {
             get
             {
@@ -137,7 +136,7 @@ namespace Highpoint.Sage.Scheduling
         /// then this returns null.
         /// </summary>
         /// <value>The reciprocal.</value>
-        public abstract MilestoneRelationship Reciprocal
+        public abstract MilestoneRelationship? Reciprocal
         {
             get;
         }
@@ -198,9 +197,13 @@ namespace Highpoint.Sage.Scheduling
             if (!IsSatisfied())
             {
                 Detach();
+                string dependentName = dependent?.Name ?? "<null>";
+                string independentName = independent?.Name ?? "<null>";
+                string dependentDate = dependent?.DateTime.ToString() ?? "<null>";
+                string independentDate = independent?.DateTime.ToString() ?? "<null>";
                 string msg = "Relationship " + ToString() + ", applied to "
-                  + dependent.Name + "(" + dependent.DateTime + "), and "
-                  + independent.Name + "(" + independent.DateTime + ") is not initially satisfied.";
+                  + dependentName + "(" + dependentDate + "), and "
+                  + independentName + "(" + independentDate + ") is not initially satisfied.";
                 throw new ApplicationException(msg);
             }
         }
@@ -221,25 +224,15 @@ namespace Highpoint.Sage.Scheduling
         /// <returns>
         /// true if the specified <see cref="T:System.Object"></see> is equal to the current <see cref="T:System.Object"></see>; otherwise, false.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            MilestoneRelationship mr = obj as MilestoneRelationship;
-            if (mr == null)
-            {
+            if (obj is not MilestoneRelationship mr)
                 return false;
-            }
-            else if (GetType() != mr.GetType())
-            {
+            if (GetType() != mr.GetType())
                 return false;
-            }
-            else if (Object.Equals(Dependent, mr.Dependent) && Object.Equals(Independent, mr.Independent))
-            {
+            if (Equals(Dependent, mr.Dependent) && Equals(Independent, mr.Independent))
                 return true;
-            }
-            else
-            {
-                return base.Equals(obj);
-            }
+            return base.Equals(obj);
         }
 
         /// <summary>

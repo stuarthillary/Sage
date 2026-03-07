@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -80,13 +79,13 @@ namespace Highpoint.Sage.Utility
         {
             IEnumerator<string> lstEnum = enumerable.GetEnumerator();
 
-            string last = null;
+            string? last = null;
             bool entryMade = false;
 
             StringBuilder sb = new StringBuilder();
             while (lstEnum.MoveNext())
             {
-                string nxtToLast = last;
+                string? nxtToLast = last;
                 last = lstEnum.Current;
                 if (nxtToLast == null)
                     continue;
@@ -165,8 +164,8 @@ namespace Highpoint.Sage.Utility
                 {
                     m_ienum = alist.GetEnumerator();
                 }
-                public string Current => m_ienum.Current.ToString();
-                object System.Collections.IEnumerator.Current => m_ienum.Current.ToString();
+                public string Current => m_ienum.Current?.ToString() ?? string.Empty;
+                object System.Collections.IEnumerator.Current => m_ienum.Current?.ToString() ?? string.Empty;
                 void IDisposable.Dispose()
                 {
                 }
@@ -268,8 +267,14 @@ namespace Highpoint.Sage.Utility
 
             private static readonly Regex _regex = new Regex(_pattern, RegexOptions.Compiled);
 
-            public int Compare(string x, string y)
+            public int Compare(string? x, string? y)
             {
+                if (ReferenceEquals(x, y))
+                    return 0;
+                if (x is null)
+                    return -1;
+                if (y is null)
+                    return 1;
                 Match matchX = _regex.Match(x);
                 Match matchY = _regex.Match(y);
                 int result;

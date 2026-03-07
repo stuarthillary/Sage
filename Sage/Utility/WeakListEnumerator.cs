@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -21,13 +20,13 @@ namespace Highpoint.Sage.Utility
             _cursor = -1;
         }
 
-        public object Current
+        public object? Current
         {
             get
             {
                 if (_cursor == -1)
                     throw new ApplicationException("Called Current on an enumerator without first having called MoveNext.");
-                return ((MyWeakReference)_list[_cursor]).Target;
+                return (_list[_cursor] as MyWeakReference)?.Target;
             }
         }
 

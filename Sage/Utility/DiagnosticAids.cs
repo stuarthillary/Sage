@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs;
@@ -21,7 +20,7 @@ namespace Highpoint.Sage.Diagnostics
 
         private static DiagnosticsOptions _options = new DiagnosticsOptions();
         private static bool _missingKeyLogInitialized;
-        private static System.IO.StreamWriter _missingKeyLog;
+        private static System.IO.StreamWriter? _missingKeyLog;
 
         /// <summary>
         /// Determines, for a specific key, whether diagnostic tracing is turned on. The on/off
@@ -51,7 +50,7 @@ namespace Highpoint.Sage.Diagnostics
         /// Configures diagnostic options. Call before first use to override defaults.
         /// </summary>
         /// <param name="options">The diagnostics options to apply.</param>
-        public static void Configure(DiagnosticsOptions options)
+        public static void Configure(DiagnosticsOptions? options)
         {
             _options = options ?? new DiagnosticsOptions();
             if (_options.Flags == null)
@@ -86,7 +85,8 @@ namespace Highpoint.Sage.Diagnostics
 #if DEBUG
             foreach (DictionaryEntry de in postMortems)
             {
-                PmData pmData = (PmData)de.Value;
+                if (de.Value is not PmData pmData)
+                    continue;
                 _Debug.WriteLine("PostMortem of Context associated with " + de.Key);
                 _Debug.WriteLine("Vertices that fired:");
                 foreach (Vertex v in pmData.VerticesFired)
@@ -151,7 +151,7 @@ namespace Highpoint.Sage.Diagnostics
                 }
             }
             AddTabs(ref sb, tabDepth + 1);
-            Task task1 = parent as Task;
+            Task? task1 = parent as Task;
             if (task1 != null)
             {
                 Task task = task1;
@@ -257,7 +257,7 @@ namespace Highpoint.Sage.Diagnostics
         /// <param name="material">The material whose contents are of interest.</param>
         public static void DumpMaterial(IMaterial material)
         {
-            Mixture mix = material as Mixture;
+            Mixture? mix = material as Mixture;
             if (mix != null)
             {
                 Dump(mix);

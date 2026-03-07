@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -11,11 +10,13 @@ namespace Highpoint.Sage.Scheduling
     public class MilestoneRelationship_Pin : MilestoneRelationship
     {
         private readonly DateTime _independentDateTime;
-        public MilestoneRelationship_Pin(IMilestone dependent, IMilestone independent)
+        public MilestoneRelationship_Pin(IMilestone? dependent, IMilestone independent)
             : base(dependent, independent)
         {
             if (base.dependent != null)
                 throw new ApplicationException("The MilestoneRelationship_Pin relationship uses only the independent milestone, and you have specified a dependent one. The dependent milestone should be null.");
+            if (base.independent == null)
+                throw new ApplicationException("The MilestoneRelationship_Pin relationship requires an independent milestone.");
             _independentDateTime = base.independent.DateTime;
             AssessInitialCorrectnessForCtor();
         }
@@ -37,7 +38,7 @@ namespace Highpoint.Sage.Scheduling
         /// then this returns null.
         /// </summary>
         /// <value>The reciprocal.</value>
-        public override MilestoneRelationship Reciprocal
+        public override MilestoneRelationship? Reciprocal
         {
             get
             {
@@ -53,6 +54,8 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override bool IsSatisfied()
         {
+            if (independent == null)
+                return true;
             return (!Enabled || _independentDateTime == independent.DateTime);
         }
 
@@ -64,7 +67,9 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override string ToString()
         {
-            return Dependent.Name + " is frozen at " + Dependent.DateTime + ".";
+            string dependentName = Dependent?.Name ?? "<none>";
+            string dependentDate = Dependent?.DateTime.ToString() ?? "<unknown>";
+            return dependentName + " is frozen at " + dependentDate + ".";
         }
 
         /// <summary>
@@ -74,9 +79,11 @@ namespace Highpoint.Sage.Scheduling
         /// <returns>
         /// true if the specified <see cref="T:System.Object"></see> is equal to the current <see cref="T:System.Object"></see>; otherwise, false.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return base.Equals(obj) && _independentDateTime == ((MilestoneRelationship_Pin)obj)._independentDateTime;
+            return obj is MilestoneRelationship_Pin other
+                && base.Equals(obj)
+                && _independentDateTime == other._independentDateTime;
         }
 
         /// <summary>

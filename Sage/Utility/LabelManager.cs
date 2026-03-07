@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections.Generic;
@@ -62,7 +61,7 @@ namespace Highpoint.Sage.Utility
         {
             get
             {
-                if (_labels.TryGetValue(Key, out string value))
+                if (_labels.TryGetValue(Key, out string? value) && value != null)
                 {
                     return value;
                 }
@@ -89,7 +88,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="label">The label.</param>
         /// <param name="context">The context - use null or string.Empty for the default context.</param>
-        public void SetLabel(string label, string context)
+        public void SetLabel(string label, string? context)
         {
             if (string.IsNullOrEmpty(context))
             {
@@ -103,7 +102,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="context">The context - use null or string.Empty for the default context.</param>
         /// <returns></returns>
-        public string GetLabel(string context)
+        public string GetLabel(string? context)
         {
             if (string.IsNullOrEmpty(context))
             {
@@ -118,6 +117,6 @@ namespace Highpoint.Sage.Utility
         /// Gets the key.
         /// </summary>
         /// <value>The key.</value>
-        private string Key => (string)Thread.GetData(_ldss) ?? DEFAULT_CHANNEL;
+        private string Key => Thread.GetData(_ldss) as string ?? DEFAULT_CHANNEL;
     }
 }

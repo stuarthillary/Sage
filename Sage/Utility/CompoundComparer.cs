@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -34,7 +33,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="x">The first object.</param>
         /// <param name="y">The second object.</param>
         /// <returns></returns>
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery (for clarity.)
             foreach (IComparer comparer in _comparers)

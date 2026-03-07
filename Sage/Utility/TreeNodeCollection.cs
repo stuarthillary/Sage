@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 //#define PREANNOUNCE
 using System;
@@ -83,7 +82,7 @@ namespace Highpoint.Sage.Utility
         /// <returns>True if the removal was successful, otherwise, false.</returns>
         public bool Remove(T existingChild)
         {
-            return (from node in _children where node.Payload.Equals(existingChild) select Remove(node)).FirstOrDefault();
+            return (from node in _children where Equals(node.Payload, existingChild) select Remove(node)).FirstOrDefault();
         }
 
         /// <summary>

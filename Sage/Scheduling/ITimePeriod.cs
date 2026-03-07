@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.Scheduling
         /// Gets the subject of this time period - for example, the task for which this time period represents the start, duration and end times.
         /// </summary>
         /// <value>The subject.</value>
-        ISupportsCorrelation Subject
+        ISupportsCorrelation? Subject
         {
             get; set;
         }
@@ -27,7 +26,7 @@ namespace Highpoint.Sage.Scheduling
         /// or actual, or some other similar value.
         /// </summary>
         /// <value>The modifier.</value>
-        object Modifier
+        object? Modifier
         {
             get; set;
         }

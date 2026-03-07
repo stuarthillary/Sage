@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 //#define PREANNOUNCE
 using System;
@@ -34,10 +33,10 @@ namespace Highpoint.Sage.Utility
     {
 
         #region Private Fields
-        private T _payload;
-        private TreeNodeCollection<T> _children;
-        private ITreeNode<T> _parent;
-        private ITreeNodeEventController<T> _treeNodeEventController;
+        private T? _payload;
+        private TreeNodeCollection<T>? _children;
+        private ITreeNode<T>? _parent;
+        private ITreeNodeEventController<T>? _treeNodeEventController;
         private bool _isSelfReferential;
         #endregion
 
@@ -46,13 +45,13 @@ namespace Highpoint.Sage.Utility
         /// Initializes a new instance of the <see cref="TreeNode&lt;T&gt;"/> class.
         /// </summary>
         // ReSharper disable once MemberCanBeProtected.Global Treenode can be delegated to, or contain, its payload.
-        public TreeNode() : this(default(T)) { }
+        public TreeNode() : this(default) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TreeNode&lt;T&gt;"/> class.
         /// </summary>
         /// <param name="payload">The payload.</param>
-        public TreeNode(T payload)
+        public TreeNode(T? payload)
         {
             _payload = payload;
         }
@@ -126,7 +125,7 @@ namespace Highpoint.Sage.Utility
         {
             if (_children == null)
                 _children = new TreeNodeCollection<T>(this);
-            _children.ForEach(n => action(n.Payload));
+            _children.ForEach(n => action(n.Payload!)); // Child nodes are expected to have payloads.
         }
 
         public void ForEachChild(Action<ITreeNode<T>> action)
@@ -146,7 +145,7 @@ namespace Highpoint.Sage.Utility
         /// Gets or sets the parent of this tree node.
         /// </summary>
         /// <value>The parent.</value>
-        public ITreeNode<T> Parent
+        public ITreeNode<T>? Parent
         {
             [System.Diagnostics.DebuggerStepThrough]
             get
@@ -159,7 +158,7 @@ namespace Highpoint.Sage.Utility
             }
         }
 
-        public void SetParent(ITreeNode<T> newParent, bool skipStructureChecking, bool childAlreadyAdded = false)
+        public void SetParent(ITreeNode<T>? newParent, bool skipStructureChecking, bool childAlreadyAdded = false)
         {
             if (!Equals(_parent, newParent))
             {
@@ -209,19 +208,20 @@ namespace Highpoint.Sage.Utility
         /// <value></value>
         public IEnumerable<T> Siblings(bool includeSelf)
         {
-            if (Parent == null && includeSelf)
+            ITreeNode<T>? parent = Parent;
+            if (parent == null && includeSelf)
             {
-                yield return Payload;
+                yield return Payload!; // Payload is expected when enumerating siblings.
             }
             else
             {
-                if (Parent == null)
+                if (parent == null)
                     yield break;
-                foreach (ITreeNode<T> tn in Parent.Children)
+                foreach (ITreeNode<T> tn in parent.Children)
                 {
                     if (!Equals(tn, this) || includeSelf)
                     {
-                        yield return tn.Payload;
+                        yield return tn.Payload!; // Child payloads are expected for siblings enumeration.
                     }
                 }
             }
@@ -286,13 +286,13 @@ namespace Highpoint.Sage.Utility
         /// Returns an IEnumerable that traverses the descendant payloads breadth first.
         /// </summary>
         /// <value>The descendant payloads iterator.</value>
-        public IEnumerable<T> DescendantsBreadthFirst(bool includeSelf) => DescendantNodesBreadthFirst(includeSelf).Select(itnt => itnt.Payload);
+        public IEnumerable<T> DescendantsBreadthFirst(bool includeSelf) => DescendantNodesBreadthFirst(includeSelf).Select(itnt => itnt.Payload!);
 
         /// <summary>
         /// Returns an iterator that traverses the descendant payloads depth first.
         /// </summary>
         /// <value>The descendant payloads iterator.</value>
-        public IEnumerable<T> DescendantsDepthFirst(bool includeSelf) => DescendantNodesDepthFirst(includeSelf).Select(itnt => itnt.Payload);
+        public IEnumerable<T> DescendantsDepthFirst(bool includeSelf) => DescendantNodesDepthFirst(includeSelf).Select(itnt => itnt.Payload!);
 
         #endregion
 
@@ -338,13 +338,15 @@ namespace Highpoint.Sage.Utility
         internal void _OnGainedDescendant(ITreeNode<T> descendant)
         {
             GainedDescendant?.Invoke(this, descendant);
-            ((TreeNode<T>)Parent)?._OnGainedDescendant(descendant);
+            TreeNode<T>? parent = Parent as TreeNode<T>;
+            parent?._OnGainedDescendant(descendant);
         }
 
         internal void _OnLostDescendant(ITreeNode<T> descendant)
         {
             LostDescendant?.Invoke(this, descendant);
-            ((TreeNode<T>)Parent)?._OnLostDescendant(descendant);
+            TreeNode<T>? parent = Parent as TreeNode<T>;
+            parent?._OnLostDescendant(descendant);
         }
 
         // ReSharper disable once UnusedParameter.Global // Has to fit the signature.
@@ -358,23 +360,23 @@ namespace Highpoint.Sage.Utility
             SubtreeChanged?.Invoke(changeType, where);
         }
 
-        public event TreeNodeEvent<T> LostParent;
+        public event TreeNodeEvent<T>? LostParent;
 
-        public event TreeNodeEvent<T> GainedParent;
+        public event TreeNodeEvent<T>? GainedParent;
 
-        public event TreeNodeEvent<T> LostChild;
+        public event TreeNodeEvent<T>? LostChild;
 
-        public event TreeNodeEvent<T> GainedChild;
+        public event TreeNodeEvent<T>? GainedChild;
 
-        public event TreeNodeEvent<T> LostDescendant;
+        public event TreeNodeEvent<T>? LostDescendant;
 
-        public event TreeNodeEvent<T> GainedDescendant;
+        public event TreeNodeEvent<T>? GainedDescendant;
 
-        public event TreeNodeEvent<T> ChildrenResorted;
+        public event TreeNodeEvent<T>? ChildrenResorted;
 
-        public event TreeChangeEvent<T> SubtreeChanged;
+        public event TreeChangeEvent<T>? SubtreeChanged;
 
-        public T Payload
+        public T? Payload
         {
             [System.Diagnostics.DebuggerStepThrough]
             get
@@ -419,7 +421,7 @@ namespace Highpoint.Sage.Utility
 
         public bool IsChildOf(ITreeNode<T> possibleParentNode)
         {
-            ITreeNode<T> cursor = Parent;
+            ITreeNode<T>? cursor = Parent;
             while (cursor != null)
             {
                 if (cursor.Equals(possibleParentNode))
@@ -436,7 +438,7 @@ namespace Highpoint.Sage.Utility
 
         public static explicit operator T(TreeNode<T> treeNode)
         {
-            return treeNode.Payload;
+            return treeNode.Payload!; // Payload is expected when casting.
         }
 
         public ITreeNodeEventController<T> MyEventController
@@ -459,12 +461,12 @@ namespace Highpoint.Sage.Utility
         /// <returns>
         /// true if the specified <see cref="T:System.Object"></see> is equal to the current <see cref="T:System.Object"></see>; otherwise, false.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null)
                 return false; // Since I'm not null.
 
-            TreeNode<T> that = obj as TreeNode<T>;
+            TreeNode<T>? that = obj as TreeNode<T>;
             if (that == null)
             { // It's not a treenode, so compare it to my payload.
                 return obj.Equals(_payload);

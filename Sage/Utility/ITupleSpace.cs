@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 // ReSharper disable UnusedParameter.Global
@@ -45,7 +44,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="key">The key.</param>
         /// <param name="blocking">if set to <c>true</c> [blocking].</param>
         /// <returns>The Tuple stored under the specified key</returns>
-		ITuple Read(object key, bool blocking);
+		ITuple? Read(object key, bool blocking);
         /// <summary>
         /// Takes the Tuple entered under the specified key.
         /// </summary>
@@ -53,7 +52,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="blocking">if set to <c>true</c> the calling thread will not return until a Tuple has been found with the
         /// specified key value.</param>
         /// <returns>The Tuple stored under the specified key</returns>
-        ITuple Take(object key, bool blocking);
+        ITuple? Take(object key, bool blocking);
         /// <summary>
         /// Blocks the calling thread until the specified key is not in the TupleSpace.
         /// </summary>
@@ -63,14 +62,14 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Fires when a Tuple has been posted.
         /// </summary>
-		event TupleEvent TuplePosted;
+		event TupleEvent? TuplePosted;
         /// <summary>
         /// Fires when a Tuple has been read.
         /// </summary>
-        event TupleEvent TupleRead;
+        event TupleEvent? TupleRead;
         /// <summary>
         /// Fires when a Tuple has been taken.
         /// </summary>
-        event TupleEvent TupleTaken;
+        event TupleEvent? TupleTaken;
     }
 }

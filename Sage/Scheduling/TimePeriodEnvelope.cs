@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using System;
@@ -20,8 +19,8 @@ namespace Highpoint.Sage.Scheduling
         private Guid _guid;
         private readonly string _description = "";
         private static readonly string _default_Name = "TimePeriodEnvelope";
-        private ISupportsCorrelation _subject;
-        private object _modifier;
+        private ISupportsCorrelation? _subject;
+        private object? _modifier;
         #endregion
 
         #region Constructors
@@ -272,7 +271,7 @@ namespace Highpoint.Sage.Scheduling
             }
         }
 
-        private void Milestone_ChangeEvent(object whoChanged, object whatChanged, object howChanged)
+        private void Milestone_ChangeEvent(object whoChanged, object? whatChanged, object? howChanged)
         {
             Update();
         }
@@ -363,7 +362,7 @@ namespace Highpoint.Sage.Scheduling
             throw new ApplicationException("TimePeriodEnvelope is Read-only.");
         }
 
-        public ISupportsCorrelation Subject
+        public ISupportsCorrelation? Subject
         {
             get
             {
@@ -375,7 +374,7 @@ namespace Highpoint.Sage.Scheduling
             }
         }
 
-        public object Modifier
+        public object? Modifier
         {
             get
             {
@@ -470,7 +469,7 @@ namespace Highpoint.Sage.Scheduling
         #region IObservable Members
 
 #pragma warning disable 67 // Ignore it if this event is not used. It's a framework, and this event may be for clients.
-        public event ObservableChangeHandler ChangeEvent;
+        public event ObservableChangeHandler? ChangeEvent;
 #pragma warning restore 67
         #endregion
 
@@ -489,7 +488,7 @@ namespace Highpoint.Sage.Scheduling
                 TimePeriodEnvelope tpe = (TimePeriodEnvelope)itp;
                 sb.Append(string.Format("{0}<TimePeriodEnvelope subject=\"{1}\"modifier=\"{2}\" start=\"{3}\" end=\"{4}\">\r\n",
                     indent,
-                    tpe.Subject.Name,
+                    tpe.Subject?.Name ?? string.Empty,
                     tpe.Modifier,
                     tpe.StartTime,
                     tpe.EndTime));
@@ -506,7 +505,7 @@ namespace Highpoint.Sage.Scheduling
                 TimePeriod tp = (TimePeriod)itp;
                 sb.Append(string.Format("{0}<TimePeriodEnvelope subject=\"{1}\"modifier=\"{2}\" start=\"{3}\" end=\"{4}\" duration=\"{5}\">\r\n",
                     indent,
-                    tp.Subject.Name,
+                    tp.Subject?.Name ?? string.Empty,
                     tp.Modifier,
                     tp.StartTime,
                     tp.Duration,

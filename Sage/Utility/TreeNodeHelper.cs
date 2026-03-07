@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -18,9 +17,9 @@ namespace Highpoint.Sage.Utility
 
         #region >>> Private Fields <<<
         private static readonly List<ITreeNodeProxy> _empty_List = new List<ITreeNodeProxy>();
-        private TreeNodeHelper _parent;
-        private List<ITreeNodeProxy> _children;
-        private Hashtable _childFinder;
+        private TreeNodeHelper? _parent;
+        private List<ITreeNodeProxy>? _children;
+        private Hashtable? _childFinder;
         private readonly bool _autoIndex;
         #endregion
 
@@ -127,13 +126,13 @@ namespace Highpoint.Sage.Utility
         /// <returns>The root node at or above this node.</returns>
         public ITreeNode GetRoot()
         {
-            return IsRoot ? this : _parent.GetRoot();
+            return IsRoot ? this : _parent!.GetRoot(); // Root nodes have no parent.
         }
 
         /// <summary>
         /// The parent of this object.
         /// </summary>
-        public ITreeNode Parent
+        public ITreeNode? Parent
         {
             get
             {
@@ -145,12 +144,12 @@ namespace Highpoint.Sage.Utility
                 {
                     if (Equals(value, _parent))
                         return;
-                    TreeNodeHelper oldParent = _parent;
-                    TreeNodeHelper newParent = (TreeNodeHelper)value; // TODO: Come up with a safer mechanism for this.
+                    TreeNodeHelper? oldParent = _parent;
+                    TreeNodeHelper? newParent = value as TreeNodeHelper; // TODO: Come up with a safer mechanism for this.
                     oldParent?._OnAboutToGainChild(this);
                     newParent?._OnAboutToGainChild(this);
 
-                    _parent = (TreeNodeHelper)value;
+                    _parent = newParent;
 
                     oldParent?._OnGainedChild(this);
                     newParent?._OnGainedChild(this);
@@ -187,16 +186,12 @@ namespace Highpoint.Sage.Utility
             if (!IsReadOnly)
             {
                 OnAboutToGainChild?.Invoke(this, node);
-                if (_children == null)
-                    _children = new List<ITreeNodeProxy>();
+                _children ??= new List<ITreeNodeProxy>();
                 _children.Add(node);
                 node.Parent = this;
                 if (_autoIndex)
                 {
-                    if (_childFinder == null)
-                    {
-                        _childFinder = new Hashtable();
-                    }
+                    _childFinder ??= new Hashtable();
                     ITreeNodeProxy tnp = node;
                     SimCore.IHasIdentity ihi = (SimCore.IHasIdentity)tnp.Ward;
 
@@ -231,7 +226,7 @@ namespace Highpoint.Sage.Utility
                 {
                     ITreeNodeProxy tnp = node;
                     SimCore.IHasIdentity ihi = (SimCore.IHasIdentity)tnp.Ward;
-                    _childFinder.Remove(ihi.Guid);
+                    _childFinder?.Remove(ihi.Guid);
                 }
                 OnLostChild?.Invoke(this, node);
                 ((TreeNodeHelper)node).WasRemoved(((TreeNodeHelper)node));
@@ -249,6 +244,8 @@ namespace Highpoint.Sage.Utility
         {
             if (!IsReadOnly)
             {
+                if (_children == null)
+                    return;
                 foreach (ITreeNodeProxy tnh in _children)
                     RemoveChild(tnh);
             }
@@ -267,7 +264,7 @@ namespace Highpoint.Sage.Utility
             var tnhWrapper = new TnhComparerWrapper(sequencer);
             if (!IsReadOnly)
             {
-                _children.Sort(tnhWrapper);
+                _children?.Sort(tnhWrapper);
             }
             else
             {
@@ -280,11 +277,11 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="key">The key for the child being sought.</param>
         /// <returns>The child node that has the specified guid key.</returns>
-        public ITreeNode GetChild(Guid key)
+        public ITreeNode? GetChild(Guid key)
         {
             if (_autoIndex)
             {
-                return (ITreeNode)_childFinder?[key];
+                return _childFinder?[key] as ITreeNode;
             }
             else
             {
@@ -295,32 +292,32 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Fires when this object is about to be removed from a parent's child list.
         /// </summary>
-        public event TreeNodeInteractionEvent OnAboutToBeRemoved;
+        public event TreeNodeInteractionEvent? OnAboutToBeRemoved;
 
         /// <summary>
         /// Fires after this object has been removed from a parent's child list.
         /// </summary>
-        public event TreeNodeInteractionEvent OnWasRemoved;
+        public event TreeNodeInteractionEvent? OnWasRemoved;
 
         /// <summary>
         /// Fires when this object is about to gain a new member of it's child list.
         /// </summary>
-        public event TreeNodeInteractionEvent OnAboutToGainChild;
+        public event TreeNodeInteractionEvent? OnAboutToGainChild;
 
         /// <summary>
         /// Fires after this object has gained a new member of it's child list.
         /// </summary>
-        public event TreeNodeInteractionEvent OnGainedChild;
+        public event TreeNodeInteractionEvent? OnGainedChild;
 
         /// <summary>
         /// Fires when this object is about to lose a new member of it's child list.
         /// </summary>
-        public event TreeNodeInteractionEvent OnAboutToLoseChild;
+        public event TreeNodeInteractionEvent? OnAboutToLoseChild;
 
         /// <summary>
         /// Fires after this object has lost a new member of it's child list.
         /// </summary>
-        public event TreeNodeInteractionEvent OnLostChild;
+        public event TreeNodeInteractionEvent? OnLostChild;
 
         #endregion
 
@@ -329,7 +326,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="obj">The ward object or other ITreeNodeHelper implementer being tested.</param>
         /// <returns>True if this treeNode helper's ward is equal to another object or another ITreeNodeHelper's ward object.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Ward.Equals(obj);
         }
@@ -363,7 +360,7 @@ namespace Highpoint.Sage.Utility
         {
             for (int i = 0; i < levels; i++)
                 sb.Append("\t");
-            TreeNodeHelper helper = parent as TreeNodeHelper;
+            TreeNodeHelper? helper = parent as TreeNodeHelper;
             if (helper != null)
             {
                 sb.Append(helper.Ward + "\r\n");
@@ -386,8 +383,14 @@ namespace Highpoint.Sage.Utility
             }
             #region IComparer Members
 
-            public int Compare(object x, object y)
+            public int Compare(object? x, object? y)
             {
+                if (ReferenceEquals(x, y))
+                    return 0;
+                if (x is null)
+                    return -1;
+                if (y is null)
+                    return 1;
                 TreeNodeHelper tnhx = (TreeNodeHelper)x;
                 TreeNodeHelper tnhy = (TreeNodeHelper)y;
                 return Compare(tnhx, tnhy);
@@ -395,8 +398,14 @@ namespace Highpoint.Sage.Utility
 
             #endregion
 
-            public int Compare(ITreeNodeProxy x, ITreeNodeProxy y)
+            public int Compare(ITreeNodeProxy? x, ITreeNodeProxy? y)
             {
+                if (ReferenceEquals(x, y))
+                    return 0;
+                if (x is null)
+                    return -1;
+                if (y is null)
+                    return 1;
                 TreeNodeHelper tnhx = (TreeNodeHelper)x;
                 TreeNodeHelper tnhy = (TreeNodeHelper)y;
                 return _comparer.Compare(tnhx.Ward, tnhy.Ward);

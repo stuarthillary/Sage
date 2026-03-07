@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -14,6 +13,10 @@ namespace Highpoint.Sage.Scheduling
         public MilestoneRelationship_LTE(IMilestone dependent, IMilestone independent)
             : base(dependent, independent)
         {
+            if (dependent == null)
+                throw new ArgumentNullException(nameof(dependent));
+            if (independent == null)
+                throw new ArgumentNullException(nameof(independent));
             _delta = independent.DateTime - dependent.DateTime;
             AssessInitialCorrectnessForCtor();
         }
@@ -39,7 +42,9 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override bool IsSatisfied()
         {
-            return (!Enabled || dependent.DateTime <= independent.DateTime);
+            IMilestone dependentMilestone = dependent ?? throw new InvalidOperationException("Dependent milestone is required.");
+            IMilestone independentMilestone = independent ?? throw new InvalidOperationException("Independent milestone is required.");
+            return (!Enabled || dependentMilestone.DateTime <= independentMilestone.DateTime);
         }
 
         /// <summary>
@@ -47,10 +52,12 @@ namespace Highpoint.Sage.Scheduling
         /// then this returns null.
         /// </summary>
         /// <value>The reciprocal.</value>
-        public override MilestoneRelationship Reciprocal
+        public override MilestoneRelationship? Reciprocal
         {
             get
             {
+                if (Dependent == null || Independent == null)
+                    return null;
                 return new MilestoneRelationship_GTE(Independent, Dependent);
             }
         }
@@ -63,7 +70,9 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override string ToString()
         {
-            return Dependent.Name + " occurs before or when " + Independent.Name + " occurs.";
+            string dependentName = Dependent?.Name ?? "<unknown>";
+            string independentName = Independent?.Name ?? "<unknown>";
+            return dependentName + " occurs before or when " + independentName + " occurs.";
         }
 
         /// <summary>
@@ -73,9 +82,11 @@ namespace Highpoint.Sage.Scheduling
         /// <returns>
         /// true if the specified <see cref="T:System.Object"></see> is equal to the current <see cref="T:System.Object"></see>; otherwise, false.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return base.Equals(obj) && _delta == ((MilestoneRelationship_LTE)obj)._delta;
+            return obj is MilestoneRelationship_LTE other
+                && base.Equals(obj)
+                && _delta == other._delta;
         }
 
         /// <summary>

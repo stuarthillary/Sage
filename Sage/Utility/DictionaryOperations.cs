@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
@@ -29,8 +28,14 @@ namespace Highpoint.Sage.Utility
             /// Value Condition Less than zero x is less than y. Zero x equals y. Greater than zero x is greater than y.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">Neither x nor y implements the <see cref="T:System.IComparable"></see> interface.-or- x and y are of different types and neither one can handle comparisons with the other. </exception>
-            public int Compare(object x, object y)
+            public int Compare(object? x, object? y)
             {
+                if (ReferenceEquals(x, y))
+                    return 0;
+                if (x is null)
+                    return -1;
+                if (y is null)
+                    return 1;
                 return Comparer.Default.Compare(((DictionaryEntry)x).Key, ((DictionaryEntry)y).Key);
             }
 

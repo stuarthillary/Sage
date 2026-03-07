@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using System;
@@ -38,19 +37,19 @@ namespace Highpoint.Sage.Scheduling
         private TimeSpan _duration;
         private bool _hasDuration;
         private TimeAdjustmentMode _adjustmentMode;
-        private Stack<TimeAdjustmentMode> _adjustmentModeStack;
-        private ArrayList _adjustmentModeRelationships;
+        private Stack<TimeAdjustmentMode>? _adjustmentModeStack;
+        private ArrayList? _adjustmentModeRelationships;
         private readonly string _name;
         private Guid _guid;
         private readonly string _description = "";
         private static readonly string _default_Name = "TimePeriod";
-        private MilestoneRelationship_Strut _inferenceRelationship;
+        private MilestoneRelationship_Strut? _inferenceRelationship;
         private enum MsRel
         {
             Before, On, After
         }
-        private ISupportsCorrelation m_subject;
-        private object m_modifier;
+        private ISupportsCorrelation? m_subject;
+        private object? m_modifier;
         #endregion
 
         #region Constructors
@@ -152,6 +151,7 @@ namespace Highpoint.Sage.Scheduling
             {
                 if (_supportsReactiveAdjustment)
                 {
+                    _adjustmentModeRelationships ??= new ArrayList();
                     // Clear existing relationships.
                     foreach (MilestoneRelationship mr in _adjustmentModeRelationships)
                     {
@@ -222,6 +222,8 @@ namespace Highpoint.Sage.Scheduling
         /// <param name="tam">The time period adjustment mode that is to temporarily take the place of the current one.</param>
         public void PushAdjustmentMode(TimeAdjustmentMode tam)
         {
+            if (_adjustmentModeStack == null)
+                throw new ApplicationException("TimePeriod does not support reactive adjustment.");
             _adjustmentModeStack.Push(_adjustmentMode);
             AdjustmentMode = tam;
         }
@@ -232,6 +234,8 @@ namespace Highpoint.Sage.Scheduling
         /// <returns>The newly-popped time period adjustment mode.</returns>
         public TimeAdjustmentMode PopAdjustmentMode()
         {
+            if (_adjustmentModeStack == null)
+                throw new ApplicationException("TimePeriod does not support reactive adjustment.");
             AdjustmentMode = _adjustmentModeStack.Pop();
             return AdjustmentMode;
         }
@@ -302,8 +306,8 @@ namespace Highpoint.Sage.Scheduling
                     b = otherTimePeriod.EndMilestone;
                     break;
                 default:
-                    a = null;
-                    b = null;
+                    a = StartMilestone;
+                    b = StartMilestone;
                     m = MsRel.On;
                     throw new ApplicationException("Error - unrecognized TimePeriod relationship " + relationship + " referenced in " + Name);
             }
@@ -430,8 +434,7 @@ namespace Highpoint.Sage.Scheduling
                 {
                     //_Debug.WriteLine("Trying to move start of " + this.Name + " to " + value.ToString());
                     StartMilestone.MoveTo(value);
-                    if (ChangeEvent != null)
-                        ChangeEvent(this, ChangeType.StartTime, null);
+                    ChangeEvent?.Invoke(this, ChangeType.StartTime, null);
                 }
                 catch (MilestoneAdjustmentException mae)
                 {
@@ -461,8 +464,7 @@ namespace Highpoint.Sage.Scheduling
                 try
                 {
                     EndMilestone.MoveTo(value);
-                    if (ChangeEvent != null)
-                        ChangeEvent(this, ChangeType.EndTime, null);
+                    ChangeEvent?.Invoke(this, ChangeType.EndTime, null);
                 }
                 catch (MilestoneAdjustmentException mae)
                 {
@@ -511,6 +513,8 @@ namespace Highpoint.Sage.Scheduling
                             break;
 
                         case TimeAdjustmentMode.InferEndTime:
+                            if (_inferenceRelationship == null)
+                                throw new TimePeriodAdjustmentException("Inference relationship not set for InferEndTime.");
                             _inferenceRelationship.Delta = value;
                             break;
 
@@ -525,6 +529,8 @@ namespace Highpoint.Sage.Scheduling
                             break;
 
                         case TimeAdjustmentMode.InferStartTime:
+                            if (_inferenceRelationship == null)
+                                throw new TimePeriodAdjustmentException("Inference relationship not set for InferStartTime.");
                             _inferenceRelationship.Delta = -value;
                             break;
 
@@ -532,8 +538,7 @@ namespace Highpoint.Sage.Scheduling
                             throw new ApplicationException("Unrecognized TimeAdjustmentMode specified - " + _adjustmentMode + ".");
                     }
 
-                    if (ChangeEvent != null)
-                        ChangeEvent(this, ChangeType.Duration, null);
+                    ChangeEvent?.Invoke(this, ChangeType.Duration, null);
 
                 }
                 catch (MilestoneAdjustmentException mae)
@@ -588,8 +593,7 @@ namespace Highpoint.Sage.Scheduling
         {
             StartMilestone.Active = false;
             StartMilestone.MoveTo(DateTime.MaxValue);
-            if (ChangeEvent != null)
-                ChangeEvent(this, ChangeType.StartTime, null);
+            ChangeEvent?.Invoke(this, ChangeType.StartTime, null);
         }
         /// <summary>
         /// Sets the end time to an indeterminate time.
@@ -598,8 +602,7 @@ namespace Highpoint.Sage.Scheduling
         {
             EndMilestone.Active = false;
             EndMilestone.MoveTo(DateTime.MaxValue);
-            if (ChangeEvent != null)
-                ChangeEvent(this, ChangeType.EndTime, null);
+            ChangeEvent?.Invoke(this, ChangeType.EndTime, null);
         }
 
         /// <summary>
@@ -609,12 +612,11 @@ namespace Highpoint.Sage.Scheduling
         {
             _hasDuration = false;
             _duration = TimeSpan.MaxValue;
-            if (ChangeEvent != null)
-                ChangeEvent(this, ChangeType.Duration, null);
+            ChangeEvent?.Invoke(this, ChangeType.Duration, null);
         }
         #endregion
 
-        public event ObservableChangeHandler ChangeEvent;
+        public event ObservableChangeHandler? ChangeEvent;
 
         public override string ToString()
         {
@@ -691,7 +693,7 @@ namespace Highpoint.Sage.Scheduling
 
         #region ITimePeriod Members
 
-        public ISupportsCorrelation Subject
+        public ISupportsCorrelation? Subject
         {
             [DebuggerStepThrough]
             get
@@ -705,7 +707,7 @@ namespace Highpoint.Sage.Scheduling
             }
         }
 
-        public object Modifier
+        public object? Modifier
         {
             [DebuggerStepThrough]
             get

@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
@@ -24,13 +23,13 @@ namespace Highpoint.Sage.Scheduling
 
         #region Private Fields
         private DateTime _dateTime;
-        private readonly string _name = null;
+        private readonly string _name;
         private Guid _guid = Guid.Empty;
-        private readonly string _description = null;
-        private List<MilestoneRelationship> _relationships;
-        private Stack<bool> _activeStack;
+        private readonly string _description = string.Empty;
+        private List<MilestoneRelationship>? _relationships;
+        private Stack<bool>? _activeStack;
         private readonly bool _isActive;
-        private readonly MilestoneMovementManager _movementManager = null;
+        private readonly MilestoneMovementManager? _movementManager = null;
         #endregion
 
         #region Constructors
@@ -209,10 +208,10 @@ namespace Highpoint.Sage.Scheduling
 
         private void NotifyEnabledChanged()
         {
-            ChangeEvent?.Invoke(this, ChangeType.Enabled, _activeStack.Peek());
+            ChangeEvent?.Invoke(this, ChangeType.Enabled, ActiveStack.Peek());
         }
 
-        public event ObservableChangeHandler ChangeEvent;
+        public event ObservableChangeHandler? ChangeEvent;
 
         #endregion
 
@@ -304,7 +303,10 @@ namespace Highpoint.Sage.Scheduling
 
                     // Finally, tell each changed milestone to fire it's change event.
                     foreach (Milestone changed in _oldValues.Keys)
-                        changed.NotifyValueChanged((DateTime)_oldValues[changed]);
+                    {
+                        if (_oldValues[changed] is DateTime oldValue)
+                            changed.NotifyValueChanged(oldValue);
+                    }
 
                     // And reset the data structures for the next use.
                     _oldValues.Clear();
@@ -328,12 +330,16 @@ namespace Highpoint.Sage.Scheduling
                     {
                         if (!mr.Enabled)
                             continue;              // Only enabled relationships can effect change.
-                        if (mr.Dependent.Equals(ms))
+                        IMilestone? dependent = mr.Dependent;
+                        if (dependent == null)
+                            continue;
+                        if (dependent.Equals(ms))
                             continue;  // Only relationships where we are the independent can effect change.
-                                       //if ( m_debug ) _Debug.WriteLine("\tConsidering " + mr.ToString());
-                        if (!htol.Contains(mr.Dependent))
-                            htol.Add(mr.Dependent, new ArrayList());
-                        ((ArrayList)htol[mr.Dependent]).Add(mr);  // We now have outbounds, grouped by destination milestone.
+                                        //if ( m_debug ) _Debug.WriteLine("\tConsidering " + mr.ToString());
+                        if (!htol.Contains(dependent))
+                            htol.Add(dependent, new ArrayList());
+                        if (htol[dependent] is ArrayList list)
+                            list.Add(mr);  // We now have outbounds, grouped by destination milestone.
                     }
                     #endregion
 
@@ -350,7 +356,8 @@ namespace Highpoint.Sage.Scheduling
                             // E : RCV Liquid1.Xfer-In.Start and E : RCV Liquid1.Xfer-In.End
 
                         }
-                        IList relationships = (ArrayList)htol[target];// Gives us a list of parallel relationships to the same downstream.
+                        if (htol[target] is not ArrayList relationships)
+                            continue;
 
                         //						if ( ms.Name.Equals("B : RCV Liquid1.Xfer-In.Start") && target.Name.Equals("B : RCV Liquid1.Temp-Set.End") ) {
                         //							fullData = true;

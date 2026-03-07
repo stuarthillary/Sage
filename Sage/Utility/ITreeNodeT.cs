@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 //#define PREANNOUNCE
 using System;
@@ -26,34 +25,34 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Fired when this node is detached from a parent.
         /// </summary>
-        event TreeNodeEvent<T> LostParent;
+        event TreeNodeEvent<T>? LostParent;
 
         /// <summary>
         /// Fired when this node is attached to a parent.
         /// </summary>
-        event TreeNodeEvent<T> GainedParent;
+        event TreeNodeEvent<T>? GainedParent;
 
         /// <summary>
         /// Fired when this node has lost a child.
         /// </summary>
-        event TreeNodeEvent<T> LostChild;
+        event TreeNodeEvent<T>? LostChild;
 
         /// <summary>
         /// Fired when this node has gained a child.
         /// </summary>
-        event TreeNodeEvent<T> GainedChild;
+        event TreeNodeEvent<T>? GainedChild;
 
         /// <summary>
         /// <summary>
         /// Fired when this node's child list has been resorted.
         /// </summary>
         /// </summary>
-        event TreeNodeEvent<T> ChildrenResorted;
+        event TreeNodeEvent<T>? ChildrenResorted;
 
         /// <summary>
         /// Fired when a change (Gain, Loss or Child-Resorting) in this node's subtree has occurred.
         /// </summary>
-        event TreeChangeEvent<T> SubtreeChanged;
+        event TreeChangeEvent<T>? SubtreeChanged;
         #endregion Events
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Highpoint.Sage.Utility
         /// If the Payload is null, and you inherit from TreeNode&lt;T&gt;, you need to set SelfReferential to true in the ctor.
         /// </summary>
         /// <value>The payload.</value>
-        T Payload
+        T? Payload
         {
             get;
         }
@@ -79,7 +78,7 @@ namespace Highpoint.Sage.Utility
         /// Gets or sets the parent of this tree node.
         /// </summary>
         /// <value>The parent.</value>
-        ITreeNode<T> Parent
+        ITreeNode<T>? Parent
         {
             get; set;
         }
@@ -90,7 +89,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="newParent">The new parent.</param>
         /// <param name="skipStructureChecking">if set to <c>true</c> [skip structure checking].</param>
         /// <param name="childAlreadyAdded">if set to <c>true</c> [child already added].</param>
-        void SetParent(ITreeNode<T> newParent, bool skipStructureChecking, bool childAlreadyAdded = false);
+        void SetParent(ITreeNode<T>? newParent, bool skipStructureChecking, bool childAlreadyAdded = false);
 
         #region Enumerables
         /// <summary>

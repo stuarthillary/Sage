@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
@@ -50,12 +49,12 @@ namespace Highpoint.Sage.Utility
         /// Gets or sets the <see cref="T:Object"/> at the specified index.
         /// </summary>
         /// <value></value>
-        public object this[int index]
+        public object? this[int index]
         {
             get
             {
-                MyWeakReference wr = (MyWeakReference)_list[index];
-                return wr.Target;
+                MyWeakReference? wr = _list[index] as MyWeakReference;
+                return wr?.Target;
             }
             set
             {
@@ -83,7 +82,7 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.IList"></see>. </exception>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.IList"></see> is read-only.-or- The <see cref="T:System.Collections.IList"></see> has a fixed size. </exception>
         /// <exception cref="T:System.NullReferenceException">value is null reference in the <see cref="T:System.Collections.IList"></see>.</exception>
-		public void Insert(int index, object value)
+        public void Insert(int index, object? value)
         {
             _list.Insert(index, new WeakReference(value));
         }
@@ -93,7 +92,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <param name="value">The <see cref="T:System.Object"></see> to remove from the <see cref="T:System.Collections.IList"></see>.</param>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.IList"></see> is read-only.-or- The <see cref="T:System.Collections.IList"></see> has a fixed size. </exception>
-		public void Remove(object value)
+        public void Remove(object? value)
         {
             _list.Remove(value);
         }
@@ -105,7 +104,7 @@ namespace Highpoint.Sage.Utility
         /// <returns>
         /// true if the <see cref="T:System.Object"></see> is found in the <see cref="T:System.Collections.IList"></see>; otherwise, false.
         /// </returns>
-		public bool Contains(object value)
+        public bool Contains(object? value)
         {
             return _list.Contains(value);
         }
@@ -126,7 +125,7 @@ namespace Highpoint.Sage.Utility
         /// <returns>
         /// The index of value if found in the list; otherwise, -1.
         /// </returns>
-		public int IndexOf(object value)
+        public int IndexOf(object? value)
         {
             return _list.IndexOf(value);
         }
@@ -139,7 +138,7 @@ namespace Highpoint.Sage.Utility
         /// The position into which the new element was inserted.
         /// </returns>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.IList"></see> is read-only.-or- The <see cref="T:System.Collections.IList"></see> has a fixed size. </exception>
-		public int Add(object value)
+        public int Add(object? value)
         {
             return _list.Add(new MyWeakReference(value));
         }
@@ -181,7 +180,10 @@ namespace Highpoint.Sage.Utility
         public void CopyTo(Array array, int index)
         {
             for (int i = 0; i < _list.Count; i++)
-                array.SetValue(((MyWeakReference)_list[i]).Target, new long[] { i });
+            {
+                object? target = (_list[i] as MyWeakReference)?.Target;
+                array.SetValue(target, new long[] { i });
+            }
         }
 
         /// <summary>

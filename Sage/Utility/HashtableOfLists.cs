@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -33,7 +32,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="item">The value of the element to add.</param>
         public void Add(object key, object item)
         {
-            object obj = _ht[key];
+            object? obj = _ht[key];
             if (obj == null)
             {
                 _ht.Add(key, item);
@@ -64,10 +63,10 @@ namespace Highpoint.Sage.Utility
         /// <param name="item">The value of the element to remove.</param>
         public void Remove(object key, object item)
         {
-            object obj = _ht[key];
+            object? obj = _ht[key];
             if (obj != null)
             {
-                ListWrapper wrapper = obj as ListWrapper;
+                ListWrapper? wrapper = obj as ListWrapper;
                 if (wrapper != null)
                 {
                     wrapper.List.Remove(item);
@@ -102,8 +101,8 @@ namespace Highpoint.Sage.Utility
         {
             get
             {
-                object obj = _ht[key];
-                ListWrapper wrapper = obj as ListWrapper;
+                object? obj = _ht[key];
+                ListWrapper? wrapper = obj as ListWrapper;
                 if (wrapper != null)
                     return wrapper.List;
                 ArrayList al = obj != null ? new ArrayList { obj } : _empty_List;
@@ -166,7 +165,7 @@ namespace Highpoint.Sage.Utility
             ArrayList removees = new ArrayList();
             foreach (DictionaryEntry de in _ht)
             {
-                ListWrapper value = de.Value as ListWrapper;
+                ListWrapper? value = de.Value as ListWrapper;
                 if (value != null && value.List.Count == 0)
                     removees.Add(de.Key);
             }
@@ -184,7 +183,7 @@ namespace Highpoint.Sage.Utility
                 int count = 0;
                 foreach (DictionaryEntry de in _ht)
                 {
-                    ListWrapper value = de.Value as ListWrapper;
+                    ListWrapper? value = de.Value as ListWrapper;
                     if (value != null)
                         count += value.List.Count;
                     else
@@ -209,7 +208,8 @@ namespace Highpoint.Sage.Utility
         private class HtolEnumerator : IEnumerator
         {
             private readonly HashtableOfLists _htol;
-            private IEnumerator _htEnum, _lstEnum;
+            private IEnumerator? _htEnum;
+            private IEnumerator? _lstEnum;
             public HtolEnumerator(HashtableOfLists htol)
             {
                 _htol = htol;
@@ -234,10 +234,10 @@ namespace Highpoint.Sage.Utility
 
                 while (_htEnum.MoveNext())
                 {
-                    object obj = ((DictionaryEntry)_htEnum.Current).Value;
+                    object? obj = ((DictionaryEntry)_htEnum.Current).Value;
 
                     // Find the first non-listWrapper object, or non-empty listWrapper.
-                    ListWrapper wrapper = obj as ListWrapper;
+                    ListWrapper? wrapper = obj as ListWrapper;
                     if (wrapper == null)
                         continue;
                     if (wrapper.List.Count == 0)
@@ -252,7 +252,7 @@ namespace Highpoint.Sage.Utility
                 _htEnum = null;
                 return false;
             }
-            public object Current => _lstEnum != null ? _lstEnum.Current : ((DictionaryEntry?)_htEnum?.Current)?.Value;
+            public object? Current => _lstEnum != null ? _lstEnum.Current : ((DictionaryEntry?)_htEnum?.Current)?.Value;
 
             #endregion
         }
@@ -272,12 +272,12 @@ namespace Highpoint.Sage.Utility
     /// <seealso>
     ///   <cref>System.Collections.Generic.IDictionary{TKey, List{TValue}}</cref>
     /// </seealso>
-    public class HashtableOfLists<TKey, TValue> : IEnumerable<TValue>, IDictionary<TKey, List<TValue>>
+    public class HashtableOfLists<TKey, TValue> : IEnumerable<TValue>, IDictionary<TKey, List<TValue>> where TKey : notnull
     {
 
         #region Private Fields
         private readonly Dictionary<TKey, List<TValue>> _dictOfLists;
-        private readonly IComparer<TValue> _comparer;
+        private readonly IComparer<TValue>? _comparer;
         #endregion
 
         #region Constructors
@@ -300,7 +300,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="item">The value of the element to add.</param>
         public void Add(TKey key, TValue item)
         {
-            if (!_dictOfLists.TryGetValue(key, out List<TValue> value))
+            if (!_dictOfLists.TryGetValue(key, out List<TValue>? value) || value == null)
             {
                 value = new List<TValue>();
                 _dictOfLists.Add(key, value);
@@ -417,11 +417,11 @@ namespace Highpoint.Sage.Utility
             }
         }
 
-        private class HtolEnumerator<TTKey, TTValue> : IEnumerator<TTValue>
+        private class HtolEnumerator<TTKey, TTValue> : IEnumerator<TTValue> where TTKey : notnull
         {
             private readonly HashtableOfLists<TTKey, TTValue> _htol;
-            private IEnumerator<List<TTValue>> _allListEnumerator;
-            private IEnumerator<TTValue> _currListEnumerator;
+            private IEnumerator<List<TTValue>>? _allListEnumerator;
+            private IEnumerator<TTValue>? _currListEnumerator;
             public HtolEnumerator(HashtableOfLists<TTKey, TTValue> htol)
             {
                 _htol = htol;
@@ -436,6 +436,8 @@ namespace Highpoint.Sage.Utility
 
             public bool MoveNext()
             {
+                if (_allListEnumerator == null)
+                    return false;
                 if (_currListEnumerator == null)
                 {
                     if (_allListEnumerator.MoveNext())
@@ -463,13 +465,29 @@ namespace Highpoint.Sage.Utility
                 }
             }
 
-            public object Current => _currListEnumerator.Current;
+            public object Current
+            {
+                get
+                {
+                    if (_currListEnumerator == null)
+                        throw new InvalidOperationException("Enumerator is not positioned on an element.");
+                    return _currListEnumerator.Current!; // Enumerator is valid when Current is accessed.
+                }
+            }
 
             #endregion
 
             #region IEnumerator<_TValue> Members
 
-            TTValue IEnumerator<TTValue>.Current => _currListEnumerator.Current;
+            TTValue IEnumerator<TTValue>.Current
+            {
+                get
+                {
+                    if (_currListEnumerator == null)
+                        throw new InvalidOperationException("Enumerator is not positioned on an element.");
+                    return _currListEnumerator.Current;
+                }
+            }
 
             #endregion
 
@@ -480,7 +498,7 @@ namespace Highpoint.Sage.Utility
                 if (_currListEnumerator != null)
                 {
                     _currListEnumerator.Dispose();
-                    _allListEnumerator.Dispose();
+                    _allListEnumerator?.Dispose();
                 }
             }
 
@@ -539,7 +557,13 @@ namespace Highpoint.Sage.Utility
         /// <returns>true if the object that implements <see cref="T:System.Collections.Generic.IDictionary`2" /> contains an element with the specified key; otherwise, false.</returns>
         public bool TryGetValue(TKey key, out List<TValue> value)
         {
-            return _dictOfLists.TryGetValue(key, out value);
+            if (_dictOfLists.TryGetValue(key, out List<TValue>? found) && found != null)
+            {
+                value = found;
+                return true;
+            }
+            value = new List<TValue>();
+            return false;
         }
 
         /// <summary>

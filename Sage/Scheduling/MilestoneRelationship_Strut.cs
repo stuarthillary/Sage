@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
@@ -14,6 +13,10 @@ namespace Highpoint.Sage.Scheduling
         public MilestoneRelationship_Strut(IMilestone dependent, IMilestone independent)
             : base(dependent, independent)
         {
+            if (dependent == null)
+                throw new ArgumentNullException(nameof(dependent));
+            if (independent == null)
+                throw new ArgumentNullException(nameof(independent));
             _delta = dependent.DateTime - independent.DateTime;
             AssessInitialCorrectnessForCtor();
         }
@@ -27,7 +30,9 @@ namespace Highpoint.Sage.Scheduling
             set
             {
                 _delta = value;
-                dependent.MoveTo(independent.DateTime + _delta);
+                IMilestone dependentMilestone = dependent ?? throw new InvalidOperationException("Dependent milestone is required.");
+                IMilestone independentMilestone = independent ?? throw new InvalidOperationException("Independent milestone is required.");
+                dependentMilestone.MoveTo(independentMilestone.DateTime + _delta);
             }
         }
 
@@ -36,10 +41,12 @@ namespace Highpoint.Sage.Scheduling
         /// then this returns null.
         /// </summary>
         /// <value>The reciprocal.</value>
-        public override MilestoneRelationship Reciprocal
+        public override MilestoneRelationship? Reciprocal
         {
             get
             {
+                if (Dependent == null || Independent == null)
+                    return null;
                 return new MilestoneRelationship_Strut(Independent, Dependent);
             }
         }
@@ -52,7 +59,9 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override bool IsSatisfied()
         {
-            return (!Enabled || _delta == (dependent.DateTime - independent.DateTime));
+            IMilestone dependentMilestone = dependent ?? throw new InvalidOperationException("Dependent milestone is required.");
+            IMilestone independentMilestone = independent ?? throw new InvalidOperationException("Independent milestone is required.");
+            return (!Enabled || _delta == (dependentMilestone.DateTime - independentMilestone.DateTime));
         }
 
         /// <summary>
@@ -80,7 +89,9 @@ namespace Highpoint.Sage.Scheduling
             string relation = _delta > TimeSpan.Zero ? (howMuch + " after ") : (howMuch + " before ");
             if (_delta.Equals(TimeSpan.Zero))
                 relation = " when ";
-            return Dependent.Name + " occurs " + relation + Independent.Name + " occurs.";
+            string dependentName = Dependent?.Name ?? "<unknown>";
+            string independentName = Independent?.Name ?? "<unknown>";
+            return dependentName + " occurs " + relation + independentName + " occurs.";
         }
 
         /// <summary>
@@ -90,9 +101,11 @@ namespace Highpoint.Sage.Scheduling
         /// <returns>
         /// true if the specified <see cref="T:System.Object"></see> is equal to the current <see cref="T:System.Object"></see>; otherwise, false.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return base.Equals(obj) && _delta == ((MilestoneRelationship_Strut)obj)._delta;
+            return obj is MilestoneRelationship_Strut other
+                && base.Equals(obj)
+                && _delta == other._delta;
         }
 
         /// <summary>

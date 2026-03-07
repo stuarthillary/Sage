@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Utility
         {
             string testAssemblyName = "Microsoft.VisualStudio.TestPlatform.TestFramework";
             UnitTestDetector.IsInUnitTest = AppDomain.CurrentDomain.GetAssemblies()
-                .Any(a => a.FullName.StartsWith(testAssemblyName, StringComparison.Ordinal));
+                .Any(a => a.FullName?.StartsWith(testAssemblyName, StringComparison.Ordinal) == true);
         }
 
         public static bool IsInUnitTest

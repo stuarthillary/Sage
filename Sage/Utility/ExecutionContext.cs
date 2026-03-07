@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.SimCore;
@@ -8,7 +7,7 @@ using System.Collections;
 namespace Highpoint.Sage.Utility
 {
 
-    public delegate void DictionaryChange(object key, object value);
+    public delegate void DictionaryChange(object key, object? value);
 
 
     /// <summary>
@@ -51,10 +50,10 @@ namespace Highpoint.Sage.Utility
 
         #region Implementation of IModelObject
 
-        private string _name;
+        private string _name = null!; // Initialized via InitializeIdentity.
         private Guid _guid;
-        private IModel _model;
-        private string _description;
+        private IModel _model = null!; // Initialized via InitializeIdentity.
+        private string? _description;
 
         /// <summary>
         /// The IModel to which this object belongs.
@@ -108,7 +107,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
@@ -126,13 +125,10 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:System.Collections.IDictionary"></see> object. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.IDictionary"></see> is read-only.-or- The <see cref="T:System.Collections.IDictionary"></see> has a fixed size. </exception>
-        public void Add(object key, object value)
+        public void Add(object key, object? value)
         {
             _dictionary.Add(key, value);
-            if (EntryAdded != null)
-            {
-                EntryAdded(key, value);
-            }
+            EntryAdded?.Invoke(key, value);
         }
 
         /// <summary>
@@ -147,9 +143,9 @@ namespace Highpoint.Sage.Utility
             {
                 foreach (object key in _dictionary.Keys)
                 {
-                    object val = _dictionary[key];
+                    object? val = _dictionary[key];
                     _dictionary.Remove(key);
-                    EntryRemoved(key, val);
+                    EntryRemoved?.Invoke(key, val);
                 }
             }
             else
@@ -236,16 +232,9 @@ namespace Highpoint.Sage.Utility
         public void Remove(object key)
         {
             // TODO: Clear other elements that are not in the dictionary.
-            if (EntryRemoved != null)
-            {
-                object val = _dictionary[key];
-                _dictionary.Remove(key);
-                EntryRemoved(key, val);
-            }
-            else
-            {
-                _dictionary.Remove(key);
-            }
+            object? val = _dictionary[key];
+            _dictionary.Remove(key);
+            EntryRemoved?.Invoke(key, val);
         }
 
         /// <summary>
@@ -266,7 +255,7 @@ namespace Highpoint.Sage.Utility
         /// Gets or sets the <see cref="System.Object"/> with the specified key.
         /// </summary>
         /// <value></value>
-        public object this[object key]
+        public object? this[object key]
         {
             [System.Diagnostics.DebuggerStepThrough]
             get
@@ -276,15 +265,9 @@ namespace Highpoint.Sage.Utility
             [System.Diagnostics.DebuggerStepThrough]
             set
             {
-                if (EntryChanging != null)
-                {
-                    EntryChanging(key, _dictionary[key]); // Only retrieve if it's needed.
-                }
+                EntryChanging?.Invoke(key, _dictionary[key]); // Only retrieve if it's needed.
                 _dictionary[key] = value;
-                if (EntryChanged == null)
-                {
-                    EntryChanged(key, value);
-                }
+                EntryChanged?.Invoke(key, value);
             }
         }
 
@@ -368,13 +351,13 @@ namespace Highpoint.Sage.Utility
         #endregion
         #endregion
 
-        public event DictionaryChange EntryAdded;
-        public event DictionaryChange EntryRemoved;
-        public event DictionaryChange EntryChanging;
-        public event DictionaryChange EntryChanged;
+        public event DictionaryChange? EntryAdded;
+        public event DictionaryChange? EntryRemoved;
+        public event DictionaryChange? EntryChanging;
+        public event DictionaryChange? EntryChanged;
 
 
-        public object FindUp(string key)
+        public object? FindUp(string key)
         {
             if (Contains(key))
             {
@@ -382,7 +365,7 @@ namespace Highpoint.Sage.Utility
             }
             else
             {
-                return Parent?.Payload.FindUp(key);
+                return Parent?.Payload?.FindUp(key);
             }
         }
     }

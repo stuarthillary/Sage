@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.SimCore;
 using System;
@@ -10,7 +9,7 @@ namespace Highpoint.Sage.Utility
     public static class GuidOps
     {
 
-        private static System.Security.Cryptography.HashAlgorithm _hash;
+        private static System.Security.Cryptography.HashAlgorithm? _hash;
         private static readonly object s_lock = new object();
 
         public static Guid Mask = Guid.Empty;
@@ -40,7 +39,7 @@ namespace Highpoint.Sage.Utility
                         }
                     }
                 }
-                return _hash;
+                return _hash!; // Initialized above.
             }
         }
 
@@ -175,8 +174,14 @@ namespace Highpoint.Sage.Utility
             /// <param name="a">One IHasIdentity implementer.</param>
             /// <param name="b">The other IHasIdentity implementer.</param>
             /// <returns>-1, 0 or 1, depending on the relationship between a &amp; b.</returns>
-            public int Compare(T a, T b)
+            public int Compare(T? a, T? b)
             {
+                if (ReferenceEquals(a, b))
+                    return 0;
+                if (a is null)
+                    return -1;
+                if (b is null)
+                    return 1;
                 return GuidOps.Compare(a.Guid, b.Guid);
             }
         }

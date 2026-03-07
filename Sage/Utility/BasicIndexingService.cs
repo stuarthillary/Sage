@@ -1,4 +1,3 @@
-#nullable disable
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 
@@ -43,9 +42,15 @@ namespace Highpoint.Sage.Utility
             for (i = 0; i < tgts.Length; i++)
             {
                 ISupportsIndexes sfamo = tgts[i];
-                if (sfamo.Index == null)
+                uint[]? index = sfamo.Index;
+                if (index == null)
+                {
                     sfamo.GrowIndex();
-                minNdxSize = (uint)Math.Min(minNdxSize, sfamo.Index.Length);
+                    index = sfamo.Index;
+                }
+                if (index == null)
+                    throw new IndexingFailedException(_indexingFailed);
+                minNdxSize = (uint)Math.Min(minNdxSize, index.Length);
             }
 
             uint assigned = uint.MaxValue;
@@ -55,7 +60,9 @@ namespace Highpoint.Sage.Utility
                 Array.Clear(inUse, 0, inUse.Length);
                 for (i = 0; i < tgts.Length; i++)
                 {
-                    uint[] ia = tgts[i].Index;
+                    uint[]? ia = tgts[i].Index;
+                    if (ia == null)
+                        throw new IndexingFailedException(_indexingFailed);
                     for (int j = 0; j < minNdxSize; j++)
                     {
                         inUse[j] &= (ia[j] > 0); // TODO: This is gonna be much faster w/ pointer arithmetic.
