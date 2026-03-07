@@ -780,7 +780,7 @@ namespace Highpoint.Sage.SimCore
         [Highpoint.Sage.Utility.FieldDescription("Test the Heap collection.")]
         public void RecreateFailure()
         {
-            IExecutive exec = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.ExecutiveFastLight, Sage", Guid.NewGuid());
+            IExecutive exec = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.SimCore.ExecutiveFastLight, Highpoint.Sage", Guid.NewGuid());
             foreach (string s in _testTimes)
             {
                 DateTime dt = DateTime.Parse(s);

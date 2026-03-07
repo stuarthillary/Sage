@@ -1,4 +1,14 @@
 
+### 2026-07-16 — Rename Sage4.csproj → Sage.csproj, Set RootNamespace=Highpoint.Sage ✅
+
+- **Project file:** `src\Sage\Sage4.csproj` → `src\Sage\Sage.csproj` (via `git mv`, history preserved)
+- **RootNamespace:** `Highpoint.Sage` added to Sage.csproj `<PropertyGroup>`
+- **AssemblyName:** Updated to `Highpoint.Sage` (and `SageOptions.cs` default type string + `TestExecutive.cs` hardcoded type string updated accordingly)
+- **Sage.slnx:** Updated project entry from `Sage4.csproj` → `Sage.csproj`
+- **ProjectReferences updated:** SageTestLib, TestDriver, SageBenchmarks, Sage_SampleCode
+- **Namespace migration:** No .cs file changes required — namespaces were already `Highpoint.Sage.*` from a prior migration
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing
+
 ### 2026-07-16 — Solution Restructure to src/tests/benchmarks/samples Layout ✅
 
 - **Scope:** Entire repository layout restructured; .sln replaced with .slnx.

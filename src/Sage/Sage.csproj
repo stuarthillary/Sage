@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <AssemblyName>Sage</AssemblyName>
+    <AssemblyName>Highpoint.Sage</AssemblyName>
     <RootNamespace>Highpoint.Sage</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
