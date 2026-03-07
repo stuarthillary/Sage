@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Materials.Chemistry;
 
-namespace Highpoint.Sage.Testing
+namespace Highpoint.Sage.Scratch
 {
     using Core;
     using Resources;

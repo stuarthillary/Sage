@@ -4,7 +4,7 @@
   </Folder>
   <Project Path="src\Sage\Sage.csproj" />
   <Project Path="benchmarks\SageBenchmarks\Sage.Benchmarks.csproj" />
-  <Project Path="tests\TestDriver\TestDriver.csproj" />
+  <Project Path="tests\TestDriver\Sage.Scratch.csproj" />
   <Project Path="tests\SageTestLib\Sage.Tests.csproj" />
   <Project Path="samples\Sage_SampleCode\Sage.Examples.csproj" />
 </Solution>

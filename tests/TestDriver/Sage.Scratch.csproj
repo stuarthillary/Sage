@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <AssemblyName>Sage.Scratch</AssemblyName>
+    <RootNamespace>Highpoint.Sage.Scratch</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
