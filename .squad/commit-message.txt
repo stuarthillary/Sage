@@ -1,14 +1,11 @@
-docs: log non-generic collection analysis — Ripley strategy + Parker inventory
+Scribe: Document Parker's TestDriver->Sage.Scratch rename completion
 
-- Orchestration log: documented analysis round with Ripley, Parker, and explorers
-- Session log: brief summary of key findings and decisions
-- Decision log: merged inbox files into decisions.md with complete 3-phase strategy
-  * Phase 1 (60%, non-breaking): internal fields/locals, start immediately
-  * Phase 2 (30%, breaking): public API surface, defer to major release
-  * Phase 3 (10%, intentional): architectural patterns (never replace)
-- Updated Ripley history: strategy analysis complete, merged to decisions
-- Updated Parker history: inventory analysis complete, file-by-file guide provided
-- Key decisions captured: exclude object userData, IDictionary graphContext, XmlSerializationContext
-- Deleted inbox files: ripley-collection-migration-strategy.md, parker-collection-inventory.md
+- Add orchestration log: 2026-03-07T23-35-52Z-parker.md
+- Add session log: 2026-03-07T23-35-52Z-scratch-rename.md
+- Merge decision inbox: parker-scratch-rename.md -> decisions.md
+- Update Parker's history with final rename completion
+- Delete processed inbox file
+
+Completes documentation for the final project naming standardization task.
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>

@@ -1,3 +1,17 @@
+
+### 2026-03-07 — TestDriver Project Rename to Sage.Scratch ✅
+
+- **Scope:** Renamed TestDriver project from TestDriver.csproj to Sage.Scratch.csproj with namespace refactoring.
+- **Project file:** 	ests\TestDriver\TestDriver.csproj → 	ests\TestDriver\Sage.Scratch.csproj (via git mv, history preserved)
+- **RootNamespace/AssemblyName:** Set RootNamespace = Highpoint.Sage.Scratch and AssemblyName = Sage.Scratch in project file
+- **Sage.slnx:** Updated project reference from TestDriver.csproj → Sage.Scratch.csproj
+- **Namespace migration:** Driver.cs updated from 
+amespace Highpoint.Sage.Testing → 
+amespace Highpoint.Sage.Scratch
+- **Build/Test:** dotnet restore + dotnet build Sage.slnx 0 errors; dotnet test Sage.Tests.csproj 316/319 passing (3 pre-existing failures)
+- **Decision:** Scratch project now follows team naming convention (Sage.Scratch) and Highpoint.Sage.Scratch namespace convention, completing the entire project rename series
+
+---
 ### 2026-03-07 — Project Renames: Benchmarks, Examples, Tests ✅
 
 **Scope:** Three project renames coordinated as naming-convention rollout  
@@ -266,5 +280,6 @@
 - **Namespace migration:** Driver.cs updated from `namespace Highpoint.Sage.Testing` → `namespace Highpoint.Sage.Scratch`
 - **Build/Test:** `dotnet restore` + `dotnet build Sage.slnx` 0 errors; `dotnet test Sage.Tests.csproj` 316/319 passing (3 pre-existing failures)
 - **Decision:** Scratch project now follows team naming convention (Sage.Scratch) and Highpoint.Sage.Scratch namespace convention, completing the project rename series
+
 
 
