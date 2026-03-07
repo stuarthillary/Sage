@@ -81,3 +81,24 @@
 - **Build/Test:** `dotnet build Sage4.csproj` clean; `dotnet test SageTestLib` 319/319 passing.
 - **Remaining:** 232 files still `#nullable disable` (316 enabled total, 548 total in Sage/).
 - **Phase 6 completion:** All Materials module files migrated successfully. Ready for Phase 7 (next target TBD).
+
+### 2026-03-07 — Nullable Phase 7 (Graphs) ✅
+
+- **Scope:** Removed `#nullable disable` from all 96 files in Sage/Graphs/ (base + PFC, PFC/Execution, PFC/Execution/Actions, Tasks subdirectories). This was the LARGEST module with ~1,160 warnings.
+- **Architectural constraints respected:** `IDictionary graphContext` kept non-generic and non-nullable throughout (architectural design - never null in methods). `object userData` → `object?` but kept non-generic.
+- **Core files:** Edge.cs (1,453 lines), Vertex.cs (482 lines), Task.cs (633 lines) - fundamental graph structure components.
+- **Major PFC files:** ProcedureFunctionChart.cs (2,946 lines - largest file in Graphs), PfcValidator.cs (1,087 lines), PfcAnalyst.cs (1,003 lines), StepStateMachine.cs (608 lines), PfcNode.cs (440 lines), plus 30+ supporting PFC files.
+- **Analysis files:** CPMAnalyst.cs (730 lines - Critical Path Method), ValidationService.cs (656 lines), CriticalPathAnalyst, PertAnalyst, DagCycleChecker, DagDeadlockChecker.
+- **Nullability patterns applied:**
+  - Event delegates all nullable (`event VertexEvent?`, `event PfcAction?`, etc.)
+  - `Vertex? PreVertex`, `Vertex? PostVertex` on IEdge (edges can have null vertices)
+  - `IEdge? GetParent()`, `IHasValidity? GetParent()` (nullable return types where documented)
+  - `null!` for deferred-init fields in deserialization scenarios with comments
+  - `!` null-forgiving operator used sparingly with explanatory comments (e.g., `_vm!.Suspend() // hasVm guarantees non-null`)
+  - Dictionary lookups and `as` casts → nullable types throughout
+  - PFC expression system: `Expression?`, `ExecutableCondition?`, `ParticipantDirectory?` nullable where appropriate
+  - State machines: nullable references for runtime-assigned fields in StepStateMachine/TransitionStateMachine
+- **Systematic approach:** Fixed files in priority order: interfaces/enums first, then core structure (Vertex/Edge), then implementations (Task, PFC nodes), then large analysis files, then execution subsystems.
+- **Build/Test:** `dotnet build Sage4-Everything.sln` 0 errors; `dotnet test SageTestLib` 319/319 passing (0 failures).
+- **Remaining:** 136 files still `#nullable disable` (412 enabled total, 548 total in Sage/).
+- **Phase 7 completion:** All Graphs module files migrated successfully. Largest and most complex module done. Ready for Phase 8.
