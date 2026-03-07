@@ -187,4 +187,14 @@
 - **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing
 - **Decision:** Benchmarks project now follows team naming pattern (Sage.Benchmarks) and Highpoint.Sage.Benchmarks namespace convention
 
+### 2026-07-16 — Corrected Examples Project Name to Sage.Examples ✅
+
+- **Scope:** Renamed samples project from `Sample.Examples.csproj` to `Sage.Examples.csproj` to align with team naming conventions.
+- **Project file:** `samples\Sage_SampleCode\Sample.Examples.csproj` → `samples\Sage_SampleCode\Sage.Examples.csproj` (via `git mv`, history preserved)
+- **AssemblyName:** Updated from `Sample.Examples` to `Sage.Examples` in project file
+- **RootNamespace:** Preserved as `Highpoint.Sage.Examples` (unchanged)
+- **Sage.slnx:** Updated project reference from `Sample.Examples.csproj` → `Sage.Examples.csproj`
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing
+- **Decision:** Examples project now fully aligned with team naming convention (Sage.Examples) matching pattern of other projects (Sage.csproj, Sage.Benchmarks.csproj)
+
 
