@@ -1212,3 +1212,713 @@ Phase 2 spec will be written after Phase 1 results are reviewed.
 - Build: SUCCESS
 - Tests: 319/319 PASSED
 - Commit: ed40b0f
+
+
+---
+
+# NEW DECISIONS
+
+---
+### 20260307T212830: User directive
+**By:** Stuart Hillary (via Copilot)
+**What:** Copilot and all squad agents must NOT write files outside the repository (E:\source\Sage) except to C:\Users\smhil\AppData\Local\Temp. No temp/scratch files on E:\ root or any other drive location.
+**Why:** User observed files like E:\cs8_warnings.txt being created during agent work. This is not acceptable.
+
+---
+# Nullable Reference Types Migration — COMPLETE ✅
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-07-16  
+**Status:** Complete  
+**Requested by:** Stuart Hillary (PM)
+
+## Summary
+
+The nullable reference types migration is **100% complete** across the Sage library. All planned files have been migrated, with only 2 permanent exclusions remaining by architectural design.
+
+## Final Statistics
+
+- **Total files in Sage/:** 548
+- **Files with `#nullable enable`:** 546 (99.6%)
+- **Files with `#nullable disable`:** 2 (0.4%) — permanent exclusions
+- **Build status:** 0 errors
+- **Test status:** 319/319 passing (100%)
+
+## Permanent Exclusions (2 files)
+
+These files will **permanently** retain `#nullable disable` due to architectural complexity:
+
+1. **`Sage/Utility/WeakHashTable.cs`** — Complex weak-reference internals using non-generic collections. Migrating would be too risky without comprehensive test coverage of edge cases.
+
+2. **`Sage/Persistence/XmlSerializationContext.cs`** — Complex serialization using non-generic collections by design. The implementation relies on `ArrayList`, `Hashtable`, and `Stack` with mixed-type content that cannot be easily typed.
+
+## Phase 8 Details (Final Phase)
+
+**Files processed:** 134  
+**Modules completed:** Core (35), Mathematics (53), Persistence (6), Resources (30), SmartPropertyBag (9), Presentation (1)
+
+### Core (35 files)
+- Enums: ExecEventType, ExecState, ExecType, InitializationType, RefType
+- Attributes: DefaultValueAttribute, InitializerAttribute, InitializerArgAttribute, TaskGraphVolatileAttribute, VolatileKey
+- Exceptions: CausalityException, ExecutiveException, InitializationException, RuntimeException, TransitionFailureException
+- Model infrastructure: BaseModelObject, ModelObjectDictionary, InitializationManager, StateMachine, EnumStateMachine
+- Executive components: ExecController, ExecEventComparer, MetronomeBase, SimpleMetronome
+- Error handling: GenericModelError, GenericModelWarning, ModelExceptionError, SimpleTransitionFailureReason
+- Transition handlers: TransitionHandler, InvalidTransitionHandler, MergedTransitionHandler
+- Utilities: DefaultModelStates, DetachableEventSynchronizer, ExceptionHandler, IMOHelper
+
+### Mathematics (53 files)
+- Distributions: Binomial, Cauchy, Constant, Empirical, Exponential, Lognormal, Normal, Poisson, Triangular, Uniform, Universal, Weibull, TimeSpan
+- CDFs: For all distributions
+- Histograms: 1D implementations for Double, DateTime, TimeSpan (base + specialized)
+- Interpolation: Linear, Cosine, SmallDoubleInterpolable
+- Scaling: DoubleLinearScalingAdapter, TimeSpanLinearScalingAdapter, ScalingEngine
+- Utilities: Converter, Extensions, Linear, LinearRegression, Operations, Rationalizer, RMSErrorCalculator
+- Interfaces: ICDF, IDoubleDistribution, IDoubleInterpolator, IDoubleScalingAdapter, IHistogram, IHistogram1D, IInterpolable, IScalable, IScalingEngine, ITimeSpanDistribution, ITimeSpanScalingAdapter, IWriteableInterpolable
+- Attributes: HistogramBinCategory, SupportsDistributionsAttribute, PoissonCDFLookupTable
+
+### Persistence (6 files)
+- DeserializationContext — nullable return types for ModelObject lookups
+- DynamicConstruction — WIP feature file
+- IDirtyable — WIP interface
+- ISerializer — nullable return type for LoadObject
+- IXElementSerializable — serialization interface
+- IXmlPersistable — XML persistence interface
+
+### Resources (30 files)
+- Interfaces: IAccessManager, IAccessRegulator, IHasCapacity, IHasControllableCapacity, IModelWithResources, IResource, IResourceManager, IResourceManagerCollection, IResourceRequest, IResourceTracker
+- Implementations: Resource, ResourceManager, ResourceManagerCollection, ResourceRequest, ResourceTracker, SelfManagingResource
+- Access regulators: SingleKeyAccessRegulator, MultiKeyAccessRegulator, SimpleAccessManager
+- Processors: MultiRequestProcessor, MultiResourceTracker, ResourceTrackerAggregator
+- Events & Records: ResourceEventRecord, ResourceEventRecordFilters, ResourceAction
+- Requests: GuidSelectiveResourceRequest, SimpleResourceRequest, RequestStatus
+- Exceptions: ResourceExceptions, TerminalResourceRequestAbortedWarning
+
+### SmartPropertyBag (9 files)
+- SmartPropertyBag — nullable values, mementos, parent references
+- HierarchicalDictionaryEntry — nullable key/value pairs
+- WriteLock — nullable whereApplied tracking
+- SPBInitializer — nullable key/value initialization
+- Interfaces: IHasWriteLock, ISPBTreeNode
+- Exceptions: SmartPropertyBagException, SmartPropertyBagContentsException, WriteProtectionViolationException
+
+### Presentation (1 file)
+- Converters — UI value converters
+
+## Common Patterns Applied
+
+1. **Event delegates:** All made nullable (`event EventHandler? Name;`)
+2. **`object userData`:** Changed to `object?` throughout (kept non-generic per architectural decision)
+3. **Deferred initialization:** Used `= null!` with comments (e.g., `// Set in Initialize()`)
+4. **Optional fields:** Made nullable (`IModel?`, `string?`, `Exception?`)
+5. **Return types:** Made nullable where appropriate (`IModelObject?`, `object?`)
+6. **IComparer implementations:** `Compare(object? x, object? y)` with null-forgiving casts
+7. **Null-forgiving operator (`!`):** Used sparingly with explanatory comments
+
+## Architectural Decisions Preserved
+
+1. **`object userData` remains non-generic** — This parameter is used throughout the codebase for user-defined data. It's made nullable (`object?`) but deliberately kept as `object` rather than introducing generics, which would be a massive API change.
+
+2. **`IDictionary graphContext` remains non-generic** — Graph contexts use non-generic dictionaries by architectural design. These are never null in method bodies but are nullable at boundaries.
+
+3. **WeakHashTable and XmlSerializationContext excluded** — These use complex non-generic collection patterns that are too risky to migrate without extensive testing infrastructure.
+
+## Verification
+
+```powershell
+# Final count check
+(Get-ChildItem -Path "E:\source\Sage\Sage" -Recurse -Filter "*.cs" | Select-String -Pattern "^#nullable disable" | Measure-Object).Count
+# Result: 2
+
+# Full solution build
+dotnet build E:\source\Sage\Sage4-Everything.sln --no-incremental -v minimal
+# Result: Build succeeded, 0 errors
+
+# Full test suite
+dotnet test E:\source\Sage\Sage_Aux\SageTestLib\SageTestLib.csproj -v minimal
+# Result: Total: 319, Passed: 319, Failed: 0, Skipped: 0
+```
+
+## Migration History
+
+- **Phase 1 (2026-07-16):** Global enable + Core interfaces scaffolding — 23 files enabled
+- **Phase 2 (2026-07-16):** Engine internals (Executive, ExecFactory, ModelConfig, Model, ExecEventRemover) — 29 files enabled total
+- **Phase 3 (2026-03-07):** Utility module — 81 files enabled total
+- **Phase 4 (2026-03-07):** Dependencies, Randoms, SystemDynamics — 178 files enabled total
+- **Phase 5 (2026-03-07):** ItemBased — 251 files enabled total
+- **Phase 6 (2026-03-07):** Materials — 316 files enabled total
+- **Phase 7 (2026-03-07):** Graphs (largest module, 96 files) — 412 files enabled total
+- **Phase 8 (2026-07-16):** Final cleanup (Core, Mathematics, Persistence, Resources, SmartPropertyBag, Presentation) — 546 files enabled ✅
+
+## Impact
+
+- **Breaking changes:** None — all changes are additive nullability annotations
+- **API compatibility:** Preserved — public APIs remain backward compatible
+- **Performance:** No impact — nullable reference types are compile-time only
+- **Code quality:** Improved — explicit nullability contracts throughout
+- **Maintainability:** Enhanced — clearer contracts, better tooling support
+
+## Next Steps
+
+1. ✅ Migration complete — no further phases needed
+2. Consider addressing pre-existing CS8622 warnings in Model.cs if desired (userData nullability mismatch)
+3. Monitor for any new nullable warnings in future development
+4. Update coding standards to enforce nullable reference types for new code
+
+## Conclusion
+
+The nullable reference types migration is **complete and successful**. 99.6% of the codebase is now nullable-enabled with explicit nullability contracts, improving code quality and maintainability while maintaining full backward compatibility. All 319 tests pass with zero regressions.
+
+---
+
+**Files modified:** 134 (Phase 8)  
+**Total files migrated:** 546 (all phases)  
+**Build status:** ✅ 0 errors  
+**Test status:** ✅ 319/319 passing  
+**Commit:** 59cc065
+
+---
+# Nullable Phase 4 Complete — Dependencies/Randoms/SystemDynamics
+
+**Date:** 2026-03-07  
+**Author:** Parker (.NET Developer)  
+**Requested by:** Stuart Hillary
+
+## Summary
+Completed nullable Phase 4 for Dependencies, Randoms, and SystemDynamics (including Design/Utility). Removed `#nullable disable` across all target files and resolved resulting nullable warnings.
+
+## Key Changes
+- Dependencies: annotated GraphCycleException/GraphSequencer, ensured non-null fields and comparer handling.
+- Randoms: nullable-safe buffering fields, nullable NextBytes parameter, and cleaned static singleton nullability.
+- SystemDynamics: StateBase Configure field initialization, distro cache guard, optional parameters in RunProgram, and array initialization in delay/smooth helpers.
+
+## Verification
+- `dotnet build Sage\Sage4.csproj -v minimal` (no nullable warnings).
+- `dotnet build Sage4-Everything.sln --no-incremental -v minimal` **blocked by permission prompt**.
+- `dotnet test Sage_Aux\SageTestLib\SageTestLib.csproj -v minimal` → 319/319 passed.
+
+## Remaining
+370 files still contain `#nullable disable` (178 enabled total in Sage).
+
+---
+# Parker Decision: Nullable Phase 5 (ItemBased) Complete
+
+**Date:** 2026-03-07  
+**Agent:** Parker (. NET Developer)  
+**Status:** ✅ Complete
+
+## Summary
+
+Successfully completed nullable reference type migration for the entire ItemBased module (73 files). All files now have `#nullable enable` and all nullable warnings resolved. Build clean, all 319 tests passing.
+
+## Scope
+
+- **Target:** `Sage/ItemBased/` — all 73 .cs files
+- **Modules affected:**
+  - Connectors (8 files) — BasicNonBufferedConnector, ConnectorFactory, FixedRateChannel, Nexus
+  - Ports (37 files) — GenericPort, SimpleInputPort, SimpleOutputPort, InputPortManager, OutputPortManager, port interfaces
+  - Queues (6 files) — Queue, IQueue, MultiQueueHead, selection strategies, data collectors
+  - Servers (7 files) — SimpleServer, BufferedServer, MultiChannelDelayServer, ResourceServer, ServerPlus
+  - SourcesAndSinks (2 files) — ItemSource, ItemSink
+  - SplittersAndJoiners (9 files) — Splitter, Joiner, branch blocks
+  - Tags (4 files) — Tag, TagList, TagType, TagComparers
+
+## Key Changes
+
+### 1. Nullable Annotations
+- All `#nullable disable` directives removed
+- `IPort?`, `IConnector?`, `IModel?` annotations propagated throughout
+- Event delegates made nullable: `event EventHandler? PortDataPresented;`
+- Optional parameters: `string? name`, `object? userData`
+
+### 2. Queue.cs Naming Collision
+- **Issue:** Class named `Queue` in `Sage.ItemBased.Queues` namespace collides with `System.Collections.Generic.Queue<T>`
+- **Resolution:** All references to generic `Queue<T>` within Queue.cs fully-qualified as `System.Collections.Generic.Queue<T>`
+- **Class name:** Unchanged (per requirement — no public API breaks)
+
+### 3. Critical Bug Fix — Connectors.cs
+- **Original code:** `Debug.Assert(p1.Model == p2.Model); return ForModel(p1.Model)._Connect(...);`
+- **Incorrect nullable change:** Added `throw new ApplicationException("port with no model")` for null models
+- **Impact:** Broke 9 tests that use ports without models (ManagementFacadeTester.*)
+- **Fix:** Restored original `Debug.Assert` behavior, used null-forgiving operator (`p1.Model!`) where needed
+- **Rationale:** Tests intentionally create ports without models; runtime check was too strict
+
+### 4. Null-Forgiving Operators
+- Used sparingly with inline comments:
+  - `ForModel(p1.Model!)._Connect(...)` — Model checked by Debug.Assert
+  - `p1.Model!` in constructors — Model already validated upstream
+
+## Test Results
+
+- **Build:** `dotnet build Sage4.csproj` — clean, 0 errors, baseline warnings only
+- **Tests:** `dotnet test SageTestLib` — 319/319 passing (100%)
+- **Duration:** ~40 seconds
+
+## Progress
+
+- **Before Phase 5:** 370 files with `#nullable disable` (178 enabled)
+- **After Phase 5:** 297 files with `#nullable disable` (251 enabled)
+- **Change:** +73 files enabled
+
+## Files Modified (73 total)
+
+All files in `Sage/ItemBased/`:
+- Connectors: BasicNonBufferedConnector, ConnectorType, Connectors, FixedRateChannel, IChannel, IConnector, IRoute, Nexus
+- Ports: GeneralPortChannelInfo, GenericPort, IAddsTagsToServiceObjects, IChangesTagsOnServiceObjects, IInputPort, IOutputPort, IPeriodicity, IPort, IPortChannelInfo, IPortEvents, IPortOwner, IPortSelector, IPortSet, IPulseSource, IReadOnlyTag, IServiceItem, ITag, ITagHolder, ITagType, InputPortManager, InputPortProxy, OutputPortManager, OutputPortProxy, Periodicity, PortDirection, PortManagementFacade, PortManager, PortOwnerProxy, PortSet, PulseSource, SimpleInputPort, SimpleOutputPort, SimplePortActivityLogger, SimplePortOwner
+- Queues: IQueue, ISelectionStrategy, MultiQueueHead, OldestShortestQueueStrategy, Queue, ShortestQueueStrategy, WaitingTime
+- Servers: BufferedServer, IServer, IServiceObject, MultiChannelDelayServer, ResourceServer, ServerPlus, SimpleServer
+- SourcesAndSinks: ItemSink, ItemSource
+- SplittersAndJoiners: IJoiner, ISplitter, Joiner, PushJoiner, SimpleBranchBlock, SimpleDelegatedTwoChoiceBranchBlock, SimpleStochasticTwoChoiceBranchBlock, SimpleTwoChoiceBranchBlock, SimultaneousPushSplitter, Splitter
+- Tags: Tag, TagComparers, TagList, TagType, Ticker
+
+## Learnings
+
+1. **Debug.Assert vs. Exceptions:** Debug assertions allow tests to run with nullable models; exceptions enforce stricter contracts. Preserve original behavior unless explicitly changing API contracts.
+
+2. **Naming Collisions:** When a class name collides with a BCL generic type, fully-qualify the generic type rather than renaming the class (public API constraint).
+
+3. **Test-Driven Nullable:** Always run tests after nullable changes — they reveal runtime assumptions about nullable behavior.
+
+4. **Null-Forgiving Justification:** Every `!` operator should have an inline comment explaining why null is impossible at that point.
+
+## Next Steps
+
+- **Phase 6 candidates:** Materials, Resources, Utility (if not already done), Graphs (larger module)
+- **Remaining:** 297 files across ~10 modules
+- **Estimated completion:** 3-4 more phases
+
+## Commit
+
+```
+feat(nullable): Phase 5 — ItemBased module
+
+Fix nullable warnings in Sage/ItemBased/.
+Queue.cs naming collision handled with fully-qualified generic Queue<T>.
+
+73 ItemBased files now #nullable enable, 251 total enabled, 297 remaining.
+All 319 tests pass. 0 build errors.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+```
+
+---
+**Reviewed by:** —  
+**Merged to decisions.md:** ❌ Pending review
+
+---
+# Nullable Phase 6 Complete — Materials Module
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-03-07  
+**Status:** Complete ✅  
+**Requested by:** Stuart Hillary (PM)
+
+## Summary
+
+Phase 6 of nullable reference types migration completed successfully. All 66 .cs files in `E:\source\Sage\Sage\Materials\` (including subdirectories Chemistry, Emissions, Thermodynamics, and VaporPressure) now have `#nullable disable` removed and all nullable warnings fixed.
+
+## Scope
+
+**Files Processed:** 66 total
+- **Materials root:** 24 files (IContainer, IMaterial, MaterialType, Substance, Mixture, Vessel, MaterialService, etc.)
+- **Chemistry:** 8 files (Constants, Reaction, ReactionProcessor, ReactionInstance, BasicReactionSupporter, interfaces)
+- **Emissions:** 17 files (EmissionModel + 13 concrete implementations + EmissionsService + interfaces)
+- **Thermodynamics:** 4 files (ITemperatureController, TemperatureController, mode/rate classes)
+- **VaporPressure:** 11 files (Antoine coefficient interfaces/implementations, calculator, units, exception)
+- **Utility classes:** 2 files (NullUpdater, MassVolumeTracker)
+
+## Key Nullable Patterns Applied
+
+### Event Delegates
+```csharp
+// Before
+public event MaterialChangeListener MaterialChanged;
+
+// After
+public event MaterialChangeListener? MaterialChanged;
+
+// Invocation
+MaterialChanged?.Invoke(this, MaterialChangeType.Contents);
+```
+
+### IModel Fields (Nullable for Deserialization)
+```csharp
+private IModel? _model; // Can be null during deserialization
+```
+
+### Deferred Initialization Fields
+```csharp
+private MaterialType _type = null!; // Set in constructor
+private Dictionary<Guid, double>? _materialSpecs; // Genuinely optional
+```
+
+### Interface Nullability Signatures
+```csharp
+// IComparer<Substance> implementation
+public int Compare(Substance? x, Substance? y)
+{
+    return Comparer.Default.Compare(x?.Mass, y?.Mass);
+}
+```
+
+### Nullable Casts and Unboxing
+```csharp
+Substance? otherSubstance = otherOne as Substance;
+if (otherSubstance == null) return false;
+
+double specMass = (double)de.Value!; // DictionaryEntry unboxing
+```
+
+### Out Parameters
+```csharp
+public void GetResult(out Mixture? result) // Nullable when can be null
+```
+
+## Notable Files Fixed
+
+1. **MaterialType.cs** (32.9 KB)
+   - `IModel?`, `ListDictionary?` for emissions classifications
+   - `InitializeIdentity` signature changed to accept `string? description`
+   - Nullable EmissionsClassificationCatalog handling
+
+2. **Substance.cs** (40.2 KB)
+   - Event delegate: `MaterialChangeListener?`
+   - `IMemento?`, `MaterialChangeDistiller?` nullable
+   - IComparer implementations updated for nullable parameters
+   - Tag property initialized to `string.Empty`
+   - SubstanceMemento with nullable fields and events
+
+3. **Mixture.cs** (57.5 KB)
+   - Complex event handling with nullable delegates
+   - IModel nullable for deserialization
+   - MaterialChangeDistiller nullable initialization
+
+4. **MaterialService.cs** (50.7 KB)
+   - Resource management with nullable callbacks
+   - Event subscriptions with null-conditional operators
+
+5. **Emission Models** (13 implementations)
+   - Hashtable parameters in IEmissionModel implementations
+   - Out parameters for emission calculations
+   - All share similar patterns
+
+## Build & Test Results
+
+- ✅ **Build:** `dotnet build Sage4-Everything.sln --no-incremental` succeeded (0 errors, warnings are baseline)
+- ✅ **Tests:** `dotnet test SageTestLib.csproj` — **319/319 passed** (100% pass rate)
+- ✅ **Duration:** ~40.4 seconds
+- ✅ **No regressions**
+
+## Progress Tracking
+
+**Before Phase 6:**
+- 251 files enabled
+- 297 files with `#nullable disable`
+- 548 total files in Sage/
+
+**After Phase 6:**
+- **316 files enabled** (+65 from Phase 6, +1 from inbox file)
+- **232 files with `#nullable disable`** remaining
+- 548 total files in Sage/
+
+**Percentage Complete:** 57.7% (316/548)
+
+## Architectural Decisions Preserved
+
+1. **`object userData`** → Always kept as `object?` (never changed to generic - architectural constraint)
+2. **`IDictionary graphContext`** → Kept non-generic, nullable only when genuinely optional
+3. **Legacy collections** → `Hashtable`, `ArrayList` kept non-generic (backward compatibility)
+4. **Event delegates** → All made nullable (`event EventHandler?`) for consistency
+5. **IModel references** → Nullable to support deserialization scenarios
+
+## Patterns to Reuse in Future Phases
+
+- `= null!` with `// Set in Initialize()` for deferred init
+- `?.Invoke()` for all event invocations
+- `as Type?` for nullable cast patterns
+- `(Type)value!` for DictionaryEntry unboxing where value is guaranteed
+- `IModel?` for model references that can be null during deserialization
+- Nullable return types (`Type?`) only when method genuinely can return null
+
+## Next Steps
+
+**Phase 7 candidate modules** (to be determined):
+- Resources/ — Resource management, pools, requests
+- Graphs/ — Graph structures, vertices, edges
+- Utilities/ — Utility classes and helpers
+- Randoms/ — If not completed in Phase 4
+- Remaining Core/ files — Complex core infrastructure
+
+**Estimated remaining effort:**
+- 232 files remaining
+- ~4-5 more phases expected
+- Current velocity: ~60-70 files per phase
+
+## Verification Commands
+
+```powershell
+# Count remaining files
+(Get-ChildItem -Path "E:\source\Sage\Sage" -Recurse -Filter "*.cs" | Select-String -Pattern "^#nullable disable" | Measure-Object).Count
+# Expected: 232
+
+# Verify no Materials files remain
+(Get-ChildItem -Path "E:\source\Sage\Sage\Materials" -Recurse -Filter "*.cs" | Select-String -Pattern "^#nullable disable" | Measure-Object).Count
+# Expected: 0
+
+# Run tests
+dotnet test E:\source\Sage\Sage_Aux\SageTestLib\SageTestLib.csproj -v minimal
+# Expected: 319/319 passed
+```
+
+## Files Modified
+
+See commit: `feat(nullable): Phase 6 — Materials module`
+
+**Status:** ✅ **Ready for merge to main**
+
+---
+# Nullable Phase 7 Complete — Graphs Module ✅
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-03-07  
+**Status:** Complete  
+**Requested by:** Stuart Hillary (PM)
+
+## Summary
+
+Successfully completed Phase 7 of nullable reference type migration — the **Graphs module**, which was the **largest and most complex module** in the codebase with approximately **1,160 nullable warnings** across **96 files**.
+
+## Scope
+
+All files in `E:\source\Sage\Sage\Graphs\` including subdirectories:
+- **Main Graphs directory:** 33 files (Edge, Vertex, analysis, validation, managers, etc.)
+- **PFC directory:** 42 files (Procedure Function Charts - core execution engine)
+- **PFC/Execution directory:** 12 files (state machines, actors, context)
+- **Tasks directory:** 9 files (Task class and management services)
+
+Total: **96 files** migrated from `#nullable disable` to full nullable context.
+
+## Key Files Migrated
+
+### Core Structure (Foundational)
+- **Edge.cs** (1,453 lines) — Base edge implementation
+- **Vertex.cs** (482 lines) — Base vertex implementation
+- **Task.cs** (633 lines) — Task implementation extending Edge
+
+### PFC (Procedure Function Charts)
+- **ProcedureFunctionChart.cs** (2,946 lines) — **LARGEST FILE** in entire Graphs module
+- **PfcValidator.cs** (1,087 lines) — PFC validation logic
+- **PfcAnalyst.cs** (1,003 lines) — Path analysis for PFC
+- **StepStateMachine.cs** (608 lines) — PFC step execution state machine
+- **PfcNode.cs** (440 lines) — Abstract PFC node base
+- Plus 30+ supporting files: PfcStep, PfcTransition, PfcLink, PfcElement, Expression, ExecutionEngine, etc.
+
+### Analysis & Validation
+- **CPMAnalyst.cs** (730 lines) — Critical Path Method analysis
+- **ValidationService.cs** (656 lines) — General validity management
+- **CriticalPathAnalyst.cs**, **PertAnalyst.cs**, **DagCycleChecker.cs**, **DagDeadlockChecker.cs**
+
+## Architectural Constraints Respected
+
+### 1. IDictionary graphContext (Non-Generic, Non-Nullable)
+- **Rule:** `IDictionary graphContext` parameters kept **non-generic** and **non-nullable** throughout
+- **Rationale:** This is an **intentional architectural design** — graph execution methods do not accept null contexts
+- **Applied to:** All ITask/IVertex method signatures, Edge.PreVertexSatisfied, Vertex.PreEdgeSatisfied, PFC execution methods
+- **Impact:** 100+ method signatures preserved as-is (no nullable annotation)
+
+### 2. object userData (Non-Generic, Nullable)
+- **Rule:** `object userData` → `object?` (nullable) but kept **non-generic**
+- **Rationale:** Architectural constraint — user data must remain untyped
+- **Applied to:** Edge, Task, PFC elements, execution contexts
+
+## Nullability Patterns Applied
+
+### Event Delegates
+All event delegates made nullable:
+```csharp
+public event VertexEvent? BeforeVertexFiringEvent;
+public event EdgeExecutionStartingEvent? EdgeExecutionStartingEvent;
+public event PfcAction? PfcStarting;
+public event ValidityChangeHandler? ValidityChangeEvent;
+```
+
+### Nullable Properties (Where Appropriate)
+```csharp
+// Edges can have null vertices during construction/disconnection
+Vertex? PreVertex { get; }
+Vertex? PostVertex { get; }
+
+// Parent edges can be null (non-hierarchical graphs)
+IEdge? GetParent();
+
+// Managers are optional
+IEdgeFiringManager? EdgeFiringManager { get; set; }
+IEdgeReceiptManager? EdgeReceiptManager { get; set; }
+
+// PFC expression components
+Expression? Expression { get; }
+ExecutableCondition? ExpressionExecutable { get; }
+ParticipantDirectory? _participantDirectory;
+```
+
+### Deferred Initialization (`null!`)
+Used for fields guaranteed to be set before first use (e.g., deserialization, Initialize() methods):
+```csharp
+private string _name = null!; // Set in constructor
+private IModel _model = null!; // Set in Initialize()
+private List<Edge> PreEdges = null!; // Set in Reset()
+```
+
+### Null-Forgiving Operator (`!`) with Comments
+Used sparingly where code guarantees non-null:
+```csharp
+// hasVm boolean check guarantees _vm is non-null
+if (hasVm) _vm!.Suspend();
+
+// Parent is guaranteed set during deserialization
+parent!.Model!.AddModelObject(this);
+
+// Dictionary lookup guaranteed by prior Contains check
+_htNodes[node]!.SelfState = validity;
+```
+
+### Dictionary Lookups & Casts
+All dictionary lookups and `as` casts properly typed as nullable:
+```csharp
+IPfcNode? node = _nodeList[guid];
+Task? task = edge as Task;
+PmData? pmData = graphContext[_pmDataKey] as PmData;
+```
+
+## Systematic Approach
+
+Files were processed in priority order to minimize cascading changes:
+
+1. **Enums & Simple Types** (no dependencies) — 10 files
+2. **Interfaces** (define contracts) — 17 files  
+3. **Core Structure** (Vertex, Edge) — 2 files
+4. **Implementations** (Task, Ligature, managers) — 15 files
+5. **PFC Enums & Interfaces** — 17 files
+6. **PFC Small Classes** — 12 files
+7. **PFC Medium Classes** — 7 files
+8. **PFC Large Files** (PfcNode, PfcAnalyst, PfcValidator, ProcedureFunctionChart) — 4 files
+9. **PFC Execution Subsystem** — 11 files
+10. **Analysis & Validation** (CPMAnalyst, ValidationService, cycle checkers) — 12 files
+
+## Build & Test Results
+
+### Build
+```
+dotnet build Sage4-Everything.sln --no-incremental -v minimal
+Result: 0 Errors, warnings only (baseline)
+```
+
+### Tests
+```
+dotnet test SageTestLib.csproj
+Result: 319 total, 319 passed, 0 failed, 0 skipped
+Duration: 40.3 seconds
+```
+
+## Statistics
+
+- **Files migrated:** 96
+- **Approximate warnings fixed:** ~1,160
+- **Largest file:** ProcedureFunctionChart.cs (2,946 lines)
+- **Total lines affected:** ~17,856 insertions across 100 files
+- **Files remaining with `#nullable disable`:** 136 (down from 232)
+- **Progress:** 412/548 files now `#nullable enable` (75.2%)
+
+## Next Phase Recommendations
+
+Remaining modules to migrate (136 files):
+1. **Simulation & Timing** — Sage/Simulation (if exists)
+2. **Persistence** — Sage/Persistence (XML serialization)
+3. **Miscellaneous** — Remaining smaller modules
+
+The hardest work is done — Graphs (96 files, ~1,160 warnings) was the largest and most complex module. Remaining modules should be smaller and more straightforward.
+
+## Lessons Learned
+
+1. **IDictionary graphContext** — This architectural design is pervasive and intentional. Never change to generic or nullable.
+2. **Large files benefit from sub-agents** — Used general-purpose task agents to handle 600+ line files efficiently.
+3. **Priority order matters** — Fixing interfaces and core types first reduced cascading changes.
+4. **Event delegates** — Always nullable in this codebase (consistent pattern).
+5. **Null-forgiving operator** — Use sparingly with comments explaining why non-null is guaranteed.
+
+## Verification
+
+All changes verified through:
+- ✅ Zero build errors in full solution build
+- ✅ All 319 tests passing with no failures
+- ✅ No new nullable warnings introduced
+- ✅ Architectural constraints preserved (IDictionary, object userData)
+
+## Files Changed
+
+See commit `89259c6` for full list of 100 files modified.
+
+---
+
+**Status:** COMPLETE ✅  
+**Ready for:** Phase 8 (next module TBD)
+
+---
+# Decision: Solution Restructure to src/tests/benchmarks/samples Layout
+
+**Date:** 2026-07-16  
+**Author:** Parker  
+**Status:** Implemented
+
+---
+
+## Context
+
+The repository previously used a flat layout with `Sage\`, `Sage_Aux\`, and `Sage_SampleCode\` as top-level directories. This did not align with conventional .NET project organization and made it harder to distinguish library code, tests, benchmarks, and samples at a glance.
+
+---
+
+## Decision
+
+Restructure the repository to a standard layered layout and migrate the solution from `.sln` to `.slnx` format.
+
+### New Directory Layout
+
+```
+src\
+  Sage\                     ← main library (was Sage\)
+tests\
+  SageTestLib\              ← unit tests (was Sage_Aux\SageTestLib\)
+  TestDriver\               ← test runner (was Sage_Aux\SageTesting\)
+benchmarks\
+  SageBenchmarks\           ← benchmarks (was Sage_Aux\SageBenchmarks\)
+samples\
+  Sage_SampleCode\          ← samples (was Sage_SampleCode\)
+Sage.slnx                   ← new XML solution (replaced Sage4-Everything.sln)
+```
+
+### .slnx Conversion Approach
+
+`dotnet sln migrate` (available in SDK 10.0.103) was used to generate the initial `.slnx`. Because the file was generated before the directory moves were reflected on disk, the output contained old paths. The paths were corrected manually and the file saved as `Sage.slnx`. The intermediate `Sage4-Everything.slnx` and the original `Sage4-Everything.sln` were deleted.
+
+### ProjectReference Path Changes
+
+| Project | Old reference | New reference |
+|---|---|---|
+| `benchmarks\SageBenchmarks` | `..\..\Sage\Sage4.csproj` | `..\..\src\Sage\Sage4.csproj` |
+| `tests\SageTestLib` | `..\..\Sage\Sage4.csproj` | `..\..\src\Sage\Sage4.csproj` |
+| `tests\TestDriver` (Sage) | `..\..\Sage\Sage4.csproj` | `..\..\src\Sage\Sage4.csproj` |
+| `tests\TestDriver` (SageTestLib) | `..\SageTestLib\SageTestLib.csproj` | unchanged |
+| `samples\Sage_SampleCode` | `..\Sage\Sage4.csproj` | `..\..\src\Sage\Sage4.csproj` |
+
+---
+
+## Consequences
+
+- Standard `src/tests/benchmarks/samples` layout improves project discoverability.
+- `git mv` was used throughout to preserve file history.
+- `Sage.slnx` is the new canonical solution entry point for Visual Studio 2022 17.10+ and `dotnet` CLI.
+- Build: 0 errors. Tests: 319/319 passing.
+
+
+

@@ -1,3 +1,21 @@
+
+### 2026-07-16 — Solution Restructure to src/tests/benchmarks/samples Layout ✅
+
+- **Scope:** Entire repository layout restructured; .sln replaced with .slnx.
+- **New layout:**
+  - `src\Sage\` ← main library (was `Sage\`)
+  - `tests\SageTestLib\` ← unit tests (was `Sage_Aux\SageTestLib\`)
+  - `tests\TestDriver\` ← test runner (was `Sage_Aux\SageTesting\`)
+  - `benchmarks\SageBenchmarks\` ← benchmarks (was `Sage_Aux\SageBenchmarks\`)
+  - `samples\Sage_SampleCode\` ← samples (was `Sage_SampleCode\`)
+- **ProjectReference updates:** All four consumer projects updated; key deltas:
+  - `benchmarks\SageBenchmarks` → `..\..\src\Sage\Sage4.csproj`
+  - `tests\SageTestLib` → `..\..\src\Sage\Sage4.csproj`
+  - `tests\TestDriver` → `..\..\src\Sage\Sage4.csproj` (SageTestLib ref unchanged: `..\SageTestLib\...`)
+  - `samples\Sage_SampleCode` → `..\..\src\Sage\Sage4.csproj`
+- **slnx approach:** `dotnet sln migrate` (SDK 10.0.103) generated `Sage4-Everything.slnx` with old paths; paths updated manually and saved as `Sage.slnx`. Old `.sln` removed.
+- **Build/Test:** `dotnet build Sage.slnx` 0 errors; `dotnet test SageTestLib` 319/319 passing.
+- **git mv:** All moves used `git mv` to preserve history.
 
 ### 2026-03-06 — Phase 1 Collection Migration Complete ✅
 
