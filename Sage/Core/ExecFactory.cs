@@ -3,11 +3,8 @@
 #define TIME_BOUNDED
 
 using System;
-using System.Collections.Specialized;
-using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
-using _Debug = System.Diagnostics.Debug;
 
 #if LICENSING_ENABLED
 using Highpoint.Sage.Licensing;
@@ -28,9 +25,18 @@ namespace Highpoint.Sage.SimCore
 #endif // LICENSING_ENABLED
         private static readonly object _lock = new object();
         private static volatile ExecFactory _instance;
+        private static ExecFactoryOptions _options = new ExecFactoryOptions();
+        private static ExecutiveOptions _executiveOptions = new ExecutiveOptions();
 
-        private ExecFactory()
+        private readonly ExecFactoryOptions _instanceOptions;
+        private readonly ExecutiveOptions _instanceExecutiveOptions;
+        private string _requiredType;
+
+        private ExecFactory(ExecFactoryOptions options = null, ExecutiveOptions executiveOptions = null)
         {
+            _instanceOptions = options ?? new ExecFactoryOptions();
+            _instanceExecutiveOptions = executiveOptions ?? new ExecutiveOptions();
+            _requiredType = _instanceOptions.DefaultExecutiveType;
 #if LICENSING_ENABLED
 #if TIME_BOUNDED
             DateTime expiry = new DateTime(2016, 12, 31);
@@ -41,7 +47,7 @@ namespace Highpoint.Sage.SimCore
             if (!_licenseChecked || DateTime.Now > expiry ) {
                 if (Debugger.IsAttached) {
                     if (!LicenseManager.Check()) {
-                        MessageBox.Show("Sage® Simulation and Modeling Library license is invalid.", "Licensing Error");
+                        MessageBox.Show("Sageï¿½ Simulation and Modeling Library license is invalid.", "Licensing Error");
                     }
                 }
 
@@ -75,10 +81,21 @@ namespace Highpoint.Sage.SimCore
                 lock (_lock)
                 {
                     if (_instance == null)
-                        _instance = new ExecFactory();
+                        _instance = new ExecFactory(_options, _executiveOptions);
                 }
                 return _instance;
             }
+        }
+
+        /// <summary>
+        /// Configures ExecFactory defaults. Call before first use to override defaults.
+        /// </summary>
+        /// <param name="options">The factory options to apply.</param>
+        /// <param name="executiveOptions">The default executive options to apply.</param>
+        public static void Configure(ExecFactoryOptions options, ExecutiveOptions executiveOptions = null)
+        {
+            _options = options ?? new ExecFactoryOptions();
+            _executiveOptions = executiveOptions ?? new ExecutiveOptions();
         }
 
         /// <summary>
@@ -129,8 +146,27 @@ namespace Highpoint.Sage.SimCore
             //Binder binder = null;
             //ParameterModifier[] modifiers = null;
 
-            ConstructorInfo ci = type.GetConstructor(bindingAttr, null, new[] { typeof(Guid) }, null);
-            object objExec = ci.Invoke(new object[] { guid });
+            ConstructorInfo ci = type.GetConstructor(bindingAttr, null, new[] { typeof(Guid), typeof(ExecutiveOptions) }, null);
+            object objExec;
+            if (ci != null)
+            {
+                objExec = ci.Invoke(new object[] { guid, _instanceExecutiveOptions });
+            }
+            else
+            {
+                ci = type.GetConstructor(bindingAttr, null, new[] { typeof(Guid), typeof(ExecutiveOptions), typeof(Highpoint.Sage.Diagnostics.DiagnosticsOptions) }, null);
+                if (ci != null)
+                {
+                    objExec = ci.Invoke(new object[] { guid, _instanceExecutiveOptions, null });
+                }
+                else
+                {
+                    ci = type.GetConstructor(bindingAttr, null, new[] { typeof(Guid) }, null);
+                    if (ci == null)
+                        throw new ApplicationException("Attempt to create an executive without a matching constructor.");
+                    objExec = ci.Invoke(new object[] { guid });
+                }
+            }
             IExecutive exec = (IExecutive)objExec;
 
             return exec;
@@ -138,7 +174,6 @@ namespace Highpoint.Sage.SimCore
         }
 
 
-        private string _requiredType;
         /// <summary>
         /// Creates a copy of the default type of executive.
         /// </summary>
@@ -146,20 +181,9 @@ namespace Highpoint.Sage.SimCore
         /// <returns>A copy of the default executive.</returns>
         public IExecutive CreateExecutive(Guid execGuid)
         {
-            if (_requiredType == null)
+            if (string.IsNullOrWhiteSpace(_requiredType))
             {
-                _requiredType = "Highpoint.Sage.SimCore.Executive, Sage";
-
-                NameValueCollection nvc = (NameValueCollection)ConfigurationManager.GetSection("Sage");
-                if (nvc == null)
-                {
-                    _Debug.WriteLine("Warning - <Sage> section missing from config file for " + Process.GetCurrentProcess().ProcessName);
-                }
-                else if (nvc["ExecutiveType"] != null)
-                {
-                    _requiredType = nvc["ExecutiveType"];
-                }
-
+                _requiredType = _instanceOptions.DefaultExecutiveType;
             }
             return CreateExecutive(_requiredType, execGuid);
         }

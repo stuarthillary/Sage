@@ -5,7 +5,7 @@ using Highpoint.Sage.Graphs.Tasks;
 using Highpoint.Sage.Materials.Chemistry;
 using System;
 using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Text;
 using _Debug = System.Diagnostics.Debug;
 
@@ -18,55 +18,60 @@ namespace Highpoint.Sage.Diagnostics
     public static class DiagnosticAids
     {
 
-        private static NameValueCollection _settings;
-        private static bool _settingInitAttempted;
-        private static bool _logMissingDiagKeys;
+        private static DiagnosticsOptions _options = new DiagnosticsOptions();
+        private static bool _missingKeyLogInitialized;
         private static System.IO.StreamWriter _missingKeyLog;
 
         /// <summary>
         /// Determines, for a specific key, whether diagnostic tracing is turned on. The on/off
-        /// setting is determined by the presence of an entry in the diagnostics section of the
-        /// App.config where the key appears and the value is 'true'. See below:<p></p>
-        /// <!-- <diagnostics><add key="Mixture" value="false" /></diagnostics> -->
+        /// setting is determined by entries in <see cref="DiagnosticsOptions.Flags"/> where the
+        /// key appears and the value is <c>true</c>.
         /// </summary>
         /// <param name="whichOne">The key being queried.</param>
         /// <returns>True if diagnostic tracing has been requested.</returns>
         public static bool Diagnostics(string whichOne)
         {
-            if (!_settingInitAttempted)
+            Dictionary<string, bool> flags = _options.Flags ?? new Dictionary<string, bool>();
+            if (flags.TryGetValue(whichOne, out bool enabled))
             {
-                try
-                {
-                    _settings = (NameValueCollection)System.Configuration.ConfigurationManager.GetSection("diagnostics") ??
-                                new NameValueCollection();
-                    _settingInitAttempted = true;
-                    string lmdkString = _settings["LogMissingDiagKeys"];
-                    _logMissingDiagKeys = lmdkString != null && bool.Parse(lmdkString);
-                    if (_logMissingDiagKeys)
-                    {
-                        _missingKeyLog = new System.IO.StreamWriter(Utility.DirectoryOperations.GetAppDataDir() + "MissingDiagKeys.log")
-                        {
-                            AutoFlush = true
-                        };
-                    }
-                }
-                catch (System.Configuration.ConfigurationException sce)
-                {
-                    _Debug.WriteLine(sce.ToString());
-                }
+                return enabled;
             }
-            if (_settings == null)
-                return false;
-            string result = _settings[whichOne];
 
-            if (result != null)
-                return Boolean.Parse(_settings[whichOne]);
-            if (!_logMissingDiagKeys)
+            if (!_options.LogMissingDiagKeys)
                 return false;
 
-            _missingKeyLog.WriteLine("<add key=\"" + whichOne + "\" value=\"false\" />");
+            EnsureMissingKeyLog();
+            _missingKeyLog?.WriteLine("<add key=\"" + whichOne + "\" value=\"false\" />");
             Console.WriteLine(whichOne);
             return false;
+        }
+
+        /// <summary>
+        /// Configures diagnostic options. Call before first use to override defaults.
+        /// </summary>
+        /// <param name="options">The diagnostics options to apply.</param>
+        public static void Configure(DiagnosticsOptions options)
+        {
+            _options = options ?? new DiagnosticsOptions();
+            if (_options.Flags == null)
+            {
+                _options.Flags = new Dictionary<string, bool>();
+            }
+            if (_options.LogMissingDiagKeys)
+            {
+                EnsureMissingKeyLog();
+            }
+        }
+
+        private static void EnsureMissingKeyLog()
+        {
+            if (_missingKeyLogInitialized)
+                return;
+            _missingKeyLog = new System.IO.StreamWriter(Utility.DirectoryOperations.GetAppDataDir() + "MissingDiagKeys.log")
+            {
+                AutoFlush = true
+            };
+            _missingKeyLogInitialized = true;
         }
 
         /// <summary>

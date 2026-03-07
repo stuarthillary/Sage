@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading;
 using _Debug = System.Diagnostics.Debug;
@@ -51,47 +50,20 @@ namespace Highpoint.Sage.SimCore
 
         private int _executiveThreadId = Thread.CurrentThread.ManagedThreadId;
 
-        internal Executive(Guid execGuid)
+        internal Executive(Guid execGuid, ExecutiveOptions options = null)
         {
+            options ??= new ExecutiveOptions();
             _guid = execGuid;
             _currentEventType = ExecEventType.None;
             _eventHeapCapacity = InitialEventHeapCapacity;
             _eventHeap = new ExecEvent[_eventHeapCapacity + 1];
 
 
-            #region >>> Set up from-config-file parameters <<<
-            int desiredMinWorkerThreads = 100;
-            int desiredMaxWorkerThreads = 900;
-            int desiredMinIocThreads = 50;
-            int desiredMaxIocThreads = 100;
-            NameValueCollection nvc = null;
-            try
-            {
-                nvc = (NameValueCollection)System.Configuration.ConfigurationManager.GetSection("Sage");
-            }
-            catch (Exception e )
-            {
-                Console.WriteLine(e);
-            }
-            if (nvc == null)
-            {
-                _Debug.WriteLine(cannot_Find_Sage_Section);
-                // Leave at default values.
-            }
-            else
-            {
-                string workerThreads = nvc["WorkerThreads"];
-                if (workerThreads == null || ( !int.TryParse(workerThreads, out desiredMaxWorkerThreads) ))
-                {
-                    _Debug.WriteLine(cannot_Find_Workerthread_Directive);
-                } // else wt has been set to the desired value.
-
-                string ignoreCausalityViolations = nvc["IgnoreCausalityViolations"];
-                if (ignoreCausalityViolations == null || !bool.TryParse(ignoreCausalityViolations, out _ignoreCausalityViolations))
-                {
-                    _Debug.WriteLine(cannot_Find_Causality_Directive);
-                } // else micv has been set to the desired value.
-            }
+            int desiredMinWorkerThreads = options.MinWorkerThreads;
+            int desiredMaxWorkerThreads = options.MaxWorkerThreads;
+            int desiredMinIocThreads = options.MinIocThreads;
+            int desiredMaxIocThreads = options.MaxIocThreads;
+            _ignoreCausalityViolations = options.IgnoreCausalityViolations;
 
             if (!_clrConfigDone)
             {
@@ -125,34 +97,6 @@ namespace Highpoint.Sage.SimCore
                 }
             }
         }
-            #endregion
-
-            #region Error Messages
-
-        private static readonly string cannot_Find_Sage_Section =
-    @"Missing Sage section of config file. Defaulting to maintaining between 100 and 900 execution threads.
-Add the following two sections to your app.config to fix this issue:
-<configSections>
-    <section name=""Sage"" type=""System.Configuration.NameValueSectionHandler, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"" />
-</configSections>
-   ...and
-<Sage>
-    <add key=""WorkerThreads"" value=""100""/>
-    <add key=""IgnoreCausalityViolations"" value=""true""/>
-</Sage>
-NOTE - everything will still work fine, we're just defaulting to maintaining between 100 and 900 worker threads for now, and ignoring causality exceptions.";
-
-        private static readonly string cannot_Find_Workerthread_Directive =
-    @"Unable to find (or parse) WorkerThread directive in Sage section of App Config file. Add the following to the Sage section:
-<Sage>\r\n<add key=""WorkerThreads"" value=""100""/>\r\n</Sage>
-NOTE - everything will still work fine, we're just defaulting to maintaining between 100 and 900 worker threads for now.";
-
-        private static readonly string cannot_Find_Causality_Directive =
-    @"Unable to find Causality Exception directive in Sage section of App Config file. Add the following to the Sage section:
-    <add key=""IgnoreCausalityViolations"" value=""true""/>
-NOTE - the engine will still run, we'll just ignore it if an event is requested earlier than tNow during a simulation.";
-
-        #endregion
 
         private static void Swap(ref int a, ref int b)
         {
@@ -202,8 +146,8 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
 
         /// <summary>
         /// Returns the simulation time that the executive is currently processing. Any event submitted with a requested
-        /// service time prior to this time, will initiate a causality violation. If the App.Config file is not set to
-        /// ignore these (see below), this will result in a CausalityException being thrown.
+        /// service time prior to this time will initiate a causality violation if
+        /// <see cref="ExecutiveOptions.IgnoreCausalityViolations"/> is <c>false</c>.
         /// </summary>
         public DateTime Now
         {
@@ -386,8 +330,7 @@ NOTE - the engine will still run, we'll just ignore it if an event is requested 
                             if (!_ignoreCausalityViolations)
                             {
                                 throw new CausalityException("Event requested for time " + when + ", but executive is at time " + _now + ". " +
-                                    "\r\nAdd \"<add key=\"IgnoreCausalityViolations\" value=\"true\"/>\r\n" +
-                                    "to the Sage section of your app.config file to prevent these exceptions. (Submitted event requests will be ignored.)");
+                                    "\r\nSet ExecutiveOptions.IgnoreCausalityViolations to true to prevent these exceptions. (Submitted event requests will be ignored.)");
                             }
                             else
                             {

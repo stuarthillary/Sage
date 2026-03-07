@@ -9,7 +9,4 @@
     <WarningsAsErrors>$(WarningsAsErrors);CA1307;CA1309;CA1310</WarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" />
-  </ItemGroup>
 </Project>

@@ -2,99 +2,17 @@
 using Highpoint.Sage.Utility;
 using System;
 using System.Collections;
-using System.Configuration;
-using System.Reflection;
-using System.Xml;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Materials.Chemistry.Emissions
 {
-
-    public class EmissionsServiceConfigurationHandler : IConfigurationSectionHandler
-    {
-
-        public static readonly string EQUATION_SET_DEFAULT = "CTG";
-        public static readonly bool IGNORE_UNKNOWN_MODEL_TYPES_DEFAULT = false;
-        public static readonly bool ENABLED_DEFAULT = true;
-        public static readonly bool PERMIT_OVER_EMISSION_DEFAULT = false;
-        public static readonly bool PERMIT_UNDER_EMISSION_DEFAULT = false;
-
-        public object Create(object parent, object configContext, XmlNode section)
-        {
-
-            Hashtable htConfig = new Hashtable();
-            Hashtable htModels = new Hashtable();
-
-            ArrayList failedReads = new ArrayList();
-            XmlNode tmp = section.SelectSingleNode("EquationSet");
-
-            // ReSharper disable once MergeConditionalExpression
-            htConfig.Add("EquationSet", (tmp == null ? EQUATION_SET_DEFAULT : tmp.InnerText));
-
-            tmp = section.SelectSingleNode("IgnoreUnknownModelTypes");
-            if (tmp == null)
-                failedReads.Add("IgnoreUnknownModelTypes");
-            htConfig.Add("IgnoreUnknownModelTypes", (tmp == null ? IGNORE_UNKNOWN_MODEL_TYPES_DEFAULT : bool.Parse(tmp.InnerText)));
-
-            tmp = section.SelectSingleNode("Enabled");
-            if (tmp == null)
-                failedReads.Add("Enabled");
-            htConfig.Add("Enabled", (tmp == null ? ENABLED_DEFAULT : bool.Parse(tmp.InnerText)));
-
-            tmp = section.SelectSingleNode("PermitOverEmission");
-            if (tmp == null)
-                failedReads.Add("PermitOverEmission");
-            htConfig.Add("PermitOverEmission", (tmp == null ? PERMIT_OVER_EMISSION_DEFAULT : bool.Parse(tmp.InnerText)));
-
-            tmp = section.SelectSingleNode("PermitUnderEmission");
-            if (tmp == null)
-                failedReads.Add("PermitUnderEmission");
-            htConfig.Add("PermitUnderEmission", (tmp == null ? PERMIT_UNDER_EMISSION_DEFAULT : bool.Parse(tmp.InnerText)));
-
-            if (failedReads.Count > 0)
-            {
-                string missing = Utility.StringOperations.ToCommasAndAndedList(failedReads);
-                string current = "\r\n" + Utility.DictionaryOperations.DumpDictionary("Emissions Settings", htConfig);
-                string msg = string.Format("The following sections were not present in the Emissions Service configuration section:{0}. The following values are now in use: {1}.", missing, current);
-                Console.WriteLine(msg);
-            }
-
-            htConfig.Add("Models", htModels);
-
-            bool poe = (bool)htConfig["PermitOverEmission"];
-            bool pue = (bool)htConfig["PermitUnderEmission"];
-            XmlNodeList tmpXmlNodeList = section.SelectNodes("Models/Model");
-            if (tmpXmlNodeList != null)
-                foreach (XmlNode model in tmpXmlNodeList)
-                {
-                    string assemblyString = model.Attributes["assembly"].InnerText;
-                    Assembly.Load(assemblyString);
-                    string typeString = model.Attributes["type"].InnerText;
-                    Type type = Type.GetType(typeString);
-                    try
-                    {
-                        IEmissionModel iem = (IEmissionModel)type.GetConstructor(new Type[] { }).Invoke(new object[] { });
-                        iem.PermitOverEmission = poe;
-                        iem.PermitUnderEmission = pue;
-                        foreach (string key in iem.Keys)
-                            htModels.Add(key, iem);
-                    }
-                    catch (Exception e)
-                    {
-                        // TODO: Handle this in an Exception Service.
-                        Console.WriteLine(e);
-                    }
-                }
-
-            return htConfig;
-        }
-
-    }
 
     public class EmissionsService
     {
 
         private static volatile EmissionsService _instance;
         private static readonly object padlock = new object();
+        private static EmissionsServiceOptions _options = new EmissionsServiceOptions();
         public static EmissionsService Instance
         {
             get
@@ -104,7 +22,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
                     lock (padlock)
                     {
                         if (_instance == null)
-                            _instance = new EmissionsService();
+                            _instance = new EmissionsService(_options);
                     }
                 }
                 return _instance;
@@ -115,69 +33,56 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         private readonly bool _ignoreUnknownModelTypes;
         private readonly bool _enabled;
 
-        private EmissionsService(Hashtable configData)
+        private EmissionsService(EmissionsServiceOptions options = null)
         {
-            if (configData == null)
-            {
-                try
-                {
-                    configData = (Hashtable)System.Configuration.ConfigurationManager.GetSection("EmissionsService");
-                }
-                catch (ConfigurationException)
-                {
-                }
-            }
-            if (configData == null)
+            options ??= new EmissionsServiceOptions();
+            _enabled = options.Enabled;
+            _ignoreUnknownModelTypes = options.IgnoreUnknownModelTypes;
+
+            string equationSet = string.IsNullOrWhiteSpace(options.EquationSet) ? "CTG" : options.EquationSet;
+            EmissionModel.ActiveEquationSet =
+                (EmissionModel.EquationSet)Enum.Parse(typeof(EmissionModel.EquationSet), equationSet);
+
+            IReadOnlyList<IEmissionModel> models = options.Models;
+            if (models == null)
             {
                 if (UnitTestDetector.IsInUnitTest)
                 {
-                    Hashtable models = new Hashtable();
-                    configData = new Hashtable
-                    {
-                        {"Enabled", true},
-                        {"Models", models},
-                        {"IgnoreUnknownModelTypes", true},
-                        {"EquationSet", "CTG"}
-                    };
-
-                    IEmissionModel[] emissionModels = new IEmissionModel[]{
-                        new AirDryModel(),
-                        new EvacuateModel(),
-                        new FillModel(),
-                        new GasEvolutionModel(),
-                        new GasSweepModel(),
-                        new HeatModel(),
-                        new MassBalanceModel(),
-                        new NoEmissionModel(),
-                        new VacuumDistillationModel(),
-                        new VacuumDistillationWScrubberModel(),
-                        new VacuumDryModel(),
-                        new PressureTransferModel()
-                    };
-                    foreach (IEmissionModel emissionModel in emissionModels)
-                    {
-                        foreach (string key in emissionModel.Keys)
-                        {
-                            models.Add(key, emissionModel);
-                        }
-                    }
+                    models = CreateDefaultModels();
+                }
+                else if (!_enabled)
+                {
+                    _models = new Hashtable();
+                    return;
                 }
                 else
                 {
-                    _enabled = false;
                     throw new Utility.InitFailureException(_msgMissingConfigSection);
                 }
             }
-            string aes = (string)configData["EquationSet"] ?? "CTG";
-            EmissionModel.ActiveEquationSet =
-                (EmissionModel.EquationSet)Enum.Parse(typeof(EmissionModel.EquationSet), aes);
-            _models = (Hashtable)configData["Models"];
-            _ignoreUnknownModelTypes = (bool)configData["IgnoreUnknownModelTypes"];
-            _enabled = (bool)configData.ContainsKey("Enabled") && (bool)configData["Enabled"];
 
+            _models = BuildModelTable(models, options.PermitOverEmission, options.PermitUnderEmission);
         }
 
-        private EmissionsService() : this(null) { }
+        /// <summary>
+        /// Configures the emissions service. Call before first use to override defaults.
+        /// </summary>
+        /// <param name="options">The options to apply.</param>
+        public static void Configure(EmissionsServiceOptions options)
+        {
+            _options = options ?? new EmissionsServiceOptions();
+        }
+
+        /// <summary>
+        /// Resets the singleton instance so it can be reconfigured.
+        /// </summary>
+        public static void Reset()
+        {
+            lock (padlock)
+            {
+                _instance = null;
+            }
+        }
 
         public Hashtable KnownModels => _models;
 
@@ -224,36 +129,41 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
         private static string _msgMissingConfigSection = @"The emissions service was started, but its configuration data is missing.
 
-Please add the following two entries into your app.config file. Note, you can still have emissions turned off. (Enabled=false).
+Configure the service before first use with EmissionsService.Configure(new EmissionsServiceOptions { ... }),
+including the emission models to register.";
 
-	<configSections>
-	      <section name=""EmissionsService"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.EmissionsServiceConfigurationHandler, Sage""/>
-	</configSections>
+        private static IReadOnlyList<IEmissionModel> CreateDefaultModels()
+        {
+            return new IEmissionModel[]
+            {
+                new AirDryModel(),
+                new EvacuateModel(),
+                new FillModel(),
+                new GasEvolutionModel(),
+                new GasSweepModel(),
+                new HeatModel(),
+                new MassBalanceModel(),
+                new NoEmissionModel(),
+                new VacuumDistillationModel(),
+                new VacuumDistillationWScrubberModel(),
+                new VacuumDryModel(),
+                new PressureTransferModel()
+            };
+        }
 
-and (sample - yours may vary. These are the basic, installed models...)
-
-  <EmissionsService>
-    <IgnoreUnknownModelTypes>false</IgnoreUnknownModelTypes>
-    <Enabled>true</Enabled>
-    <PermitOverEmission>false</PermitOverEmission>
-    <PermitUnderEmission>false</PermitUnderEmission>
-    <EquationSet>CTG</EquationSet>
-	<!-- CTG or MACT -->
-    <Models>
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.AirDryModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.EvacuateModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.FillModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.GasEvolutionModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.GasSweepModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.HeatModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.MassBalanceModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.NoEmissionModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.VacuumDistillationModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.VacuumDistillationWScrubberModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.VacuumDryModel"" signed=""false"" encrypted=""false"" />
-		<Model assembly=""Sage, Version=3.0.1010.14159, Culture=neutral, PublicKeyToken=28bc9c3da9cadb40"" type=""Highpoint.Sage.Materials.Chemistry.Emissions.PressureTransferModel"" signed=""false"" encrypted=""false"" />
-    </Models>
-  </EmissionsService>
-";
+        private static Hashtable BuildModelTable(IEnumerable<IEmissionModel> models, bool permitOverEmission, bool permitUnderEmission)
+        {
+            Hashtable table = new Hashtable();
+            foreach (IEmissionModel model in models)
+            {
+                model.PermitOverEmission = permitOverEmission;
+                model.PermitUnderEmission = permitUnderEmission;
+                foreach (string key in model.Keys)
+                {
+                    table.Add(key, model);
+                }
+            }
+            return table;
+        }
     }
 }

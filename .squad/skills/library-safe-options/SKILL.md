@@ -158,3 +158,7 @@ Consumer (with DI):
 services.AddSingleton(new ExecutiveOptions { MaxWorkerThreads = 50 });
 services.AddTransient<Executive>();
 ```
+
+## Confirmation (2026-07-15)
+
+- Applied successfully during the ConfigurationManager → POCO options migration in Sage; defaults preserved and tests passing.

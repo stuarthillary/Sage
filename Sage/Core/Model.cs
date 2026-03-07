@@ -192,8 +192,7 @@ namespace Highpoint.Sage.SimCore
         #endregion
 
         /// <summary>
-        /// The ModelConfig is an object that holds the contents of the Sage� section of the
-        /// app.config file.
+        /// The ModelConfig is an object that holds model configuration parameters.
         /// </summary>
         public ModelConfig ModelConfig
         {

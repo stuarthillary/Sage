@@ -38,3 +38,9 @@
 - **Build:** Clean build, zero new errors, warnings only (baseline).
 - **Duration:** ~517 seconds (~8.6 minutes).
 - **Decision:** Complete. Ready for merge. Decision record merged into decisions.md.
+
+### 2026-07-15 — Configuration Options Migration ✅
+
+- **Scope:** DiagnosticAids, Executive/ExecutiveFastLight, ExecFactory, ModelConfig, and EmissionsService now use POCO options; ConfigurationManager dependency removed; SageOptions POCOs added; legacy app.config references cleaned up.
+- **ModelConfig:** Now backed by Dictionary<string, string> with SetSimpleParameter; string section constructor marked obsolete.
+- **Build/Test:** `dotnet build Sage4-Everything.sln` succeeded (warnings baseline); `dotnet test SageTestLib` total 319, passed 319.

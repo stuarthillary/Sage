@@ -174,7 +174,7 @@ namespace Highpoint.Sage.Dependencies
             }
             catch (StackOverflowException soe)
             {
-                throw new ApplicationException("The GraphSequencer has detected a probable dependency cycle in the initialization sequence of this model. For details, set the GraphSequencer.StackCheck key to true in the modeler's app.config file.", soe);
+                throw new ApplicationException("The GraphSequencer has detected a probable dependency cycle in the initialization sequence of this model. For details, set DiagnosticsOptions.Flags[\"GraphSequencer.StackCheck\"] to true via DiagnosticAids.Configure(...).", soe);
             }
 
             #region Diagnostics

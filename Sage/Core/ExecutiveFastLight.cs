@@ -1,9 +1,9 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using System;
+using Highpoint.Sage.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 namespace Highpoint.Sage.SimCore
 {
@@ -177,28 +177,18 @@ namespace Highpoint.Sage.SimCore
         /// Creates a new instance of the <see cref="T:Executive3"/> class.
         /// </summary>
         /// <param name="execGuid">The GUID by which this executive will be known.</param>
-        public ExecutiveFastLight(Guid execGuid)
+        /// <param name="options">The executive options to apply.</param>
+        /// <param name="diagnosticsOptions">The diagnostics options to apply.</param>
+        public ExecutiveFastLight(Guid execGuid, ExecutiveOptions options = null, DiagnosticsOptions diagnosticsOptions = null)
         {
-
-            NameValueCollection nvc = (NameValueCollection)System.Configuration.ConfigurationManager.GetSection("Sage");
-            if (nvc != null)
+            options ??= new ExecutiveOptions();
+            diagnosticsOptions ??= new DiagnosticsOptions();
+            _ignoreCausalityViolations = options.IgnoreCausalityViolations;
+            if (diagnosticsOptions.ExecBreakAt.HasValue)
             {
-                if (nvc["IgnoreCausalityViolations"] != null)
-                    _ignoreCausalityViolations = bool.Parse(nvc["IgnoreCausalityViolations"]);
-
-
-                nvc = (NameValueCollection) System.Configuration.ConfigurationManager.GetSection("diagnostics");
-                string strEba = nvc["ExecBreakAt"];
-                if (!_hasTarget && strEba != null && strEba.Length > 0)
-                {
-                    _targetdatestr = strEba;
-                    _targetdate = DateTime.Parse(_targetdatestr);
-                    _hasTarget = true;
-                }
-            }
-            else
-            {
-                Console.WriteLine("No Sage initialization section found in app.config.");
+                _targetdate = diagnosticsOptions.ExecBreakAt.Value;
+                _targetdatestr = _targetdate.ToString("r");
+                _hasTarget = true;
             }
 
             _execGuid = execGuid;
