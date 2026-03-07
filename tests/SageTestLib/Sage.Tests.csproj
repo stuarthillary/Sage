@@ -2,6 +2,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <IsPackable>false</IsPackable>
+    <AssemblyName>Sage.Tests</AssemblyName>
+    <RootNamespace>Highpoint.Sage.Tests</RootNamespace>
   </PropertyGroup>
   <PropertyGroup>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>

@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 
 
-namespace SchedulerDemoMaterial
+namespace Highpoint.Sage.Tests.Scheduling
 {
 
     [TestClass]

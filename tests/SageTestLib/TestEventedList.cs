@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Diagnostics;
 
-namespace SageTestLib
+namespace Highpoint.Sage.Tests.Utility
 {
     [TestClass]
     public class EventedListTester

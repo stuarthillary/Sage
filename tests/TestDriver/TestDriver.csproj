@@ -5,6 +5,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Sage\Sage.csproj" />
-    <ProjectReference Include="..\SageTestLib\SageTestLib.csproj" />
+    <ProjectReference Include="..\SageTestLib\Sage.Tests.csproj" />
   </ItemGroup>
 </Project>

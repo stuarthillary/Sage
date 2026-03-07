@@ -5,7 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 
-namespace SageTestLib
+namespace Highpoint.Sage.Tests.Utility
 {
     [TestClass]
     public class HeapTester

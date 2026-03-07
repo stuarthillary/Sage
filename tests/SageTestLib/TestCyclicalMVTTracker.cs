@@ -9,7 +9,7 @@ using System.Diagnostics;
 //using Pfizer.MAI.Modeler.SOM;
 //using Pfizer.MAI.Modeler.SOM.Behaviors;
 
-namespace SchedulerDemoMaterial
+namespace Highpoint.Sage.Tests.Scheduling
 {
 
     /// <summary>

@@ -732,11 +732,11 @@ namespace Highpoint.Sage.Testing
 
                     case 540:
                         _Debug.WriteLine("Heap testing");
-                        new SageTestLib.HeapTester().TestHeap();
+                        new Highpoint.Sage.Tests.Utility.HeapTester().TestHeap();
                         break;
                     case 541:
                         _Debug.WriteLine("Heap testing");
-                        new SageTestLib.HeapTester().RecreateFailure();
+                        new Highpoint.Sage.Tests.Utility.HeapTester().RecreateFailure();
                         break;
 
                     case 550:
@@ -781,28 +781,28 @@ namespace Highpoint.Sage.Testing
 #endif
                     case 654:
                         _Debug.WriteLine("Offset Parallelism tester");
-                        new PFCDemoMaterial.PfcAnalystTester().Test_OffSetParallelism();
+                        new Highpoint.Sage.Tests.Graphs.PFC.PfcAnalystTester().Test_OffSetParallelism();
                         break;
 
                     case 655:
                         _Debug.WriteLine("PFC reduction tester");
-                        new PFCDemoMaterial.PfcAnalystTester().Test_ValidatorFromStoredPFC();
+                        new Highpoint.Sage.Tests.Graphs.PFC.PfcAnalystTester().Test_ValidatorFromStoredPFC();
                         break;
 
 #if NYRFPT
                     case 656:
                         _Debug.WriteLine("PFC reduction tester");
-                        new SchedulerDemoMaterial.PfcAnalystTester().Test_GetPermissibleTargetsForLinkFrom_WithinLoopFromStepToSelf();
+                        new Highpoint.Sage.Tests.Graphs.PFC.PfcAnalystTester().Test_GetPermissibleTargetsForLinkFrom_WithinLoopFromStepToSelf();
                         break;
 #endif
                     case 657:
                         _Debug.WriteLine("PFC Path Analysis tester");
-                        new PFCDemoMaterial.PfcAnalystTester().Test_DeepNonLoopingPath();
+                        new Highpoint.Sage.Tests.Graphs.PFC.PfcAnalystTester().Test_DeepNonLoopingPath();
                         break;
 
                     case 658:
                         _Debug.WriteLine("PFC Path Analysis tester");
-                        new PFCDemoMaterial.PfcAnalystTester().TestBroadestNonLoopbackPath();
+                        new Highpoint.Sage.Tests.Graphs.PFC.PfcAnalystTester().TestBroadestNonLoopbackPath();
                         break;
 
                     case 670:

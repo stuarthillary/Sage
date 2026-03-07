@@ -4,7 +4,7 @@ using Highpoint.Sage.Utility;
 using System;
 using System.Collections;
 
-namespace SageTestLib
+namespace Highpoint.Sage.Tests.Graphs.PFC
 {
     public static class TestPfcRepository
     {

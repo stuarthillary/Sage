@@ -12,9 +12,9 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using PfcAnalyst = Highpoint.Sage.Graphs.PFC.PfcAnalyst;
-using Pfcs = SageTestLib.TestPfcRepository;
+using Pfcs = Highpoint.Sage.Tests.Graphs.PFC.TestPfcRepository;
 
-namespace PFCDemoMaterial
+namespace Highpoint.Sage.Tests.Graphs.PFC
 {
 
     [TestClass]
