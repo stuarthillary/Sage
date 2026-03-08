@@ -24,6 +24,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
         private readonly Dictionary<string, ExpressionElement> _nameMap = new Dictionary<string, ExpressionElement>();
         private readonly Dictionary<Guid, ExpressionElement> _guidMap = new Dictionary<Guid, ExpressionElement>();
         private static readonly Dictionary<Type, Macro> _knownMacros = new Dictionary<Type, Macro>();
+        private static readonly object _knownMacrosLock = new object();
         private ParticipantDirectory? _parent;
 
         #endregion
@@ -42,10 +43,13 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
             {
 
                 Macro? macro = null;
-                if (!_knownMacros.TryGetValue(macroType, out macro))
+                lock (_knownMacrosLock)
                 {
-                    macro = (Macro)(macroType.GetConstructor(new Type[] { })!.Invoke(new object[] { }));
-                    _knownMacros.Add(macroType, macro);
+                    if (!_knownMacros.TryGetValue(macroType, out macro))
+                    {
+                        macro = (Macro)(macroType.GetConstructor(new Type[] { })!.Invoke(new object[] { }));
+                        _knownMacros.Add(macroType, macro);
+                    }
                 }
 
                 if (!_guidMap.ContainsKey(macro.Guid))
