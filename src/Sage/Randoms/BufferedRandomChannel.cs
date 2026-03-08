@@ -122,6 +122,7 @@ namespace Highpoint.Sage.Randoms
                 _bufferThread.Interrupt();
                 _bufferThread.Join();
             }
+            base.Dispose();
         }
 
         #endregion
