@@ -261,7 +261,7 @@ namespace Highpoint.Sage.Core
 
                 #region Private Fields
                 private readonly SPBAlias _orig;
-                private readonly object _value;
+                private readonly object? _value;
 
                 #endregion
 
@@ -307,13 +307,13 @@ namespace Highpoint.Sage.Core
                         return false;
                     if (spbamOtherGuy._orig._key != _orig._key)
                         return false;
-                    return spbamOtherGuy._value.Equals(_value);
+                    return spbamOtherGuy._value?.Equals(_value) ?? (_value == null);
                 }
 
                 /// <summary>
                 /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
                 /// </summary>
-                public event MementoEvent OnLoadCompleted;
+                public event MementoEvent? OnLoadCompleted;
 
                 /// <summary>
                 /// This holds a reference to the memento, if any, that contains this memento.
@@ -342,7 +342,7 @@ namespace Highpoint.Sage.Core
             }
             SPBDoubleDelegate _del;
             MementoHelper _ssh;
-            private object _lastValue = new object();
+            private object? _lastValue;
             public SPBDoubleDelegateWrapper(SPBDoubleDelegate del)
             {
                 _ssh = new MementoHelper(this, false);
@@ -398,7 +398,7 @@ namespace Highpoint.Sage.Core
                 public SPBDoubleDelegateWrapperMemento(SPBDoubleDelegateWrapper dw)
                 {
                     _dw = dw;
-                    _value = (double)dw.GetValue();
+                    _value = (double)dw.GetValue()!;
                 }
                 public ISupportsMementos CreateTarget()
                 {
@@ -437,7 +437,7 @@ namespace Highpoint.Sage.Core
                 /// <summary>
                 /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
                 /// </summary>
-                public event MementoEvent OnLoadCompleted;
+                public event MementoEvent? OnLoadCompleted;
 
                 /// <summary>
                 /// This holds a reference to the memento, if any, that contains this memento.
@@ -477,7 +477,7 @@ namespace Highpoint.Sage.Core
                 }
                 set
                 {
-                    _value = (double)((SPBValueHolderMemento)value).GetValue();
+                    _value = (double)((SPBValueHolderMemento)value).GetValue()!;
                 }
             }
 
@@ -511,7 +511,7 @@ namespace Highpoint.Sage.Core
 
             public bool Equals(ISupportsMementos otherGuy)
             {
-                SPBValueHolder spbvh = otherGuy as SPBValueHolder;
+                SPBValueHolder? spbvh = otherGuy as SPBValueHolder;
                 return _value == spbvh?._value;
             }
 
@@ -581,7 +581,7 @@ namespace Highpoint.Sage.Core
                 /// <summary>
                 /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
                 /// </summary>
-                public event MementoEvent OnLoadCompleted;
+                public event MementoEvent? OnLoadCompleted;
 
                 /// <summary>
                 /// This holds a reference to the memento, if any, that contains this memento.
@@ -728,7 +728,7 @@ namespace Highpoint.Sage.Core
                 /// <summary>
                 /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
                 /// </summary>
-                public event MementoEvent OnLoadCompleted;
+                public event MementoEvent? OnLoadCompleted;
 
                 /// <summary>
                 /// This holds a reference to the memento, if any, that contains this memento.
@@ -768,7 +768,7 @@ namespace Highpoint.Sage.Core
                 }
                 set
                 {
-                    _value = (bool)((SPBBooleanHolderMemento)value).GetValue();
+                    _value = (bool)((SPBBooleanHolderMemento)value).GetValue()!;
                 }
             }
 
@@ -875,7 +875,7 @@ namespace Highpoint.Sage.Core
                 /// <summary>
                 /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
                 /// </summary>
-                public event MementoEvent OnLoadCompleted;
+                public event MementoEvent? OnLoadCompleted;
 
                 /// <summary>
                 /// This holds a reference to the memento, if any, that contains this memento.
@@ -1380,15 +1380,15 @@ namespace Highpoint.Sage.Core
                 //_Debug.WriteLine("Comparing " + de.Key.ToString());
                 if (!dict2.Contains(de.Key))
                     return false;
-                object val1 = de.Value;
-                object val2 = dict2[de.Key];
+                object? val1 = de.Value;
+                object? val2 = dict2[de.Key];
                 if (val1 == null && val2 == null)
                     continue;
                 if (val1 == null || val2 == null)
                     return false;
                 //_Debug.WriteLine("Both have it. One is " + val1.ToString() + ", and the other is " + val2.ToString());
-                IDictionary d1 = val1 as IDictionary;
-                IDictionary d2 = val2 as IDictionary;
+                IDictionary? d1 = val1 as IDictionary;
+                IDictionary? d2 = val2 as IDictionary;
                 if (d1 != null && d2 != null)
                 {
                     //_Debug.WriteLine("Performing dictionary comparison of " + val1 + " and " + val2 );
@@ -1428,7 +1428,7 @@ namespace Highpoint.Sage.Core
                 }
                 foreach (DictionaryEntry de in spb._dictionary)
                 {
-                    ISupportsMementos value = de.Value as ISupportsMementos;
+                    ISupportsMementos? value = de.Value as ISupportsMementos;
                     if (value != null)
                     {
                         ISupportsMementos val = value;
@@ -1488,8 +1488,8 @@ namespace Highpoint.Sage.Core
                     if (_diagnostics)
                         _Debug.WriteLine("Reloading " + spb + " with " + de.Key + " = " + de.Value);
                     string key = (string)de.Key;
-                    ISupportsMementos child = ((IMemento)de.Value).CreateTarget();
-                    ((IMemento)de.Value).Load(child);
+                    ISupportsMementos child = ((IMemento)de.Value!).CreateTarget();
+                    ((IMemento)de.Value!).Load(child);
 
                     spb.AddSnapshottable(key, child);
                 }
@@ -1505,7 +1505,7 @@ namespace Highpoint.Sage.Core
                 foreach (DictionaryEntry de in _mementoDict)
                 {
                     string key = (string)de.Key;
-                    object val = ((IMemento)de.Value).CreateTarget();
+                    object val = ((IMemento)de.Value!).CreateTarget();
                     _spb.AddSPBEntry(key, val);
                 }
                 return _spb;
@@ -1516,7 +1516,7 @@ namespace Highpoint.Sage.Core
                 Hashtable retval = new Hashtable();
                 foreach (DictionaryEntry de in _mementoDict)
                 {
-                    retval.Add(de.Key, ((IMemento)de.Value).GetDictionary());
+                    retval.Add(de.Key, ((IMemento)de.Value!).GetDictionary());
                 }
                 return retval;
             }
@@ -1531,7 +1531,7 @@ namespace Highpoint.Sage.Core
             /// <summary>
             /// This event is fired once this memento has completed its Load(ISupportsMementos ism) invocation.
             /// </summary>
-            public event MementoEvent OnLoadCompleted;
+            public event MementoEvent? OnLoadCompleted;
 
             /// <summary>
             /// This holds a reference to the memento, if any, that contains this memento.
@@ -1572,7 +1572,7 @@ namespace Highpoint.Sage.Core
             for (int i = 0; i < entryCount; i++)
             {
                 DictionaryEntry de = (DictionaryEntry)xmlsc.LoadObject("Entry_" + i);
-                AddSPBEntry((string)de.Key, de.Value);
+                AddSPBEntry((string)de.Key, de.Value!);
             }
         }
         #endregion

@@ -101,7 +101,7 @@ namespace Highpoint.Sage.Core
         /// </summary>
         public event ExecEventReceiver? TickEvent;
 
-        protected override void FireEvents(IExecutive exec, object userData)
+        protected override void FireEvents(IExecutive exec, object? userData)
         {
             TickEvent?.Invoke(exec, userData);
         }

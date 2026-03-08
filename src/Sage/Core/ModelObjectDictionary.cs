@@ -77,7 +77,7 @@ namespace Highpoint.Sage.Core
         /// <param name="newEntryToReplaceIt">The new entry to replace it.</param>
         private void Delete(Guid keyForCurrentEntry, IModelObject newEntryToReplaceIt)
         {
-            IHasIdentity imo = (IHasIdentity)_dictionary[keyForCurrentEntry];
+            IHasIdentity imo = (IHasIdentity)_dictionary[keyForCurrentEntry]!;
             _dictionary.Remove(keyForCurrentEntry);
             string oldOne = imo.Name;
             string newOne = ((IHasIdentity)newEntryToReplaceIt).Name;
@@ -180,18 +180,18 @@ namespace Highpoint.Sage.Core
         {
             get
             {
-                object obj = _dictionary[key];
+                object? obj = _dictionary[key];
                 if (obj == null && !((Guid)key).Equals(Guid.Empty) && UnknownModelObjectRequested != null)
                 {
                     UnknownModelObjectRequested((Guid)key);
                 }
-                return (IModelObject)obj;
+                return (IModelObject?)obj;
             }
             set
             {
                 if (_dictionary.Contains(key))
-                    Delete(key, value);
-                Add(key, value);
+                    Delete(key, value!);
+                Add(key, value!);
             }
         }
 
@@ -226,7 +226,7 @@ namespace Highpoint.Sage.Core
         {
             if (_dictionary.Contains(key))
             {
-                IModelObject imo = (IModelObject)_dictionary[key];
+                IModelObject imo = (IModelObject)_dictionary[key]!;
                 _dictionary.Remove(key);
                 if (ExistingModelObjectRemoved != null)
                 {

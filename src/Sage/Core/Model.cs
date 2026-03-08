@@ -495,7 +495,7 @@ namespace Highpoint.Sage.Core
             _stateMachine.InboundTransitionHandler(onTransitionToWhichState).AddCommitEvent(double.MaxValue, AbortIfErrors);
         }
 
-        private void AbortIfErrors(IModel model, object userData)
+        private void AbortIfErrors(IModel model, object? userData)
         {
             if (model.HasErrors())
                 model.Abort();
@@ -852,7 +852,7 @@ namespace Highpoint.Sage.Core
             Completed?.Invoke(this);
         }
 
-        private void RunModel(IModel model, object userData)
+        private void RunModel(IModel model, object? userData)
         {
             //m_exec.Reset();
 
@@ -891,7 +891,7 @@ namespace Highpoint.Sage.Core
         #endregion
 
         #region >>> Implementation of IHasIdentity <<<
-        private string _name = null!;
+        private string? _name = null;
         /// <summary>
         /// The name of this model.
         /// </summary>
@@ -900,7 +900,7 @@ namespace Highpoint.Sage.Core
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
             protected set
             {
@@ -920,7 +920,7 @@ namespace Highpoint.Sage.Core
             [DebuggerStepThrough]
             get
             {
-                return _description ?? _name;
+                return _description ?? _name!;
             }
             protected set
             {
@@ -960,7 +960,7 @@ namespace Highpoint.Sage.Core
         {
             Debug.Assert(model == this);
             IModel? m_model = null; // To fake out the call below, since Model doesn't have this member field.
-            IMOHelper.Initialize(ref m_model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref m_model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

@@ -70,7 +70,7 @@ namespace Highpoint.Sage.Core
             get; private set;
         }
 
-        private void executive_EventAboutToFire(long key, ExecEventReceiver eer, double priority, DateTime when, object userData, ExecEventType eventType)
+        private void executive_EventAboutToFire(long key, ExecEventReceiver eer, double priority, DateTime when, object? userData, ExecEventType eventType)
         {
             _executive.RequestEvent(_execEvent, when, priority + double.Epsilon, null);
             _executive.EventAboutToFire -= executive_EventAboutToFire;
@@ -85,7 +85,7 @@ namespace Highpoint.Sage.Core
 
         }
 
-        private void OnExecEvent(IExecutive exec, object userData)
+        private void OnExecEvent(IExecutive exec, object? userData)
         {
             if (!_abortRequested)
             {
@@ -121,7 +121,7 @@ namespace Highpoint.Sage.Core
             get; private set;
         }
         public IExecutive Executive => _executive;
-        protected abstract void FireEvents(IExecutive exec, object userData);
+        protected abstract void FireEvents(IExecutive exec, object? userData);
         public void Abort()
         {
             _abortRequested = true;

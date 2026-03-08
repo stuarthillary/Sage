@@ -112,7 +112,7 @@ namespace Highpoint.Sage.Core
         {
 
             bool zeroDependencies = true;
-            foreach (object obj in parameters)
+            foreach (object? obj in parameters)
             {
                 if ((obj is Guid) || (obj is Guid[]) || (obj is Guid[][]) || (obj is Guid[][][]))
                 {
@@ -136,7 +136,7 @@ namespace Highpoint.Sage.Core
                 }
                 catch (NullReferenceException)
                 {
-                    Console.WriteLine("Failed to find a \"Guid\" property on a " + initializer.Target.GetType().Name + ".");
+                    Console.WriteLine("Failed to find a \"Guid\" property on a " + initializer.Target?.GetType().Name + ".");
                     return;
                 }
 
@@ -145,14 +145,14 @@ namespace Highpoint.Sage.Core
                     throw new InitializationException(REGISTERING_GUID_EMPTY);
                 }
 
-                if (!_verts.TryGetValue(myGuid, out Dv myDv))
+                if (!_verts.TryGetValue(myGuid, out Dv? myDv))
                 {
                     myDv = new Dv(myGuid);
                     _verts.Add(myGuid, myDv);
                 }
                 myDv.Initializer = initializer;
 
-                foreach (object obj in parameters)
+                foreach (object? obj in parameters)
                 {
                     if (obj is Guid[])
                     {
@@ -185,7 +185,7 @@ namespace Highpoint.Sage.Core
 
         private Dv GetDvForGuid(Guid guid)
         {
-            if (!_verts.TryGetValue(guid, out Dv dv))
+            if (!_verts.TryGetValue(guid, out Dv? dv))
             {
                 dv = new Dv(guid);
                 _verts.Add(dv.MyGuid, dv);
@@ -225,7 +225,7 @@ namespace Highpoint.Sage.Core
                 {
                     foreach (Dv dv in dependentList)
                     {
-                        InitializationAction?.Invoke(dv.Initializer, dv.Parameters);
+                        InitializationAction?.Invoke(dv.Initializer!, dv.Parameters ?? Array.Empty<object?>());
                         dv.PerformInitialization(model);
                     }
 
@@ -240,13 +240,13 @@ namespace Highpoint.Sage.Core
                     {
                         if (i != 0)
                             sb.Append("->");
-                        object target = ((Dv)cycleMembers[i]).Initializer!.Target!;
+                        object target = ((Dv)cycleMembers[i]!).Initializer!.Target!;
                         Type mbrType = target.GetType();
                         string? name = null;
                         System.Reflection.PropertyInfo? nameProp = mbrType.GetProperty("Name");
                         if (nameProp == null)
                         {
-                            name = "(unknown " + cycleMembers[i].GetType().Name + ")";
+                            name = "(unknown " + cycleMembers[i]!.GetType().Name + ")";
                         }
                         else
                         {

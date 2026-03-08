@@ -93,7 +93,7 @@ namespace Highpoint.Sage.Core
             if (!toState.Equals(_currentState))
             {
                 if (_trackTransitions)
-                    _transitions.Add(new TransitionRecord { From = _currentState, To = toState, When = _exec.Now });
+                    _transitions!.Add(new TransitionRecord { From = _currentState, To = toState, When = _exec.Now });
                 UpdateStateTimes();
                 _lastStateChange = _exec.Now;
                 _currentState = toState;

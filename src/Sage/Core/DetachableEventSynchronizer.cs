@@ -71,7 +71,7 @@ namespace Highpoint.Sage.Core
             idec.ClearAbortHandler();
         }
 
-        private void LaunchAll(IExecutive exec, object userData)
+        private void LaunchAll(IExecutive exec, object? userData)
         {
             foreach (IDetachableEventController idec in _waiters.Values)
             {
@@ -124,13 +124,13 @@ namespace Highpoint.Sage.Core
             /// </summary>
             public void Synchronize()
             {
-                IDetachableEventController idec = _ds._exec.CurrentEventController;
-                _ds.LogSynchronization(_sortKey, idec, this);
+                IDetachableEventController? idec = _ds._exec.CurrentEventController;
+                _ds.LogSynchronization(_sortKey, idec!, this);
             }
             #endregion
         }
 
-        private void idec_AbortionEvent(IExecutive exec, IDetachableEventController idec, params object[] args)
+        private void idec_AbortionEvent(IExecutive exec, IDetachableEventController idec, params object?[] args)
         {
             string narrative = "A synchronizer failed to complete. It had " + _synchChannels.Count
                 + " synch channels - following is the stack trace:\r\n" + new StackTrace(true);

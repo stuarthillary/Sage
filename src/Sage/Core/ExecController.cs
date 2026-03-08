@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Core
         private int _frameRate;
         private readonly object? _userData;
         private KickoffMgr? _kickoffManager;
-        private readonly ExecutiveEvent _doThrottle;
+        private readonly ExecutiveEvent? _doThrottle;
         private TimeSpan _maxNap;
         private DateTime _realWorldStartTime;
         private DateTime _simWorldStartTime;
@@ -239,12 +239,12 @@ namespace Highpoint.Sage.Core
             }
         }
 
-        internal void Begin(IExecutive iExecutive, object userData)
+        internal void Begin(IExecutive? iExecutive, object? userData)
         {
             if (iExecutive != _executive)
                 throw new InvalidOperationException("ExecController is starting within a model whose executive is not the same one to which it was initialized.");
-            _executive.ClockAboutToChange -= _doThrottle; // In case we were listening from an earlier run.
-            _executive.ClockAboutToChange += _doThrottle;
+            if (_doThrottle != null) _executive!.ClockAboutToChange -= _doThrottle; // In case we were listening from an earlier run.
+            if (_doThrottle != null) _executive!.ClockAboutToChange += _doThrottle;
             if (_renderThread != null && _renderThread.ThreadState == ThreadState.Running)
             {
                 _abortRendering = true;
@@ -259,7 +259,7 @@ namespace Highpoint.Sage.Core
                 Name = "Rendering Thread"
             };
             _realWorldStartTime = DateTime.Now;
-            _simWorldStartTime = iExecutive.Now;
+            _simWorldStartTime = iExecutive!.Now;
             _renderThread.Start();
         }
 
@@ -267,7 +267,7 @@ namespace Highpoint.Sage.Core
         {
             if (Math.Abs(_linearScale) > double.Epsilon)
             {
-                IReadOnlyList<IExecEvent> events = _executive.EventList;
+                IReadOnlyList<IExecEvent> events = _executive!.EventList;
                 if (events.Count > 0)
                 {
                     long realWorldElapsedTicks = DateTime.Now.Ticks - _realWorldStartTime.Ticks;
@@ -309,7 +309,7 @@ namespace Highpoint.Sage.Core
             {
                 while (!_abortRendering)
                 {
-                    if (_executive.State.Equals(ExecState.Running))
+                    if (_executive!.State.Equals(ExecState.Running))
                     {
                         int nTicksToSleep = 500; // Check to see if we've changed frame rate from zero, every half-second.
                         if (_frameRate > 0)
@@ -367,7 +367,7 @@ namespace Highpoint.Sage.Core
         #region (Private) Kickoff support.
         private void executive_ExecutiveStarted(IExecutive exec)
         {
-            exec.EventAboutToFire += _kickoffManager.Kickoff;
+            exec.EventAboutToFire += _kickoffManager!.Kickoff;
         }
 
         #endregion
@@ -382,7 +382,7 @@ namespace Highpoint.Sage.Core
                 _parent = parent;
             }
 
-            public void Kickoff(long key, ExecEventReceiver eer, double priority, DateTime when, object userData, ExecEventType eventType)
+            public void Kickoff(long key, ExecEventReceiver eer, double priority, DateTime when, object? userData, ExecEventType eventType)
             {
                 _exec.EventAboutToFire -= Kickoff;
                 _parent.Begin(_parent._executive, _parent._userData);

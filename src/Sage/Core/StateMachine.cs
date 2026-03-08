@@ -242,7 +242,7 @@ namespace Highpoint.Sage.Core
         {
             get
             {
-                return (Enum)_enumValues.GetValue(_currentState);
+                return (Enum)_enumValues.GetValue(_currentState)!;
             }
         }
 
@@ -255,7 +255,7 @@ namespace Highpoint.Sage.Core
             int tgtStateNum = -1;
             for (int i = 0; i < _enumValues.Length; i++)
             {
-                if (_enumValues.GetValue(new int[] { i }).Equals(state))
+                if (_enumValues.GetValue(new int[] { i })!.Equals(state))
                 {
                     tgtStateNum = i;
                 }
@@ -290,7 +290,7 @@ namespace Highpoint.Sage.Core
             get
             {
                 // TODO: Is there a case where this would be ambiguous or wrong?
-                return (Enum)_enumValues.GetValue(_nextState);
+                return (Enum)_enumValues.GetValue(_nextState)!;
             }
         }
 
@@ -303,7 +303,7 @@ namespace Highpoint.Sage.Core
         public StateMethod? SetStateMethod(StateMethod newStateMethod, Enum forWhichState)
         {
             int iWhichState = GetStateNumber(forWhichState);
-            StateMethod oldStateMethod = _stateMethods[iWhichState];
+            StateMethod? oldStateMethod = _stateMethods[iWhichState];
             _stateMethods[iWhichState] = newStateMethod;
             return oldStateMethod;
         }
@@ -365,7 +365,7 @@ namespace Highpoint.Sage.Core
                     return Array.Empty<ITransitionFailureReason>();
                 }
 
-                MergedTransitionHandler mth = null;
+                MergedTransitionHandler? mth = null;
                 if (_stateMachineStructureLocked)
                 {
                     if (_mergedTransitionHandlers == null)
@@ -386,7 +386,7 @@ namespace Highpoint.Sage.Core
                     mth = new MergedTransitionHandler(outbound, (TransitionHandler)across, inbound, (TransitionHandler)_universalTransition);
                     if (_stateMachineStructureLocked)
                     {
-                        _mergedTransitionHandlers[_currentState][_nextState] = mth;
+                        _mergedTransitionHandlers![_currentState][_nextState] = mth!;
                     }
                     if (across is InvalidTransitionHandler)
                     {
@@ -521,7 +521,7 @@ namespace Highpoint.Sage.Core
             _numStates = values.GetLength(0);
             for (int i = 0; i < _numStates; i++)
             {
-                _stateTranslationTable.Add((Enum)values.GetValue(i), i);
+                _stateTranslationTable.Add((Enum)values.GetValue(i)!, i);
             }
 
             if (_diagnostics)

@@ -114,7 +114,7 @@ namespace Highpoint.Sage.Core
             {
                 if (imo.Model.ModelObjects.Contains(imo.Guid))
                 {
-                    if (!imo.Model.ModelObjects[imo.Guid].Equals(imo))
+                    if (!imo.Model.ModelObjects[imo.Guid]!.Equals(imo))
                     {
                         imo.Model.ModelObjects.Remove(imo.Guid);
                         imo.Model.AddModelObject(imo);
