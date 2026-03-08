@@ -28,6 +28,7 @@ namespace Highpoint.Sage.Resources
 
         public void Dispose()
         {
+            _prt?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }

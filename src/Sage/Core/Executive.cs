@@ -1259,6 +1259,7 @@ namespace Highpoint.Sage.Core
                     _pauser.Abort();
                     _pauser = null;
                 }
+                _currentDetachableEvent?.Dispose();
             }
             catch { }
         }

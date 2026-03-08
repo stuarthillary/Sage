@@ -31,6 +31,7 @@ namespace Highpoint.Sage.ItemBased.Queues
 
         public void Dispose()
         {
+            _model?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }
@@ -381,7 +382,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             bool RemoveResource(Guid guid);
         }
 
-        public class DIModel : IModel, IConstructionFacade
+        public class DIModel : IModel, IConstructionFacade, IDisposable
         {
 
             #region Private Fields
@@ -1123,7 +1124,10 @@ namespace Highpoint.Sage.ItemBased.Queues
 
             public virtual void Dispose()
             {
-                Executive.Dispose();
+                _model?.Dispose();
+                _executive?.Dispose();
+                _execController?.Dispose();
+                Executive?.Dispose();
                 if (this.ExecutiveController != null)
                 {
                     this.ExecutiveController.Dispose();

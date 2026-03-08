@@ -38,6 +38,7 @@ namespace Highpoint.Sage.Materials
 
         public void Dispose()
         {
+            _model?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }

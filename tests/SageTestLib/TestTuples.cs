@@ -48,6 +48,7 @@ namespace Highpoint.Sage.Utility
 
         public void Dispose()
         {
+            _exec?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }

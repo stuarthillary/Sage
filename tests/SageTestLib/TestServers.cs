@@ -34,6 +34,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         public void Dispose()
         {
+            _model?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }

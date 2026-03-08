@@ -29,6 +29,7 @@ namespace Highpoint.Sage.Mathematics
 
         public void Dispose()
         {
+            _model?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }

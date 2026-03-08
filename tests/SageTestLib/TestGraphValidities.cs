@@ -33,11 +33,10 @@ namespace Highpoint.Sage.Tasks
 
         public void Dispose()
         {
+            _model?.Dispose();
             Debug.WriteLine("Done.");
                     GC.SuppressFinalize(this);
         }
-
-        //		[Fact]
         //		[Highpoint.Sage.Utility.Description("This test initializes a model and runs a validation")]
         ////		public void TestTaskEnumerators() {
         //			InitializeModel("t,t1,t2,t3,t11,t12,t13,t21,t22,t23,t31,t32,t33");

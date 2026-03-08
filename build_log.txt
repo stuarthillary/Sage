@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Sage -> E:\source\Sage\BuildOutput\Debug\Sage.dll
+E:\source\Sage\tests\SageTestLib\TestPriResources.cs(376,1): error CS1038: #endregion directive expected [E:\source\Sage\tests\SageTestLib\Sage.Tests.csproj]
+E:\source\Sage\tests\SageTestLib\TestQueues.cs(1139,1): error CS1038: #endregion directive expected [E:\source\Sage\tests\SageTestLib\Sage.Tests.csproj]
+E:\source\Sage\tests\SageTestLib\TestServers.cs(431,1): error CS1038: #endregion directive expected [E:\source\Sage\tests\SageTestLib\Sage.Tests.csproj]
+
+Build FAILED.
+
+E:\source\Sage\tests\SageTestLib\TestPriResources.cs(376,1): error CS1038: #endregion directive expected [E:\source\Sage\tests\SageTestLib\Sage.Tests.csproj]
+E:\source\Sage\tests\SageTestLib\TestQueues.cs(1139,1): error CS1038: #endregion directive expected [E:\source\Sage\tests\SageTestLib\Sage.Tests.csproj]
+E:\source\Sage\tests\SageTestLib\TestServers.cs(431,1): error CS1038: #endregion directive expected [E:\source\Sage\tests\SageTestLib\Sage.Tests.csproj]
+    0 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:02.46
