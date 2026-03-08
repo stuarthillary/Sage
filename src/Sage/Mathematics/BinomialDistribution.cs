@@ -63,10 +63,10 @@ namespace Highpoint.Sage.Mathematics
         public double GetNext()
         {
             if (_random == null)
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             double x = _constrained ? (_low == _high ? _low : _random.NextDouble(_low, _high)) : _random.NextDouble();
-            return (int)Math.Round(_bcdf.GetVariate(x), 0);
+            return (int)Math.Round(_bcdf!.GetVariate(x), 0);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns></returns>
         public double GetValueWithCumulativeProbability(double probability)
         {
-            return _bcdf.GetVariate(probability);
+            return _bcdf!.GetVariate(probability);
         }
 
         /// <summary>
@@ -111,6 +111,7 @@ namespace Highpoint.Sage.Mathematics
         /// </summary>
         public BinomialDistribution()
         {
+            _name = null!;
         }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, probability, numberOfOpps);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, probability, numberOfOpps);
         }
 
         /// <summary>
@@ -143,8 +144,8 @@ namespace Highpoint.Sage.Mathematics
         public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
-            double probability = (double)p[0];
-            int numberOfOpps = (int)p[1];
+            double probability = (double)p[0]!;
+            int numberOfOpps = (int)p[1]!;
             _bcdf = new BinomialCDF(probability, numberOfOpps);
         }
 
@@ -157,18 +158,18 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this object. Typically not required to be unique.
         /// </summary>
         /// <value>The user-friendly name for this object.</value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "A Binomial Distribution";
         /// <summary>
         /// A description of this Binomial Distribution.

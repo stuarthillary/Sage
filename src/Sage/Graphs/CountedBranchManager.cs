@@ -109,7 +109,7 @@ namespace Highpoint.Sage.Graphs
 
         private static void LaunchEdge(IExecutive exec, object? userData)
         {
-            EdgeLaunchData eld = (EdgeLaunchData)userData;
+            EdgeLaunchData eld = (EdgeLaunchData)userData!;
             eld.Edge.PreVertexSatisfied(eld.GraphContext);
         }
 

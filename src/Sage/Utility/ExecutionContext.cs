@@ -50,9 +50,9 @@ namespace Highpoint.Sage.Utility
 
         #region Implementation of IModelObject
 
-        private string _name = null!; // Initialized via InitializeIdentity.
+        private string? _name;
         private Guid _guid;
-        private IModel _model = null!; // Initialized via InitializeIdentity.
+        private IModel? _model;
         private string? _description;
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Highpoint.Sage.Utility
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _model;
+                return _model!;
             }
         }
 
@@ -77,7 +77,7 @@ namespace Highpoint.Sage.Utility
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 
@@ -109,7 +109,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="guid">The IModelObject's new GUID value.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

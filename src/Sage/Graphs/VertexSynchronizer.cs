@@ -109,7 +109,7 @@ namespace Highpoint.Sage.Graphs
             _vertices = (Vertex[])newVertices.ToArray(typeof(Vertex));
             #endregion
 
-            ArrayList satisfiedVertices = (ArrayList)graphContext[_vsKey];
+            ArrayList? satisfiedVertices = (ArrayList?)graphContext[_vsKey];
             if (satisfiedVertices == null)
             {
                 satisfiedVertices = new ArrayList(_vertices.Length);
@@ -163,7 +163,7 @@ namespace Highpoint.Sage.Graphs
         public virtual void DeserializeFrom(XmlSerializationContext xmlsc)
         {
             // TODO:  Add Vertex.DeserializeFrom implementation
-            _exec = ((Model)xmlsc.ContextEntities["Model"]).Executive;
+            _exec = ((Model)xmlsc.ContextEntities["Model"]!).Executive;
             _eventType = (ExecEventType)xmlsc.LoadObject("EventType");
             int vertexCount = (int)xmlsc.LoadObject("VertexCount");
             _vertices = new Vertex[vertexCount];

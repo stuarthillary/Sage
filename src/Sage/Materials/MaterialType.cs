@@ -147,10 +147,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             _name = name;
             _guid = guid;
-            _model = model!; // Set via constructor parameter
-            _name = name!; // Set via constructor parameter
-            _description = string.Empty; // Set later via InitializeIdentity if needed
-            _tag = string.Empty; // Set later if needed
+            _model = model;
+            _description = string.Empty;
+            _tag = string.Empty;
             STPState = stpState;
             SetSpecificGravity(specificGravity); // kilogram per liter.
             SetSpecificHeat(specificHeat); // Joules per Kilogram-degree K.
@@ -170,7 +169,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -259,7 +258,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 _emissionClassifications = new ListDictionary();
             }
 
-            EmissionsClassificationCatalog? ecc = (EmissionsClassificationCatalog?)_model.Parameters["EmissionsClassificationCatalog"];
+            EmissionsClassificationCatalog? ecc = (EmissionsClassificationCatalog?)_model?.Parameters["EmissionsClassificationCatalog"];
             if (_model != null && ecc == null)
             {
                 ecc = new EmissionsClassificationCatalog();
@@ -623,7 +622,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <returns><c>true</c> if this one and the other one are equal, <c>false</c> otherwise.</returns>
         public bool Equals(MaterialType otherOne)
         {
-            if (!_name.Equals(otherOne._name, StringComparison.Ordinal))
+            if (!string.Equals(_name, otherOne._name, StringComparison.Ordinal))
                 return false;
             if (!_guid.Equals(otherOne._guid))
                 return false;
@@ -631,15 +630,15 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in constructor
+        private string? _name;
         public string Name
         {
             get
             {
-                return _name;
+                return _name!;
             }
         }
-        private string _description = string.Empty;
+        private string? _description;
         /// <summary>
         /// A description of this Material Type.
         /// </summary>
@@ -647,12 +646,12 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             get
             {
-                return _description ?? _name;
+                return _description ?? _name!;
             }
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model = null!; // Set in constructor or InitializeIdentity
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
@@ -661,7 +660,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         {
             get
             {
-                return _model;
+                return _model!;
             }
             protected set
             {

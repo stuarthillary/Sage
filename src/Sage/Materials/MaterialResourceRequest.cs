@@ -170,16 +170,16 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         public ResourceSelectionStrategy? ResourceSelectionStrategy => null;
 
-        public bool Acquire(IResourceManager resourceManager, bool blockAwaitingAcquisition)
+        public bool Acquire(IResourceManager? resourceManager, bool blockAwaitingAcquisition)
         {
-            return resourceManager.Acquire(this, blockAwaitingAcquisition);
+            return resourceManager!.Acquire(this, blockAwaitingAcquisition);
         }
 
         public void Release()
         {
         }
 
-        public bool Reserve(IResourceManager resourceManager, bool blockAwaitingAcquisition)
+        public bool Reserve(IResourceManager? resourceManager, bool blockAwaitingAcquisition)
         {
             throw new NotImplementedException("Reserve and Unreserve functionality in MaterialResourceRequests has not been implemented.");
         }
@@ -210,7 +210,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// with an opportunity to say, "No, I don't want that any more", or perhaps to get ready for receipt
         /// of the resource in question.
         /// </summary>
-        public ResourceRequestCallback AsyncGrantConfirmationCallback
+        public ResourceRequestCallback? AsyncGrantConfirmationCallback
         {
             get; set;
         }

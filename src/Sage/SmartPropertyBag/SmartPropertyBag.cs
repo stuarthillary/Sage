@@ -140,7 +140,7 @@ namespace Highpoint.Sage.Core
         /// </returns>
 		public bool Contains(object key)
         {
-            string s = key as string;
+            string? s = key as string;
             if (s != null)
             {
                 return ExistsKey(s);
@@ -964,7 +964,7 @@ namespace Highpoint.Sage.Core
         {
             if (!_writeLock.IsWritable)
                 throw new WriteProtectionViolationException(this, _writeLock);
-            object obj = otherBag[otherKey];
+            object? obj = otherBag[otherKey];
             if (obj == null)
                 throw new ApplicationException("SmartPropertyBag aliasing a key to a nonexistent 'other' key.");
             ISupportsMementos iss = new SPBAlias(otherBag, otherKey);
@@ -1052,7 +1052,7 @@ namespace Highpoint.Sage.Core
             _ssh.AddChild(iss);
             // TODO: Get test coverage on the following code.
             // ReSharper disable once SuspiciousTypeConversion.Global
-            WriteLock cwl = iss as WriteLock;
+            WriteLock? cwl = iss as WriteLock;
             if (cwl != null)
                 _writeLock.AddChild(cwl);
         }
@@ -1090,7 +1090,7 @@ namespace Highpoint.Sage.Core
             ISupportsMementos child = GetContentsOfKey(key);
             // TODO: Get test coverage on the following code.
             // ReSharper disable once SuspiciousTypeConversion.Global
-            WriteLock cwl = child as WriteLock;
+            WriteLock? cwl = child as WriteLock;
             if (cwl != null)
                 _writeLock.RemoveChild(cwl);
             _ssh.RemoveChild(child);
@@ -1109,7 +1109,7 @@ namespace Highpoint.Sage.Core
                 keys.Add(de.Key);
             foreach (string key in keys)
             {
-                WriteLock cwl = _dictionary[key] as WriteLock;
+                WriteLock? cwl = _dictionary[key] as WriteLock;
                 if (cwl != null)
                     _writeLock.RemoveChild(cwl);
                 Remove(key);
@@ -1138,7 +1138,7 @@ namespace Highpoint.Sage.Core
                     string myKey = key.Substring(0, key.IndexOf('.', StringComparison.Ordinal));
                     string subsKey = key.Substring(key.IndexOf('.', StringComparison.Ordinal) + 1);
                     object subbag = GetContentsOfKey(myKey);
-                    SmartPropertyBag bag = subbag as SmartPropertyBag;
+                    SmartPropertyBag? bag = subbag as SmartPropertyBag;
                     if (bag != null)
                     {
                         return bag[subsKey];
@@ -1151,8 +1151,8 @@ namespace Highpoint.Sage.Core
                         throw new SmartPropertyBagContentsException(msg);
                     }
                 }
-                object retval = _dictionary[key];
-                IHasValue value = retval as IHasValue;
+                object? retval = _dictionary[key];
+                IHasValue? value = retval as IHasValue;
                 return value != null ? value.GetValue() : retval;
             }
             set
@@ -1166,7 +1166,7 @@ namespace Highpoint.Sage.Core
                     string myKey = key.Substring(0, key.IndexOf('.', StringComparison.Ordinal));
                     string subsKey = key.Substring(key.IndexOf('.', StringComparison.Ordinal) + 1);
                     object subbag = GetContentsOfKey(myKey);
-                    SmartPropertyBag bag = subbag as SmartPropertyBag;
+                    SmartPropertyBag? bag = subbag as SmartPropertyBag;
                     if (bag != null)
                     {
                         bag[subsKey] = value;
@@ -1184,11 +1184,11 @@ namespace Highpoint.Sage.Core
                     try
                     {
                         object val = GetContentsOfKey(key);
-                        SPBValueHolder holder = val as SPBValueHolder;
+                        SPBValueHolder? holder = val as SPBValueHolder;
                         if (holder != null)
                             holder.SetValue(Convert.ToDouble(value));
                         else if (val is SPBStringHolder)
-                            ((SPBStringHolder)val).SetValue((string)value);
+                            ((SPBStringHolder)val).SetValue((string)value!);
                         else
                         {
                             (val as SPBBooleanHolder)?.SetValue(Convert.ToBoolean(value));
@@ -1242,7 +1242,7 @@ namespace Highpoint.Sage.Core
                 string lclKey = key.Substring(0, firstDotNdx);
                 string subKey = key.Substring(firstDotNdx + 1, key.Length - firstDotNdx - 1);
                 ISupportsMementos? ism = (ISupportsMementos?)this[lclKey];
-                SmartPropertyBag bag = ism as SmartPropertyBag;
+                SmartPropertyBag? bag = ism as SmartPropertyBag;
                 if (bag != null)
                 {
                     return bag.ExistsKey(subKey);
@@ -1266,7 +1266,7 @@ namespace Highpoint.Sage.Core
                 if (ism == null)
                 {
                     AddChildSPB(lclKey, new SmartPropertyBag());
-                    ism = (ISupportsMementos)this[lclKey];
+                    ism = (ISupportsMementos?)this[lclKey];
                 }
                 else if (!(ism is SmartPropertyBag))
                 {
@@ -1276,7 +1276,7 @@ namespace Highpoint.Sage.Core
                 {
                     // It's an SPB that already exists, so we're golden.
                 }
-                ((SmartPropertyBag)ism).AddSPBEntry(subKey, payload);
+                ((SmartPropertyBag)ism!).AddSPBEntry(subKey, payload);
             }
             else
             {
@@ -1302,7 +1302,7 @@ namespace Highpoint.Sage.Core
                     _memento = new SmartPropertyBagMemento(this);
                     _ssh.ReportSnapshot();
                 }
-                return _memento;
+                return _memento!;
             }
             set
             {
@@ -1336,16 +1336,16 @@ namespace Highpoint.Sage.Core
         /// <returns>True if the two SPBs are semantically equal.</returns>
         public bool Equals(ISupportsMementos otherGuy)
         {
-            SmartPropertyBag spb = otherGuy as SmartPropertyBag;
+            SmartPropertyBag? spb = otherGuy as SmartPropertyBag;
             if (_dictionary.Count != spb?._dictionary.Count)
                 return false;
             foreach (DictionaryEntry de in spb!._dictionary)
             {
                 if (!_dictionary.Contains(de.Key))
                     return false;
-                ISupportsMementos myValue = (ISupportsMementos)_dictionary[de.Key];
+                ISupportsMementos? myValue = (ISupportsMementos?)_dictionary[de.Key];
 
-                if (!(((ISupportsMementos)de.Value).Equals(myValue)))
+                if (!(((ISupportsMementos)de.Value!).Equals(myValue!)))
                     return false;
             }
             return true;

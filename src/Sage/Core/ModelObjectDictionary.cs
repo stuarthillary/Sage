@@ -201,7 +201,7 @@ namespace Highpoint.Sage.Core
         /// key is considered illegal. All other Guids, if not contained in the dictionary, will
         /// result in the firing of the UnknownModelObjectRequested event.
         /// </summary>
-        public object this[object key]
+        public object? this[object key]
         {
             get
             {
@@ -212,7 +212,7 @@ namespace Highpoint.Sage.Core
             {
                 _Debug.Assert(key is Guid);
                 _Debug.Assert(value is IModelObject);
-                this[(Guid)key] = (IModelObject)value;
+                this[(Guid)key] = (IModelObject)value!;
             }
         }
 
@@ -323,11 +323,11 @@ namespace Highpoint.Sage.Core
         /// <exception cref="T:System.ArgumentException">An element with the same key already exists in the <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> object. </exception>
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> is read-only.-or- The <see cref="T:Highpoint.Sage.Core.ModelObjectDictionary"></see> has a fixed size. </exception>
-        public void Add(object key, object value)
+        public void Add(object key, object? value)
         {
             _Debug.Assert(key is Guid);
             _Debug.Assert(value is IModelObject);
-            Add((Guid)key, (IModelObject)value);
+            Add((Guid)key, (IModelObject)value!);
 
         }
 

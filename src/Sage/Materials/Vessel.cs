@@ -29,7 +29,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             _pressure = _initialPressure = pressure;
             _capacity = capacity;
             _autoReset = autoReset;
-            _model.Starting += new ModelEvent(m_model_Starting);
+            _model!.Starting += new ModelEvent(m_model_Starting);
         }
 
         /// <summary>
@@ -114,9 +114,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity
+        private string? _name;
         private Guid _guid = Guid.Empty;
-        private IModel _model = null!; // Set in InitializeIdentity
+        private IModel? _model;
         private string? _description;
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 
@@ -180,7 +180,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="guid">The IModelObject's new GUID value.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 

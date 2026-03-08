@@ -78,7 +78,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>System.Double.</returns>
         private double Factorial(int x)
         {
-            return _factorials[x];
+            return _factorials![x];
         }
 
         #region ICDF Members

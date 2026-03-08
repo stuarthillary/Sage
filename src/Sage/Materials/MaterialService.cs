@@ -520,7 +520,7 @@ namespace Highpoint.Sage.Materials
         }
 
         #region IModelObject Members
-        private string _name = null!; // Set in InitializeIdentity
+        private string? _name;
         /// <summary>
         /// The name of this MaterialService.
         /// </summary>
@@ -528,7 +528,7 @@ namespace Highpoint.Sage.Materials
         {
             get
             {
-                return _name;
+                return _name!;
             }
         }
         private string? _description;
@@ -539,7 +539,7 @@ namespace Highpoint.Sage.Materials
         {
             get
             {
-                return _description ?? _name;
+                return _description ?? _name!;
             }
         }
         private Guid _guid = Guid.Empty;
@@ -562,7 +562,7 @@ namespace Highpoint.Sage.Materials
         /// <param name="guid">The IModelObject's new GUID value.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

@@ -26,9 +26,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         #region Private fields
         private static readonly bool diagnostics = Diagnostics.DiagnosticAids.Diagnostics("MaterialResourceItem");
 
-        private IModel _model = null!; // Set in constructor
+        private IModel? _model;
         private IMaterial _material = null!; // Set in Initialize()
-        private string _name = null!; // Set in constructor
+        private string? _name;
         private Guid _guid;
         private readonly ArrayList _waiters;
         private static readonly ArrayList _empty_List = ArrayList.ReadOnly(new ArrayList());
@@ -148,7 +148,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -254,7 +254,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         /// <value>The manager.</value>
         /// <exception cref="System.NotSupportedException">A MaterialResourceItem is a self-managed resource, and therefore cannot be assigned a resource manager (since it already has its own...).</exception>
-        public IResourceManager Manager
+        public IResourceManager? Manager
         {
             get
             {
@@ -485,7 +485,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 if (dec == null)
                     throw new ApplicationException("Someone tried to call Reserve(..., true) while not in a detachable event. This is not allowed.");
 
-                dec.SetAbortHandler(resourceRequest.AbortHandler);
+                dec.SetAbortHandler(resourceRequest.AbortHandler!);
                 resourceRequest.ResourceRequestAborting += _onResourceRequestAborting;
 
                 while (true)
@@ -520,7 +520,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 if (dec == null)
                     throw new ApplicationException("Someone tried to call Acquire(..., true) while not in a detachable event. This is not allowed.");
 
-                dec.SetAbortHandler(resourceRequest.AbortHandler);
+                dec.SetAbortHandler(resourceRequest.AbortHandler!);
                 resourceRequest.ResourceRequestAborting += _onResourceRequestAborting;
 
                 while (true)
@@ -619,13 +619,13 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         #region IHasIdentity Members
 
-        public string Name => _name;
+        public string Name => _name!;
 
         private string? _description;
         /// <summary>
         /// A description of this MaterialResourceItem
         /// </summary>
-        public string Description => _description ?? _name;
+        public string Description => _description ?? _name!;
 
         public Guid Guid => _guid;
 
@@ -669,12 +669,12 @@ namespace Highpoint.Sage.Materials.Chemistry
                 if (delta > 0)
                 {
                     substance.Add((Substance)MaterialType.CreateMass(delta, _initialTemperature));
-                    ResourceAdded?.Invoke(Manager, this);
+                    ResourceAdded?.Invoke(Manager!, this);
                 }
                 else
                 {
                     substance.Remove(-delta);
-                    ResourceRemoved?.Invoke(Manager, this);
+                    ResourceRemoved?.Invoke(Manager!, this);
                 }
             }
         }
@@ -712,7 +712,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private void OnResourceRequestAborting(IResourceRequest request, IExecutive exec, IDetachableEventController idec)
         {
-            _model.AddWarning(new TerminalResourceRequestAbortedWarning(exec, this, request, idec));
+            _model!.AddWarning(new TerminalResourceRequestAbortedWarning(exec, this, request, idec));
         }
     }
 }

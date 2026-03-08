@@ -140,7 +140,7 @@ namespace Highpoint.Sage.Diagnostics
             sb.Append("Edge : " + parent.Name + " (" + parent.GetType() + ")\r\n");
             AddTabs(ref sb, tabDepth + 1);
             sb.Append("* * * * * PreVertex\r\n");
-            _ToString(parent.PreVertex, ref sb, tabDepth + 2);
+            _ToString(parent.PreVertex!, ref sb, tabDepth + 2);
             if (parent.ChildEdges.Count > 0)
             {
                 AddTabs(ref sb, tabDepth + 1);
@@ -160,7 +160,7 @@ namespace Highpoint.Sage.Diagnostics
 
             AddTabs(ref sb, tabDepth - 1);
             sb.Append("* * * * * PostVertex\r\n");
-            _ToString(parent.PostVertex, ref sb, tabDepth + 2);
+            _ToString(parent.PostVertex!, ref sb, tabDepth + 2);
 
 
         }
@@ -185,10 +185,10 @@ namespace Highpoint.Sage.Diagnostics
                 sb.Append("\t");
         }
 
-        private static void _ToString(Vertex vertex, ref StringBuilder sb, int tabDepth)
+        private static void _ToString(Vertex? vertex, ref StringBuilder sb, int tabDepth)
         {
             AddTabs(ref sb, tabDepth);
-            sb.Append("Name: " + vertex.Name + "\r\n");
+            sb.Append("Name: " + vertex!.Name + "\r\n");
             AddTabs(ref sb, tabDepth);
             sb.Append("Precursors: " + vertex.PredecessorEdges.Count + "\r\n");
             foreach (Edge edge in vertex.PredecessorEdges)

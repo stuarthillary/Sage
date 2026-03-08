@@ -263,9 +263,9 @@ namespace Highpoint.Sage.Graphs
         /// done asynchronously.
         /// <param name="exec">The executive by which this event is being serviced.</param>
         /// <param name="graphContext">The graph context for execution.</param>
-        internal void _AsyncFireVertexHandler(IExecutive exec, object graphContext)
+        internal void _AsyncFireVertexHandler(IExecutive exec, object? graphContext)
         {
-            _FireVertex((IDictionary)graphContext);
+            _FireVertex((IDictionary)graphContext!);
         }
 
         /// <summary>
@@ -400,7 +400,7 @@ namespace Highpoint.Sage.Graphs
         /// property is public, but read-only.
         /// </summary>
         /// <param name="synch"></param>
-        internal void SetSynchronizer(VertexSynchronizer synch)
+        internal void SetSynchronizer(VertexSynchronizer? synch)
         {
             if (synch != null && _synchronizer != null)
                 throw new ApplicationException(Name + " already has a synchronizer assigned!");

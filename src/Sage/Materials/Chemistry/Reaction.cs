@@ -82,7 +82,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel? model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model!, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -382,11 +382,11 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// </summary>
         public IModel? Model => _model;
 
-        private string _name = null!; // Set in InitializeIdentity
+        private string? _name;
         /// <summary>
         /// The name of this reaction.
         /// </summary>
-        public string Name => _name;
+        public string Name => _name!;
 
         private string? _description;
         /// <summary>

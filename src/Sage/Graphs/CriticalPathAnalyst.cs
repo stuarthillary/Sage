@@ -10,7 +10,7 @@ namespace Highpoint.Sage.Graphs
     /// An engine for determining critical paths through a directed acyclic graph (DAG).
     /// </summary>
     /// <typeparam name="T">The type of task being represented in this DAG.</typeparam>
-    public class CriticalPathAnalyst<T>
+    public class CriticalPathAnalyst<T> where T : notnull
     {
 
         private readonly T _startNode;
@@ -143,7 +143,7 @@ namespace Highpoint.Sage.Graphs
         /// <returns></returns>
         private TimingData TimingDataNodeFor(T node)
         {
-            TimingData tdNode;
+            TimingData? tdNode;
             if (!_timingData!.TryGetValue(node, out tdNode))
             {
                 tdNode = new TimingData(
@@ -155,7 +155,7 @@ namespace Highpoint.Sage.Graphs
                     (short)_successors(node).Count());
                 _timingData.Add(node, tdNode);
             }
-            return tdNode;
+            return tdNode!;
         }
 
         private class TimingData : ICriticalPathTimingData

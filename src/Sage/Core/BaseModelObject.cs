@@ -34,12 +34,12 @@ namespace Highpoint.Sage.Core
         /// The name by which this object is known. Typically not required to be unique in a pan-model context.
         /// </summary>
         /// <value>The object's name.</value>
-        public string? Name
+        public string Name
         {
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name ?? string.Empty;
             }
         }
 
@@ -76,7 +76,7 @@ namespace Highpoint.Sage.Core
         /// <param name="name">The IModelObject's new name value.</param>
         /// <param name="description">The IModelObject's new description value.</param>
         /// <param name="guid">The IModelObject's new GUID value.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
             IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
         }
