@@ -649,3 +649,57 @@ The name "Scratch" better communicates the purpose of this project as an experim
 - **Tests**: All passing (no regressions)
 - **Build**: Clean build, 0 errors
 
+---
+
+## Decision: Use xUnit 2.x (not v3) for Sage.Tests migration
+
+**Date:** 2026-07-16  
+**Author:** Parker  
+**Status:** ✅ Complete  
+**Requested by:** Stuart
+
+### Decision
+
+Migrate Sage.Tests from MSTest to **xUnit 2.9.3** (latest stable 2.x), using **xunit.runner.visualstudio 2.8.2**.
+
+### Rationale
+
+xUnit v3 (`xunit.v3`) introduces breaking API changes that make bulk migration risky on a 60-file test project:
+- Different assembly structure and package names
+- Revised Assert API surface
+- New runner integration model
+
+xUnit 2.x is mature, stable, widely adopted, and fully compatible with the existing .NET SDK test infrastructure (`Microsoft.NET.Test.Sdk`, `coverlet.collector`). The entire test suite migrates cleanly to 2.x.
+
+### Key Migration Patterns
+
+- `[TestInitialize]` → constructor (most classes already had ctors calling Init(); simply remove the attribute)
+- `[TestCleanup]` → `IDisposable.Dispose()` + `: IDisposable` on class
+- `Assert.IsInstanceOfType(obj, typeof(T))` → `Assert.IsAssignableFrom<T>(obj)` NOT `Assert.IsType<T>` (MSTest checks assignability, xUnit IsType requires exact match)
+- `CollectionAssert.Contains(collection, item)` → `Assert.Contains(item, collection)` (args FLIP in xUnit)
+
+### Outcome
+
+- **Test Results:** 319/319 tests passing
+- **Files Migrated:** 60 files migrated to xUnit
+- **Package Updates:** Directory.Packages.props updated
+  - MSTest packages removed
+  - xunit 2.9.3 + xunit.runner.visualstudio 2.8.2 added
+
+### Bugs Fixed (Pre-existing)
+
+1. **SageOptions.DefaultExecutiveType:** Corrected assembly name reference
+2. **UnitTestDetector.IsInUnitTest:** Updated to detect xUnit assemblies (added xunit.runner.visualstudio)
+
+### Verification
+
+- `dotnet build Sage4-Everything.sln --no-incremental -v minimal` ✅
+- `dotnet test Sage_Aux/SageTestLib/SageTestLib.csproj` → 319/319 passed ✅
+
+### Files Modified
+
+- Directory.Packages.props
+- 60 test files across Sage.Tests project
+- SageOptions.cs (DefaultExecutiveType fix)
+- UnitTestDetector.cs (xUnit assembly detection)
+

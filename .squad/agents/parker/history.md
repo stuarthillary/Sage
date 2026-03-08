@@ -1,4 +1,17 @@
 
+### 2026-07-16 — Migrate Sage.Tests from MSTest to xUnit 2.x ✅
+
+- **Scope:** Full test framework migration — 60 .cs files modified
+- **Packages:** Removed MSTest.TestAdapter + MSTest.TestFramework; added xunit 2.9.3 + xunit.runner.visualstudio 2.8.2 (central package management in Directory.Packages.props)
+- **Attribute pattern:** `[TestClass]` removed, `[TestMethod]` → `[Fact]`, `[TestInitialize]` → constructor (most classes already had ctors calling Init()), `[TestCleanup]` → `IDisposable.Dispose()`
+- **Assert pattern:** All MSTest Assert.* calls converted to xUnit equivalents; note xUnit `Contains(item, collection)` has FLIPPED arg order vs MSTest; `Assert.IsInstanceOfType(obj, typeof(T))` → `Assert.IsAssignableFrom<T>(obj)` (not IsType — MSTest checks assignability)
+- **Key fix — UnitTestDetector:** `UnitTestDetector.IsInUnitTest` previously checked only for MSTest assembly; updated to a lazy computed property that also detects xunit.core and xunit.execution assemblies. Static constructor approach was unreliable; lazy check resolves it.
+- **Key fix — SageOptions:** `DefaultExecutiveType` assembly name corrected from `Highpoint.Sage` to `Sage` (actual AssemblyName in Sage.csproj)
+- **Key fix — duplicate method:** TestExtensions.cs had duplicate `TestSigmaBounding` method renamed to `RunSigmaBoundingTest` (xUnit1024 rule)
+- **Build/Test:** 0 errors; **319/319 tests passing** (all pre-existing EmissionModel failures resolved by UnitTestDetector fix)
+
+---
+
 ### 2026-03-07 — TestDriver Project Rename to Sage.Scratch ✅
 
 - **Scope:** Renamed TestDriver project from TestDriver.csproj to Sage.Scratch.csproj with namespace refactoring.
