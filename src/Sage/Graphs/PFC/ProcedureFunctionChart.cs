@@ -1793,7 +1793,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID of this object. Typically registered as this object's ModelObject key, and thus, required to be unique in a pan-model context.</param>
         public void InitializeIdentity(IModel? model, string? name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model!, ref _name, name ?? string.Empty, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
 

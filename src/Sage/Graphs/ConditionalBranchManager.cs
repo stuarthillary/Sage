@@ -234,7 +234,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="channel">The channel.</param>
         public static void CreateBranchLink(Task from, Task to, string channel)
         {
-            Edge.Connect(from.PostVertex!, to.PreVertex!).Channel = channel;
+            Edge.Connect(from.PostVertex!, to.PreVertex!)!.Channel = channel;
         }
 
         /// <summary>

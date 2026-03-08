@@ -117,7 +117,7 @@ namespace Highpoint.Sage.Graphs.Tasks
             //_Debug.WriteLine("Activating " + m_name );
             if (!_startConditionsSpecified)
             {
-                _when = _model.Executive.Now;
+                _when = _model!.Executive.Now;
                 _priority = 0.0;
             }
             if (GraphContext == null)
@@ -126,11 +126,11 @@ namespace Highpoint.Sage.Graphs.Tasks
             }
             else
             {
-                _model.Executive.ClearVolatiles(GraphContext);
+                _model!.Executive.ClearVolatiles(GraphContext);
             }
             if (_keepGraphContexts)
                 _graphContexts.Add(GraphContext);
-            _model.Executive.RequestEvent(new ExecEventReceiver(BeginExecution), _when, _priority, GraphContext, _eet);
+            _model!.Executive.RequestEvent(new ExecEventReceiver(BeginExecution), _when, _priority, GraphContext, _eet);
         }
 
         private void BeginExecution(IExecutive exec, object? userData)

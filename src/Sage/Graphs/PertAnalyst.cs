@@ -60,12 +60,12 @@ namespace Highpoint.Sage.Graphs.Analysis
                 EdgeData? ed = (EdgeData?)Edges[targetEdge!];
                 if (ed == null)
                     continue;
-                if (IsCriticalPath(targetEdge))
+                if (IsCriticalPath(targetEdge!))
                 {
                     _criticalPath.Add(targetEdge);
                     mean += ed.MeanDuration;
                     variance += ed.Variance2;
-                    return targetEdge.PostVertex!;
+                    return targetEdge!.PostVertex!;
                 }
             }
 

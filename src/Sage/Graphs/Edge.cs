@@ -306,7 +306,7 @@ protected string? _name = null; // Set in constructor
         {
             get
             {
-                return _description ?? _name;
+                return _description ?? _name!;
             }
         }
 

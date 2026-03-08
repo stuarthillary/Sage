@@ -75,7 +75,7 @@ namespace Highpoint.Sage.Graphs.PFC
                 throw new ApplicationException(msg);
             }
 
-            string oldName = _name;
+            string? oldName = _name;
             _name = newName;
 
             if (Parent != null && Parent.ParticipantDirectory.Contains(_guid))
@@ -222,7 +222,7 @@ namespace Highpoint.Sage.Graphs.PFC
         /// <param name="guid">The GUID of the task.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion

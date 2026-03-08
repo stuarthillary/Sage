@@ -296,9 +296,9 @@ if ( edgeData == null ) {
 					postData!.Latest = preData!.Latest + ed.NominalDuration;
 					
 					if ( s_diagnostics ) {
-						_Debug.WriteLine("Resetting " + post.Name + " latest time to " + pre.Name + "'s latest (" 
-							+ $"{TimeSpan.FromTicks(preData.Latest):f2}" + ") + "
-							+ pre.PrincipalEdge.Name + "'s nominal duration of " 
+						_Debug.WriteLine("Resetting " + post?.Name + " latest time to " + pre.Name + "'s latest (" 
+							+ $"{TimeSpan.FromTicks(preData!.Latest):f2}" + ") + "
+							+ pre.PrincipalEdge!.Name + "'s nominal duration of " 
 							+ $"{TimeSpan.FromTicks(ed.NominalDuration):f2}"); 
 					}
 				}
@@ -376,7 +376,7 @@ if ( edgeData == null ) {
 							if ( s_diagnosticsValidation ) m_sb!.Append(edge.Name + "'s latest start (" + svdPreLatest + ") is later than its latest finish (" + svdPostLatest + ").\r\n");
 						}
 					}
-					_ValidateResults(edge.PostVertex);
+					_ValidateResults(edge.PostVertex!);
 				}
 			}
 		}
@@ -498,7 +498,7 @@ if ( edgeData == null ) {
 				sw.WriteLine("\r\n::::::::::::::::Known Edges::::::::::::::::\r\n");
 				foreach ( DictionaryEntry de in Edges ) {
 					Edge knownEdge = (Edge)de.Key;
-					EdgeData knownEdgeData = (EdgeData)de.Value;
+					EdgeData? knownEdgeData = (EdgeData?)de.Value;
 					Tasks.Task? knownTask = knownEdge as Tasks.Task;
 					if ( knownTask != null ) {
 						sw.WriteLine("Name : " + knownTask.Name + "\r\nGuid : " + knownTask.Guid + "\r\nHashCode : " + knownTask.GetHashCode());

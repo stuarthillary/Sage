@@ -124,7 +124,7 @@ namespace Highpoint.Sage.Graphs.Validity
                     string msg = "ERROR - Validation Service's \"Resume\" location (" + where + ")doesn't match the opposite \"Suspend\" location!";
                     if (_root is Core.IModelObject)
                     {
-                        ((Core.IModelObject)_root).Model.AddWarning(new Core.GenericModelWarning("ValidationStackMismatch", msg, where, this));
+                        ((Core.IModelObject)_root).Model?.AddWarning(new Core.GenericModelWarning("ValidationStackMismatch", msg, where, this));
                     }
                     else
                     {
@@ -230,7 +230,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns></returns>
         public string StatusReport(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
             {
                 return "Unknown object - " + ihv;
             }
@@ -273,7 +273,7 @@ namespace Highpoint.Sage.Graphs.Validity
                     successors.AddRange(vertex.GetSuccessors());
                     while (successors.Count > 0)
                     {
-                        IHasValidity ihv = (IHasValidity)successors[0];
+                        IHasValidity ihv = (IHasValidity)successors[0]!;
                         successors.RemoveAt(0);
                         if (ihv is Tasks.Task)
                         {
@@ -297,7 +297,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <param name="ihv">The specified object in the graph.</param>
 		public void NotifySelfStateChange(IHasValidity ihv)
         {
-            if (_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (_htNodes.TryGetValue(ihv, out ValidityNode? vn))
             {
                 vn.NotifySelfStateChange(ihv.SelfState);
             }
@@ -311,7 +311,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The predecessors of the specified object in the graph.</returns>
         public IList GetPredecessorsOf(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return _emptyList;
 
             ArrayList retval = new ArrayList();
@@ -331,12 +331,13 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The successors of the specified object in the graph.</returns>
 		public IList GetSuccessorsOf(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return _emptyList;
 
             ArrayList retval = new ArrayList();
-            foreach (ValidityNode subNode in vn.Successors)
+            foreach (ValidityNode? subNode in vn!.Successors)
             {
+                if (subNode == null) continue;
                 IHasValidity ihv2 = subNode.Mine;
                 retval.Add(ihv2);
             }
@@ -351,12 +352,13 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The children of the specified object in the graph.</returns>
 		public IList GetChildrenOf(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return _emptyList;
 
             ArrayList retval = new ArrayList();
-            foreach (ValidityNode subNode in vn.Children)
+            foreach (ValidityNode? subNode in vn!.Children)
             {
+                if (subNode == null) continue;
                 IHasValidity ihv2 = subNode.Mine;
                 retval.Add(ihv2);
             }
@@ -371,7 +373,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The parent of the specified object in the graph.</returns>
 		public IHasValidity? GetParentOf(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return null;
             if (vn.Parent == null)
                 return null;
@@ -388,7 +390,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The</returns>
         public Validity GetValidityState(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return Validity.Invalid;
             return vn.OverallValid ? Validity.Valid : Validity.Invalid;
         }
@@ -400,7 +402,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The state of the self validity of the specified object in the graph.</returns>
 		public Validity GetSelfValidityState(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return Validity.Invalid;
             return vn.SelfValid ? Validity.Valid : Validity.Invalid;
         }
@@ -412,7 +414,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The state of validity of the predecessors of the specified object in the graph.</returns>
 		public Validity GetPredecessorValidityState(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return Validity.Invalid;
             return vn.PredecessorsValid ? Validity.Valid : Validity.Invalid;
         }
@@ -424,7 +426,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The aggregate validity state of the children of the specified object in the graph.</returns>
 		public Validity GetChildValidityState(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return Validity.Invalid;
             return vn.ChildrenValid ? Validity.Valid : Validity.Invalid;
         }
@@ -436,7 +438,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The invalid predecessor count of the specified object in the graph.</returns>
 		public int GetInvalidPredecessorCountOf(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return int.MinValue;
             return vn.InvalidPredecessorCount;
         }
@@ -448,7 +450,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <returns>The invalid child count of the specified object in the graph.</returns>
 		public int GetInvalidChildCountOf(IHasValidity ihv)
         {
-            if (!_htNodes.TryGetValue(ihv, out ValidityNode vn))
+            if (!_htNodes.TryGetValue(ihv, out ValidityNode? vn))
                 return int.MinValue;
             return vn.InvalidChildCount;
         }
@@ -480,7 +482,7 @@ namespace Highpoint.Sage.Graphs.Validity
             private readonly List<ValidityNode?> _children;
             private readonly List<IHasValidity> _successorElements;
             private readonly List<IHasValidity> _childElements;
-            private ValidityNode _parent;
+            private ValidityNode? _parent;
             private int _nInvalidPredecessors;
             private int _nInvalidChildren;
             #endregion
@@ -654,7 +656,7 @@ namespace Highpoint.Sage.Graphs.Validity
                 {
                     foreach (IHasValidity successor in _successorElements)
                     {
-                        if (_validationService._htNodes.TryGetValue(successor, out ValidityNode successorNode))
+                        if (_validationService._htNodes.TryGetValue(successor, out ValidityNode? successorNode))
                             _successors.Add(successorNode);
                         else
                             _successors.Add(null);
@@ -665,14 +667,14 @@ namespace Highpoint.Sage.Graphs.Validity
                 {
                     foreach (IHasValidity child in _childElements)
                     {
-                        if (_validationService._htNodes.TryGetValue(child, out ValidityNode childNode))
+                        if (_validationService._htNodes.TryGetValue(child, out ValidityNode? childNode))
                             _children.Add(childNode);
                         else
                             _children.Add(null);
                     }
                 }
 
-                IHasValidity myParent = _mine.GetParent();
+                IHasValidity? myParent = _mine.GetParent();
                 if (_parent == null && myParent != null)
                     _validationService._htNodes.TryGetValue(myParent, out _parent);
 
@@ -680,7 +682,7 @@ namespace Highpoint.Sage.Graphs.Validity
 
             public void CreateValidityNetwork()
             {
-                foreach (ValidityNode succ in _successors)
+                foreach (ValidityNode? succ in _successors)
                 {
                     if (succ != null)
                         succ._predecessors.Add(this);

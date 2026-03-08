@@ -39,7 +39,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         private bool _keepingTimingData = true;
 
         private Guid _guid = Guid.Empty;
-        private IModel _model = null!; // Set in InitializeIdentity
+        private IModel? _model = null; // Set in InitializeIdentity
 
         #endregion Private Fields
 
@@ -108,7 +108,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="guid">The GUID of the task.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace Highpoint.Sage.Graphs.Tasks
                 TaskStartingEvent(graphContext, this);
             if (_keepingTimingData)
             {
-                RecordStartTime(graphContext, _model.Executive.Now, true);
+                RecordStartTime(graphContext, _model!.Executive.Now, true);
             }
         }
         private void OnEdgeFinishingEvent(IDictionary graphContext, Edge edge)
@@ -321,7 +321,7 @@ namespace Highpoint.Sage.Graphs.Tasks
                 if (_delaysExplicitlySet)
                     ResetDurationData();
                 DateTime startTime = (DateTime)graphContext[_selfStartTimeKey]!; // Guaranteed set by OnEdgeStartingEvent
-                DateTime finishTime = _model.Executive.Now;
+                DateTime finishTime = _model!.Executive.Now;
                 RecordFinishTime(graphContext, finishTime);
                 TimeSpan duration = finishTime - startTime;
                 UpdateDurationStats(duration);
@@ -638,7 +638,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel Model => _model!;
         #endregion
 
         #region IXmlPersistable Members

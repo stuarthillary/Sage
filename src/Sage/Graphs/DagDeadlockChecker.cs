@@ -49,7 +49,7 @@ namespace Highpoint.Sage.Graphs
 
             Build(_rootEdge.PreVertex!);
 
-            _frontier.Add(_nodes[_rootEdge.PreVertex]);
+            _frontier.Add(_nodes[_rootEdge.PreVertex!]);
 
             while (Advance())
             {
