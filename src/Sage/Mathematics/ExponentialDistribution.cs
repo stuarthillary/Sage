@@ -58,9 +58,9 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>The next double in the distribution.</returns>
         public double GetNext() {
             if (_random == null)
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
             double x = m_constrained ? ( m_low == m_high ? m_low : _random.NextDouble(m_low, m_high) ) : _random.NextDouble();
-            return _cdf.GetVariate(x);
+            return _cdf!.GetVariate(x);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="probability">The probability.</param>
         /// <returns></returns>
         public double GetValueWithCumulativeProbability(double probability) {
-            return _cdf.GetVariate(probability);
+            return _cdf!.GetVariate(probability);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, location, scale);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, location, scale);
         }
 
         /// <summary>
@@ -131,8 +131,8 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="p">The parameters that will be used to initialize this object.</param>
         public void _Initialize(IModel model, object?[] p) {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
-            double location = (double)p[0];
-            double scale = (double)p[1];
+            double location = (double)p[0]!;
+            double scale = (double)p[1]!;
             _cdf = new ExponentialCDF(location, scale, 500);
         }
 
@@ -144,17 +144,17 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid) {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this object. Typically not required to be unique.
         /// </summary>
         /// <value>The user-friendly name for this object.</value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "An Exponential Distribution";
         /// <summary>
         /// A description of this Exponential Distribution.

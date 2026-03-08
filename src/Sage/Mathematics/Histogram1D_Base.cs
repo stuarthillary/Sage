@@ -100,7 +100,7 @@ namespace Highpoint.Sage.Mathematics
         {
             get
             {
-                return _labelProvider;
+                return _labelProvider!;
             }
             set
             {
@@ -115,7 +115,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>The label for the bin at the specified coordiantes.</returns>
         public string GetLabel(int coords)
         {
-            return _labelProvider(coords);
+            return _labelProvider!(coords);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Highpoint.Sage.Mathematics
         {
             get
             {
-                return _rawData;
+                return _rawData!;
             }
             set
             {
@@ -172,7 +172,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>The sum of values.</returns>
         public T SumEntries(HistogramBinCategory hbc)
         {
-            T sumEntries = default(T);
+            T sumEntries = default!;
             bool sumLow = false;
             bool sumHigh = false;
             if (hbc == HistogramBinCategory.OffScaleLow || hbc == HistogramBinCategory.All)

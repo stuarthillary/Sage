@@ -15,7 +15,7 @@ namespace Highpoint.Sage.Mathematics
     {
         private double[]? _xVals, _yVals;
         private int _nEntries;
-        private readonly IDoubleInterpolator _interpolator;
+        private readonly IDoubleInterpolator _interpolator = null!;
 
         /// <summary>
         /// Constructor for an uninitialized SmallDoubleInterpolable, for persistence operations.
@@ -39,7 +39,7 @@ namespace Highpoint.Sage.Mathematics
             }
             _nEntries = 0;
             _interpolator = new LinearDoubleInterpolator();
-            _interpolator.SetData(_xVals, _yVals);
+            _interpolator.SetData(_xVals!, _yVals!);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Highpoint.Sage.Mathematics
             _interpolator = idi;
             if (!_interpolator.HasData)
             {
-                _interpolator.SetData(_xVals, _yVals);
+                _interpolator.SetData(_xVals!, _yVals!);
             }
         }
 
@@ -116,44 +116,44 @@ namespace Highpoint.Sage.Mathematics
 
             // 1.) Find where the new number belongs.
             int insertionPoint = 0;
-            for (; (insertionPoint < _xVals.Length && _xVals[insertionPoint] < xValue); insertionPoint++)
+            for (; (insertionPoint < _xVals!.Length && _xVals![insertionPoint] < xValue); insertionPoint++)
             {
             }
 
             // 2.) If it's an insert, see if we have room. If not, then make room,
             //     and move all data points above the insertion point, up one slot.
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (insertionPoint == _xVals.Length || _xVals[insertionPoint] != xValue)
+            if (insertionPoint == _xVals!.Length || _xVals![insertionPoint] != xValue)
             {
-                if (_nEntries == (_xVals.Length - 1))
+                if (_nEntries == (_xVals!.Length - 1))
                 {
-                    double[] xTmp = _xVals;
-                    double[] yTmp = _yVals;
+                    double[] xTmp = _xVals!;
+                    double[] yTmp = _yVals!;
                     _xVals = new double[xTmp.Length * 2];
                     _yVals = new double[yTmp.Length * 2];
                     Array.Copy(xTmp, _xVals, xTmp.Length);
                     Array.Copy(yTmp, _yVals, yTmp.Length);
                     // Set unused values to double.NaN
-                    for (int i = yTmp.Length; i < _yVals.Length; i++)
+                    for (int i = yTmp.Length; i < _yVals!.Length; i++)
                     {
-                        _xVals[i] = double.NaN;
-                        _yVals[i] = double.NaN;
+                        _xVals![i] = double.NaN;
+                        _yVals![i] = double.NaN;
                     }
-                    _interpolator.SetData(_xVals, _yVals);
+                    _interpolator.SetData(_xVals!, _yVals!);
                 }
 
                 // Move stuff up to make room.
                 for (int i = _nEntries; i >= insertionPoint; i--)
                 {
-                    _xVals[i + 1] = _xVals[i];
-                    _yVals[i + 1] = _yVals[i];
+                    _xVals![i + 1] = _xVals![i];
+                    _yVals![i + 1] = _yVals![i];
                 }
                 _nEntries++;
             }
 
             // 3.) Finally place the value.
-            _xVals[insertionPoint] = xValue;
-            _yVals[insertionPoint] = yValue;
+            _xVals![insertionPoint] = xValue;
+            _yVals![insertionPoint] = yValue;
 
         }
 
@@ -170,8 +170,8 @@ namespace Highpoint.Sage.Mathematics
             //xmlsc.StoreObject("YVals",m_yVals);
             for (int i = 0; i < _nEntries; i++)
             {
-                xmlsc.StoreObject("XVals_" + i, _xVals[i]);
-                xmlsc.StoreObject("YVals_" + i, _yVals[i]);
+                xmlsc.StoreObject("XVals_" + i, _xVals![i]);
+                xmlsc.StoreObject("YVals_" + i, _yVals![i]);
             }
         }
 
@@ -186,8 +186,8 @@ namespace Highpoint.Sage.Mathematics
             _yVals = new double[_nEntries];
             for (int i = 0; i < _nEntries; i++)
             {
-                _xVals[i] = (double)xmlsc.LoadObject("XVals_" + i);
-                _yVals[i] = (double)xmlsc.LoadObject("YVals_" + i);
+                _xVals![i] = (double)xmlsc.LoadObject("XVals_" + i);
+                _yVals![i] = (double)xmlsc.LoadObject("YVals_" + i);
             }
         }
 

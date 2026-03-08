@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Resources
         /// </returns>
 		public bool CanAcquire(object? subject, object? usingKey)
         {
-            return ((_subject.Equals(subject) || subject.Equals(_subject)) && _keys.Contains(usingKey));
+            return ((_subject.Equals(subject) || (subject != null && subject.Equals(_subject))) && _keys.Contains(usingKey));
         }
     }
 }

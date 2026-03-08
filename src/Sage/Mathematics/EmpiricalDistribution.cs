@@ -73,7 +73,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>The next double in the distribution.</returns>
         public double GetNext() {
             if (_random == null)
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
             double x = m_constrained ? ( m_low == m_high ? m_low : _random.NextDouble(m_low, m_high) ) : _random.NextDouble();
             return GetValueWithCumulativeProbability(x);
         }
@@ -87,7 +87,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="probability">The probability.</param>
         /// <returns></returns>
         public double GetValueWithCumulativeProbability(double probability) {
-            return _cdf.GetVariate(probability);
+            return _cdf!.GetVariate(probability);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Highpoint.Sage.Mathematics
                 throw new ArgumentException("Argument 'interpolatorType' must implement IDoubleInterpolator.");
             }
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, xVals, yVals, interpolatorType);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, xVals, yVals, interpolatorType);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, xVals, yVals, typeof(LinearDoubleInterpolator));
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, xVals, yVals, typeof(LinearDoubleInterpolator));
         }
 
         /// <summary>
@@ -174,14 +174,14 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="p">The parameters that will be used to initialize this object.</param>
         public void _Initialize(IModel model, object?[] p) {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
-            double[] xVals = (double[])_model.ModelObjects[p[0]];
-            double[] yVals = (double[])_model.ModelObjects[p[1]];
+            double[] xVals = (double[])_model!.ModelObjects[p[0]!]!;
+            double[] yVals = (double[])_model!.ModelObjects[p[1]!]!;
 
-            Type idiType = (Type)_model.ModelObjects[p[2]];
-            ConstructorInfo ci = idiType.GetConstructor(new Type[] { });
+            Type idiType = (Type)_model!.ModelObjects[p[2]!]!;
+            ConstructorInfo? ci = idiType.GetConstructor(new Type[] { });
             if (ci != null)
             {
-                IDoubleInterpolator idi = (IDoubleInterpolator)ci.Invoke(new object[] { });
+                IDoubleInterpolator idi = (IDoubleInterpolator)ci.Invoke(new object[] { })!;
 
                 _cdf = new EmpiricalCDF(xVals, yVals, idi);
             }
@@ -195,17 +195,17 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="description">The object's description.</param>
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid) {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this Empirical Distribution. Typically not required to be unique.
         /// </summary>
         /// <value></value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "An Empirical Distribution";
         /// <summary>
         /// A description of this Empirical Distribution.

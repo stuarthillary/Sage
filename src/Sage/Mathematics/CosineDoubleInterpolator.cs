@@ -48,17 +48,17 @@ namespace Highpoint.Sage.Mathematics
         {
 
             int lowerNdx = 0;
-            while (_xVals[lowerNdx + 1] < xValue)
+            while (_xVals![lowerNdx + 1] < xValue)
                 lowerNdx++;
 
             // Did we walk off the end (i.e. our lower index is the last element in the array?)
-            if (double.IsNaN(_xVals[lowerNdx + 1]))
+            if (double.IsNaN(_xVals![lowerNdx + 1]))
                 lowerNdx--;
 
-            double upperX = _xVals[lowerNdx + 1];
-            double upperY = _yVals[lowerNdx + 1];
-            double lowerX = _xVals[lowerNdx];
-            double lowerY = _yVals[lowerNdx];
+            double upperX = _xVals![lowerNdx + 1];
+            double upperY = _yVals![lowerNdx + 1];
+            double lowerX = _xVals![lowerNdx];
+            double lowerY = _yVals![lowerNdx];
             double mu = (xValue - lowerX) / (upperX - lowerX);
             double mu2 = (1 - Math.Cos(mu * Math.PI)) / 2.0;
             return lowerY * (1 - mu2) + upperY * mu2;

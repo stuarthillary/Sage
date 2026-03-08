@@ -77,7 +77,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
                 }
                 if (min == max)
                     max += TimeSpan.FromMinutes(_nBins);
-                _hist = new Histogram1D_TimeSpan(rawdata, min, max, (uint)_nBins, _name);
+                _hist = new Histogram1D_TimeSpan(rawdata, min, max, (uint)_nBins, _name!);
                 _hist.Recalculate();
                 return _hist;
             }
@@ -89,7 +89,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
             {
                 return;
             }
-            _occupants.Add(serviceItem, _model.Executive.Now);
+            _occupants.Add(serviceItem, _model!.Executive.Now);
             //_Debug.WriteLine(m_model.Executive.Now + " : " + this.Name + " enqueueing " + serviceItem + ". It currently has " + hostQueue.Count + " occupants.");
         }
 
@@ -104,22 +104,22 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
                 return;
             }
             _occupants.Remove(serviceItem);
-            TimeSpan duration = _model.Executive.Now - entry;
+            TimeSpan duration = _model!.Executive.Now - entry;
             //_Debug.WriteLine(m_model.Executive.Now + " : " + this.Name + " dequeueing " + serviceItem + " after " + duration + ". It currently has " + hostQueue.Count + " occupants.");
             _data.Add(duration);
             _hist = null;
         }
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         public string Name
         {
             get
             {
-                return _name;
+                return _name!;
             }
         }
-        private string _description = null!; // Set in InitializeIdentity().
+        private string? _description;
         /// <summary>
         /// A description of this WaitingTime Histogram.
         /// </summary>
@@ -127,12 +127,12 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
         {
             get
             {
-                return _description ?? _name;
+                return (_description ?? _name)!;
             }
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model = null!; // Set in InitializeIdentity().
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>

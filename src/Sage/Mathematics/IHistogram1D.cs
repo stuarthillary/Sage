@@ -192,7 +192,7 @@ namespace Highpoint.Sage.Mathematics
             T lowThreshold = Operations<T>.Add(LowBound, Operations<T>.MultiplyByUInt32(binIncrement, lowIndex));
             T highThreshold = Operations<T>.Add(HighBound, Operations<T>.MultiplyByUInt32(binIncrement, highIndex));
 
-            T sum = default(T);
+            T sum = default!;
             foreach (T dataPoint in RawData)
             {
                 if (dataPoint >= lowThreshold && dataPoint < highThreshold)

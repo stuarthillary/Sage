@@ -204,15 +204,15 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         public string Name
         {
             get
             {
-                return _name;
+                return _name!;
             }
         }
-        private string _description = null!; // Set in InitializeIdentity().
+        private string? _description;
         /// <summary>
         /// A description of this ItemSource.
         /// </summary>
@@ -220,12 +220,12 @@ namespace Highpoint.Sage.ItemBased.SinksAndSources
         {
             get
             {
-                return _description ?? _name;
+                return (_description ?? _name)!;
             }
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model = null!; // Set in InitializeIdentity().
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>

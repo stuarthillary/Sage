@@ -478,10 +478,10 @@ namespace Highpoint.Sage.ItemBased.Ports
         public static int UnassignedIndex = -1;
 
         #region Implementation of IModelObject
-        private IModel _model = null!; // Set in InitializeIdentity().
-        private string _name = null!; // Set in InitializeIdentity().
+        private IModel? _model;
+        private string? _name;
         private Guid _guid = Guid.Empty;
-        private string _description = null!; // Set in InitializeIdentity().
+        private string? _description;
         /// <summary>
         /// The user-friendly name for this object.
         /// </summary>
@@ -491,7 +491,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
         /// <summary>

@@ -38,12 +38,12 @@ namespace Highpoint.Sage.Resources
         {
             _baseResource = new Resource(model, name, guid, capacity, capacity, isAtomic, isDiscrete, isPersistent, this);
             model?.ModelObjects.Remove(guid);
-            _baseResourceManager = new ResourceManager(model, name, guid, supportsPriorities);
+            _baseResourceManager = new ResourceManager(model!, name, guid, supportsPriorities);
             model?.ModelObjects.Remove(guid);
             _baseResourceManager.Add(_baseResource);
             if (model != null)
             {
-                IModelWithResources resources = model as IModelWithResources;
+                IModelWithResources? resources = model as IModelWithResources;
                 resources?.OnNewResourceCreated(this);
                 model.ModelObjects.Add(guid, this);
             }
@@ -69,7 +69,7 @@ namespace Highpoint.Sage.Resources
         {
             _baseResource = new Resource(model, name, guid, capacity, available, isAtomic, isDiscrete, isPersistent, this);
             _baseResourceManager = new ResourceManager(model, name, guid, supportsPriorities) { _baseResource };
-            IModelWithResources modelWithResources = model as IModelWithResources;
+            IModelWithResources? modelWithResources = model as IModelWithResources;
             modelWithResources?.OnNewResourceCreated(this);
         }
 
@@ -80,7 +80,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="name">The name of this component.</param>
         /// <param name="description">The description for this component.</param>
         /// <param name="guid">The GUID of this component.</param>
-        public void InitializeIdentity(IModel model, string name, string description, Guid guid)
+        public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
 
             // m_baseResource should be initialized with this information.  Should this be an error?
@@ -92,9 +92,9 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            return obj.Equals(this) || _baseResource.Equals(obj);
+            return (obj?.Equals(this) == true) || _baseResource.Equals(obj);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace Highpoint.Sage.Resources
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _baseResource.Model;
+        public IModel? Model => _baseResource.Model;
 
 #pragma warning disable CS0067
         /// <summary>
@@ -266,7 +266,7 @@ namespace Highpoint.Sage.Resources
         /// Gets or sets the manager of the resource.
         /// </summary>
         /// <value>The manager.</value>
-        public IResourceManager Manager
+        public IResourceManager? Manager
         {
             get
             {
@@ -384,7 +384,7 @@ namespace Highpoint.Sage.Resources
         /// individual ResourceRequests access to specified resources.
         /// </summary>
         /// <value>The access regulator.</value>
-        public IAccessRegulator AccessRegulator
+        public IAccessRegulator? AccessRegulator
         {
             set
             {

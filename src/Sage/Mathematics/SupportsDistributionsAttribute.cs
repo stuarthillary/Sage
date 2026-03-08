@@ -38,7 +38,7 @@ namespace Highpoint.Sage.Mathematics
         {
             BindingFlags bindingAttr = BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic;
             //MemberInfo mi = target.GetType().GetMember(m_whereToPutTheDistribution,bindingAttr);
-            FieldInfo fi = target.GetType().GetField(_whereToPutTheDistribution, bindingAttr);
+            FieldInfo? fi = target.GetType().GetField(_whereToPutTheDistribution, bindingAttr);
 
             fi?.SetValue(target, distro);
         }

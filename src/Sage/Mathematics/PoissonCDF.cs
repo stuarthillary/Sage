@@ -14,7 +14,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// The m SDI
         /// </summary>
-        private SmallDoubleInterpolable _sdi;
+        private SmallDoubleInterpolable _sdi = null!;
 
         // ReSharper disable once InconsistentNaming
         /// <summary>
@@ -36,7 +36,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
         private bool LookupTableInitialization(double lambda, double outerLimit)
         {
-            List<double> xValues = PoissonCDFLookupTable.ForLambda(lambda);
+            List<double>? xValues = PoissonCDFLookupTable.ForLambda(lambda);
             if (xValues == null)
                 return false;
             List<double> yValues = new List<double>();
@@ -119,7 +119,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>System.Double.</returns>
         private double Factorial(int x)
         {
-            return _factorials[x];
+            return _factorials![x];
         }
 
 

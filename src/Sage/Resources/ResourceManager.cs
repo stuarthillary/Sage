@@ -87,7 +87,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Indexer that retrieves a resource from this pool by its Guid.
         /// </summary>
-        public IResource this[Guid guid]
+        public IResource? this[Guid guid]
         {
             get
             {
@@ -227,10 +227,10 @@ namespace Highpoint.Sage.Resources
             }
             while (_waiters.Count > 0)
             {
-                IDetachableEventController dec = (IDetachableEventController)_waiters[0];
+                IDetachableEventController? dec = (IDetachableEventController?)_waiters[0];
                 _waiters.RemoveAt(0);
-                if (dec.IsWaiting())
-                    dec.Resume(); // We might be releasing all resources as a part of an abort.
+                if (dec?.IsWaiting() == true)
+                    dec?.Resume(); // We might be releasing all resources as a part of an abort.
             }
         }
 
@@ -267,7 +267,7 @@ namespace Highpoint.Sage.Resources
 
             if (ableToReserve)
             {
-                lock (resourceRequest.ResourceObtained)
+                lock (resourceRequest.ResourceObtained!)
                 {
                     IResource rsc = resourceRequest.ResourceObtained;
                     rsc.Acquire(resourceRequest);
@@ -289,21 +289,21 @@ namespace Highpoint.Sage.Resources
             {
                 if (diagnostics)
                 {
-                    string fromWhom = resourceRequest.ToString();
+                    string? fromWhom = resourceRequest.ToString();
                     if (resourceRequest.ResourceObtained != null)
                         fromWhom = resourceRequest.ResourceObtained.Name;
                     _Debug.WriteLine(Name + " servicing request to release " + resourceRequest.QuantityDesired + " units of " + fromWhom);
                 }
-                IResource resourceReleased = resourceRequest.ResourceObtained;
+                IResource resourceReleased = resourceRequest.ResourceObtained!;
                 resourceRequest.ResourceObtained?.Release(resourceRequest);
                 resourceRequest.Status = RequestStatus.Free;
                 ResourceReleased?.Invoke(resourceRequest, resourceReleased);
                 while (_waiters.Count > 0)
                 {
-                    IDetachableEventController dec = (IDetachableEventController)_waiters[0];
+                    IDetachableEventController? dec = (IDetachableEventController?)_waiters[0];
                     _waiters.RemoveAt(0);
-                    if (dec.IsWaiting())
-                        dec.Resume(); // We might be releasing all resources as a part of an abort.
+                    if (dec?.IsWaiting() == true)
+                        dec?.Resume(); // We might be releasing all resources as a part of an abort.
                 }
             }
         }
@@ -331,13 +331,13 @@ namespace Highpoint.Sage.Resources
         /// <returns>Always true.</returns>
         protected bool ReserveWithWait(IResourceRequest request)
         {
-            IDetachableEventController dec = Model.Executive.CurrentEventController;
+            IDetachableEventController? dec = Model!.Executive.CurrentEventController;
             if (dec == null)
             {
                 throw new ApplicationException("Someone tried to call ReserveWithWait() while not in a detachable event. This is not allowed.");
             }
 
-            dec.SetAbortHandler(request.AbortHandler);
+            dec.SetAbortHandler(request.AbortHandler!);
             request.ResourceRequestAborting += _onResourceRequestAborting;
             while (!Reserve(request, false))
             {
@@ -356,13 +356,13 @@ namespace Highpoint.Sage.Resources
 		/// <returns>Always true.</returns>
 		protected bool AcquireWithWait(IResourceRequest request)
         {
-            IDetachableEventController dec = Model.Executive.CurrentEventController;
+            IDetachableEventController? dec = Model!.Executive.CurrentEventController;
             if (dec == null)
             {
                 throw new ApplicationException("Someone tried to call AcquireWithWait() while not in a detachable event. This is not allowed.");
             }
 
-            dec.SetAbortHandler(request.AbortHandler);
+            dec.SetAbortHandler(request.AbortHandler!);
             request.ResourceRequestAborting += _onResourceRequestAborting;
             while (!Acquire(request, false))
             {
@@ -397,7 +397,7 @@ namespace Highpoint.Sage.Resources
                 return true;
             }
 
-            ResourceRequested?.Invoke(resourceRequest, null);
+            ResourceRequested?.Invoke(resourceRequest, null!);
 
             // If the resource request provides a selection strategy, we will use it.
             // otherwise, we will cycle through resources, executing the scoring strategy.
@@ -409,7 +409,7 @@ namespace Highpoint.Sage.Resources
             double highestCapacity = double.MinValue;
 
             double bestScore = double.MinValue;
-            IResource bestResource = null;
+            IResource? bestResource = null;
 
             foreach (IResource resource in _resources)
             {
@@ -467,13 +467,13 @@ namespace Highpoint.Sage.Resources
         /// The user-friendly name for this object.
         /// </summary>
         /// <value>The name.</value>
-        public string Name => _name;
+        public string Name => _name!;
 
         private string? _description;
         /// <summary>
         /// A description of this Resource Manager.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string Description => (_description ?? _name)!;
 
         private Guid _guid = Guid.Empty;
         /// <summary>
@@ -486,7 +486,7 @@ namespace Highpoint.Sage.Resources
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         #endregion
 
@@ -497,6 +497,9 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         public ResourceManager()
         {
+            _waiters = null!;
+            _onResourceRequestAborting = null!;
+            _resources = null!;
         }
 
         /// <summary>
@@ -516,7 +519,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="xmlsc">The XmlSerializatonContext from which this object is to be reconstituted.</param>
         public void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _model = (Model)xmlsc.ContextEntities["Model"];
+            _model = (Model)xmlsc.ContextEntities["Model"]!;
             _name = (string)xmlsc.LoadObject("Name");
             _guid = (Guid)xmlsc.LoadObject("Guid");
             ArrayList resources = (ArrayList)xmlsc.LoadObject("Resources");
@@ -537,7 +540,7 @@ namespace Highpoint.Sage.Resources
 
         private void OnResourceRequestAborting(IResourceRequest request, IExecutive exec, IDetachableEventController idec)
         {
-            _model.AddWarning(new TerminalResourceRequestAbortedWarning(exec, this, request, idec));
+            _model!.AddWarning(new TerminalResourceRequestAbortedWarning(exec, this, request, idec));
         }
 
         class RscWaiterList : ArrayList
@@ -569,13 +572,13 @@ namespace Highpoint.Sage.Resources
                 }
             }
 
-            public override object this[int index]
+            public override object? this[int index]
             {
                 get
                 {
                     if (NeedsSorting())
                         Sort(byPriority);
-                    return !_supportsPriorities ? base[index] : (((RscWaiterListEntry)base[index]).Idec);
+                    return !_supportsPriorities ? base[index] : (((RscWaiterListEntry)base[index]!).Idec);
                 }
                 set
                 {
@@ -584,7 +587,7 @@ namespace Highpoint.Sage.Resources
             }
 
 
-            public override int Add(object value)
+            public override int Add(object? value)
             {
                 if (!_supportsPriorities)
                     return Add(value);
@@ -599,7 +602,7 @@ namespace Highpoint.Sage.Resources
             }
 
 
-            public override void Remove(object obj)
+            public override void Remove(object? obj)
             {
                 if (!_supportsPriorities)
                 {
@@ -609,7 +612,7 @@ namespace Highpoint.Sage.Resources
                 {
                     // This will fail - the object to be removed will be an IDEC, and the objects in the list are RscWaiterListEntry objects.
                     // Perhaps define an "Equals" override for RWLE's that make them 'equal' to their IDECs?
-                    (((RscWaiterListEntry)obj).Request).PriorityChangeEvent -= _rreqPriorityChangeEvent;
+                    (((RscWaiterListEntry)obj!).Request).PriorityChangeEvent -= _rreqPriorityChangeEvent;
                     if (Count == 0)
                         _seqNum = 0;
                     base.Remove(obj);
@@ -686,12 +689,12 @@ namespace Highpoint.Sage.Resources
             {
                 #region IComparer Members
 
-                public int Compare(object x, object y)
+                public int Compare(object? x, object? y)
                 {
-                    int priCom = -1 * Comparer.Default.Compare(((RscWaiterListEntry)x).Request.Priority, ((RscWaiterListEntry)y).Request.Priority);
+                    int priCom = -1 * Comparer.Default.Compare(((RscWaiterListEntry)x!).Request.Priority, ((RscWaiterListEntry)y!).Request.Priority);
                     if (priCom != 0)
                         return priCom;
-                    return Comparer.Default.Compare(((RscWaiterListEntry)x).Sequence, ((RscWaiterListEntry)y).Sequence);
+                    return Comparer.Default.Compare(((RscWaiterListEntry)x!).Sequence, ((RscWaiterListEntry)y!).Sequence);
                 }
                 #endregion
             }

@@ -126,12 +126,12 @@ namespace Highpoint.Sage.Resources
         {
             get
             {
-                return _tag;
+                return _tag!;
             }
             set
             {
                 _tag = value;
-                IHasIdentity tag = _tag as IHasIdentity;
+                IHasIdentity? tag = _tag as IHasIdentity;
                 if (tag != null)
                     _tagGuid = tag.Guid;
             }
@@ -140,7 +140,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// The resource against which this event transpired.
         /// </summary>
-        public IResource Resource => _resource;
+        public IResource? Resource => _resource;
 
         /// <summary>
 		/// The guid of the resource against which this event transpired.
@@ -225,7 +225,7 @@ namespace Highpoint.Sage.Resources
 		/// <returns>A string representation of this transaction.</returns>
 		public override string ToString()
         {
-            return When + " : " + _resource.Name + ", " + _quantityObtained
+            return When + " : " + _resource?.Name + ", " + _quantityObtained
                 + ", " + _quantityDesired + ", " + _capacity + ", " + Available + ", "
                 + (Requester == null ? "<unknown>" : Requester.Name) + ", " + Action;
         }
@@ -237,7 +237,7 @@ namespace Highpoint.Sage.Resources
         public string Detail()
         {
             string tagString = "";
-            IHasIdentity tag = _tag as IHasIdentity;
+            IHasIdentity? tag = _tag as IHasIdentity;
             if (tag != null)
             {
                 tagString = ", " + tag.Name + "(" + tag.Guid + ")";
@@ -327,7 +327,7 @@ namespace Highpoint.Sage.Resources
             /// Value Condition Less than zero x is less than y. Zero x equals y. Greater than zero x is greater than y.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">Neither x nor y implements the <see cref="T:System.IComparable"></see> interface.-or- x and y are of different types and neither one can handle comparisons with the other. </exception>
-            public abstract int Compare(object x, object y);
+            public abstract int Compare(object? x, object? y);
             #endregion
             protected int Flip(int i)
             {
@@ -359,9 +359,9 @@ namespace Highpoint.Sage.Resources
             /// Value Condition Less than zero x is less than y. Zero x equals y. Greater than zero x is greater than y.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">Neither x nor y implements the <see cref="T:System.IComparable"></see> interface.-or- x and y are of different types and neither one can handle comparisons with the other. </exception>
-            public override int Compare(object x, object y)
+            public override int Compare(object? x, object? y)
             {
-                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x).Resource.Name, ((ResourceEventRecord)y).Resource.Name));
+                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x!).Resource?.Name, ((ResourceEventRecord)y!).Resource?.Name));
             }
             #endregion
         }
@@ -390,9 +390,9 @@ namespace Highpoint.Sage.Resources
             /// Value Condition Less than zero x is less than y. Zero x equals y. Greater than zero x is greater than y.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">Neither x nor y implements the <see cref="T:System.IComparable"></see> interface.-or- x and y are of different types and neither one can handle comparisons with the other. </exception>
-            public override int Compare(object x, object y)
+            public override int Compare(object? x, object? y)
             {
-                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x).When, ((ResourceEventRecord)y).When));
+                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x!).When, ((ResourceEventRecord)y!).When));
             }
 
             #endregion
@@ -422,9 +422,9 @@ namespace Highpoint.Sage.Resources
             /// Value Condition Less than zero x is less than y. Zero x equals y. Greater than zero x is greater than y.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">Neither x nor y implements the <see cref="T:System.IComparable"></see> interface.-or- x and y are of different types and neither one can handle comparisons with the other. </exception>
-            public override int Compare(object x, object y)
+            public override int Compare(object? x, object? y)
             {
-                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x).SerialNumber, ((ResourceEventRecord)y).SerialNumber));
+                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x!).SerialNumber, ((ResourceEventRecord)y!).SerialNumber));
             }
 
             #endregion
@@ -454,9 +454,9 @@ namespace Highpoint.Sage.Resources
             /// Value Condition Less than zero x is less than y. Zero x equals y. Greater than zero x is greater than y.
             /// </returns>
             /// <exception cref="T:System.ArgumentException">Neither x nor y implements the <see cref="T:System.IComparable"></see> interface.-or- x and y are of different types and neither one can handle comparisons with the other. </exception>
-            public override int Compare(object x, object y)
+            public override int Compare(object? x, object? y)
             {
-                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x).Action, ((ResourceEventRecord)y).Action));
+                return Flip(Comparer.Default.Compare(((ResourceEventRecord)x!).Action, ((ResourceEventRecord)y!).Action));
             }
 
             #endregion

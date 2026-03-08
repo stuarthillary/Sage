@@ -43,6 +43,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="trackers">The trackers that are aggregated by this <see cref="T:MultiResourceTracker"/>.</param>
 		public MultiResourceTracker(IResourceTracker[] trackers)
         {
+            _record = new ArrayList();
             _model = null;
             _targets = new ArrayList(trackers);
             _rerFilter = ResourceEventRecordFilters.AllEvents;
@@ -229,7 +230,7 @@ namespace Highpoint.Sage.Resources
 
         private void LogEvent(IResource resource, IResourceRequest irr, ResourceAction action)
         {
-            ResourceEventRecord rer = new ResourceEventRecord(_model.Executive.Now, resource, irr, action);
+            ResourceEventRecord rer = new ResourceEventRecord(_model!.Executive.Now, resource, irr, action);
             if (_rerFilter != null && _rerFilter(rer))
                 _record.Add(rer);
         }

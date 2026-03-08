@@ -53,7 +53,7 @@ namespace Highpoint.Sage.ItemBased.Servers
 
             _periodicity = periodicity;
 
-            string? sso = _model.ModelConfig.GetSimpleParameter("SupportsServerObjects");
+            string? sso = _model!.ModelConfig.GetSimpleParameter("SupportsServerObjects");
             _supportsServerObjects = (sso == null) ? false : bool.Parse(sso);
 
             OnCanWeProcessServiceObject = new ServiceRequestEvent(CanWeProcessServiceObjectHandler);
@@ -106,7 +106,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="dt">The DateTime at which the server will be placed in service.</param>
         public void PlaceInServiceAt(DateTime dt)
         {
-            _model.Executive.RequestEvent(new ExecEventReceiver(PlaceInService), dt, 0.0, null);
+            _model!.Executive.RequestEvent(new ExecEventReceiver(PlaceInService), dt, 0.0, null);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         /// <param name="dt">The DateTime at which this server is to be removed from service.</param>
         public void RemoveFromServiceAt(DateTime dt)
         {
-            _model.Executive.RequestEvent(new ExecEventReceiver(RemoveFromService), dt, 0.0, null);
+            _model!.Executive.RequestEvent(new ExecEventReceiver(RemoveFromService), dt, 0.0, null);
         }
 
         /// <summary>
@@ -193,10 +193,10 @@ namespace Highpoint.Sage.ItemBased.Servers
 
         protected void TryToPullServiceObject()
         {
-            IExecutive exec = _model.Executive;
+            IExecutive exec = _model!.Executive;
             if (RequiresAsyncEvents && exec.CurrentEventController == null)
             {
-                _model.Executive.RequestEvent(new ExecEventReceiver(tryToPullServiceObject), exec.Now, 0.0, null, ExecEventType.Detachable);
+                _model!.Executive.RequestEvent(new ExecEventReceiver(tryToPullServiceObject), exec.Now, 0.0, null, ExecEventType.Detachable);
             }
             else
             {
@@ -259,8 +259,8 @@ namespace Highpoint.Sage.ItemBased.Servers
                     iso.OnServiceBeginning(this);
             }
 
-            DateTime when = _model.Executive.Now + _periodicity.GetNext();
-            _model.Executive.RequestEvent(new ExecEventReceiver(CompleteProcessing), when, 0.0, serviceObject);
+            DateTime when = _model!.Executive.Now + _periodicity.GetNext();
+            _model!.Executive.RequestEvent(new ExecEventReceiver(CompleteProcessing), when, 0.0, serviceObject);
         }
 
 
@@ -371,15 +371,15 @@ namespace Highpoint.Sage.ItemBased.Servers
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         public string Name
         {
             get
             {
-                return _name;
+                return _name!;
             }
         }
-        private string _description = null!; // Set in InitializeIdentity().
+        private string? _description;
         /// <summary>
         /// A description of this ServerPlus.
         /// </summary>
@@ -387,12 +387,12 @@ namespace Highpoint.Sage.ItemBased.Servers
         {
             get
             {
-                return _description ?? _name;
+                return (_description ?? _name)!;
             }
         }
         private Guid _guid = Guid.Empty;
         public Guid Guid => _guid;
-        private IModel _model = null!; // Set in InitializeIdentity().
+        private IModel? _model;
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>

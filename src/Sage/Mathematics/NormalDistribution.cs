@@ -112,7 +112,7 @@ namespace Highpoint.Sage.Mathematics
         public virtual double GetNext()
         {
             if (_random == null)
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
 
             double x = _constrained ? (_low == _high ? _low : _random.NextDouble(_low, _high)) : _random.NextDouble();
             return GetValueWithCumulativeProbability(x);
@@ -206,7 +206,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, mean, stdev);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, mean, stdev);
         }
 
 
@@ -218,8 +218,8 @@ namespace Highpoint.Sage.Mathematics
         public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
-            _mean = (double)p[0];
-            _stdev = (double)p[1];
+            _mean = (double)p[0]!;
+            _stdev = (double)p[1]!;
         }
 
         /// <summary>
@@ -231,17 +231,17 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this NormalDistribution. Typically not required to be unique.
         /// </summary>
         /// <value></value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "A Normal Distribution";
         /// <summary>
         /// A description of this Normal Distribution.

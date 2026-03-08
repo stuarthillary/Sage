@@ -17,10 +17,10 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
     public abstract class Splitter : IPortOwner, ISplitter
     {
 
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         private Guid _guid = Guid.Empty;
-        private IModel _model = null!; // Set in InitializeIdentity().
-        private string _description = null!; // Set in InitializeIdentity().
+        private IModel? _model;
+        private string? _description;
 
         public IInputPort Input = null!;
         protected SimpleInputPort m_input = null!;
@@ -29,7 +29,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
 
         public Splitter(IModel model, string name, Guid guid, int nOuts)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, null, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, string.Empty, ref _guid, guid);
             _ports = new PortSet();
             m_input = new SimpleInputPort(model, "Input", Guid.NewGuid(), this, GetDataArrivalHandler());
             //AddPort(m_input); <-- Done in SIP's ctor.
@@ -166,7 +166,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 

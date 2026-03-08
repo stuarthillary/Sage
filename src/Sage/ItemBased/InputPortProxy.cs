@@ -406,10 +406,10 @@ namespace Highpoint.Sage.ItemBased.Ports
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         private Guid _guid = Guid.Empty;
-        private IModel _model = null!; // Set in InitializeIdentity().
-        private string _description = null!; // Set in InitializeIdentity().
+        private IModel? _model;
+        private string? _description;
 
         /// <summary>
         /// The IModel to which this object belongs.
@@ -433,7 +433,7 @@ namespace Highpoint.Sage.ItemBased.Ports
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 

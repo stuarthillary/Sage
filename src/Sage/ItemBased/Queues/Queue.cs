@@ -20,9 +20,9 @@ namespace Highpoint.Sage.ItemBased.Queues
         private SimpleInputPort _input = null!; // Set in Initialize().
         private SimpleOutputPort _output = null!; // Set in Initialize().
         private int _max;
-        private IModel _model = null!; // Set in InitializeIdentity().
-        private string _name = null!; // Set in InitializeIdentity().
-        private string _description = null!; // Set in InitializeIdentity().
+        private IModel? _model;
+        private string? _name;
+        private string? _description;
         private Guid _guid = Guid.Empty;
         #endregion Member Variables
 
@@ -125,7 +125,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         /// </summary>
         /// <param name="model">The model in which this queue exists.</param>
         /// <param name="p">The array of passed-in arguments.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
 
             Guid inGuid = Utility.GuidOps.Increment(Guid);
@@ -140,7 +140,7 @@ namespace Highpoint.Sage.ItemBased.Queues
 
             LevelChangedEvent += new QueueLevelChangeEvent(OnQueueLevelChanged);
 
-            _max = (int)p[0];
+            _max = (int)p[0]!;
             _queue = new System.Collections.Generic.Queue<object>(_max);
 
 
@@ -341,7 +341,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 

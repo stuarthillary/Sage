@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Resources
             IResourceRequest[] replicates = new IResourceRequest[requests.Length];
             for (int i = 0; i < requests.Length; i++)
             {
-                replicates[i] = requests[i].Replicate();
+                replicates[i] = requests[i].Replicate!();
             }
             return replicates;
         }
@@ -62,7 +62,7 @@ namespace Highpoint.Sage.Resources
                 i--; // walked off the end - get back to last live index.
             for (; i >= 0; --i)
             {
-                lock (requests[i].ResourceObtained)
+                lock (requests[i].ResourceObtained!)
                 {
                     requests[i].Unreserve();
                     if (successful)

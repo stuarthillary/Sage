@@ -7,7 +7,7 @@ namespace Highpoint.Sage.Mathematics
 {
     internal static class PoissonCDFLookupTable
     {
-        public static List<double> ForLambda(double lambda)
+        public static List<double>? ForLambda(double lambda)
         {
             if (lambda < .1) return null; // Use computational approach.
             if (lambda > 15) return null; // Use normal CDF.

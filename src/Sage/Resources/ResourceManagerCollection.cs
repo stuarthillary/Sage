@@ -63,7 +63,7 @@ namespace Highpoint.Sage.Resources
         /// <returns>The resource manager for the quid that was requested.</returns>
         public IResourceManager? GetResourceManager(Guid guid)
         {
-            return (IResourceManager)_resourceMgrs[guid];
+            return _resourceMgrs[guid] as IResourceManager;
         }
 
         /// <summary>

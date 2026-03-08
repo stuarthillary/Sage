@@ -38,7 +38,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             {
                 foreach (IResourceRequest irr in _requestTemplates)
                 {
-                    irr.DefaultResourceManager.ResourceReleased += new ResourceStatusEvent(DefaultResourceManager_ResourceReleased);
+                irr.DefaultResourceManager!.ResourceReleased += new ResourceStatusEvent(DefaultResourceManager_ResourceReleased);
                 }
             }
             else

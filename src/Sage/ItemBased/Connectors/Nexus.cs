@@ -71,11 +71,11 @@ namespace Highpoint.Sage.ItemBased
             IPort? myNewPort = null;
             if (port is IInputPort)
             {
-                myNewPort = new SimpleOutputPort(_model, "Output" + (_outCount++), Guid.NewGuid(), this, _cantTakeOrPeekFromNexus, _cantTakeOrPeekFromNexus);
+                myNewPort = new SimpleOutputPort(_model!, "Output" + (_outCount++), Guid.NewGuid(), this, _cantTakeOrPeekFromNexus, _cantTakeOrPeekFromNexus);
             }
             else if (port is IOutputPort)
             {
-                myNewPort = new SimpleInputPort(_model, "Input" + (_inCount++), Guid.NewGuid(), this, _canAlwaysAcceptData);
+                myNewPort = new SimpleInputPort(_model!, "Input" + (_inCount++), Guid.NewGuid(), this, _canAlwaysAcceptData);
                 myNewPort.PortDataAccepted += new PortDataEvent(OnPortDataAccepted);
             }
             else
@@ -202,13 +202,13 @@ namespace Highpoint.Sage.ItemBased
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         public string Name
         {
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
         private Guid _guid = Guid.Empty;
@@ -220,7 +220,7 @@ namespace Highpoint.Sage.ItemBased
                 return _guid;
             }
         }
-        private IModel _model = null!; // Set in InitializeIdentity().
+        private IModel? _model;
         public IModel? Model
         {
             [DebuggerStepThrough]
@@ -229,7 +229,7 @@ namespace Highpoint.Sage.ItemBased
                 return _model;
             }
         }
-        private string _description = null!; // Set in InitializeIdentity().
+        private string? _description;
         /// <summary>
         /// The description for this object. Typically used for human-readable representations.
         /// </summary>

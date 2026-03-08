@@ -67,9 +67,9 @@ namespace Highpoint.Sage.Mathematics
         public double GetNext()
         {
             if (_random == null)
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
             double x = _constrained ? (_low == _high ? _low : _random.NextDouble(_low, _high)) : _random.NextDouble();
-            return _tcdf.GetVariate(x);
+            return _tcdf!.GetVariate(x);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns></returns>
         public double GetValueWithCumulativeProbability(double probability)
         {
-            return _tcdf.GetVariate(probability);
+            return _tcdf!.GetVariate(probability);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, lowBound, mean, highBound);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, lowBound, mean, highBound);
         }
 
         /// <summary>
@@ -149,9 +149,9 @@ namespace Highpoint.Sage.Mathematics
         public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
-            double lowBound = (double)p[0];
-            double mean = (double)p[1];
-            double highBound = (double)p[2];
+            double lowBound = (double)p[0]!;
+            double mean = (double)p[1]!;
+            double highBound = (double)p[2]!;
             _tcdf = new TriangularCDF(lowBound, mean, highBound);
         }
 
@@ -164,18 +164,18 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this object. Typically not required to be unique.
         /// </summary>
         /// <value>The user-friendly name for this object.</value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "A Triangular Distribution";
         /// <summary>
         /// A description of this Triangular Distribution.

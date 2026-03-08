@@ -139,13 +139,13 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
         #endregion
 
         #region Implementation of IModelObject
-        private string _name = null!; // Set in InitializeIdentity().
+        private string? _name;
         public string Name
         {
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
         private Guid _guid = Guid.Empty;
@@ -157,7 +157,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
                 return _guid;
             }
         }
-        private IModel _model = null!; // Set in InitializeIdentity().
+        private IModel? _model;
         public IModel? Model
         {
             [DebuggerStepThrough]
@@ -166,7 +166,7 @@ namespace Highpoint.Sage.ItemBased.SplittersAndJoiners
                 return _model;
             }
         }
-        private string _description = null!; // Set in InitializeIdentity().
+        private string? _description;
         /// <summary>
         /// The description for this object. Typically used for human-readable representations.
         /// </summary>

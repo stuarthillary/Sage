@@ -62,9 +62,9 @@ namespace Highpoint.Sage.Mathematics
         public double GetNext()
         {
             if (_random == null)
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
             double x = _constrained ? (_low == _high ? _low : _random.NextDouble(_low, _high)) : _random.NextDouble();
-            return _cdf.GetVariate(x);
+            return _cdf!.GetVariate(x);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns></returns>
         public double GetValueWithCumulativeProbability(double probability)
         {
-            return _cdf.GetVariate(probability);
+            return _cdf!.GetVariate(probability);
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, mean);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, mean);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Highpoint.Sage.Mathematics
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
 
-            double mean = (double)p[0];
+            double mean = (double)p[0]!;
             _cdf = new PoissonCDF(mean, 10.0 * mean);
 
         }
@@ -155,18 +155,18 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this object. Typically not required to be unique.
         /// </summary>
         /// <value>The user-friendly name for this object.</value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "A Poisson Distribution";
         /// <summary>
         /// A description of this Poisson Distribution.

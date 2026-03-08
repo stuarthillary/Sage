@@ -56,7 +56,7 @@ namespace Highpoint.Sage.Resources
             if (_model == null)
                 return;
 
-            IModelWithResources resources = _model as IModelWithResources;
+            IModelWithResources? resources = _model as IModelWithResources;
             resources?.OnNewResourceCreated(this);
             _model.ModelObjects.Add(guid, this);
         }
@@ -104,7 +104,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -294,12 +294,12 @@ namespace Highpoint.Sage.Resources
 
         #endregion
 
-        public string? Name => _name;
+        public string Name => _name!;
         private string? _description;
         /// <summary>
         /// A description of this Resource.
         /// </summary>
-        public string Description => _description ?? _name;
+        public string Description => (_description ?? _name)!;
 
         /// <summary>
         /// The Guid for this object. Typically required to be unique.
@@ -311,7 +311,7 @@ namespace Highpoint.Sage.Resources
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel? Model => _model;
 
         #region >>> Serialization Support <<< 
         /// <summary>
@@ -345,7 +345,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="xmlsc">The specified XmlSerializationContext.</param>
         public void DeserializeFrom(XmlSerializationContext xmlsc)
         {
-            _model = (Model)xmlsc.ContextEntities["Model"];
+            _model = (Model)xmlsc.ContextEntities["Model"]!;
             _name = (string)xmlsc.LoadObject("Name");
             _guid = (Guid)xmlsc.LoadObject("Guid");
             Capacity = (double)xmlsc.LoadObject("Capacity");

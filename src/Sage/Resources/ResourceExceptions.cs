@@ -17,7 +17,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="resourceRequest">The resource request.</param>
         /// <param name="resource">The resource.</param>
         /// <param name="resourceManager">The resource manager.</param>
-        protected ResourceException(string msg, IResourceRequest resourceRequest, IResource resource, IResourceManager resourceManager) : base(msg)
+        protected ResourceException(string msg, IResourceRequest resourceRequest, IResource? resource, IResourceManager? resourceManager) : base(msg)
         {
             ResourceRequest = resourceRequest;
             Resource = resource;
@@ -28,7 +28,7 @@ namespace Highpoint.Sage.Resources
         /// Gets the resource manager.
         /// </summary>
         /// <value>The resource manager.</value>
-        public IResourceManager ResourceManager
+        public IResourceManager? ResourceManager
         {
             get;
         }
@@ -46,7 +46,7 @@ namespace Highpoint.Sage.Resources
         /// Gets the resource.
         /// </summary>
         /// <value>The resource.</value>
-        public IResource Resource
+        public IResource? Resource
         {
             get;
         }
@@ -88,8 +88,8 @@ namespace Highpoint.Sage.Resources
         /// <param name="request">The request.</param>
         /// <param name="resource">The resource.</param>
         /// <param name="type">The type (release or unreserve).</param>
-        public ResourceMismatchException(IResourceRequest request, IResource resource, MismatchType type) :
-            base("Trying to release or unreserve a resource with a ResourceRequest that doesn't own it.", request, resource, resource.Manager)
+        public ResourceMismatchException(IResourceRequest request, IResource? resource, MismatchType type) :
+            base("Trying to release or unreserve a resource with a ResourceRequest that doesn't own it.", request, resource, resource?.Manager)
         {
             Operation = type;
         }

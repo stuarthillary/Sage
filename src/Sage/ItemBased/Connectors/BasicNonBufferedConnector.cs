@@ -153,9 +153,9 @@ namespace Highpoint.Sage.ItemBased.Connectors
 
         #region Member Variables
 
-        private IModel _model = null!; // Set in InitializeIdentity().
-        private string _name = String.Empty;
-        private string _description = null!; // Set in InitializeIdentity().
+        private IModel? _model;
+        private string? _name;
+        private string? _description;
         private Guid _guid = Guid.Empty;
         private IPort? _input = null;
         private IPort? _output = null;
@@ -195,12 +195,12 @@ namespace Highpoint.Sage.ItemBased.Connectors
         /// </summary>
         /// <param name="model">The model in which the initialization is taking place.</param>
         /// <param name="p">The array of objects that take part in this round of initialization.</param>
-        public void _Initialize(IModel model, object[] p)
+        public void _Initialize(IModel model, object?[] p)
         {
-            IPortOwner ipo = (IPortOwner)model.ModelObjects[p[0]];
-            _input = ipo.Ports[(string)p[1]] ?? throw new ApplicationException("Input port not found.");
-            IPortOwner opo = (IPortOwner)model.ModelObjects[p[2]];
-            _output = ipo.Ports[(string)p[3]] ?? throw new ApplicationException("Output port not found.");
+            IPortOwner ipo = (IPortOwner)(model.ModelObjects[p[0]!]!);
+            _input = ipo.Ports[(string)(p[1]!)] ?? throw new ApplicationException("Input port not found.");
+            IPortOwner opo = (IPortOwner)(model.ModelObjects[p[2]!]!);
+            _output = ipo.Ports[(string)(p[3]!)] ?? throw new ApplicationException("Output port not found.");
             Connect(_input!, _output!); // Ports are validated above.
         }
 
@@ -230,7 +230,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
         /// <summary>
@@ -324,7 +324,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
             XAttribute? sourceNameAttr = source.Attribute("name");
             ArgumentNullException.ThrowIfNull(sourceNameAttr);
             string upstreamPortName = sourceNameAttr.Value;
-            IPortOwner usmb = (IPortOwner)deserializationContext.GetModelObjectThatHad(upstreamOwnerGuidWas);
+            IPortOwner usmb = (IPortOwner)(deserializationContext.GetModelObjectThatHad(upstreamOwnerGuidWas)!);
             IOutputPort upstreamPort = usmb.Ports[upstreamPortName] as IOutputPort ?? throw new ApplicationException("Upstream port not found.");
 
             XElement? destination = self.Element("Destination");
@@ -336,7 +336,7 @@ namespace Highpoint.Sage.ItemBased.Connectors
             XAttribute? destNameAttr = destination.Attribute("name");
             ArgumentNullException.ThrowIfNull(destNameAttr);
             string downstreamPortName = destNameAttr.Value;
-            IPortOwner dsmb = (IPortOwner)deserializationContext.GetModelObjectThatHad(downstreamOwnerGuidWas);
+            IPortOwner dsmb = (IPortOwner)(deserializationContext.GetModelObjectThatHad(downstreamOwnerGuidWas)!);
             IInputPort downstreamPort = dsmb.Ports[downstreamPortName] as IInputPort ?? throw new ApplicationException("Downstream port not found.");
 
             Connect(upstreamPort, downstreamPort);

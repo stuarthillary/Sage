@@ -66,7 +66,7 @@ namespace Highpoint.Sage.Resources
             }
             else
             {
-                Stack<IAccessRegulator> stack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
+                Stack<IAccessRegulator>? stack = (Stack<IAccessRegulator>?)_monitoredObjects[subject];
                 if (stack == null)
                 {
                     stack = new Stack<IAccessRegulator>();
@@ -84,16 +84,16 @@ namespace Highpoint.Sage.Resources
         /// <returns>The AccessRegulator being popped, or null, if the stack was empty.</returns>
         public IAccessRegulator? PopAccessRegulator(IResource? subject)
         {
-            IAccessRegulator retval = null;
+            IAccessRegulator? retval = null;
             if (subject == null)
             {
-                retval = (IAccessRegulator)_defaultAccessRegulators.Pop();
+                retval = (IAccessRegulator)_defaultAccessRegulators!.Pop();
                 if (_defaultAccessRegulators.Count == 0 && _autoDeleteEmptyStacks)
                     _defaultAccessRegulators = null;
             }
             else
             {
-                Stack<IAccessRegulator> stack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
+                Stack<IAccessRegulator>? stack = (Stack<IAccessRegulator>?)_monitoredObjects[subject];
                 if (stack != null)
                 {
                     retval = (IAccessRegulator)stack.Pop();
@@ -112,10 +112,10 @@ namespace Highpoint.Sage.Resources
         /// <returns>True if the acquire will be allowed, false if not.</returns>
         public bool CanAcquire(object? subject, object? usingKey)
         {
-            Stack<IAccessRegulator> myStack = (Stack<IAccessRegulator>)_monitoredObjects[subject];
+            Stack<IAccessRegulator>? myStack = (Stack<IAccessRegulator>?)_monitoredObjects[subject!];
             if (myStack != null)
             {
-                IAccessRegulator iar = myStack.Peek();
+                IAccessRegulator? iar = myStack.Peek();
                 return (iar == null || iar.CanAcquire(subject, usingKey));
             }
             else

@@ -72,7 +72,7 @@ namespace Highpoint.Sage.Resources
             }
 
             if (resourceManager == null)
-                resourceManager = DefaultResourceManager;
+                resourceManager = DefaultResourceManager!;
             if (resourceManager.Reserve(this, blockAwaitingAcquisition))
             {
                 ResourceObtainedFrom = resourceManager;
@@ -98,7 +98,7 @@ namespace Highpoint.Sage.Resources
             }
 
             if (resourceManager == null)
-                resourceManager = DefaultResourceManager;
+                resourceManager = DefaultResourceManager!;
 
             if (resourceManager.Acquire(this, blockAwaitingAcquisition))
             {
@@ -133,7 +133,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         public void Unreserve()
         {
-            ResourceObtainedFrom.Unreserve(this);
+            ResourceObtainedFrom!.Unreserve(this);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         public void Release()
         {
-            IResourceManager tmp = ResourceObtainedFrom;
+            IResourceManager tmp = ResourceObtainedFrom!;
             ResourceObtainedFrom = null;
             tmp.Release(this); // If there are others waiting, then m_ResourceManager will be reassigned in here.
         }
@@ -153,7 +153,7 @@ namespace Highpoint.Sage.Resources
         /// <returns>IResource.</returns>
         // ReSharper disable once UnusedParameter.Global
         // ReSharper disable once VirtualMemberNeverOverriden.Global
-        public virtual IResource Choose(IList candidates)
+        public virtual IResource? Choose(IList candidates)
         {
             return null;
         }
@@ -317,9 +317,9 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         /// <param name="obj">An object to compare with this instance.</param>
         /// <returns>A value that indicates the relative order of the objects being compared. The return value has these meanings: Value Meaning Less than zero This instance precedes <paramref name="obj" /> in the sort order. Zero This instance occurs in the same position in the sort order as <paramref name="obj" />. Greater than zero This instance follows <paramref name="obj" /> in the sort order.</returns>
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
-            IResourceRequest irr = (IResourceRequest)obj;
+            IResourceRequest irr = (IResourceRequest)obj!;
             int retval = Comparer.Default.Compare(Priority, irr.Priority);
             if (retval == 0)
                 retval = Comparer.Default.Compare(QuantityDesired, irr.QuantityDesired);
@@ -329,7 +329,7 @@ namespace Highpoint.Sage.Resources
         }
         #endregion
 
-        private void OnRequestAborting(IExecutive exec, IDetachableEventController idec, params object[] args)
+        private void OnRequestAborting(IExecutive exec, IDetachableEventController idec, params object?[] args)
         {
             ResourceRequestAborting?.Invoke(this, exec, idec);
         }

@@ -29,15 +29,15 @@ namespace Highpoint.Sage.Mathematics
 
         public double StandardDeviation => _sdv;
 
-        public double[] CalculatedValues => _ycalc;
+        public double[] CalculatedValues => _ycalc!;
 
-        public double[] Residuals => _dy;
+        public double[] Residuals => _dy!;
 
-        public double[] Coefficients => C;
+        public double[] Coefficients => C!;
 
-        public double[] CoefficientsStandardError => Sec;
+        public double[] CoefficientsStandardError => Sec!;
 
-        public double[,] VarianceMatrix => _v;
+        public double[,] VarianceMatrix => _v!;
 
         /// <summary>
         /// Performs a linear regression on the data in Y (independent), X (dependent) and W (weights).

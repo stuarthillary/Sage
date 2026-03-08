@@ -21,7 +21,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="howMuch">How much of the resource is desired.</param>
         /// <param name="key">The key that will be used to see if the resource manager is allowed to
         /// grant a given resource to the requester.</param>
-        public GuidSelectiveResourceRequest(Guid whichResource, double howMuch, object key) : base(howMuch)
+        public GuidSelectiveResourceRequest(Guid whichResource, double howMuch, object? key) : base(howMuch)
         {
             Key = key;
             _requiredRscGuid = whichResource;

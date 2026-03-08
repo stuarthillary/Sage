@@ -55,19 +55,19 @@ namespace Highpoint.Sage.Mathematics
 		public double GetYValue(double xValue)
         {
             int lowerNdx = 0;
-            while ((lowerNdx + 2 < _xVals.Length) && (_xVals[lowerNdx + 1] < xValue))
+            while ((lowerNdx + 2 < _xVals!.Length) && (_xVals![lowerNdx + 1] < xValue))
                 lowerNdx++;
 
             // Did we walk off the end (i.e. our lower index is the last element in the array?)
-            if (double.IsNaN(_xVals[lowerNdx + 1]))
+            if (double.IsNaN(_xVals![lowerNdx + 1]))
             {
                 lowerNdx--;
             }
 
-            double upperX = _xVals[lowerNdx + 1];
-            double upperY = _yVals[lowerNdx + 1];
-            double lowerX = _xVals[lowerNdx];
-            double lowerY = _yVals[lowerNdx];
+            double upperX = _xVals![lowerNdx + 1];
+            double upperY = _yVals![lowerNdx + 1];
+            double lowerX = _xVals![lowerNdx];
+            double lowerY = _yVals![lowerNdx];
             double slope = (upperY - lowerY) / (upperX - lowerX);
             double intcp = lowerY - (slope * lowerX);
 

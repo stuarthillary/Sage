@@ -88,7 +88,7 @@ namespace Highpoint.Sage.Mathematics
         {
             get
             {
-                return _baseDistribution;
+                return _baseDistribution!;
             }
             set
             {
@@ -124,7 +124,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, distribution, units.ToString());
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, distribution, units.ToString());
         }
 
         /// <summary>
@@ -134,8 +134,8 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="p">The parameters that will be used to initialize this object.</param>
         public void _Initialize(IModel model, object?[] p)
         {
-            _baseDistribution = (IDoubleDistribution)_model.ModelObjects[p[0]];
-            _units = (Units)Enum.Parse(typeof(Units), (string)p[1]);
+            _baseDistribution = (IDoubleDistribution)_model!.ModelObjects[p[0]!]!;
+            _units = (Units)Enum.Parse(typeof(Units), (string)p[1]!);
         }
 
         /// <summary>
@@ -147,17 +147,17 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The GUID of the distribution.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this object. Typically not required to be unique.
         /// </summary>
         /// <value></value>
-        public string Name => _name;
+        public string Name => _name!;
 
         private string? _description = "A Timespan Distribution";
         /// <summary>
@@ -187,7 +187,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns>The next value in this distribution.</returns>
         public TimeSpan GetNext()
         {
-            double d = _baseDistribution.GetNext();
+            double d = _baseDistribution!.GetNext();
             return GetTimeSpanFor(d);
         }
 
@@ -201,7 +201,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns></returns>
         public TimeSpan GetValueWithCumulativeProbability(double probability)
         {
-            return GetTimeSpanFor(_baseDistribution.GetValueWithCumulativeProbability(probability));
+            return GetTimeSpanFor(_baseDistribution!.GetValueWithCumulativeProbability(probability));
         }
 
         /// <summary>
@@ -214,7 +214,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="high">The high bound (exclusive, unless low and high are equal).</param>
         public void SetCDFInterval(double low, double high)
         {
-            _baseDistribution.SetCDFInterval(low, high);
+            _baseDistribution!.SetCDFInterval(low, high);
         }
 
 

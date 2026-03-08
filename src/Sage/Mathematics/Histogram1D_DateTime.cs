@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="nBins">The number of bins.</param>
         /// <param name="name">The name of the Histogram.</param>
         /// <param name="guid">The GUID of the Histogram.</param>
-        public Histogram1D_DateTime(DateTime lowBound, DateTime highBound, uint nBins, string name, Guid guid) : this(null, lowBound, highBound, nBins, name, guid) { }
+        public Histogram1D_DateTime(DateTime lowBound, DateTime highBound, uint nBins, string name, Guid guid) : this(Array.Empty<DateTime>(), lowBound, highBound, nBins, name, guid) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:Histogram1D_DateTime"/> class.
@@ -50,7 +50,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="highBound">The high bound.</param>
         /// <param name="nBins">The number of bins.</param>
         /// <param name="name">The name of the Histogram.</param>
-        public Histogram1D_DateTime(DateTime lowBound, DateTime highBound, uint nBins, string name) : this(null, lowBound, highBound, nBins, name, Guid.Empty) { }
+        public Histogram1D_DateTime(DateTime lowBound, DateTime highBound, uint nBins, string name) : this(Array.Empty<DateTime>(), lowBound, highBound, nBins, name, Guid.Empty) { }
 
         /// <summary>
         /// Creates a new instance of the <see cref="T:Histogram1D_DateTime"/> class.
@@ -58,7 +58,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="lowBound">The low bound.</param>
         /// <param name="highBound">The high bound.</param>
         /// <param name="nBins">The number of bins.</param>
-        public Histogram1D_DateTime(DateTime lowBound, DateTime highBound, uint nBins) : this(null, lowBound, highBound, nBins, "", Guid.Empty) { }
+        public Histogram1D_DateTime(DateTime lowBound, DateTime highBound, uint nBins) : this(Array.Empty<DateTime>(), lowBound, highBound, nBins, "", Guid.Empty) { }
 
         /// <summary>
         /// Provides the default label provider for the specified coordinates.

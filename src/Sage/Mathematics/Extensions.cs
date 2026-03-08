@@ -99,11 +99,11 @@ namespace Highpoint.Sage.Mathematics
 
         public static IEnumerable<double> BoundBySigmas(this IEnumerable<double> ld, double minBound, double maxBound)
         {
-            object context = null;
+            object? context = null;
             return BoundBySigmas(ld, minBound, maxBound, ref context);
         }
 
-        public static IEnumerable<double> BoundBySigmas(this IEnumerable<double> ld, double minBound, double maxBound, ref object context)
+        public static IEnumerable<double> BoundBySigmas(this IEnumerable<double> ld, double minBound, double maxBound, ref object? context)
         {
             if (!ld.Any())
             {
@@ -115,7 +115,7 @@ namespace Highpoint.Sage.Mathematics
                 double stdev = ld.StandardDeviation();
                 context = new SigmaBoundingContext { Mean = mean, StdDev = stdev, MinBound = minBound, MaxBound = maxBound };
             }
-            return BoundBySigmasIter(ld, (SigmaBoundingContext)context);
+            return BoundBySigmasIter(ld, (SigmaBoundingContext)context!);
         }
 
         private static IEnumerable<double> BoundBySigmasIter(this IEnumerable<double> ld, SigmaBoundingContext context)
@@ -215,7 +215,7 @@ namespace Highpoint.Sage.Mathematics
             }
             else
             {
-                srcItems.Sort((t1, t2) => Comparer<double>.Default.Compare(valueGetter(t1), valueGetter(t2)));
+                srcItems.Sort((t1, t2) => Comparer<double>.Default.Compare(valueGetter(t1!), valueGetter(t2!)));
 
                 double index = (srcItems.Count - 1) * percentile;
                 double lowNdx = Math.Floor(index);
@@ -263,11 +263,11 @@ namespace Highpoint.Sage.Mathematics
         {
             List<T> lclSrcItems = new List<T>(srcItems);
             _Debug.Assert(lclSrcItems.Count > 0, "Percentile was requested from a population of zero items. Percentile source populations must have at least one member.");
-            lclSrcItems.Sort((t1, t2) => Comparer<double>.Default.Compare(valueGetter(t1), valueGetter(t2)));
+            lclSrcItems.Sort((t1, t2) => Comparer<double>.Default.Compare(valueGetter(t1!), valueGetter(t2!)));
             if (lclSrcItems.Contains(targetItem))
             {
                 // Faster method.
-                int ndx = lclSrcItems.FindIndex(0, tgt => tgt.Equals(targetItem));
+                int ndx = lclSrcItems.FindIndex(0, tgt => tgt!.Equals(targetItem));
                 while (ndx < lclSrcItems.Count && valueGetter(lclSrcItems[ndx]) == valueGetter(targetItem))
                     ndx++;
                 return ndx / ((double)lclSrcItems.Count);
@@ -292,7 +292,7 @@ namespace Highpoint.Sage.Mathematics
             if (pd == null)
             {
                 List<T> lclSrcItems = new List<T>(srcItems);
-                lclSrcItems.Sort((t1, t2) => Comparer<double>.Default.Compare(valueGetter(t1), valueGetter(t2)));
+                lclSrcItems.Sort((t1, t2) => Comparer<double>.Default.Compare(valueGetter(t1!), valueGetter(t2!)));
                 int nItems = lclSrcItems.Count;
 
                 // Added the following to collapse repeated xvalues (with which it is impossible
@@ -323,11 +323,11 @@ namespace Highpoint.Sage.Mathematics
                 ldi.SetData(data.ToArray(), percentiles.ToArray());
                 pd = new PercentileData() { Min = data[0], Ldi = ldi };
             }
-            PercentileData lclPd = (PercentileData)pd;
+            PercentileData lclPd = (PercentileData)pd!;
 
             return Math.Max(0, Math.Min(1, lclPd.Ldi.GetYValue(valueGetter(targetItem))));
         }
-        internal class PercentileData { public double Min { get; set; } public LinearDoubleInterpolator Ldi { get; set; } };
+        internal class PercentileData { public double Min { get; set; } public LinearDoubleInterpolator Ldi { get; set; } = null!; };
     }
 }
 

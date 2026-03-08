@@ -38,7 +38,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="cumulativeDensityFunction">An implementer of ICDF that this distribution will use to ascertain values.</param>
         public UniversalDistribution(IModel? model, string name, Guid guid, ICDF cumulativeDensityFunction)
         {
-            InitializeIdentity(model, name, null, guid);
+            InitializeIdentity(model!, name, null, guid);
             _random = (Model == null ? GlobalRandomServer.Instance : Model.RandomServer).GetRandomChannel();
             _cdf = cumulativeDensityFunction;
             IMOHelper.RegisterWithModel(this);
@@ -53,7 +53,7 @@ namespace Highpoint.Sage.Mathematics
         {
             if (_random == null)
             {
-                _random = _model.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
+                _random = _model!.RandomServer.GetRandomChannel(); // If _Initialize() was called, this is necessary.
             }
             double x = _constrained ? (_low == _high ? _low : _random.NextDouble(_low, _high)) : _random.NextDouble();
             return GetValueWithCumulativeProbability(x);
@@ -69,7 +69,7 @@ namespace Highpoint.Sage.Mathematics
         /// <returns></returns>
         public double GetValueWithCumulativeProbability(double probability)
         {
-            return _cdf.GetVariate(probability);
+            return _cdf!.GetVariate(probability);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, cdfGuid);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, cdfGuid);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Highpoint.Sage.Mathematics
         public void _Initialize(IModel model, object?[] p)
         {
             _random = null; // Allows the random channel to be obtained at run time, after model has properly initialized it.
-            _cdf = (ICDF)_model.ModelObjects[p[0]];
+            _cdf = (ICDF)_model!.ModelObjects[p[0]!]!;
 
         }
 
@@ -143,17 +143,17 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="guid">The object's GUID.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 
         #region IModelObject Members
-        private string _name;
+        private string? _name;
         /// <summary>
         /// The user-friendly name for this Empirical Distribution. Typically not required to be unique.
         /// </summary>
         /// <value></value>
-        public string Name => _name;
+        public string Name => _name!;
         private string? _description = "An Empirical Distribution";
         /// <summary>
         /// A description of this Empirical Distribution.

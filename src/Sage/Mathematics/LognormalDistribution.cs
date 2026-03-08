@@ -86,7 +86,7 @@ namespace Highpoint.Sage.Mathematics
             InitializeIdentity(model, name, description, guid);
             IMOHelper.RegisterWithModel(this);
 
-            model.GetService<InitializationManager>().AddInitializationTask(_Initialize, mean, stdev);
+            model.GetService<InitializationManager>()!.AddInitializationTask(_Initialize, mean, stdev);
         }
 
         /// <summary>
