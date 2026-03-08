@@ -3,7 +3,7 @@
 using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,10 +12,10 @@ namespace Highpoint.Sage.ItemBased.Blocks
 {
 
 
-    [TestClass]
+
     public class PortsAndConnectorsTester
     {
-        [TestMethod]
+        [Fact]
         public void TestPortBasics()
         {
             new PortTester().TestSimplePortNetwork();
@@ -23,7 +23,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
     }
 
-    [TestClass]
+
     public class PortTester
     {
         private readonly Model _model;
@@ -36,7 +36,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
             _blocks = new SimplePassThroughPortOwner[_nBlocks];
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSimplePortNetwork()
         {
 
@@ -54,7 +54,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
             Debug.WriteLine(_blocks[_nBlocks - 1].Out.Take(null));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestProxyPorts()
         {
 
@@ -66,7 +66,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
     }
 
-    [TestClass]
+
     public class ManagementFacadeTester
     {
 
@@ -92,7 +92,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         private InputPortManager _facadeIn0, _facadeIn1;
         private OutputPortManager _facadeOut0, _facadeOut1;
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedFacadeTest()
         {
 
@@ -108,7 +108,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedSimplePushTest()
         {
 
@@ -129,7 +129,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedSimplePullTest()
         {
 
@@ -148,7 +148,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedInputSideBufferedPullTest()
         {
             // Put a value into the input. Read the output several times. Replace the input, read the output twice more.
@@ -173,7 +173,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedOutputSideBufferedPullTest()
         {
             // Put a value into the input. Read the output several times. Replace the input, read the output twice more.
@@ -198,7 +198,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedSimplePushPullTestWithOutputBuffering()
         {
 
@@ -221,7 +221,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DoAbbreviatedSimplePushPullTestNoOutputBuffering()
         {
 
@@ -245,7 +245,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void OneActiveOnePassiveInputDeterminesOneBufferedPassiveOutputTest()
         {
 
@@ -277,7 +277,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestOnePullValue()
         {
             OnePullValue opv = new OnePullValue(null, null, null, Guid.NewGuid());
@@ -287,7 +287,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
             Console.WriteLine(opv.Ports.Outputs[0].Take(null));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestOneInOneOutPushPullTransform()
         {
             DLog dlog = new DLog(null, null, null, Guid.NewGuid());

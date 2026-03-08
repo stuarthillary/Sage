@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Mathematics.Scaling;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -9,25 +9,25 @@ namespace Highpoint.Sage.Materials.Chemistry
     /// <summary>
     /// Summary description for TransferSpecTester101.
     /// </summary>
-    [TestClass]
-    public class TransferSpecTester101
+
+    public class TransferSpecTester101 : IDisposable
     {
         public TransferSpecTester101()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestNonScaledByMassTransfer()
         {
             TSTestJig tj = new TSTestJig(100, 100);
@@ -38,7 +38,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             Debug.WriteLine(tj.Mixture);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks the different settings for scaling mass and time of a recipe")]
         public void TestMassScaling()
         {
@@ -56,7 +56,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks another settings for scaling mass and time of a recipe")]
         public void TestScalingWithGreedAndSuperLinearDurationScaling()
         {
@@ -93,8 +93,8 @@ namespace Highpoint.Sage.Materials.Chemistry
             Debug.WriteLine("... leaving " + tj.Mixture + "");
             Debug.WriteLine("We expected " + expectedWaterMass + " kg of water in " + expectedDuration + "\r\n\r\n");
 
-            Assert.IsTrue(true == effluent.Mass.Equals(expectedWaterMass), "Water mass is not the expected one.");
-            Assert.IsTrue(true == TimeSpan.FromTicks(Math.Abs(msbm.Duration.Ticks - expectedDuration.Ticks)) < TimeSpan.FromMilliseconds(50), "Duration is bigger then the expeced one.");
+            Assert.True(true == effluent.Mass.Equals(expectedWaterMass), "Water mass is not the expected one.");
+            Assert.True(true == TimeSpan.FromTicks(Math.Abs(msbm.Duration.Ticks - expectedDuration.Ticks)) < TimeSpan.FromMilliseconds(50), "Duration is bigger then the expeced one.");
         }
 
         sealed class TSTestJig

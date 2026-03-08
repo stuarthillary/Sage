@@ -1,8 +1,8 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.Tasks;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,17 +15,17 @@ namespace Highpoint.Sage.Graphs
     /// <summary>
     /// 
     /// </summary>
-    [TestClass]
-    public class GraphLoopingTester
+
+    public class GraphLoopingTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -40,7 +40,7 @@ namespace Highpoint.Sage.Graphs
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBasicLooping()
         {
 
@@ -66,11 +66,11 @@ namespace Highpoint.Sage.Graphs
 
             model.Start();
 
-            Assert.IsTrue(_loopResult.Equals(_out.ToString(), StringComparison.Ordinal), "LoopingTester Results", "Looping tester failed to match expected results.");
+            Assert.True(_loopResult.Equals(_out.ToString(), StringComparison.Ordinal), "Looping tester failed to match expected results.");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBasicBranching()
         {
             _out = new System.Text.StringBuilder();
@@ -99,7 +99,7 @@ namespace Highpoint.Sage.Graphs
 
             model.Start();
 
-            Assert.IsTrue(_branchResult.Equals(_out.ToString(), StringComparison.Ordinal), "BranchingTester Results", "Branching tester failed to match expected results.");
+            Assert.True(_branchResult.Equals(_out.ToString(), StringComparison.Ordinal), "Branching tester failed to match expected results.");
         }
 
         private void CreateLoopback(IModel model, Vertex from, Vertex to, object channelMarker, int howManyTimes)
@@ -114,7 +114,7 @@ namespace Highpoint.Sage.Graphs
         // These tests guard against regressions in the Vertex.PreEdges/PostEdges
         // ArrayList→List<Edge> Phase 2 migration.
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that PreEdges and PostEdges contain the correct edges after graph construction — guards against ArrayList→List migration regressions.")]
         public void TestVertexPreAndPostEdgesAfterConstruction()
         {
@@ -128,14 +128,14 @@ namespace Highpoint.Sage.Graphs
 
             // e1.PostVertex should have e2 in its successor edges (PostEdges)
             IList e1PostSuccessors = e1.PostVertex.SuccessorEdges;
-            Assert.IsTrue(e1PostSuccessors.Count > 0, "E1.PostVertex should have at least one successor edge after connecting E2 as successor");
+            Assert.True(e1PostSuccessors.Count > 0, "E1.PostVertex should have at least one successor edge after connecting E2 as successor");
 
             // e2.PreVertex should have e1's post-vertex's outgoing edge in its predecessor edges (PreEdges)
             IList e2PrePredecessors = e2.PreVertex.PredecessorEdges;
-            Assert.IsTrue(e2PrePredecessors.Count > 0, "E2.PreVertex should have at least one predecessor edge after connecting E1 as predecessor");
+            Assert.True(e2PrePredecessors.Count > 0, "E2.PreVertex should have at least one predecessor edge after connecting E1 as predecessor");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that edges can be directly added to and removed from a Vertex's PreEdges and PostEdges.")]
         public void TestVertexAddAndRemoveEdges()
         {
@@ -149,26 +149,22 @@ namespace Highpoint.Sage.Graphs
 
             v.AddPostEdge(extra1);
             v.AddPostEdge(extra2);
-            Assert.AreEqual(initialPostCount + 2, v.SuccessorEdges.Count,
-                "SuccessorEdges count should increase by 2 after adding two post-edges");
+            Assert.Equal(initialPostCount + 2, v.SuccessorEdges.Count);
 
             v.RemovePostEdge(extra1);
-            Assert.AreEqual(initialPostCount + 1, v.SuccessorEdges.Count,
-                "SuccessorEdges count should decrease by 1 after removing one post-edge");
-            Assert.IsFalse(v.SuccessorEdges.Contains(extra1), "extra1 should no longer appear in SuccessorEdges");
-            Assert.IsTrue(v.SuccessorEdges.Contains(extra2),  "extra2 should still appear in SuccessorEdges");
+            Assert.Equal(initialPostCount + 1, v.SuccessorEdges.Count);
+            Assert.False(v.SuccessorEdges.Contains(extra1), "extra1 should no longer appear in SuccessorEdges");
+            Assert.True(v.SuccessorEdges.Contains(extra2),  "extra2 should still appear in SuccessorEdges");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that Vertex.PredecessorEdges and SuccessorEdges are typed as IReadOnlyList<Edge>.")]
         public void TestVertexEdgesTypedAsList()
         {
             Edge e = new Edge("TypeCheck");
             // After Phase 2 migration these must be IReadOnlyList<Edge>, not IList (ArrayList-backed).
-            Assert.IsInstanceOfType(e.PreVertex.PredecessorEdges, typeof(IReadOnlyList<Edge>),
-                "PredecessorEdges should be IReadOnlyList<Edge> after Phase 2 migration");
-            Assert.IsInstanceOfType(e.PreVertex.SuccessorEdges, typeof(IReadOnlyList<Edge>),
-                "SuccessorEdges should be IReadOnlyList<Edge> after Phase 2 migration");
+            Assert.IsAssignableFrom<IReadOnlyList<Edge>>(e.PreVertex.PredecessorEdges);
+            Assert.IsAssignableFrom<IReadOnlyList<Edge>>(e.PreVertex.SuccessorEdges);
         }
 
         sealed class MyEdge : Edge

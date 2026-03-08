@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,8 +11,8 @@ using System.Linq;
 namespace Highpoint.Sage.Mathematics
 {
 
-    [TestClass]
-    public class Distributions101
+
+    public class Distributions101 : IDisposable
     {
         private static readonly bool _visuallyVerify = false;
         public Distributions101()
@@ -22,25 +22,25 @@ namespace Highpoint.Sage.Mathematics
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
         private IModel _model = null;
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a normal distribution")]
         public void TestDistributionNormal()
         {
             IDoubleDistribution dist = new NormalDistribution(_model, "NormalDistribution", Guid.NewGuid(), 5, 1);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 5.0);
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 5.0);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 5.0);
+            Assert.True(dist.GetNext() == 5.0);
             dist.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionNormal.csv");
@@ -82,7 +82,7 @@ namespace Highpoint.Sage.Mathematics
             ldi.SetData(new double[] { 1.0, 1.1 }, new double[] { 5.0, 5.0 });
 
             double five_point_zero = ldi.GetYValue(123.0);
-            Assert.IsTrue(five_point_zero == 5.0);
+            Assert.True(five_point_zero == 5.0);
 
         }
 
@@ -92,9 +92,9 @@ namespace Highpoint.Sage.Mathematics
             double[] heights = new double[] { 2.0, 4.0, 3.0, 6.0, 4.0 }; // Note - one less than in intervals.
 
             IDoubleDistribution dist = new EmpiricalDistribution(_model, "EmpiricalDistributionFromHistogram", Guid.NewGuid(), binBounds, heights);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 10.5);
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 10.5);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 10.5);
+            Assert.True(dist.GetNext() == 10.5);
             dist.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionEmpiricalFromHistogram.csv");
@@ -143,9 +143,9 @@ namespace Highpoint.Sage.Mathematics
         {
             double delta = 0.002;
             UniversalDistribution ud = new UniversalDistribution(_model, "UniversalDistribution", Guid.NewGuid(), new TestCdf());
-            Assert.IsTrue(ud.GetValueWithCumulativeProbability(0.50) == 5.0);
+            Assert.True(ud.GetValueWithCumulativeProbability(0.50) == 5.0);
             ud.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(ud.GetNext() == 5.0);
+            Assert.True(ud.GetNext() == 5.0);
             ud.SetCDFInterval(0.0, 1.0);
 
             Debug.WriteLine("Generating raw data with delta = " + delta + ".");
@@ -171,17 +171,17 @@ namespace Highpoint.Sage.Mathematics
             }
             double ratio = (double)((double)fives / ((double)fives + (double)sevens));
             Console.WriteLine("{0} fives, {1} sevens, and {2} others. Ratio of {3}.", fives, sevens, others, ratio);
-            Assert.IsTrue(others == 0 && ratio > (0.7 - delta) && ratio < (0.7 + delta), "Failed custom CDF.");
+            Assert.True(others == 0 && ratio > (0.7 - delta) && ratio < (0.7 + delta), "Failed custom CDF.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a triangular distribution")]
         public void TestDistributionTriangular()
         {
             IDoubleDistribution dist = new TriangularDistribution(_model, "TriangularDistribution", Guid.NewGuid(), 2.0, 5.0, 9.0);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 5.2583426132260591);
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 5.2583426132260591);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 5.2583426132260591);
+            Assert.True(dist.GetNext() == 5.2583426132260591);
             dist.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionTriangular.csv");
@@ -215,14 +215,14 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a uniform distribution")]
         public void TestDistributionUniform()
         {
             IDoubleDistribution dist = new UniformDistribution(_model, "UniformDistribution", Guid.NewGuid(), 3.5, 7.0);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 5.25);
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 5.25);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 5.25);
+            Assert.True(dist.GetNext() == 5.25);
             dist.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionUniform.csv");
@@ -255,14 +255,14 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a exponential distribution")]
         public void TestDistributionExponential()
         {
             IDoubleDistribution dist = new ExponentialDistribution(_model, "ExponentialDistribution", Guid.NewGuid(), 3.0, 3.0);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 5.0794415416798362, "Failure in TestDistributionExponential()");
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 5.0794415416798362, "Failure in TestDistributionExponential()");
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 5.0794415416798362);
+            Assert.True(dist.GetNext() == 5.0794415416798362);
             dist.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionExponential.csv");
@@ -298,14 +298,14 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this timespan distribution equals a exponential distribution")]
         public void TestDistributionTimeSpanExponential()
         {
             var dist = new ExponentialDistribution(_model, "ExponentialDistribution", Guid.NewGuid(), 3.0, 3.0);
             var tsd = new TimeSpanDistribution(_model, "TSD:" + dist.Name, Guid.NewGuid(), dist, TimeSpanDistribution.Units.Minutes);
             tsd.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(tsd.GetNext().Equals(TimeSpan.FromMinutes(5.0794415416798362)));
+            Assert.True(tsd.GetNext().Equals(TimeSpan.FromMinutes(5.0794415416798362)));
             tsd.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\TimeSpanDistributionExponential.csv");
@@ -341,14 +341,14 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a weibull distribution")]
         public void TestDistributionWeibull()
         {
             var dist = new WeibullDistribution(_model, "WeibullDistribution", Guid.NewGuid(), 2, 0, 2.0);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 1.6651092223153954);
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 1.6651092223153954);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 1.6651092223153954);
+            Assert.True(dist.GetNext() == 1.6651092223153954);
             dist.SetCDFInterval(0.0, 1.0);
 
             System.IO.StreamWriter tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionWeibull.csv");
@@ -381,14 +381,14 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a cauchy distribution")]
         public void TestDistributionCauchy()
         {
             var dist = new CauchyDistribution(_model, "CauchyDistribution", Guid.NewGuid(), 3.0, 3.0);
-            Assert.IsTrue(dist.GetValueWithCumulativeProbability(0.50) == 3.0);
+            Assert.True(dist.GetValueWithCumulativeProbability(0.50) == 3.0);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.IsTrue(dist.GetNext() == 3.0);
+            Assert.True(dist.GetNext() == 3.0);
             dist.SetCDFInterval(0.0, 1.0);
 
             var tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionCauchy.csv");
@@ -421,15 +421,15 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that the result of this distribution equals a poisson distribution")]
         public void TestDistributionPoisson()
         {
             const double EPSILON = 0.000001;
             var dist = new PoissonDistribution(_model, "PoissonDistribution", Guid.NewGuid(), 5.0);
-            Assert.AreEqual(5.0, dist.GetValueWithCumulativeProbability(0.50), EPSILON);
+            Assert.Equal(5.0, dist.GetValueWithCumulativeProbability(0.50), EPSILON);
             dist.SetCDFInterval(0.5, 0.5);
-            Assert.AreEqual(5.0, dist.GetNext(), EPSILON);
+            Assert.Equal(5.0, dist.GetNext(), EPSILON);
             dist.SetCDFInterval(0.0, 1.0);
 
             var tw = new System.IO.StreamWriter(Environment.GetEnvironmentVariable("TEMP") + "\\DistributionPoisson.csv");
@@ -454,7 +454,7 @@ namespace Highpoint.Sage.Mathematics
             IEnumerable<double> ied = hist.BinCounts.Select(n => (double)n);
             List<double> actual = new List<double>((IEnumerable<double>)ied);
             double rmsError = Mathematics.RMSErrorCalculator.Calculate(expected, actual);
-            Assert.IsTrue(rmsError < 75, "Poisson distribution at lambda = 5 does not follow the expected curve.");
+            Assert.True(rmsError < 75, "Poisson distribution at lambda = 5 does not follow the expected curve.");
 
             if (_visuallyVerify)
             {
@@ -474,28 +474,28 @@ namespace Highpoint.Sage.Mathematics
         }
     }
 
-    [TestClass]
+
     public class Histograms101
     {
         private readonly IModel _model = new Model();
         public Histograms101()
         {
         }
-        [TestMethod]
+        [Fact]
         public void TestHistogramUniformDistDouble()
         {
             IDoubleDistribution dist = new UniformDistribution(_model, "UniformDistribution", Guid.NewGuid(), 5, 35);
             _TestDoubleHistogram(dist, 1500, 7, 33, (33 - 7));
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHistogramExponentialDistDouble()
         {
             IDoubleDistribution dist = new ExponentialDistribution(_model, "ExponentialDistribution", Guid.NewGuid(), 15, 15);
             _TestDoubleHistogram(dist, 1500, 5, 35, 10);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHistogramUniformDistTimeSpan()
         {
             IDoubleDistribution dist = new UniformDistribution(_model, "UniformDistribution", Guid.NewGuid(), (double)TimeSpan.FromMinutes(10).Ticks, (double)TimeSpan.FromMinutes(25).Ticks);
@@ -503,7 +503,7 @@ namespace Highpoint.Sage.Mathematics
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUniformDistTimeSpanPerformance()
         {
             var dist = new NormalDistribution(_model, "NormalDist", Guid.NewGuid(), (double)TimeSpan.FromMinutes(25).Ticks, (double)TimeSpan.FromMinutes(10).Ticks);

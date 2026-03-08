@@ -1,14 +1,14 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Resources
 {
 
-    [TestClass]
-    public class ResourceTesterExt
+
+    public class ResourceTesterExt : IDisposable
     {
 
         public ResourceTesterExt()
@@ -21,12 +21,12 @@ namespace Highpoint.Sage.Resources
         //       a resource manager, in assuming that the collection is now dirty.
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -36,7 +36,7 @@ namespace Highpoint.Sage.Resources
         private static string _resultString;
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("First functional test of Resource Tester Infrastructural Class")]
         public void TestBasicFuctionality()
         {
@@ -62,11 +62,11 @@ namespace Highpoint.Sage.Resources
             new PriRscReqTester(5).Start();
             //Console.WriteLine(m_resultString);
 
-            Assert.IsTrue(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "TestPrioritizedResourceRequestWRemoval_2", "Results didn't match!");
+            Assert.True(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "Results didn't match!");
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("First functional test of Resource Tester Infrastructural Class")]
         public void TestPrioritizedResourceRequestHandling()
         {
@@ -100,11 +100,11 @@ namespace Highpoint.Sage.Resources
             _prt.Start();
             //Console.WriteLine(m_resultString);
 
-            Assert.IsTrue(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "TestPrioritizedResourceRequestWRemoval_2", "Results didn't match!");
+            Assert.True(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "Results didn't match!");
         }
         private string StripCRLF(string structureString) => structureString.Replace("\r", "", StringComparison.Ordinal).Replace("\n", "", StringComparison.Ordinal);
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("First functional test of Resource Tester Infrastructural Class")]
         public void TestPrioritizedResourceRequestWRemoval_1()
         {
@@ -138,10 +138,10 @@ namespace Highpoint.Sage.Resources
             _prt.Start();
             //Console.WriteLine(m_resultString);
 
-            Assert.IsTrue(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "TestPrioritizedResourceRequestWRemoval_2", "Results didn't match!");
+            Assert.True(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "Results didn't match!");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("First functional test of Resource Tester Infrastructural Class")]
         public void TestPrioritizedResourceRequestWRemoval_2()
         {
@@ -168,7 +168,7 @@ namespace Highpoint.Sage.Resources
             _resultString = "";
             _prt.Start();
             //Console.WriteLine(m_resultString);
-            Assert.IsTrue(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "TestPrioritizedResourceRequestWRemoval_2", "Results didn't match!");
+            Assert.True(StripCRLF(_resultString).Equals(StripCRLF(expected), StringComparison.Ordinal), "Results didn't match!");
         }
 
         private void Model_Starting(IModel theModel)

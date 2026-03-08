@@ -4,31 +4,31 @@ using System.Diagnostics;
 
 namespace Highpoint.Sage.Utility
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
     using System;
     using System.Collections;
 
     /// <summary>
     /// Summary description for zTestChemistry.
     /// </summary>
-    [TestClass]
-    public class WeakReferenceHashtableTester
+
+    public class WeakReferenceHashtableTester : IDisposable
     {
         public WeakReferenceHashtableTester()
         {
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestWRHTBasics()
         {
             ArrayList keepers = new ArrayList();

@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Materials.Thermodynamics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 using IContainer = Highpoint.Sage.Materials.Chemistry.IContainer;
@@ -11,8 +11,8 @@ namespace Highpoint.Sage.Thermodynamics
     /// <summary>
     /// Summary description for zTestTemperatureController.
     /// </summary>
-    [TestClass]
-    public class TemperatureControllerTester101
+
+    public class TemperatureControllerTester101 : IDisposable
     {
         public TemperatureControllerTester101()
         {
@@ -23,17 +23,17 @@ namespace Highpoint.Sage.Thermodynamics
         private static readonly TemperatureControllerMode CONST_DLTA = TemperatureControllerMode.ConstantDeltaT;
         private static readonly TemperatureControllerMode CONST_RAMP = TemperatureControllerMode.Constant_RampRate;
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 20 degreesC to 60 degrees C using the CONST Delta method")]
         public void TestTCConstDeltaTargetingUp()
         {
@@ -44,7 +44,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 20 degreesC to 60 degrees C using the CONST Delta method")]
         public void TestTCConstDeltaTargetingUp2()
         {
@@ -55,7 +55,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 20 degreesC to 60 degrees C using the CONST TSRC method")]
         public void TestTCConstTSrcTargetingUp()
         {
@@ -66,7 +66,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 20 degreesC to 60 degrees C using CONST TSRC and src==setpoint")]
         public void TestTCConstTSrcTargetingLevel()
         {
@@ -74,10 +74,10 @@ namespace Highpoint.Sage.Thermodynamics
             //                           SRC  MIX  AMB  SET  RMP ERR  MODE       ENBL
             TCTestJig tj = new TCTestJig(60.0, 20.0, 34.0, 60.0, 5.0, 01.0, CONST_TSRC, true);
 
-            Assert.ThrowsException<TemperatureController.IncalculableTimeToSetpointException>(() => testTargeting(tj));
+            Assert.Throws<TemperatureController.IncalculableTimeToSetpointException>(() => testTargeting(tj));
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 20 degreesC to 60 degrees C using the CONST RampRate method")]
         public void TestTCConstTRampRateTargetingUp()
         {
@@ -88,7 +88,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 17 degreesC to 35 degrees C using the CONST RampRate method")]
         public void TestTCConstTRampRateKlendathu()
         {
@@ -99,7 +99,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 70 degreesC to 50 degrees C using the CONST Delta method")]
         public void TestTCConstDeltaTargetingDown()
         {
@@ -110,7 +110,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 70 degreesC to 50 degrees C using the CONST TSRC method")]
         public void TestTCConstTSrcTargetingDown()
         {
@@ -121,7 +121,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 70 degreesC to 50 degrees C using the CONST RampRate method")]
         public void TestTCConstTRampRateTargetingDown()
         {
@@ -132,7 +132,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 70 degreesC to 60 degrees C due to ambient 34 degreesC using the CONST Delta method")]
         public void TestTCDriftDown()
         {
@@ -143,7 +143,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 34 degreesC to 44 degrees C due to ambient 70 degreesC using the CONST Delta method")]
         public void TestTCDriftUp()
         {
@@ -154,7 +154,7 @@ namespace Highpoint.Sage.Thermodynamics
             testTargeting(tj);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 34 degreesC for a longer period of time then to reach 60 degrees C using the CONST Delta method")]
         public void TestOverShootWhileOff()
         {
@@ -171,11 +171,11 @@ namespace Highpoint.Sage.Thermodynamics
             tj.TempCtrl.ImposeEffectsOfDuration(ts);
             Debug.WriteLine(tj.Mixture.ToString());
 
-            Assert.IsTrue(false == tj.MixTempWithinTolerance, "");
+            Assert.True(false == tj.MixTempWithinTolerance, "");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 34 degreesC for a longer period of time then to reach 30 degrees C using the CONST Delta method")]
         public void TestUnderShootWhileOff()
         {
@@ -192,11 +192,11 @@ namespace Highpoint.Sage.Thermodynamics
             tj.TempCtrl.ImposeEffectsOfDuration(ts);
             Debug.WriteLine(tj.Mixture.ToString());
 
-            Assert.IsTrue(false == tj.MixTempWithinTolerance, "");
+            Assert.True(false == tj.MixTempWithinTolerance, "");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test heats a mix from 34 degreesC for a longer period of time then to reach 60 degrees C using the CONST Delta method")]
         public void TestOverShootWhileOn()
         {
@@ -213,11 +213,11 @@ namespace Highpoint.Sage.Thermodynamics
             tj.TempCtrl.ImposeEffectsOfDuration(ts);
             Debug.WriteLine(tj.Mixture.ToString());
 
-            Assert.IsTrue(true == tj.MixTempWithinTolerance, "");
+            Assert.True(true == tj.MixTempWithinTolerance, "");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 34 degreesC for a longer period of time then to reach 30 degrees C using the CONST Delta method")]
         public void TestUnderShootWhileOn()
         {
@@ -234,11 +234,11 @@ namespace Highpoint.Sage.Thermodynamics
             tj.TempCtrl.ImposeEffectsOfDuration(ts);
             Debug.WriteLine(tj.Mixture.ToString());
 
-            Assert.IsTrue(true == tj.MixTempWithinTolerance, "");
+            Assert.True(true == tj.MixTempWithinTolerance, "");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test cools off a mix from 34 degreesC for a longer period of time then to reach 30 degrees C using the CONST Delta method")]
         public void TestReplicateFailAfterTurningOffTCEnabled()
         {
@@ -272,7 +272,7 @@ namespace Highpoint.Sage.Thermodynamics
                 }
             }
 
-            Assert.IsTrue(!fail);
+            Assert.True(!fail);
 
         }
 
@@ -302,7 +302,7 @@ namespace Highpoint.Sage.Thermodynamics
 
             if (!tj.TempCtrl.TCEnabled)
             {
-                Assert.IsTrue(tj.MixTempWithinTolerance, "In tolerance at the specified time.");
+                Assert.True(tj.MixTempWithinTolerance, "In tolerance at the specified time.");
             }
 
             if (tj.TempCtrl.TCEnabled)
@@ -311,7 +311,7 @@ namespace Highpoint.Sage.Thermodynamics
                 tj.TempCtrl.ImposeEffectsOfDuration(ts);
                 Debug.WriteLine("At twice the time " + ts + ", " + tj.Mixture);
 
-                Assert.IsTrue(tj.MixTempWithinTolerance, "Still in tolerance at twice the specified time (Temperature Control is enabled.)");
+                Assert.True(tj.MixTempWithinTolerance, "Still in tolerance at twice the specified time (Temperature Control is enabled.)");
             }
 
 

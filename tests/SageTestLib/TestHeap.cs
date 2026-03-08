@@ -1,14 +1,14 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 using System.Text;
 
 namespace Highpoint.Sage.Tests.Utility
 {
-    [TestClass]
-    public class HeapTester
+
+    public class HeapTester : IDisposable
     {
 
         public HeapTester()
@@ -16,13 +16,13 @@ namespace Highpoint.Sage.Tests.Utility
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -78,7 +78,7 @@ namespace Highpoint.Sage.Tests.Utility
                                              "9/1/1998 1:06:52 AM",
                                              "9/1/1998 1:06:39 AM"};
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Heap collection.")]
         public void RecreateFailure()
         {
@@ -97,7 +97,7 @@ namespace Highpoint.Sage.Tests.Utility
             } while (ho != null);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Heap collection.")]
         public void TestHeap()
         {
@@ -126,7 +126,7 @@ namespace Highpoint.Sage.Tests.Utility
                 {
                     string thisValRead = (string)heap.Dequeue();
                     int comparisonVal = string.Compare(lastValRead, thisValRead, StringComparison.Ordinal);
-                    Assert.IsTrue((comparisonVal * (int)direction > 0 || (comparisonVal == 0)), "Heap Test", "Heap test failed.");
+                    Assert.True((comparisonVal * (int)direction > 0 || (comparisonVal == 0)), "Heap test failed.");
                     if (testNum < 10)
                         Console.WriteLine("Dequeueing " + lastValRead);
                     lastValRead = thisValRead;

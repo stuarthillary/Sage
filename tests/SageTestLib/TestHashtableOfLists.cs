@@ -1,13 +1,13 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Utility
 {
-    [TestClass]
-    public class HashtableOfListsTester
+
+    public class HashtableOfListsTester : IDisposable
     {
 
         public HashtableOfListsTester()
@@ -15,17 +15,17 @@ namespace Highpoint.Sage.Utility
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the HashtableOfLists.")]
         public void TestHTOL()
         {
@@ -50,7 +50,7 @@ namespace Highpoint.Sage.Utility
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the HashtableOfLists.")]
         public void TestHTOLTemplate()
         {
@@ -90,7 +90,7 @@ namespace Highpoint.Sage.Utility
                 Console.WriteLine(key + " --> " + StringOperations.ToCommasAndAndedList(htol[key]));
             }
         }
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the HashtableOfLists.")]
         public void TestSortedHTOLTemplate()
         {

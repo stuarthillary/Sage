@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -12,8 +12,8 @@ using System.Reflection;
 namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
 {
 
-    [TestClass]
-    public class BoilingPointTester
+
+    public class BoilingPointTester : IDisposable
     {
 
         public BoilingPointTester()
@@ -23,14 +23,14 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
 
         private BasicReactionSupporter _brs;
 
-        [TestInitialize]
+
         public void Init()
         {
             _brs = new BasicReactionSupporter();
 
             string testDataDir = Path.Combine((Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".") ,"TestData");
             string filename = Path.Combine(testDataDir, "PureComponentProperties.csv");
-            Assert.IsTrue(File.Exists(filename), "Test data file not found - " + filename);
+            Assert.True(File.Exists(filename), "Test data file not found - " + filename);
 
             string[][] data = Load(filename);
 
@@ -62,13 +62,13 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
                 _brs.MyMaterialCatalog.Add(mt);
             }
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBoilingPoints()
         {
             Substance h2o = (Substance)_brs.MyMaterialCatalog["Water"].CreateMass(1.0, 31);
@@ -99,7 +99,7 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
             Console.WriteLine("BP of " + m.Name + " is " + m.GetEstimatedBoilingPoint(pressure_1Atm) + ".");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBoilingPoints2()
         {
 
@@ -125,7 +125,7 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
             Console.WriteLine("\r\n...By the way, BP of water is " + water.GetEstimatedBoilingPoint(pressure_1Atm) + ".  ;-)");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBoilingPoints3()
         {
 
@@ -148,7 +148,7 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBoilingPointElevation()
         {
             _brs.MyMaterialCatalog["Water"].EbullioscopicConstant = 0.512;

@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,8 +10,8 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Core
 {
 
-    [TestClass]
-    public class StateMachineTester
+
+    public class StateMachineTester : IDisposable
     {
         private static int _testCounter;
         private static Hashtable _batch;
@@ -27,7 +27,7 @@ namespace Highpoint.Sage.Core
             Idle = 0, Validated = 1, Running = 2, Paused = 3, Finished = 4
         }
 
-        [TestInitialize]
+
         public void Init()
         {
             _batch = new Hashtable();
@@ -35,8 +35,8 @@ namespace Highpoint.Sage.Core
             _batch.Add("Batch", _testCounter);
         }
 
-        [TestCleanup]
-        public void Destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -44,17 +44,17 @@ namespace Highpoint.Sage.Core
         private static void CheckBatch(object userData)
         {
             IDictionary graphContext = userData as IDictionary;
-            Assert.IsTrue(graphContext != null);
-            Assert.IsTrue(graphContext["Batch"] != null);
-            Assert.IsTrue(graphContext["Batch"].Equals((object)_testCounter));
+            Assert.True(graphContext != null);
+            Assert.True(graphContext["Batch"] != null);
+            Assert.True(graphContext["Batch"].Equals((object)_testCounter));
             graphContext["Batch"] = ++_testCounter;
-            Assert.IsTrue(graphContext["Batch"].Equals((object)_testCounter));
+            Assert.True(graphContext["Batch"].Equals((object)_testCounter));
         }
 
         /// <summary>
         /// This test confirms some base information about the transition matrix.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test confirms some base information about the transition matrix.")]
         public void TestStateMachine()
         {
@@ -80,7 +80,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// This test confirms some base information about the transition matrix.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test confirms some base information about the transition matrix.")]
         public void TestStateMachinePerformance()
         {
@@ -115,7 +115,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// This test has been set up so that it should succeed and endup in a 'Finished' state.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that it should succeed and end up in a 'Finished' state.")]
         public void TestTransitionSuccessWithFollowon()
         {
@@ -126,14 +126,14 @@ namespace Highpoint.Sage.Core
 
             sm.DoTransition(States.Validated, _batch);
 
-            Assert.IsTrue(States.Finished.Equals(sm.State), "State machine did not transition to 'Finished' state");
+            Assert.True(States.Finished.Equals(sm.State), "State machine did not transition to 'Finished' state");
 
         }
 
         /// <summary>
         /// This test has been set up so that it should succeed and endup in a 'Valid' state.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that it should succeed and end up in a 'Validated' state.")]
         public void TestTransitionSuccessWithoutFollowon()
         {
@@ -144,7 +144,7 @@ namespace Highpoint.Sage.Core
 
             sm.DoTransition(States.Validated, _batch);
 
-            Assert.IsTrue(States.Validated.Equals(sm.State), "State machine did not transition to 'Validated' state");
+            Assert.True(States.Validated.Equals(sm.State), "State machine did not transition to 'Validated' state");
 
         }
 
@@ -152,7 +152,7 @@ namespace Highpoint.Sage.Core
         /// This test has been set up so that the preparation fails, 
         /// which means the state machine has to stay in the 'Idle' state.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that the preparation fails, which means the state machine has to stay in the 'Idle' state.")]
         public void TestTransitionFailure()
         {
@@ -169,7 +169,7 @@ namespace Highpoint.Sage.Core
             {
                 Debug.WriteLine(tfe);
             }
-            Assert.IsTrue(States.Idle.Equals(sm.State), "State machine did not stay in 'Idle' state");
+            Assert.True(States.Idle.Equals(sm.State), "State machine did not stay in 'Idle' state");
 
         }
 
@@ -177,7 +177,7 @@ namespace Highpoint.Sage.Core
         /// This test has been set up so that we attempt an illegle transition from 'Idle' to 'Paused', 
         /// which means the state machine has to stay in the 'Idle' state.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that we attempt an illegal transition from 'Idle' to 'Paused', "
                     + "which means the state machine has to stay in the 'Idle' state.")]
         public void TestTransitionIllegal()
@@ -195,7 +195,7 @@ namespace Highpoint.Sage.Core
             {
                 Debug.WriteLine(tfe);
             }
-            Assert.IsTrue(States.Idle.Equals(sm.State), "State machine did not stay in 'Idle' state");
+            Assert.True(States.Idle.Equals(sm.State), "State machine did not stay in 'Idle' state");
 
         }
 
@@ -203,20 +203,20 @@ namespace Highpoint.Sage.Core
         /// This test has been set up so that we attempt to set up an illegle TransitionHandler from 'Idle' to 'Paused', 
         /// which means the state machine has to throw an ApplicationException.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that we attempt to set up an illegal TransitionHandler from 'Idle' to 'Paused', "
                     + "which means the state machine has to throw an ApplicationException.")]
         public void TestTransitionIllegalToo()
         {
             StateMachine sm = Initialize();
             sm.TransitionHandler(States.Idle, States.Paused).Prepare += PrepareToTransitiontoValidWithSuccess;
-            Assert.ThrowsException<TransitionFailureException>(() => sm.DoTransition(States.Paused, _batch));
+            Assert.Throws<TransitionFailureException>(() => sm.DoTransition(States.Paused, _batch));
         }
 
         /// <summary>
         /// This test has been set up so that a complete cicle through all states successfully completes.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up so that a complete cycle through all states successfully completes.")]
         public void TestTransitionChainSuccess()
         {
@@ -247,22 +247,22 @@ namespace Highpoint.Sage.Core
             sm.TransitionHandler(States.Running, States.Finished).Rollback += RollbackTransitionToFinished;
 
             sm.DoTransition(States.Validated, _batch);
-            Assert.IsTrue(States.Validated.Equals(sm.State), "Transition chain did not move to the 'Validated' state.");
+            Assert.True(States.Validated.Equals(sm.State), "Transition chain did not move to the 'Validated' state.");
             sm.DoTransition(States.Running, _batch);
-            Assert.IsTrue(States.Running.Equals(sm.State), "Transition chain did not move to the 'Running' state.");
+            Assert.True(States.Running.Equals(sm.State), "Transition chain did not move to the 'Running' state.");
             sm.DoTransition(States.Paused, _batch);
-            Assert.IsTrue(States.Paused.Equals(sm.State), "Transition chain did not move to the 'Paused' state.");
+            Assert.True(States.Paused.Equals(sm.State), "Transition chain did not move to the 'Paused' state.");
             sm.DoTransition(States.Running, _batch);
-            Assert.IsTrue(States.Running.Equals(sm.State), "Transition chain did not move to the 'Running' state.");
+            Assert.True(States.Running.Equals(sm.State), "Transition chain did not move to the 'Running' state.");
             sm.DoTransition(States.Finished, _batch);
-            Assert.IsTrue(States.Finished.Equals(sm.State), "Transition chain did not move to the 'Finished' state.");
+            Assert.True(States.Finished.Equals(sm.State), "Transition chain did not move to the 'Finished' state.");
 
         }
 
         /// <summary>
         /// This test has been set up to see if multiple TransitionHandler can be defined successfully.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [FieldDescription("This test has been set up to see if multiple TransitionHandler can be defined successfully.")]
         public void TestTransitionMultipleHandlers()
         {
@@ -307,14 +307,14 @@ namespace Highpoint.Sage.Core
 
             sm.DoTransition(States.Validated, _batch);
 
-            Assert.IsTrue(States.Validated.Equals(sm.State), "");
+            Assert.True(States.Validated.Equals(sm.State), "");
 
         }
 
         /// <summary>
         /// This test has been set up to see if multiple TransitionHandler can successfully be defined in a sorted order.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test has been set up to see if multiple TransitionHandler can successfully be defined in a sorted order.")]
         public void TestTransitionMultipleHandlersSorted()
         {
@@ -359,11 +359,11 @@ namespace Highpoint.Sage.Core
 
             sm.DoTransition(States.Validated, _batch);
 
-            Assert.IsTrue(States.Validated.Equals(sm.State), "");
+            Assert.True(States.Validated.Equals(sm.State), "");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that all states in the transition matrix are accessible via TransitionHandler and that valid/invalid transitions behave correctly — guards against Hashtable→Dictionary migration regressions in StateMachine._stateTranslationTable.")]
         public void TestStateMachineAllStatesAccessibleViaDictionary()
         {
@@ -385,18 +385,17 @@ namespace Highpoint.Sage.Core
             _ = sm.TransitionHandler(States.Finished,  States.Idle);
 
             // Illegal transitions must throw TransitionFailureException when attempted.
-            Assert.ThrowsException<TransitionFailureException>(
-                () => sm.DoTransition(States.Paused, _batch),
-                "DoTransition from Idle to Paused (illegal) should throw TransitionFailureException");
+            Assert.Throws<TransitionFailureException>(
+                () => sm.DoTransition(States.Paused, _batch));
 
             // After a failed illegal transition the machine must remain in Idle.
-            Assert.IsTrue(States.Idle.Equals(sm.State), "State should remain Idle after failed illegal transition");
+            Assert.True(States.Idle.Equals(sm.State), "State should remain Idle after failed illegal transition");
 
             // A valid transition must succeed and update the state.
             sm.TransitionHandler(States.Idle, States.Validated).Prepare += PrepareToTransitiontoValidWithSuccess;
             sm.TransitionHandler(States.Idle, States.Validated).Commit  += CommitTransitiontoValid;
             sm.DoTransition(States.Validated, _batch);
-            Assert.IsTrue(States.Validated.Equals(sm.State),
+            Assert.True(States.Validated.Equals(sm.State),
                 "State should be Validated after successful Idle→Validated transition — dictionary lookup must work for all states");
         }
 

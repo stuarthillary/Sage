@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Materials.Chemistry;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -11,7 +11,7 @@ using System.IO;
 namespace Highpoint.Sage.Persistence
 {
 
-    [TestClass]
+
     public class PersistenceTester
     {
 
@@ -19,7 +19,7 @@ namespace Highpoint.Sage.Persistence
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPersistenceBasics()
         {
 
@@ -57,7 +57,7 @@ namespace Highpoint.Sage.Persistence
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPersistenceWaterStorage()
         {
 
@@ -82,7 +82,7 @@ namespace Highpoint.Sage.Persistence
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestPersistenceWaterRestoration()
         {
 
@@ -95,7 +95,7 @@ namespace Highpoint.Sage.Persistence
         }
 
 
-        [TestMethod]
+        [Fact]
         public void TestPersistenceChemistryStorage()
         {
             BasicReactionSupporter brs = new BasicReactionSupporter();

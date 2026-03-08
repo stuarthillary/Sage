@@ -3,7 +3,7 @@
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Randoms;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -14,8 +14,8 @@ namespace Highpoint.Sage.Materials
     /// <summary>
     /// Summary description for zTestDispensary.
     /// </summary>
-    [TestClass]
-    public class DispensaryTester
+
+    public class DispensaryTester : IDisposable
     {
 
         #region Private Fields
@@ -26,8 +26,8 @@ namespace Highpoint.Sage.Materials
         private MaterialType _mt2;
         #endregion Private Fields
 
-        [TestInitialize]
-        public void Init()
+
+        public DispensaryTester()
         {
             _model = new Model();
             _dispensary = new Dispensary(_model.Executive);
@@ -35,13 +35,13 @@ namespace Highpoint.Sage.Materials
             _mt2 = new MaterialType(_model, "Cyclohexane", Guid.NewGuid(), 1.0000, 4.1800, MaterialState.Liquid);
 
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Simple set of puts and takes.")]
         public void TestBaseFunctionality()
         {
@@ -49,7 +49,7 @@ namespace Highpoint.Sage.Materials
             _model.Start();
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Simple set of puts and takes.")]
         public void TestRandomFunctionality()
         {
@@ -132,7 +132,7 @@ namespace Highpoint.Sage.Materials
             {
                 double expectedMass = _howMuchPut - _howMuchRetrieved;
                 Console.WriteLine("{0} : Expect mass = {1} kg. in dispensary - now contains {2} kg.", exec.Now, expectedMass, _dispensary.PeekMixture.Mass);
-                Assert.AreEqual(expectedMass, _dispensary.PeekMixture.Mass);
+                Assert.Equal(expectedMass, _dispensary.PeekMixture.Mass);
             }), dateTime, 0.0, null, ExecEventType.Detachable);
         }
 
@@ -162,7 +162,7 @@ namespace Highpoint.Sage.Materials
             _model.Executive.RequestEvent(new ExecEventReceiver(delegate (IExecutive exec, object userData)
             {
                 Console.WriteLine("{0} : Expect mass = {1} kg. in dispensary - now contains {2} kg.", exec.Now, expectedMass, _dispensary.PeekMixture.Mass);
-                Assert.AreEqual(expectedMass, _dispensary.PeekMixture.Mass);
+                Assert.Equal(expectedMass, _dispensary.PeekMixture.Mass);
             }), dateTime, 0.0, null, ExecEventType.Detachable);
         }
     }

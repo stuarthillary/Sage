@@ -45,7 +45,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// Gets or sets the default executive type used when creating new executives.
         /// </summary>
-        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.Core.Executive, Highpoint.Sage";
+        public string DefaultExecutiveType { get; set; } = "Highpoint.Sage.Core.Executive, Sage";
     }
 }
 

@@ -1,5 +1,5 @@
-/* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/* This source code licensed under the GNU Affero General Public License */
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -12,8 +12,8 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
     /// <summary>
     /// Summary description for zTestTemperatureController.
     /// </summary>
-    [TestClass]
-    public class VaporPressureTester
+
+    public class VaporPressureTester : IDisposable
     {
 
         public class Constants : Highpoint.Sage.Materials.Chemistry.Constants
@@ -32,7 +32,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
             _brs = new BasicReactionSupporter();
@@ -40,7 +40,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
 
             string testDataDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".", "TestData");
             string propertiesFile = Path.Combine(testDataDir, "PureComponentProperties.csv");
-            Assert.IsTrue(File.Exists(propertiesFile), "Properties data file not found - " + propertiesFile);
+            Assert.True(File.Exists(propertiesFile), "Properties data file not found - " + propertiesFile);
 
             string[][] data = Load(propertiesFile);
 
@@ -77,14 +77,14 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
             }
         }
 
-        [TestCleanup]
-        public void Destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test runs a series of known scenarios, and compares their VP's to known-correct values.")]
         public void TestKnownVaporPressureValues()
         {
@@ -102,11 +102,11 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
                 double pctError = Math.Abs(vp - svp) / Math.Max(vp, svp);
                 string msg = string.Format("Computed VP({0}) at {1:F2} deg C was {2:F2}, refData was {3:F2}, for a {4:F2} percent error.", mt.Name, temperature, vp, svp, pctError * 100);
                 Debug.WriteLine(msg);
-                Assert.IsTrue(pctError < 0.01, "Vapor Pressure", mt.Name + " Vapor Pressure at " + temperature + " deg C == " + svp + " Pascals");
+                Assert.True(pctError < 0.01, "Vapor Pressure");
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test runs a vapor pressure computation on Hydrazine, which uses a Henry's Law computation.")]
         public void TestHenrysLawScenario()
         {
@@ -117,10 +117,10 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
             double pctError = Math.Abs(vp - svp) / Math.Max(vp, svp);
             string msg = string.Format("Computed VP({0}) at {1:F2} deg C was {2:F2}, refData was {3:F2}, for a {4:F2} percent error.", mt.Name, temperature, vp, svp, pctError * 100);
             Debug.WriteLine(msg);
-            Assert.IsTrue(pctError < 0.01, "Vapor Pressure", mt.Name + " Vapor Pressure at 35 deg C == " + svp + " Pascals");
+            Assert.True(pctError < 0.01, "Vapor Pressure");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test runs a series of computations against known water vapor pressure computations.")]
         public void TestEmpiricalWaterVaporPressureScenarios()
         {
@@ -136,7 +136,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
                 double pctError = Math.Abs(vp - empiricalVP) / Math.Max(vp, empiricalVP);
                 string msg = string.Format("Computed VP({0}) at {1:F2} deg C was {2:F2}, empirical was {3:F2}, for a {4:F2} percent error.", mt.Name, temperature, vp, empiricalVP, pctError * 100);
                 Debug.WriteLine(msg);
-                Assert.IsTrue(pctError < 0.01, "Water Vapor Pressure", "Water Vapor Pressure at " + temperature + " deg C == " + empiricalVP);
+                Assert.True(pctError < 0.01, "Water Vapor Pressure");
             }
 
         }

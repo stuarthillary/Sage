@@ -1,10 +1,10 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 
 namespace Highpoint.Sage.Utility
 {
-    [TestClass]
+
     public class LabelTester
     {
 
@@ -14,7 +14,7 @@ namespace Highpoint.Sage.Utility
             LabelManager lm2 = new LabelManager();
 
             lm1.SetLabel("Plain", null);
-            Assert.IsTrue(lm1.GetLabel(null).Equals("Plain", StringComparison.Ordinal));
+            Assert.True(lm1.GetLabel(null).Equals("Plain", StringComparison.Ordinal));
 
             LabelManager.SetContext("Brown");
             lm1.Label = "Chocolate";
@@ -24,30 +24,30 @@ namespace Highpoint.Sage.Utility
 
             LabelManager.SetContext(null);
             Console.WriteLine(lm1.Label);
-            Assert.IsTrue(lm1.Label.Equals("Plain", StringComparison.Ordinal));
+            Assert.True(lm1.Label.Equals("Plain", StringComparison.Ordinal));
 
             LabelManager.SetContext("Brown");
 
             Console.WriteLine(lm1.Label);
-            Assert.IsTrue(lm1.Label.Equals("Chocolate", StringComparison.Ordinal));
+            Assert.True(lm1.Label.Equals("Chocolate", StringComparison.Ordinal));
 
             LabelManager.SetContext("Red");
 
             Console.WriteLine(lm1.Label);
-            Assert.IsTrue(lm1.Label.Equals("Cherry", StringComparison.Ordinal));
+            Assert.True(lm1.Label.Equals("Cherry", StringComparison.Ordinal));
 
             LabelManager.SetContext("Orange");
 
             Console.WriteLine(lm1.GetLabel(null));
-            Assert.IsTrue(lm1.Label.Equals("", StringComparison.Ordinal));
+            Assert.True(lm1.Label.Equals("", StringComparison.Ordinal));
 
             lm2.Label = "Bob";
 
             LabelManager.SetContext("Brown");
-            Assert.IsTrue(lm2.Label.Equals("", StringComparison.Ordinal));
+            Assert.True(lm2.Label.Equals("", StringComparison.Ordinal));
 
             LabelManager.SetContext("Orange");
-            Assert.IsTrue(lm2.Label.Equals("Bob", StringComparison.Ordinal));
+            Assert.True(lm2.Label.Equals("Bob", StringComparison.Ordinal));
 
         }
     }

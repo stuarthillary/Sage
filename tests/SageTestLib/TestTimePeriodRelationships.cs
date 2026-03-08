@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -12,8 +12,8 @@ namespace Highpoint.Sage.Scheduling
     /// <summary>
     /// Summary description for zTestTimePeriods.
     /// </summary>
-    [TestClass]
-    public class TimePeriodRelationshipTester
+
+    public class TimePeriodRelationshipTester : IDisposable
     {
 
         #region Private Fields
@@ -63,19 +63,19 @@ namespace Highpoint.Sage.Scheduling
         #endregion
 
         #region Test Setup & TearDown
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
         #endregion
 
         #region Basics
-        [TestMethod]
+        [Fact]
         public void TestBasics()
         {
             TimePeriod tpA = null;
@@ -234,7 +234,7 @@ namespace Highpoint.Sage.Scheduling
                     {
                         bool b = mr.IsSatisfied();
                         Console.WriteLine(mr + (b ? " is " : " is not ") + "satisfied.");
-                        //Assert.IsTrue(b, mr + " is not satisfied!");
+                        //Assert.True(b, mr + " is not satisfied!");
                     }
                 }
             }

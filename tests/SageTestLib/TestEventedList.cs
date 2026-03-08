@@ -1,13 +1,13 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Tests.Utility
 {
-    [TestClass]
-    public class EventedListTester
+
+    public class EventedListTester : IDisposable
     {
 
         public EventedListTester()
@@ -91,14 +91,14 @@ namespace Highpoint.Sage.Tests.Utility
             _responses += "m_uut_AboutToAddItem" + " " + item + " | ";
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
         #endregion
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Add mechanism.")]
         public void TestAdd()
         {
@@ -107,11 +107,11 @@ namespace Highpoint.Sage.Tests.Utility
             string addee = "String 1";
             _uut.Add(addee);
 
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItem String 1 | m_uut_AddedItem String 1 | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_responses.Equals("m_uut_AboutToAddItem String 1 | m_uut_AddedItem String 1 | m_uut_ContentsChanged | ", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the AddRange mechanism.")]
         public void TestAddRange()
         {
@@ -120,13 +120,13 @@ namespace Highpoint.Sage.Tests.Utility
             string[] addee = new string[] { "String 2", "String 3" };
             _uut.AddRange(addee);
 
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[0].Equals("String 2", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[1].Equals("String 3", StringComparison.Ordinal));
+            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_uut[0].Equals("String 2", StringComparison.Ordinal));
+            Assert.True(_uut[1].Equals("String 3", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Remove mechanism.")]
         public void TestRemove()
         {
@@ -135,13 +135,13 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.AddRange(new string[] { "Bob", "Mary", "Sue" });
             _uut.Remove("Mary");
 
-            Assert.IsTrue(_uut[0].Equals("Bob", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[1].Equals("Sue", StringComparison.Ordinal));
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_uut[0].Equals("Bob", StringComparison.Ordinal));
+            Assert.True(_uut[1].Equals("Sue", StringComparison.Ordinal));
+            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the RemoveAll mechanism.")]
         public void TestRemoveAll()
         {
@@ -153,12 +153,12 @@ namespace Highpoint.Sage.Tests.Utility
                 return s.Length.Equals(3);
             });
 
-            Assert.IsTrue(_uut[0].Equals("Mary", StringComparison.Ordinal));
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItems System.Predicate`1[System.String] | m_uut_RemovedItems System.Predicate`1[System.String] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_uut[0].Equals("Mary", StringComparison.Ordinal));
+            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItems System.Predicate`1[System.String] | m_uut_RemovedItems System.Predicate`1[System.String] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the RemoveAt mechanism.")]
         public void TestRemoveAt()
         {
@@ -167,13 +167,13 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.AddRange(new string[] { "Bob", "Mary", "Sue" });
             _uut.RemoveAt(1);
 
-            Assert.IsTrue(_uut[0].Equals("Bob", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[1].Equals("Sue", StringComparison.Ordinal));
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_uut[0].Equals("Bob", StringComparison.Ordinal));
+            Assert.True(_uut[1].Equals("Sue", StringComparison.Ordinal));
+            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Clear mechanism.")]
         public void TestClear()
         {
@@ -182,12 +182,12 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.AddRange(new string[] { "Bob", "Mary", "Sue" });
             _uut.Clear();
 
-            Assert.IsTrue(_uut.Count == 0);
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_uut.Count == 0);
+            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_ContentsChanged | ", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Indexer mechanism.")]
         public void TestIndexer()
         {
@@ -196,13 +196,13 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.AddRange(new string[] { "Bob", "Mary", "Sue" });
             _uut[1] = "Steve";
 
-            Assert.AreEqual("Bob", _uut[0]);
-            Assert.AreEqual("Steve", _uut[1]);
-            Assert.AreEqual("Sue", _uut[2]);
-            Assert.AreEqual("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToReplaceItem Mary with Steve | m_uut_ReplacedItem Mary with Steve | m_uut_ContentsChanged | ", _responses);
+            Assert.Equal("Bob", _uut[0]);
+            Assert.Equal("Steve", _uut[1]);
+            Assert.Equal("Sue", _uut[2]);
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToReplaceItem Mary with Steve | m_uut_ReplacedItem Mary with Steve | m_uut_ContentsChanged | ", _responses);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Insert mechanism.")]
         public void TestInsert()
         {
@@ -212,17 +212,17 @@ namespace Highpoint.Sage.Tests.Utility
 
             _uut.Insert(1, "Paul");
 
-            Assert.AreEqual("Bob", _uut[0]);
-            Assert.AreEqual("Paul", _uut[1]);
-            Assert.AreEqual("Mary", _uut[2]);
-            Assert.AreEqual("Sue", _uut[3]);
-            Assert.AreEqual(
+            Assert.Equal("Bob", _uut[0]);
+            Assert.Equal("Paul", _uut[1]);
+            Assert.Equal("Mary", _uut[2]);
+            Assert.Equal("Sue", _uut[3]);
+            Assert.Equal(
                 "m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToAddItem Paul | m_uut_AddedItem Paul | m_uut_ContentsChanged | ",
                 _responses
                 );
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the InsertRange mechanism.")]
         public void TestInsertRange()
         {
@@ -232,13 +232,13 @@ namespace Highpoint.Sage.Tests.Utility
 
             _uut.InsertRange(1, new string[] { "Paul", "Randy", "Sara" });
 
-            Assert.IsTrue(_uut[0].Equals("Bob", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[1].Equals("Paul", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[2].Equals("Randy", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[3].Equals("Sara", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[4].Equals("Mary", StringComparison.Ordinal));
-            Assert.IsTrue(_uut[5].Equals("Tim", StringComparison.Ordinal));
-            Assert.IsTrue(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.True(_uut[0].Equals("Bob", StringComparison.Ordinal));
+            Assert.True(_uut[1].Equals("Paul", StringComparison.Ordinal));
+            Assert.True(_uut[2].Equals("Randy", StringComparison.Ordinal));
+            Assert.True(_uut[3].Equals("Sara", StringComparison.Ordinal));
+            Assert.True(_uut[4].Equals("Mary", StringComparison.Ordinal));
+            Assert.True(_uut[5].Equals("Tim", StringComparison.Ordinal));
+            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
             Console.WriteLine(_responses);
         }
 

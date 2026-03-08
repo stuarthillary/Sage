@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 //#define PREANNOUNCE
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,21 +13,21 @@ namespace Highpoint.Sage.Utility
     /// <summary>
     /// Summary description for TreeNodeTester.
     /// </summary>
-    [TestClass]
-    public class TreeNodeTester
+
+    public class TreeNodeTester : IDisposable
     {
         public TreeNodeTester()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -35,7 +35,7 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// This test manipulates a tree that holds primitive elements that have no knowledge of their participation in a tree.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTreeConstructionAndTraversalMethodsOverPrimitiveTree()
         {
 
@@ -70,14 +70,14 @@ namespace Highpoint.Sage.Utility
                 "This test manipulates a tree that holds elements that have no knowledge of their participation in a tree.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.IsTrue(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal),
+            Assert.True(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal),
                 "Expected \"" + REQUIRED_ITERATIONSTRING1 + "\", but got \"" + sb.ToString() + "\" instead.");
         }
 
         /// <summary>
         /// This test manipulates a tree that holds primitive elements that have no knowledge of their participation in a tree, through the use of NodeWrappers.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTreeConstructionAndTraversalMethodsOverNodeWrapperTree()
         {
 
@@ -112,14 +112,14 @@ namespace Highpoint.Sage.Utility
                 "This test manipulates a tree that holds elements that have no knowledge of their participation in a tree.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.IsTrue(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal),
+            Assert.True(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal),
                 "Expected \"" + REQUIRED_ITERATIONSTRING1 + "\", but got \"" + sb.ToString() + "\" instead.");
         }
 
         /// <summary>
         /// This test manipulates a tree that holds elements that derive from TreeNode.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTreeConstructionAndTraversalMethodsOverTreeOfNodeDerivedObjects()
         {
 
@@ -160,14 +160,14 @@ namespace Highpoint.Sage.Utility
             Console.WriteLine("This test manipulates a tree that holds elements that derive from TreeNode.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.IsTrue(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal));
+            Assert.True(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal));
 
         }
 
         /// <summary>
         /// This test manipulates a tree that holds elements that implement ITreeNode.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestTreeConstructionAndTraversalMethodsOverTreeOfNodeITreeNodeImplementingObjects()
         {
 
@@ -209,7 +209,7 @@ namespace Highpoint.Sage.Utility
             Console.WriteLine("This test manipulates a tree that holds elements that implement ITreeNode.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.IsTrue(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal));
+            Assert.True(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal));
 
         }
 
@@ -248,7 +248,7 @@ Dingus";
         #endregion
 
 
-        [TestMethod]
+        [Fact]
         public void TestCreateCircularTree()
         {
             try
@@ -259,7 +259,7 @@ Dingus";
                 ITreeNode<string> dingus = bob.AddChild("Dingus");
                 dingus.AddChild(bob);
 
-                Assert.IsTrue(false, "Circular tree structure was not caught.");
+                Assert.True(false, "Circular tree structure was not caught.");
             }
             catch (ArgumentException)
             {
@@ -267,7 +267,7 @@ Dingus";
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestChildSorting()
         {
 
@@ -292,7 +292,7 @@ Dingus";
             {
                 s += activity.Payload.Name;
             });
-            Assert.IsTrue(s.Equals("EthelFrankGeorge", StringComparison.Ordinal));
+            Assert.True(s.Equals("EthelFrankGeorge", StringComparison.Ordinal));
 
             s = string.Empty;
             bob.SortChildren(new Comparison<ITreeNode<Activity>>(ReverseSortTreeNodeActivities));
@@ -300,7 +300,7 @@ Dingus";
             {
                 s += activity.Payload.Name;
             });
-            Assert.IsTrue(s.Equals("GeorgeFrankEthel", StringComparison.Ordinal));
+            Assert.True(s.Equals("GeorgeFrankEthel", StringComparison.Ordinal));
 
             Console.WriteLine(s);
 
@@ -311,7 +311,7 @@ Dingus";
             return string.Compare(tn2.Payload.Name, tn1.Payload.Name, StringComparison.Ordinal);
         }
 
-        [TestMethod]
+        [Fact]
 
         public void TestNodeRemoval()
         {
@@ -325,20 +325,20 @@ Dingus";
             ITreeNode<string> frank = charlie.AddChild("Frank");
             ITreeNode<string> george = dingus.AddChild("George");
 
-            Assert.AreEqual(bob.Parent, alice, "\"bob\"'s parent should be \"alice\", but isn't.");
-            Assert.IsTrue(alice.HasChild(bob), "\"alice\"'s children should include \"bob\", but doesn't.");
-            Assert.IsTrue(alice.RemoveChild(bob), "\"alice\" failed to remove existing child \"bob\"");
-            Assert.IsFalse(alice.HasChild(bob), "\"alice\"'s children should not include \"bob\", but still does.");
-            Assert.AreEqual(bob.Parent, null, "\"bob\"'s parent should be null, but isn't.");
+            Assert.Equal(bob.Parent, alice);
+            Assert.True(alice.HasChild(bob), "\"alice\"'s children should include \"bob\", but doesn't.");
+            Assert.True(alice.RemoveChild(bob), "\"alice\" failed to remove existing child \"bob\"");
+            Assert.False(alice.HasChild(bob), "\"alice\"'s children should not include \"bob\", but still does.");
+            Assert.Equal(bob.Parent, null);
 
-            Assert.IsFalse(dingus.RemoveChild(bob), "\"dingus\" claimed success in removing existing child \"bob\"");
+            Assert.False(dingus.RemoveChild(bob), "\"dingus\" claimed success in removing existing child \"bob\"");
 
         }
 
 
 
 
-        [TestMethod]
+        [Fact]
         public void TestNodeRemoval2()
         {
 
@@ -374,7 +374,7 @@ Dingus";
             Console.WriteLine("This test manipulates a tree that holds elements that have no knowledge of their participation in a tree, but with tree restructuring.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.AreEqual(StripCRLF(sb.ToString()), StripCRLF(REQUIRED_ITERATIONSTRING2), "Expected \"" + REQUIRED_ITERATIONSTRING2 + "\", but got \"" + sb.ToString() + "\" instead.");
+            Assert.Equal(StripCRLF(sb.ToString()), StripCRLF(REQUIRED_ITERATIONSTRING2));
         }
 
         private static string StripCRLF(string structureString) => structureString.Replace("\r", "", StringComparison.Ordinal).Replace("\n", "", StringComparison.Ordinal);

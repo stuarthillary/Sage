@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry.Emissions;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -16,8 +16,8 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
     /// <summary>
     /// Summary description for zTestTemperatureController.
     /// </summary>
-    [TestClass]
-    public class EmissionModelTester
+
+    public class EmissionModelTester : IDisposable
     {
 
         public class Constants : Highpoint.Sage.Materials.Chemistry.Constants
@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
         }
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
             _brs = new BasicReactionSupporter();
@@ -49,10 +49,10 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
 
             string testDataDir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".", "TestData");
             _propertiesFile = Path.Combine(testDataDir, "PureComponentProperties.csv");
-            Assert.IsTrue(File.Exists(_propertiesFile), "Properties data file not found - " + _propertiesFile);
+            Assert.True(File.Exists(_propertiesFile), "Properties data file not found - " + _propertiesFile);
 
             _testDataFile = Path.Combine(testDataDir, "emissionTest_12345-10.xml");
-            Assert.IsTrue(File.Exists(_testDataFile), "Test data file not found - " + _testDataFile);
+            Assert.True(File.Exists(_testDataFile), "Test data file not found - " + _testDataFile);
 
 
             string[][] data = Load(_propertiesFile);
@@ -93,14 +93,14 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
 
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
         #endregion
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test runs many stored-off tests and assesses the correctness of the results.")]
         public void MegaTest()
         {
@@ -438,7 +438,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
   <Material name="Water" poundsMass="0.848155753551298" /> 
   </Model>*/
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Fill computations across many materials.")]
 
         public void TestMultiMaterialFill()
@@ -513,7 +513,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
 
 
         #region Early Bound Tests
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the AirDry computations.")]
         public void TestAirDry()
         {
@@ -539,7 +539,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Evacuate computations.")]
         public void TestEvacuate()
         {
@@ -567,12 +567,11 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
         private static void EvaluateResults(string knownGood, string testName, Mixture emission)
         {
             string result = emission.ToString("F2", "F4");
-            Assert.AreEqual(knownGood, result,
-                $"{testName} test failed - result was {result} but should have been {knownGood}.");
+            Assert.Equal(knownGood, result);
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Fill computations.")]
         public void TestFill()
         {
@@ -599,7 +598,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Fill", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Evolution computations.")]
         public void TestGasEvolution()
         {
@@ -621,7 +620,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Gas Evolution", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestGasSweep()
         {
@@ -644,7 +643,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Gas Sweep", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestHeat()
         {
@@ -669,7 +668,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Heat", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestMassBalance()
         {
@@ -690,7 +689,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Mass Balance", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestNoEmissions()
         {
@@ -708,7 +707,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "No Emissions", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestVacuumDistillation()
         {
@@ -731,7 +730,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Vacuum Distillation", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestVacuumDistillationWScrubber()
         {
@@ -754,7 +753,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Vacuum Distillation w/ Scrubber", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestVacuumDry()
         {
@@ -783,7 +782,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Vacuum Dry", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations.")]
         public void TestPressureTransfer()
         {
@@ -810,7 +809,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             EvaluateResults(knownGood, "Pressure Transfer", emission);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test tests nothing.")]
         public void TestNothing()
         {
@@ -820,7 +819,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
 
         #region Late Bound Tests
         private bool _lateBound = false;
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the AirDry computations through the late-bound API.")]
         public void TestLateBoundAirDry()
         {
@@ -829,7 +828,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Evacuate computations through the late-bound API.")]
         public void TestLateBoundEvacuate()
         {
@@ -838,7 +837,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Fill computations through the late-bound API.")]
         public void TestLateBoundFill()
         {
@@ -847,7 +846,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Evolution computations through the late-bound API.")]
         public void TestLateBoundGasEvolution()
         {
@@ -856,7 +855,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundGasSweep()
         {
@@ -865,7 +864,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundHeat()
         {
@@ -874,7 +873,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundMassBalance()
         {
@@ -883,7 +882,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundNoEmissions()
         {
@@ -892,7 +891,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundVacuumDistillation()
         {
@@ -901,7 +900,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundVacuumDistillationWScrubber()
         {
@@ -910,7 +909,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundVacuumDry()
         {
@@ -919,7 +918,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
             _lateBound = false;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test evaluates correctness of the Gas Sweep computations through the late-bound API.")]
         public void TestLateBoundPressureTransfer()
         {

@@ -1,5 +1,5 @@
-/* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/* This source code licensed under the GNU Affero General Public License */
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -9,8 +9,8 @@ namespace Highpoint.Sage.Utility
     /// <summary>
     /// Summary description for zTestInterpolations.
     /// </summary>
-    [TestClass]
-    public class MultiArrayListEnumerationTester
+
+    public class MultiArrayListEnumerationTester : IDisposable
     {
         private readonly ArrayList _al1;
         private readonly ArrayList _al2;
@@ -35,12 +35,12 @@ namespace Highpoint.Sage.Utility
             _ale = new ArrayList();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -48,7 +48,7 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Basic test.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Simple test to aggregate three non-empty arraylists under one enumerator.")]
         public void TestBasicsOfEnumerator()
         {
@@ -59,12 +59,12 @@ namespace Highpoint.Sage.Utility
 
             string result = sb.ToString();
             Console.WriteLine("Simple three list aggregation - " + result + ".");
-            Assert.IsTrue(result.Equals(_expected123, StringComparison.Ordinal), "MultiArrayListEnumerable basics", "Failed test");
+            Assert.True(result.Equals(_expected123, StringComparison.Ordinal), "Failed test");
         }
         /// <summary>
         /// Basic test.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Simple test to aggregate three non-empty arraylists and one empty one in various locations under one enumerator.")]
         public void TestEnumeratorWithEmptyArrays()
         {
@@ -81,7 +81,7 @@ namespace Highpoint.Sage.Utility
                 sb.Append(s);
             string result = sb.ToString();
             Console.WriteLine(name + "\r\n\texpected = \"" + expected + "\",\r\n\tresult   = \"" + result + "\".\r\n\t\t" + (result.Equals(expected, StringComparison.Ordinal) ? "Passed.\r\n" : "Failed.\r\n"));
-            Assert.IsTrue(result.Equals(expected, StringComparison.Ordinal), "MultiArrayListEnumerable basics", "Failed test");
+            Assert.True(result.Equals(expected, StringComparison.Ordinal), "Failed test");
         }
     }
 }

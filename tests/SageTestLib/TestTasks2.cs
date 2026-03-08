@@ -3,7 +3,7 @@ using Highpoint.Sage.Graphs;
 using Highpoint.Sage.Graphs.Analysis;
 using Highpoint.Sage.Graphs.Tasks;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -11,10 +11,10 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Tests.Scheduling
 {
 
-    [TestClass]
+
     public class TaskTester
     {
-        [TestMethod]
+        [Fact]
         public void TestBaseFunctionality()
         {
 

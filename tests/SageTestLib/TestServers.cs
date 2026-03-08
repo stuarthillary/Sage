@@ -10,7 +10,7 @@ using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 //using System.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -22,17 +22,17 @@ namespace Highpoint.Sage.ItemBased.Blocks
     /// <summary>
     /// Summary description for zTestBranchBlocks.
     /// </summary>
-    [TestClass]
-    public class ServerTester
+
+    public class ServerTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -45,7 +45,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestServerBasics()
         {
 
@@ -92,7 +92,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBufferedServer()
         {
             _noAdmitCount = 0;
@@ -121,7 +121,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestResourceServer()
         {
             _noAdmitCount = 0;
@@ -155,7 +155,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
 
         }
-        [TestMethod]
+        [Fact]
         public void TestResourceServerComplexDemands()
         {
             _noAdmitCount = 0;

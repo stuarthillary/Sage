@@ -4,20 +4,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Highpoint.Sage.Core;
 using System.Text;
 using Highpoint.Sage.Utility;
 
 namespace Highpoint.Sage.Graphs.PFC.Execution {
 
-    [TestClass]
-    public class ExecutablePfcTester {
 
-        [TestInitialize]
+    public class ExecutablePfcTester : IDisposable {
+
+
         public void Init() { }
-        [TestCleanup]
-        public void destroy() {
+
+        public void Dispose() {
             Debug.WriteLine("Done.");
         }
 
@@ -29,9 +29,9 @@ namespace Highpoint.Sage.Graphs.PFC.Execution {
         /// <summary>
         ///
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSmallLoopback() {
-            Assert.Fail();
+            Assert.Fail("");
             Model model = new Model("MyTestModel");
 
             IProcedureFunctionChart pfc = CreatePfc(model, "RootPfc", 1.0, new ExecutionEngineConfiguration());
@@ -53,7 +53,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution {
         /// <summary>
         ///
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestSmallLoopbackHierarchical() {
             DateTime start = DateTime.Now;
             Model model = new Model("MyTestModel");
@@ -90,9 +90,9 @@ namespace Highpoint.Sage.Graphs.PFC.Execution {
         private static int nECs = 0;
         private static int nSteps = 100000;
         private static int nAvgKids = 50;
-        [TestMethod]
+        [Fact]
         public void TestCreationOfABazillionEECs() {
-            Assert.Fail();
+            Assert.Fail("");
 
             DateTime start = DateTime.Now;
             ExecutionEngineConfiguration eec = new ExecutionEngineConfiguration();
@@ -124,7 +124,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution {
         /// <summary>
         ///
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestScheduleHierarchical() {/*
             DateTime start = DateTime.Now;
             Model model = new Model("MyTestModel");

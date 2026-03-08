@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 using Highpoint.Sage.Utility;
 using Highpoint.Sage.Workflow;
@@ -23,15 +23,15 @@ namespace Highpoint.Sage.Workflow {
     /// <summary>
     /// Summary description for zTestWorkflowTokens.
     /// </summary>
-    [TestClass]
-    public class zTestWorkflowBlockInteractions {
+
+    public class zTestWorkflowBlockInteractions : IDisposable {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init() {
         }
-        [TestCleanup]
-        public void destroy() {
+
+        public void Dispose() {
             Debug.WriteLine("Done.");
         }
         #endregion
@@ -42,7 +42,7 @@ namespace Highpoint.Sage.Workflow {
 
         public zTestWorkflowBlockInteractions() { }
 
-        [TestMethod]
+        [Fact]
         public void TestTokenBlockInteractions_Basic() {
 
             MyWorkflow mw = new MyWorkflow(null,"Workflow#1",Guid.NewGuid());
@@ -56,7 +56,7 @@ namespace Highpoint.Sage.Workflow {
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTokenBlockInteractions_Ext1() {
             Model model = new Model("TestTokenBlockInteractions_Ext1", Guid.NewGuid());
             MyWorkflow mw = new MyWorkflow(model, "Workflow#2", Guid.NewGuid());
@@ -73,7 +73,7 @@ namespace Highpoint.Sage.Workflow {
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestParameters() {
             Parameters parameters = new Parameters(GroupingCriterion.Parentage, ProcessingCadence.FirstToken, ProcessingTiming.UponReset,
                                                  BlockTargets.ArrivalPort, BlockScope.ThisTokenGroup, BlockDuration.Reset, TransitionTo.Complete, 
@@ -82,7 +82,7 @@ namespace Highpoint.Sage.Workflow {
             string s = parameters.AbbrString;
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRangeOfParameters() {
             ConstructorInfo[] cia = typeof(Parameters).GetConstructors();
             Debug.Assert(cia.Length == 1);

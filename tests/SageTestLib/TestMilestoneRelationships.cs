@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -11,8 +11,8 @@ namespace Highpoint.Sage.Scheduling
     /// <summary>
     /// Summary description for zTestTimePeriods.
     /// </summary>
-    [TestClass]
-    public class MilestoneRelationshipTester
+
+    public class MilestoneRelationshipTester : IDisposable
     {
         public MilestoneRelationshipTester()
         {
@@ -41,17 +41,17 @@ namespace Highpoint.Sage.Scheduling
         private readonly DateTime _twentyMinsOn;
         private readonly DateTime _twentyMinsAgo;
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMilestones()
         {
             Milestone ms1 = new Milestone(DateTime.Now);

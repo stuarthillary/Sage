@@ -1,8 +1,8 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.PFC;
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,79 +17,79 @@ using Pfcs = Highpoint.Sage.Tests.Graphs.PFC.TestPfcRepository;
 namespace Highpoint.Sage.Tests.Graphs.PFC
 {
 
-    [TestClass]
+
     public class PfcAnalystTester
     {
 
-        [TestMethod]
+        [Fact]
         public void TestPrePostTransitionLink()
         {
 
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
 
             IPfcLinkElement link = Pfcs.nA.Successors[0]; // Link between node A and T_000
-            Assert.IsTrue(!PfcAnalyst.IsPostTransitionLink(link), "Link between node A and T_000 shouldn't be a post-transition link, but was.");
-            Assert.IsTrue(PfcAnalyst.IsPreTransitionLink(link), "Link between node A and T_000 should be a pre-transition link, but wasn't.");
+            Assert.True(!PfcAnalyst.IsPostTransitionLink(link), "Link between node A and T_000 shouldn't be a post-transition link, but was.");
+            Assert.True(PfcAnalyst.IsPreTransitionLink(link), "Link between node A and T_000 should be a pre-transition link, but wasn't.");
 
             link = Pfcs.nG.Successors[0]; // Link between node G and T_006
-            Assert.IsTrue(!PfcAnalyst.IsPostTransitionLink(link), "Link between node G and T_006 shouldn't be a post-transition link, but was.");
-            Assert.IsTrue(PfcAnalyst.IsPreTransitionLink(link), "Link between node G and T_006 should be a pre-transition link, but wasn't.");
+            Assert.True(!PfcAnalyst.IsPostTransitionLink(link), "Link between node G and T_006 shouldn't be a post-transition link, but was.");
+            Assert.True(PfcAnalyst.IsPreTransitionLink(link), "Link between node G and T_006 should be a pre-transition link, but wasn't.");
 
             link = Pfcs.nB.Predecessors[0]; // Link between T_000 and node B
-            Assert.IsTrue(PfcAnalyst.IsPostTransitionLink(link), "Link between T_000 and node B should be a post-transition link, but wasn't.");
-            Assert.IsTrue(!PfcAnalyst.IsPreTransitionLink(link), "Link between T_000 and node B shouldn't be a pre-transition link, but was.");
+            Assert.True(PfcAnalyst.IsPostTransitionLink(link), "Link between T_000 and node B should be a post-transition link, but wasn't.");
+            Assert.True(!PfcAnalyst.IsPreTransitionLink(link), "Link between T_000 and node B shouldn't be a pre-transition link, but was.");
 
             link = Pfcs.nG.Predecessors[0]; // Link between T_005 and node G
-            Assert.IsTrue(PfcAnalyst.IsPostTransitionLink(link), "Link between T_005 and node G should be a post-transition link, but wasn't.");
-            Assert.IsTrue(!PfcAnalyst.IsPreTransitionLink(link), "Link between T_005 and node G shouldn't be a pre-transition link, but was.");
+            Assert.True(PfcAnalyst.IsPostTransitionLink(link), "Link between T_005 and node G should be a post-transition link, but wasn't.");
+            Assert.True(!PfcAnalyst.IsPreTransitionLink(link), "Link between T_005 and node G shouldn't be a pre-transition link, but was.");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSoleSuccessor()
         {
 
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
 
-            Assert.IsTrue(!PfcAnalyst.IsSoleSuccessor(Pfcs.nA));
-            Assert.IsTrue(PfcAnalyst.IsSoleSuccessor(Pfcs.nB));
-            Assert.IsTrue(!PfcAnalyst.IsSoleSuccessor(Pfcs.nH));
-            Assert.IsTrue(PfcAnalyst.IsSoleSuccessor(Pfcs.nJ));
+            Assert.True(!PfcAnalyst.IsSoleSuccessor(Pfcs.nA));
+            Assert.True(PfcAnalyst.IsSoleSuccessor(Pfcs.nB));
+            Assert.True(!PfcAnalyst.IsSoleSuccessor(Pfcs.nH));
+            Assert.True(PfcAnalyst.IsSoleSuccessor(Pfcs.nJ));
 
-            Assert.IsTrue(PfcAnalyst.IsSoleSuccessor(Pfcs.nG.SuccessorNodes[0]));
-            Assert.IsTrue(!PfcAnalyst.IsSoleSuccessor(Pfcs.nC.PredecessorNodes[0]));
+            Assert.True(PfcAnalyst.IsSoleSuccessor(Pfcs.nG.SuccessorNodes[0]));
+            Assert.True(!PfcAnalyst.IsSoleSuccessor(Pfcs.nC.PredecessorNodes[0]));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHasParallelPath()
         {
 
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
 
-            Assert.IsTrue(!PfcAnalyst.HasParallelPaths(Pfcs.nC));
-            Assert.IsTrue(PfcAnalyst.HasParallelPaths(Pfcs.nH));
+            Assert.True(!PfcAnalyst.HasParallelPaths(Pfcs.nC));
+            Assert.True(PfcAnalyst.HasParallelPaths(Pfcs.nH));
 
-            Assert.IsTrue(!PfcAnalyst.HasParallelPaths(Pfcs.nC.SuccessorNodes[0]));
-            Assert.IsTrue(PfcAnalyst.HasParallelPaths(Pfcs.nI.SuccessorNodes[0]));
+            Assert.True(!PfcAnalyst.HasParallelPaths(Pfcs.nC.SuccessorNodes[0]));
+            Assert.True(PfcAnalyst.HasParallelPaths(Pfcs.nI.SuccessorNodes[0]));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestHasAlternatePath()
         {
 
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
 
-            Assert.IsTrue(PfcAnalyst.HasAlternatePaths(Pfcs.nC));
-            Assert.IsTrue(!PfcAnalyst.HasAlternatePaths(Pfcs.nH));
+            Assert.True(PfcAnalyst.HasAlternatePaths(Pfcs.nC));
+            Assert.True(!PfcAnalyst.HasAlternatePaths(Pfcs.nH));
 
-            Assert.IsTrue(PfcAnalyst.HasAlternatePaths(Pfcs.nC.SuccessorNodes[0]));
-            Assert.IsTrue(!PfcAnalyst.HasAlternatePaths(Pfcs.nI.SuccessorNodes[0]));
+            Assert.True(PfcAnalyst.HasAlternatePaths(Pfcs.nC.SuccessorNodes[0]));
+            Assert.True(!PfcAnalyst.HasAlternatePaths(Pfcs.nI.SuccessorNodes[0]));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsLastElementOnTypesOfPaths()
         {
 
@@ -114,23 +114,23 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             #endregion Find the solo transition between nodes B and N.
 
-            Assert.IsTrue(trans != null);
+            Assert.True(trans != null);
 
-            Assert.IsTrue(PfcAnalyst.IsLastElementOnAlternatePath(trans));
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnParallelPath(trans));
-            Assert.IsTrue(PfcAnalyst.IsLastElementOnPath(trans));
+            Assert.True(PfcAnalyst.IsLastElementOnAlternatePath(trans));
+            Assert.True(!PfcAnalyst.IsLastElementOnParallelPath(trans));
+            Assert.True(PfcAnalyst.IsLastElementOnPath(trans));
 
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnAlternatePath(Pfcs.nP));
-            Assert.IsTrue(PfcAnalyst.IsLastElementOnParallelPath(Pfcs.nP));
-            Assert.IsTrue(PfcAnalyst.IsLastElementOnPath(Pfcs.nP));
+            Assert.True(!PfcAnalyst.IsLastElementOnAlternatePath(Pfcs.nP));
+            Assert.True(PfcAnalyst.IsLastElementOnParallelPath(Pfcs.nP));
+            Assert.True(PfcAnalyst.IsLastElementOnPath(Pfcs.nP));
 
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnAlternatePath(Pfcs.nE.PredecessorNodes[0]));
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnParallelPath(Pfcs.nE.PredecessorNodes[0]));
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnPath(Pfcs.nE.PredecessorNodes[0]));
+            Assert.True(!PfcAnalyst.IsLastElementOnAlternatePath(Pfcs.nE.PredecessorNodes[0]));
+            Assert.True(!PfcAnalyst.IsLastElementOnParallelPath(Pfcs.nE.PredecessorNodes[0]));
+            Assert.True(!PfcAnalyst.IsLastElementOnPath(Pfcs.nE.PredecessorNodes[0]));
 
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnAlternatePath(Pfcs.nJ));
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnParallelPath(Pfcs.nJ));
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnPath(Pfcs.nJ));
+            Assert.True(!PfcAnalyst.IsLastElementOnAlternatePath(Pfcs.nJ));
+            Assert.True(!PfcAnalyst.IsLastElementOnParallelPath(Pfcs.nJ));
+            Assert.True(!PfcAnalyst.IsLastElementOnPath(Pfcs.nJ));
 
             #endregion Loopback test segment.
 
@@ -141,53 +141,53 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             trans = pfc.Transitions["T_002"];
 
-            Assert.IsTrue(PfcAnalyst.IsLastElementOnAlternatePath(trans), "Loopback transition should be indicated as last element on an series-divergent path, but is not.");
-            Assert.IsTrue(!PfcAnalyst.IsLastElementOnParallelPath(trans), "Loopback transition should not be indicated as last element on a parallel-divergent path, but is.");
-            Assert.IsTrue(PfcAnalyst.IsLastElementOnPath(trans), "Loopback transition should be indicated as last element on an alternate path, but is not.");
+            Assert.True(PfcAnalyst.IsLastElementOnAlternatePath(trans), "Loopback transition should be indicated as last element on an series-divergent path, but is not.");
+            Assert.True(!PfcAnalyst.IsLastElementOnParallelPath(trans), "Loopback transition should not be indicated as last element on a parallel-divergent path, but is.");
+            Assert.True(PfcAnalyst.IsLastElementOnPath(trans), "Loopback transition should be indicated as last element on an alternate path, but is not.");
 
             #endregion Loopback test segment.
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestIsJoinElement_Methods()
         {
 
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
             IPfcElement element = PfcAnalyst.GetJoinNodeForParallelPath(Pfcs.nJ);
-            Assert.IsTrue(element != null && element.Equals(pfc.Transitions["T_009"]));
+            Assert.True(element != null && element.Equals(pfc.Transitions["T_009"]));
 
             element = PfcAnalyst.GetJoinNodeForParallelPath(Pfcs.nD);
-            Assert.IsTrue(element != null && element.Equals(Pfcs.nN));
+            Assert.True(element != null && element.Equals(Pfcs.nN));
 
             element = PfcAnalyst.GetJoinNodeForAlternatePaths(pfc.Transitions["T_004"]);
-            Assert.IsTrue(element != null && element.Equals(Pfcs.nN));
+            Assert.True(element != null && element.Equals(Pfcs.nN));
 
             element = PfcAnalyst.GetJoinNodeForAlternatePaths(Pfcs.nD);
-            Assert.IsTrue(element != null && element.Equals(Pfcs.nN));
+            Assert.True(element != null && element.Equals(Pfcs.nN));
 
             element = PfcAnalyst.GetJoinTransitionForSimultaneousPaths(pfc.Transitions["T_007"]);
-            Assert.IsTrue(element != null && element.Equals(pfc.Transitions["T_009"]));
+            Assert.True(element != null && element.Equals(pfc.Transitions["T_009"]));
 
             element = PfcAnalyst.GetJoinTransitionForSimultaneousPaths(Pfcs.nK);
-            Assert.IsTrue(element != null && element.Equals(pfc.Transitions["T_009"]));
+            Assert.True(element != null && element.Equals(pfc.Transitions["T_009"]));
 
             element = PfcAnalyst.GetJoinNodeForAlternatePaths(Pfcs.nP);
-            Assert.IsTrue(element == null);
+            Assert.True(element == null);
 
             element = PfcAnalyst.GetJoinNodeForAlternatePaths(pfc.Transitions["T_008"]);
-            Assert.IsTrue(element == null);
+            Assert.True(element == null);
 
             element = PfcAnalyst.GetJoinTransitionForSimultaneousPaths(Pfcs.nM);
-            Assert.IsTrue(element == null);
+            Assert.True(element == null);
 
             element = PfcAnalyst.GetJoinTransitionForSimultaneousPaths(pfc.Transitions["T_004"]);
-            Assert.IsTrue(element == null);
+            Assert.True(element == null);
 
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestFindLegalTargets()
         {
 
@@ -209,7 +209,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSpecificTargetLegality()
         {
 
@@ -223,7 +223,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestUnbindTransitionAndStep()
         {
             // Create initial pfc
@@ -256,7 +256,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_AddNewStepAndTransition()
         {
             // Create initial pfc
@@ -303,11 +303,11 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             string result = PfcDiagnostics.GetStructure(pfc).ToString();
             Console.WriteLine(result);
 
-            Assert.IsTrue(result.Equals("{START-->[L_000(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_002(SFC 1.Root)]-->NEW_STEP}\r\n{NEW_STEP-->[L_003(SFC 1.Root)]-->T_001}\r\n{T_001-->[L_004(SFC 1.Root)]-->FINISH}\r\n", StringComparison.Ordinal));
+            Assert.True(result.Equals("{START-->[L_000(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_002(SFC 1.Root)]-->NEW_STEP}\r\n{NEW_STEP-->[L_003(SFC 1.Root)]-->T_001}\r\n{T_001-->[L_004(SFC 1.Root)]-->FINISH}\r\n", StringComparison.Ordinal));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_GetPermissibleAlternateBranchTargets()
         {
             // Create a PFC that supports forward and backward branches
@@ -348,15 +348,15 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             //List<IPfcNode> targets = PfcAnalyst.GetPermissibleTargetsForLinkFrom(step2, true, true);
             //Console.WriteLine("Acceptable targets were " + Highpoint.Sage.Utility.StringOperations.ToCommasAndAndedListOfNames<IPfcNode>(targets) + ".");
-            //Assert.IsTrue(targets.Contains(step1), "Should be able to link back to STEP1");
-            //Assert.IsTrue(targets.Contains(step2), "Should be able to link to self.");
-            //Assert.IsTrue(targets.Contains(step3), "Should be able to add alternate path to STEP3.");
-            //Assert.IsTrue(targets.Contains(finishStep), "Should be able to link to FINISH");
+            //Assert.True(targets.Contains(step1), "Should be able to link back to STEP1");
+            //Assert.True(targets.Contains(step2), "Should be able to link to self.");
+            //Assert.True(targets.Contains(step3), "Should be able to add alternate path to STEP3.");
+            //Assert.True(targets.Contains(finishStep), "Should be able to link to FINISH");
 
-            Assert.IsTrue(PfcAnalyst.IsTargetNodeLegal(step2, step1));
+            Assert.True(PfcAnalyst.IsTargetNodeLegal(step2, step1));
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_GetExistingJoinStepForAlternateBranch()
         {
             // Create a PFC with an alternate branch
@@ -401,12 +401,12 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             // Get the existing join step for the alternate branch from the start point - step 1
             IPfcNode target = PfcAnalyst.GetJoinNodeForAlternatePaths(step2);
 
-            Assert.IsTrue(target.Guid == finishStep.Guid, "The join step should be the FINISH step");
+            Assert.True(target.Guid == finishStep.Guid, "The join step should be the FINISH step");
 
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_GetConvergenceNodeFor()
         {
             // Create a PFC with an alternate branch
@@ -451,12 +451,12 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             // Get the existing join step for the alternate branch from the start point - step 1
             IPfcNode target = PfcAnalyst.GetConvergenceNodeFor(step1);
 
-            Assert.IsTrue(target.Guid == finishStep.Guid, "The join step should be the FINISH step");
+            Assert.True(target.Guid == finishStep.Guid, "The join step should be the FINISH step");
 
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_GetDivergenceNodeFor()
         {
             // Create a PFC with an alternate branch
@@ -501,11 +501,11 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             // Get the existing join step for the alternate branch from the start point - step 1
             IPfcNode target = PfcAnalyst.GetDivergenceNodeFor(finishStep);
 
-            Assert.IsTrue(target.Guid == step1.Guid, "The divergence step should be step1.");
+            Assert.True(target.Guid == step1.Guid, "The divergence step should be step1.");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleDeletion()
         {
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
@@ -514,18 +514,18 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             structureString = PfcDiagnostics.GetStructure(pfc);
 
-            Assert.IsTrue(structureString.Contains("{Step_B-->[L_032(SFC 1.Root)]-->T_014}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{T_014-->[L_033(SFC 1.Root)]-->Step_N}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{Step_B-->[L_032(SFC 1.Root)]-->T_014}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_014-->[L_033(SFC 1.Root)]-->Step_N}", StringComparison.Ordinal));
 
             pfc.Delete(pfc.Nodes["T_014"]);
             structureString = PfcDiagnostics.GetStructure(pfc);
 
-            Assert.IsFalse(structureString.Contains("{Step_B-->[L_032(SFC 1.Root)]-->T_014}", StringComparison.Ordinal));
-            Assert.IsFalse(structureString.Contains("{T_014-->[L_033(SFC 1.Root)]-->Step_N}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{Step_B-->[L_032(SFC 1.Root)]-->T_014}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{T_014-->[L_033(SFC 1.Root)]-->Step_N}", StringComparison.Ordinal));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleDeletion2()
         {
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
@@ -534,21 +534,21 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             structureString = PfcDiagnostics.GetStructure(pfc);
 
-            Assert.IsTrue(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
 
             pfc.Delete(pfc.Nodes["Step_D"]);
             structureString = PfcDiagnostics.GetStructure(pfc);
 
-            Assert.IsFalse(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
-            Assert.IsFalse(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
-            Assert.IsFalse(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{T_003-->[L_034(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_003-->[L_034(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleDeletion3()
         {
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
@@ -557,23 +557,23 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             structureString = PfcDiagnostics.GetStructure(pfc);
 
-            Assert.IsTrue(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
 
             pfc.Delete(pfc.Nodes["T_004"]);
             structureString = PfcDiagnostics.GetStructure(pfc);
 
-            Assert.IsFalse(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
-            Assert.IsFalse(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
-            Assert.IsFalse(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
-            Assert.IsTrue(structureString.Contains("{T_003-->[L_034(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{T_003-->[L_007(SFC 1.Root)]-->Step_D}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{Step_D-->[L_008(SFC 1.Root)]-->T_004}", StringComparison.Ordinal));
+            Assert.False(structureString.Contains("{T_004-->[L_009(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
+            Assert.True(structureString.Contains("{T_003-->[L_034(SFC 1.Root)]-->Step_E}", StringComparison.Ordinal));
 
         }
 
         // BUG: Test_GetPermissibleTargetsForLinkFrom_WithinLoopFromStepToSelf Bug is Priority 2, Severity A
 #if NYRFPT
-    [TestMethod]
+    [Fact]
         public void Test_GetPermissibleTargetsForLinkFrom_WithinLoopFromStepToSelf() {
 
             //    BEGIN
@@ -614,15 +614,15 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             string structure = PfcDiagnostics.GetStructure(pfc);
             List<IPfcNode> results = PfcAnalyst.GetPermissibleTargetsForLinkFrom(loopTransition);
-            Assert.AreEqual(structure, PfcDiagnostics.GetStructure(pfc));
+            Assert.Equal(structure, PfcDiagnostics.GetStructure(pfc));
 
             string resultString = Highpoint.Sage.Utility.StringOperations.ToCommasAndAndedListOfNames<IPfcNode>(results);
             string shouldBe = "";
-            Assert.IsTrue(resultString.Equals(shouldBe), "Should get " + shouldBe + ", but got " + resultString + " instead.");
+            Assert.True(resultString.Equals(shouldBe), "Should get " + shouldBe + ", but got " + resultString + " instead.");
 
         }
 #endif
-        [TestMethod]
+        [Fact]
         public void Test_DeepNonLoopingPath()
         {
 
@@ -684,7 +684,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SelfLoopStructuralLegality()
         {
 
@@ -730,11 +730,11 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             PfcValidator validator = new PfcValidator(pfc);
 
-            Assert.IsTrue(validator.PfcIsValid(), "This PFC should be valid.");
+            Assert.True(validator.PfcIsValid(), "This PFC should be valid.");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_LoopbackWithinAParallelBranch()
         {
 
@@ -803,7 +803,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             //bool expected = true;
             //result = PfcAnalyst.IsTargetNodeLegal(from, to);      // no.
             //Console.WriteLine("{1} {0} a legal target from {2}.", result?"is":"is not", to.Name, from.Name);
-            //Assert.IsTrue(result == expected);
+            //Assert.True(result == expected);
 
             // BULK TEST FOR AUTOMATIC TESTING.
             List<IPfcNode> results = PfcAnalyst.GetPermissibleTargetsForLinkFrom(step5);
@@ -811,11 +811,11 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             string resultString = Highpoint.Sage.Utility.StringOperations.ToCommasAndAndedListOfNames(new List<IHasName>(results.ToArray()));
             Console.WriteLine(resultString);
-            Assert.IsTrue(resultString.Equals("STEP2 and STEP5", StringComparison.Ordinal), "Valid target steps should be STEP2 and STEP5, but they were " + resultString + ".");
+            Assert.True(resultString.Equals("STEP2 and STEP5", StringComparison.Ordinal), "Valid target steps should be STEP2 and STEP5, but they were " + resultString + ".");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_LoopbackWithinAParallelBranchFromSavedPFC_Passes()
         {
             string testFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location ?? "."), "TestData", "RightPFC.xml");
@@ -835,10 +835,10 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             string resultString = Highpoint.Sage.Utility.StringOperations.ToCommasAndAndedListOfNames(new List<IHasName>(results.ToArray()));
             Console.WriteLine(resultString);
-            Assert.IsTrue(resultString.Equals("STEP2 and STEP5", StringComparison.Ordinal), "Valid target steps should be STEP2 and STEP5, but they were " + resultString + ".");
+            Assert.True(resultString.Equals("STEP2 and STEP5", StringComparison.Ordinal), "Valid target steps should be STEP2 and STEP5, but they were " + resultString + ".");
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_LoopbackWithinAParallelBranchFromSavedPFC_UsedToFail()
         {
             string testFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location ?? "."), "TestData", "WrongPFC.xml");
@@ -880,7 +880,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             //bool expected = true;
             //result = PfcAnalyst.IsTargetNodeLegal(from, to);      // no.
             //Console.WriteLine("{1} {0} a legal target from {2}.", result?"is":"is not", to.Name, from.Name);
-            //Assert.IsTrue(result == expected);
+            //Assert.True(result == expected);
 
             // BULK TEST FOR AUTOMATIC TESTING.
             List<IPfcNode> results = PfcAnalyst.GetPermissibleTargetsForLinkFrom(step5);
@@ -888,7 +888,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             string resultString = Highpoint.Sage.Utility.StringOperations.ToCommasAndAndedListOfNames(new List<IHasName>(results.ToArray()));
             Console.WriteLine(resultString);
-            Assert.IsTrue(resultString.Equals("STEP2 and STEP5", StringComparison.Ordinal), "Valid target steps should be STEP2 and STEP5, but they were " + resultString + ".");
+            Assert.True(resultString.Equals("STEP2 and STEP5", StringComparison.Ordinal), "Valid target steps should be STEP2 and STEP5, but they were " + resultString + ".");
         }
 
         private ProcedureFunctionChart getProcedureFunctionChartFromFile(string fileName)
@@ -906,7 +906,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             return pfc;
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_LoopbackUsingParallelDivergence()
         {
 
@@ -948,7 +948,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             //string resultString = Highpoint.Sage.Utility.StringOperations.ToCommasAndAndedListOfNames(new List<IHasName>(results.ToArray()));
             //Console.WriteLine(resultString);
-            Assert.IsFalse(new PfcValidator(pfc).PfcIsValid(), "Failed to flag a faux-loopback using a parallel div/convergence as invalid.");
+            Assert.False(new PfcValidator(pfc).PfcIsValid(), "Failed to flag a faux-loopback using a parallel div/convergence as invalid.");
 
         }
 
@@ -957,7 +957,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
         /// Tests the PFC update structure call - specifically that it orders the node list into a
         /// breadth-first traversal order.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void Test_PfcUpdateStructure()
         {
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
@@ -973,11 +973,11 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             string resultString = sw.GetStringBuilder().ToString();
             Console.WriteLine(resultString);
             var nl = Environment.NewLine;
-            Assert.AreEqual($"Step_A : 0{nl}T_000 : 1{nl}Step_B : 2{nl}T_001 : 3{nl}T_002 : 4{nl}T_014 : 5{nl}Step_C : 6{nl}Step_F : 7{nl}T_003 : 8{nl}T_005 : 9{nl}Step_D : 10{nl}Step_G : 11{nl}T_004 : 12{nl}T_006 : 13{nl}Step_E : 14{nl}Step_H : 15{nl}Step_I : 16{nl}Step_P : 17{nl}T_011 : 18{nl}T_007 : 19{nl}T_008 : 20{nl}Step_J : 21{nl}Step_K : 22{nl}T_009 : 23{nl}Step_L : 24{nl}T_010 : 25{nl}Step_M : 26{nl}T_012 : 27{nl}Step_N : 28{nl}T_013 : 29{nl}Step_O : 30{nl}", resultString);
+            Assert.Equal($"Step_A : 0{nl}T_000 : 1{nl}Step_B : 2{nl}T_001 : 3{nl}T_002 : 4{nl}T_014 : 5{nl}Step_C : 6{nl}Step_F : 7{nl}T_003 : 8{nl}T_005 : 9{nl}Step_D : 10{nl}Step_G : 11{nl}T_004 : 12{nl}T_006 : 13{nl}Step_E : 14{nl}Step_H : 15{nl}Step_I : 16{nl}Step_P : 17{nl}T_011 : 18{nl}T_007 : 19{nl}T_008 : 20{nl}Step_J : 21{nl}Step_K : 22{nl}T_009 : 23{nl}Step_L : 24{nl}T_010 : 25{nl}Step_M : 26{nl}T_012 : 27{nl}Step_N : 28{nl}T_013 : 29{nl}Step_O : 30{nl}", resultString);
         }
 
 
-        [TestMethod]
+        [Fact]
         public void Test_LoopingPfcUpdateStructure()
         {
             ProcedureFunctionChart pfc = Pfcs.CreateLoopTestPfc();
@@ -992,10 +992,10 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             string resultString = sw.GetStringBuilder().ToString();
             Console.WriteLine(resultString);
             var nl = Environment.NewLine;
-            Assert.AreEqual(resultString, $"Step_A : 0{nl}T_000 : 1{nl}Step_B : 2{nl}T_001 : 3{nl}T_002 : 4{nl}Step_C : 5{nl}");
+            Assert.Equal(resultString, $"Step_A : 0{nl}T_000 : 1{nl}Step_B : 2{nl}T_001 : 3{nl}T_002 : 4{nl}Step_C : 5{nl}");
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ComplexLoopingPfcUpdateStructure()
         {
             int nFailures = 0;
@@ -1010,7 +1010,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
                     nFailures++;
                 }
             }
-            Assert.AreEqual(0, nFailures, "There were " + nFailures + " failures, and should have been none.");
+            Assert.Equal(0, nFailures);
         }
 
         public void _Test_ComplexLoopingPfcUpdateStructure()
@@ -1067,10 +1067,10 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             string resultString = sw.GetStringBuilder().ToString();
             Console.WriteLine(resultString);
             var nl = Environment.NewLine;
-            Assert.AreEqual($"START : 0{nl}T_000 : 1{nl}STEP1 : 2{nl}STEP4 : 3{nl}T_003 : 4{nl}T_002 : 5{nl}STEP5 : 6{nl}STEP6 : 7{nl}T_004 : 8{nl}T_005 : 9{nl}STEP2 : 10{nl}T_001 : 11{nl}STEP3 : 12{nl}T_006 : 13{nl}FINISH : 14{nl}", resultString);
+            Assert.Equal($"START : 0{nl}T_000 : 1{nl}STEP1 : 2{nl}STEP4 : 3{nl}T_003 : 4{nl}T_002 : 5{nl}STEP5 : 6{nl}STEP6 : 7{nl}T_004 : 8{nl}T_005 : 9{nl}STEP2 : 10{nl}T_001 : 11{nl}STEP3 : 12{nl}T_006 : 13{nl}FINISH : 14{nl}", resultString);
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ComplexSeriesBranchingPfcUpdateStructure()
         {
             int nFailures = 0;
@@ -1085,7 +1085,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
                     nFailures++;
                 }
             }
-            Assert.AreEqual(0, nFailures, "There were " + nFailures + " failures, and should have been none.");
+            Assert.Equal(0, nFailures);
         }
 
         private void test_ComplexSeriesBranchingPfcUpdateStructure()
@@ -1142,10 +1142,10 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             string resultString = sw.GetStringBuilder().ToString();
             Console.WriteLine(resultString);
             var nl = Environment.NewLine;
-            Assert.AreEqual($"START : 0{nl}T_000 : 1 - from START to STEP3 ){nl}T_001 : 2 - from START to STEP1 ){nl}STEP3 : 3{nl}STEP1 : 4{nl}T_004 : 5 - from STEP3 to STEP2 ){nl}T_002 : 6 - from STEP1 to STEP2 ){nl}T_003 : 7 - from STEP1 to STEP4 ){nl}STEP2 : 8{nl}STEP4 : 9{nl}T_005 : 10 - from STEP2 to FINISH ){nl}T_006 : 11 - from STEP4 to FINISH ){nl}FINISH : 12{nl}", resultString);
+            Assert.Equal($"START : 0{nl}T_000 : 1 - from START to STEP3 ){nl}T_001 : 2 - from START to STEP1 ){nl}STEP3 : 3{nl}STEP1 : 4{nl}T_004 : 5 - from STEP3 to STEP2 ){nl}T_002 : 6 - from STEP1 to STEP2 ){nl}T_003 : 7 - from STEP1 to STEP4 ){nl}STEP2 : 8{nl}STEP4 : 9{nl}T_005 : 10 - from STEP2 to FINISH ){nl}T_006 : 11 - from STEP4 to FINISH ){nl}FINISH : 12{nl}", resultString);
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_LinkPrioritization()
         {
             //        START
@@ -1180,7 +1180,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             pfc.MakeLinkPrimary(step1.Successors[0]); // L4 <-- Priority MaxValue.
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(startStep, true);
-            Assert.AreEqual(primaryPath, "START, STEP1 and FINISH");
+            Assert.Equal(primaryPath, "START, STEP1 and FINISH");
 
             step2.Predecessors[0].Priority = 1;
             step2.Predecessors[0].Predecessor.Predecessors[0].Priority = 1;
@@ -1188,7 +1188,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             step1.Predecessors[0].Predecessor.Predecessors[0].Priority = 0;
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(startStep, true);
-            Assert.AreEqual(primaryPath, "START, STEP2 and FINISH");
+            Assert.Equal(primaryPath, "START, STEP2 and FINISH");
 
             step1.Predecessors[0].Priority = 1;
             step1.Predecessors[0].Predecessor.Predecessors[0].Priority = 1;
@@ -1196,21 +1196,21 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             step2.Predecessors[0].Predecessor.Predecessors[0].Priority = 0;
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(startStep, true);
-            Assert.AreEqual(primaryPath, "START, STEP1 and FINISH");
+            Assert.Equal(primaryPath, "START, STEP1 and FINISH");
 
             pfc = Pfcs.CreateTestPfc();
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(Pfcs.nA, true);
-            Assert.AreEqual(primaryPath, "Step_A, Step_B, Step_C, Step_D, Step_E, Step_N and Step_O");
+            Assert.Equal(primaryPath, "Step_A, Step_B, Step_C, Step_D, Step_E, Step_N and Step_O");
 
             Pfcs.nF.PredecessorNodes[0].Predecessors[0].Priority = 1;
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(Pfcs.nA, true);
-            Assert.AreEqual(primaryPath, "Step_A, Step_B, Step_F, Step_G, Step_H, Step_J, Step_L, Step_M, Step_N and Step_O");
+            Assert.Equal(primaryPath, "Step_A, Step_B, Step_F, Step_G, Step_H, Step_J, Step_L, Step_M, Step_N and Step_O");
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_InfiniteLoopError()
         {
             string testName = "Test infinite loop error.";
@@ -1240,7 +1240,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_OffSetParallelism()
         {
             string testName = "Test offset parallelism.";
@@ -1296,23 +1296,23 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
 
             PfcValidator pfcv = new PfcValidator(pfc);
 
-            Assert.IsTrue(pfcv.PfcIsValid());
+            Assert.True(pfcv.PfcIsValid());
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_Validator()
         {
             //ProcedureFunctionChart pfc = CreateLoopTestPfc();
             ProcedureFunctionChart pfc = Pfcs.CreateTestPfc();
             PfcValidator pfcv = new PfcValidator(pfc);
 
-            Assert.IsTrue(pfcv.PfcIsValid());
+            Assert.True(pfcv.PfcIsValid());
         }
 
         private static bool m_dumpStructure = true;
 
-        [TestMethod]
+        [Fact]
         public void Test_ValidatorFromStoredPFC()
         {
             int nReps = 1000000;
@@ -1381,7 +1381,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
                     sw.Start();
                     PfcValidator pfcv = new PfcValidator(pfc);
 
-                    Assert.IsTrue(pfcv.PfcIsValid(), "case", randomNumber);
+                    Assert.True(pfcv.PfcIsValid(), "case");
                 }
             }
 
@@ -1390,7 +1390,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             //Console.ReadLine();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBroadestNonLoopbackPath()
         {
 

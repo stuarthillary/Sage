@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -9,25 +9,25 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Core
 {
 
-    [TestClass]
-    public class SmartPropertyBagTester
+
+    public class SmartPropertyBagTester : IDisposable
     {
         public SmartPropertyBagTester()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks the base functionality of Name/Value, Name/String, Name/SPB, and set a value in a referenced SPB")]
         public void TestSubsidiaries()
         {
@@ -56,15 +56,15 @@ namespace Highpoint.Sage.Core
             dogs.AddChildSPB("Labs", labs);
             Debug.WriteLine(DiagnosticAids.DumpDictionary("", animals.Memento.GetDictionary()));
 
-            Assert.IsTrue((double)animals["Dogs.Labs.Black"] == 4, "Black Lab is not 4");
-            Assert.IsTrue((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
-            Assert.IsTrue((double)animals["Dogs.Labs.Yellow"] == 1, "Yellow Lab is not 1");
-            Assert.IsTrue("Mellow".Equals((string)labs["Temperament"], StringComparison.Ordinal), "The Labs temperament is not Mellow");
-            Assert.IsTrue((double)animals["Dogs.Collies"] == 18, "Collies are not 18");
-            Assert.IsTrue((double)animals["Dogs.Chows"] == 16, "Chows are not 16");
-            Assert.IsTrue((double)animals["Horses"] == 12, "Horses are not 12");
-            Assert.IsTrue("Animal".Equals((string)animals["Kingdom"], StringComparison.Ordinal), "The Kingdom is not the Animal Kingdom");
-            Assert.IsTrue(!(bool)labs["Faithful"], "Labs are not not faithful");
+            Assert.True((double)animals["Dogs.Labs.Black"] == 4, "Black Lab is not 4");
+            Assert.True((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
+            Assert.True((double)animals["Dogs.Labs.Yellow"] == 1, "Yellow Lab is not 1");
+            Assert.True("Mellow".Equals((string)labs["Temperament"], StringComparison.Ordinal), "The Labs temperament is not Mellow");
+            Assert.True((double)animals["Dogs.Collies"] == 18, "Collies are not 18");
+            Assert.True((double)animals["Dogs.Chows"] == 16, "Chows are not 16");
+            Assert.True((double)animals["Horses"] == 12, "Horses are not 12");
+            Assert.True("Animal".Equals((string)animals["Kingdom"], StringComparison.Ordinal), "The Kingdom is not the Animal Kingdom");
+            Assert.True(!(bool)labs["Faithful"], "Labs are not not faithful");
 
 
             Debug.WriteLine("Setting Animals.Dogs.Labs.Black to 19, Animals.Dogs.Labs.Temperament to \"Lovable\".");
@@ -74,18 +74,18 @@ namespace Highpoint.Sage.Core
             animals["Dogs.Labs.Faithful"] = true;
             Debug.WriteLine(DiagnosticAids.DumpDictionary("", animals.Memento.GetDictionary()));
 
-            Assert.IsTrue((double)animals["Dogs.Labs.Black"] == 19, "Black Lab is not 19");
-            Assert.IsTrue((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
-            Assert.IsTrue((double)animals["Dogs.Labs.Yellow"] == 1, "Yellow Lab is not 1");
-            Assert.IsTrue("Lovable".Equals((string)labs["Temperament"], StringComparison.Ordinal), "The Labs temperament is not Lovable");
-            Assert.IsTrue((double)animals["Dogs.Collies"] == 18, "Collies are not 18");
-            Assert.IsTrue((double)animals["Dogs.Chows"] == 16, "Chows are not 16");
-            Assert.IsTrue((double)animals["Horses"] == 12, "Horses are not 12");
-            Assert.IsTrue("Animal".Equals((string)animals["Kingdom"], StringComparison.Ordinal), "The Kingdom is the Animal Kingdom");
-            Assert.IsTrue((bool)labs["Faithful"], "Labs are faithful");
+            Assert.True((double)animals["Dogs.Labs.Black"] == 19, "Black Lab is not 19");
+            Assert.True((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
+            Assert.True((double)animals["Dogs.Labs.Yellow"] == 1, "Yellow Lab is not 1");
+            Assert.True("Lovable".Equals((string)labs["Temperament"], StringComparison.Ordinal), "The Labs temperament is not Lovable");
+            Assert.True((double)animals["Dogs.Collies"] == 18, "Collies are not 18");
+            Assert.True((double)animals["Dogs.Chows"] == 16, "Chows are not 16");
+            Assert.True((double)animals["Horses"] == 12, "Horses are not 12");
+            Assert.True("Animal".Equals((string)animals["Kingdom"], StringComparison.Ordinal), "The Kingdom is the Animal Kingdom");
+            Assert.True((bool)labs["Faithful"], "Labs are faithful");
         }
 
-        [TestMethod]
+        [Fact]
         [Utility.FieldDescription("Checks the base functionality of Name/Value, Name/String, Name/SPB, and set a value in a referenced SPB")]
         public void TestRepeatedSnapshottingAndRestoration()
         {
@@ -123,15 +123,15 @@ namespace Highpoint.Sage.Core
                 labs["Faithful"] = false;
                 labs["Faithful"] = true;
 
-                Assert.IsTrue((double)animals["Dogs.Labs.Black"] == 4, "Black Lab is not 4");
-                Assert.IsTrue((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
-                Assert.IsTrue((double)animals["Dogs.Labs.Yellow"] == 1, "Yellow Lab is not 1");
-                Assert.IsTrue("Mellow".Equals((string)labs["Temperament"], StringComparison.Ordinal), "The Lab's temperament is not Mellow");
-                Assert.IsTrue((double)animals["Dogs.Collies"] == 18, "Collies are not 18");
-                Assert.IsTrue((double)animals["Dogs.Chows"] == 16, "Chows are not 16");
-                Assert.IsTrue((double)animals["Horses"] == 12, "Horses are not 12");
-                Assert.IsTrue("Animal".Equals((string)animals["Kingdom"], StringComparison.Ordinal), "The Kingdom is not the Animal Kingdom");
-                Assert.IsTrue((bool)labs["Faithful"], "Labs are not faithful");
+                Assert.True((double)animals["Dogs.Labs.Black"] == 4, "Black Lab is not 4");
+                Assert.True((double)animals["Dogs.Labs.Brown"] == 2, "Brown Lab is not 2");
+                Assert.True((double)animals["Dogs.Labs.Yellow"] == 1, "Yellow Lab is not 1");
+                Assert.True("Mellow".Equals((string)labs["Temperament"], StringComparison.Ordinal), "The Lab's temperament is not Mellow");
+                Assert.True((double)animals["Dogs.Collies"] == 18, "Collies are not 18");
+                Assert.True((double)animals["Dogs.Chows"] == 16, "Chows are not 16");
+                Assert.True((double)animals["Horses"] == 12, "Horses are not 12");
+                Assert.True("Animal".Equals((string)animals["Kingdom"], StringComparison.Ordinal), "The Kingdom is not the Animal Kingdom");
+                Assert.True((bool)labs["Faithful"], "Labs are not faithful");
 
                 //Debug.WriteLine(DiagnosticAids.DumpDictionary("",(IDictionary)animals.Memento.GetDictionary()));
                 mem = dogs.Memento;
@@ -146,7 +146,7 @@ namespace Highpoint.Sage.Core
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks the functionality of the memento concept")]
         public void TestMementoCaching()
         {
@@ -161,25 +161,25 @@ namespace Highpoint.Sage.Core
             Highpoint.Sage.Utility.Mementos.IMemento mem2 = spb1.Memento;
             Debug.WriteLine(DiagnosticAids.DumpDictionary("mem2", mem2.GetDictionary()));
             Debug.WriteLine("The new snapshot is " + (mem1 == mem2 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem2 == mem1, "Memento 1 is not equal Memento 2");
+            Assert.True(mem2 == mem1, "Memento 1 is not equal Memento 2");
 
-            Assert.IsTrue((double)spb1["Steve"] == 12, "Steve is not 12");
-            Assert.IsTrue("SPB1".Equals(spb1["Name"]), "Name is not SPB1");
+            Assert.True((double)spb1["Steve"] == 12, "Steve is not 12");
+            Assert.True("SPB1".Equals(spb1["Name"]), "Name is not SPB1");
 
             Debug.WriteLine("Changing \"Fred\" to 14 from 12.");
             spb1["Fred"] = 14;
             Highpoint.Sage.Utility.Mementos.IMemento mem3 = spb1.Memento;
             Debug.WriteLine(DiagnosticAids.DumpDictionary("mem3", mem3.GetDictionary()));
             Debug.WriteLine("The new snapshot is " + (mem2 == mem3 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem2 != mem3, "Memento 2 is not not equal to Memento 3");
-            Assert.IsTrue((double)spb1["Fred"] == 14, "Fred is not 14");
+            Assert.True(mem2 != mem3, "Memento 2 is not not equal to Memento 3");
+            Assert.True((double)spb1["Fred"] == 14, "Fred is not 14");
 
             Debug.WriteLine("Changing \"Name\" to \"spb1\" from \"SPB1\".");
             spb1["Name"] = "spb1";
             Highpoint.Sage.Utility.Mementos.IMemento mem3a = spb1.Memento;
             Debug.WriteLine(DiagnosticAids.DumpDictionary("mem3a", mem3a.GetDictionary()));
             Debug.WriteLine("The new snapshot is " + (mem2 == mem3a ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem2 != mem3a, "Memento 2 is equal to memento 3a");
+            Assert.True(mem2 != mem3a, "Memento 2 is equal to memento 3a");
 
             spb1.AddValue("_Connie", 99);
 
@@ -190,26 +190,26 @@ namespace Highpoint.Sage.Core
             Highpoint.Sage.Utility.Mementos.IMemento mem4 = spb1.Memento;
             Highpoint.Sage.Utility.Mementos.IMemento mem5 = spb1.Memento;
             Debug.WriteLine("The new snapshot is " + (mem4 == mem5 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem5 == mem4, "Memento 5 is not equal to memento 4");
+            Assert.True(mem5 == mem4, "Memento 5 is not equal to memento 4");
 
             Debug.WriteLine("\r\nChanging a value in a foreign alias.");
             spb2["_Pete"] = 16;
 
             Highpoint.Sage.Utility.Mementos.IMemento mem6 = spb1.Memento;
             Debug.WriteLine("The new snapshot is " + (mem5 == mem6 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem5 != mem6, "Memento is equal to memento 6");
+            Assert.True(mem5 != mem6, "Memento is equal to memento 6");
 
             Debug.WriteLine("Capturing another snapshot without change.");
             Highpoint.Sage.Utility.Mementos.IMemento mem7 = spb1.Memento;
             Debug.WriteLine("The new snapshot is " + (mem6 == mem7 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem6 == mem7, "Memento 6 is not equal to memento 7");
+            Assert.True(mem6 == mem7, "Memento 6 is not equal to memento 7");
 
             Debug.WriteLine("Changing the data driving a delegate-computed value.");
             _steve = 14;
 
             Highpoint.Sage.Utility.Mementos.IMemento mem8 = spb1.Memento;
             Debug.WriteLine("The new snapshot is " + (mem8 == mem7 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem7 != mem8, "Memento 7 is equal to memento 8");
+            Assert.True(mem7 != mem8, "Memento 7 is equal to memento 8");
 
             Debug.WriteLine("\r\nWe will now test snapshotting's functionality as it pertains to subsidiaries.");
 
@@ -222,18 +222,18 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("Taking another immediately-following snapshot.");
             Highpoint.Sage.Utility.Mementos.IMemento mem10 = spb1.Memento;
             Debug.WriteLine("The new snapshot is " + (mem9 == mem10 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem10 == mem9, "Memento 10 is not equal to memento 9");
+            Assert.True(mem10 == mem9, "Memento 10 is not equal to memento 9");
 
 
             Debug.WriteLine("Changing a data member in a subsidiary.");
             spb1_1["marine"] = 21;
             Highpoint.Sage.Utility.Mementos.IMemento mem11 = spb1.Memento;
             Debug.WriteLine("The new snapshot is " + (mem10 == mem11 ? "" : "not ") + "equal to the one preceding it.\r\n");
-            Assert.IsTrue(mem11 != mem10, "Memento 11 is equal to memento 10");
+            Assert.True(mem11 != mem10, "Memento 11 is equal to memento 10");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that a smart property bag can copy information through simply copying the memento from one instance to the other")]
         public void TestMementoRestorationAndEquality()
         {
@@ -249,16 +249,16 @@ namespace Highpoint.Sage.Core
             SmartPropertyBag spb2 = new SmartPropertyBag();
             spb2.Memento = mem1;
 
-            Assert.IsTrue(spb1 != spb2, "Object spb1 and spb2 cannot be the same instance");
-            Assert.IsTrue(spb1.Equals(spb2), "SPB1 and SPB2 should be equal");
-            Assert.IsTrue(spb1.Memento == spb2.Memento, "SPB1.Memento and SPB2.Memento should be equal");
+            Assert.True(spb1 != spb2, "Object spb1 and spb2 cannot be the same instance");
+            Assert.True(spb1.Equals(spb2), "SPB1 and SPB2 should be equal");
+            Assert.True(spb1.Memento == spb2.Memento, "SPB1.Memento and SPB2.Memento should be equal");
 
             Debug.WriteLine(DiagnosticAids.DumpDictionary("Before", spb1.Memento.GetDictionary()));
             Debug.WriteLine(DiagnosticAids.DumpDictionary("After", spb2.Memento.GetDictionary()));
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks managing values, strings, booleans, and aliases over more levels.")]
         public void TestStringsAndBooleans()
         {
@@ -278,7 +278,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine(spb2["OtherGuysHot"]);
             spb1["Hot"] = false;
             Debug.WriteLine(spb2["OtherGuysHot"]);
-            Assert.IsTrue(!(bool)spb2["OtherGuysHot"], "OtherGuysHot is not false");
+            Assert.True(!(bool)spb2["OtherGuysHot"], "OtherGuysHot is not false");
 
 
             spb1.AddAlias("OtherGuysName", spb2, "Name");
@@ -300,13 +300,13 @@ namespace Highpoint.Sage.Core
             spb2["Name"] = "Jalapeño";
             spb2["Scovilles"] = 16000;
 
-            Assert.IsTrue(!(bool)spb0["Habanero.Hot"], "Habanero.Hot is hot");
-            Assert.IsTrue("Habañero".Equals((string)spb0["Habanero.Name"], StringComparison.Ordinal), "Habanero.Name is not Habañero");
-            Assert.IsTrue((double)spb0["Habanero.Scovilles"] == 32000, "Habanero.Scovilles is not 32000");
+            Assert.True(!(bool)spb0["Habanero.Hot"], "Habanero.Hot is hot");
+            Assert.True("Habañero".Equals((string)spb0["Habanero.Name"], StringComparison.Ordinal), "Habanero.Name is not Habañero");
+            Assert.True((double)spb0["Habanero.Scovilles"] == 32000, "Habanero.Scovilles is not 32000");
 
-            Assert.IsTrue((bool)spb0["Jalapeno.Hot"], "Jalapeno.Hot is not hot");
-            Assert.IsTrue("Jalapeño".Equals((string)spb0["Jalapeno.Name"], StringComparison.Ordinal), "Jalapeno.Name is not Jalapeño");
-            Assert.IsTrue((double)spb0["Jalapeno.Scovilles"] == 16000, "Jalapeno.Scovilles is not 16000");
+            Assert.True((bool)spb0["Jalapeno.Hot"], "Jalapeno.Hot is not hot");
+            Assert.True("Jalapeño".Equals((string)spb0["Jalapeno.Name"], StringComparison.Ordinal), "Jalapeno.Name is not Jalapeño");
+            Assert.True((double)spb0["Jalapeno.Scovilles"] == 16000, "Jalapeno.Scovilles is not 16000");
 
             Highpoint.Sage.Utility.Mementos.IMemento mem2 = spb0.Memento;
 
@@ -320,17 +320,17 @@ namespace Highpoint.Sage.Core
 
             Highpoint.Sage.Utility.Mementos.IMemento mem3 = spb0.Memento;
 
-            Assert.IsTrue((bool)spb0["Habanero.Hot"], "Habanero.Hot is not hot");
-            Assert.IsTrue((double)spb0["Habanero.Scovilles"] == 29000, "Habanero.Scovilles is not 29000");
+            Assert.True((bool)spb0["Habanero.Hot"], "Habanero.Hot is not hot");
+            Assert.True((double)spb0["Habanero.Scovilles"] == 29000, "Habanero.Scovilles is not 29000");
 
-            Assert.IsTrue(!(bool)spb0["Jalapeno.Hot"], "Jalapeno.Hot is not hot");
-            Assert.IsTrue((double)spb0["Jalapeno.Scovilles"] == 12000, "Jalapeno.Scovilles is not 12000");
+            Assert.True(!(bool)spb0["Jalapeno.Hot"], "Jalapeno.Hot is not hot");
+            Assert.True((double)spb0["Jalapeno.Scovilles"] == 12000, "Jalapeno.Scovilles is not 12000");
 
             Debug.WriteLine(DiagnosticAids.DumpDictionary("After more...", mem3.GetDictionary()));
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks that a smart property bag implements IEnumerable interface correctly")]
         public void TestEnumerationAndIsLeaf()
         {
@@ -355,11 +355,11 @@ namespace Highpoint.Sage.Core
 
             DumpEnumerable(animals, 0);
 
-            Assert.IsTrue(true, "Visual test not successful");
+            Assert.True(true, "Visual test not successful");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to make sure that a SPB, when asked for an object that is not present in the bag, returns null, not smoke.")]
         public void TestRetrieveNonexistentItem()
         {
@@ -368,11 +368,11 @@ namespace Highpoint.Sage.Core
             try
             {
                 object x = sciences["Phlebotomy"];
-                Assert.IsTrue(true);
+                Assert.True(true);
             }
             catch
             {
-                Assert.IsTrue(false);
+                Assert.True(false);
             }
 
         }

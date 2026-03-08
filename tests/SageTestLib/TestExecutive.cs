@@ -1,6 +1,6 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,8 +10,8 @@ using System.Threading;
 namespace Highpoint.Sage.Core
 {
 
-    [TestClass]
-    public class ExecTester
+
+    public class ExecTester : IDisposable
     {
 
         #region Private Fields
@@ -31,12 +31,12 @@ namespace Highpoint.Sage.Core
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -44,7 +44,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// Checks to see that an executive can store & service all submitted events.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can store & service all submitted events.")]
         public void TestExecutiveCount()
         {
@@ -79,7 +79,7 @@ namespace Highpoint.Sage.Core
             exec.Start();
 
             // test validate variable
-            Assert.IsTrue(0 == _validateCount, "Executive did not submit all events");
+            Assert.True(0 == _validateCount, "Executive did not submit all events");
 
             Debug.WriteLine("");
         }
@@ -93,7 +93,7 @@ namespace Highpoint.Sage.Core
         /// Checks to see that an executive can store & service all submitted events, 
         /// using RequestEvent method without the event type parameter.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can store & service all submitted events, using RequestEvent method without the event type parameter.")]
         public void TestExecutiveCountDefaultParameter()
         {
@@ -128,7 +128,7 @@ namespace Highpoint.Sage.Core
             exec.Start();
 
             // test validate variable
-            Assert.IsTrue(0 == _validateCount, "Executive did not submit all events");
+            Assert.True(0 == _validateCount, "Executive did not submit all events");
 
             Debug.WriteLine("");
         }
@@ -142,7 +142,7 @@ namespace Highpoint.Sage.Core
         /// Checks to see that an executive can store & service all submitted events, 
         /// ordered by the requested callback priority at the same callback time.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can store & service all submitted events, ordered by the requested callback priority at the same callback time.")]
         public void TestExecutivePriority()
         {
@@ -176,7 +176,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
 
             // test validate variable
-            Assert.IsTrue(!_error, "Executive did not submit events in the order of the correct priority");
+            Assert.True(!_error, "Executive did not submit events in the order of the correct priority");
 
             Debug.WriteLine("");
         }
@@ -195,7 +195,7 @@ namespace Highpoint.Sage.Core
         /// Checks to see that an executive can store & service all submitted events, 
         /// ordered by the requested callback time.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can store & service all submitted events, ordered by the requested callback time.")]
         public void TestExecutiveWhen()
         {
@@ -226,7 +226,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
 
             // test validation variable
-            Assert.IsTrue(!_error, "Executive did not submit events in correct date/time order");
+            Assert.True(!_error, "Executive did not submit events in correct date/time order");
 
             Debug.WriteLine("");
         }
@@ -245,7 +245,7 @@ namespace Highpoint.Sage.Core
         /// Checks to see that an executive can unrequest submitted events, 
         /// identifying the events by a hash code
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can unrequest submitted events, identifying the events by a hash code.")]
         public void TestExecutiveUnRequestHash()
         {
@@ -295,7 +295,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
 
             // test validation variable
-            Assert.IsTrue(!_error, "Executive did fire a unrequested event");
+            Assert.True(!_error, "Executive did fire a unrequested event");
 
             Debug.WriteLine("");
         }
@@ -313,7 +313,7 @@ namespace Highpoint.Sage.Core
         /// Checks to see that an executive can unrequest submitted events, 
         /// identifying the events by a target object.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can unrequest submitted events, identifying the events by a target object.")]
         public void TestExecutiveUnRequestTarget()
         {
@@ -366,7 +366,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
 
             // test validation variable
-            Assert.IsTrue(!_error, "Executive did fire a unrequested event");
+            Assert.True(!_error, "Executive did fire a unrequested event");
 
             Debug.WriteLine("");
         }
@@ -374,7 +374,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// Checks to see that an executive can unrequest submitted events, identifying the events by a delegate method.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can unrequest submitted events, identifying the events by a delegate method.")]
         public void TestExecutiveUnRequestDelegate()
         {
@@ -425,7 +425,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
 
             // test validation variable
-            Assert.IsTrue(!_error, "Executive did fire a unrequested event");
+            Assert.True(!_error, "Executive did fire a unrequested event");
 
             Debug.WriteLine("");
         }
@@ -433,7 +433,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// Checks to see that an executive can start, then stop and restart.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can start, then stop and restart.")]
         public void TestExecutiveStopStart()
         {
@@ -465,7 +465,7 @@ namespace Highpoint.Sage.Core
             // Finally, assess the comparative durations to ensure the test passed.
             Debug.WriteLine("Total test duration was " + pauseDuration.TotalSeconds + " seconds.");
             TimeSpan minAcceptableDuration = shortDuration + TimeSpan.FromMilliseconds(1500);
-            Assert.IsTrue(pauseDuration > minAcceptableDuration,
+            Assert.True(pauseDuration > minAcceptableDuration,
                 "Test duration of less than " + minAcceptableDuration.TotalSeconds
                 + " seconds indicates a failure to properly stop and restart.");
         }
@@ -474,7 +474,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// Checks to see that an executive can start, then stop and restart.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can start, then stop and restart.")]
         public void TestExecutivePauseResume()
         {
@@ -504,7 +504,7 @@ namespace Highpoint.Sage.Core
             // Finally, assess the comparative durations to ensure the test passed.
             Debug.WriteLine("Total test duration was " + pauseDuration.TotalSeconds + " seconds.");
             TimeSpan minAcceptableDuration = shortDuration + TimeSpan.FromMilliseconds(1500);
-            Assert.IsTrue(pauseDuration > minAcceptableDuration,
+            Assert.True(pauseDuration > minAcceptableDuration,
                 "Test duration of less than " + minAcceptableDuration.TotalSeconds + " seconds indicates a failure to properly stop and restart.");
         }
 
@@ -602,7 +602,7 @@ namespace Highpoint.Sage.Core
         /// Checks to see that an executive can unrequest submitted events, 
         /// identifying the events by a selector.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can unrequest submitted events, identifying the events by a selector.")]
         public void TestExecutiveUnRequestSelector()
         {
@@ -655,7 +655,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
 
             // test validation variable
-            Assert.IsTrue(!_error, "Executive fired a unrequested event");
+            Assert.True(!_error, "Executive fired a unrequested event");
 
             Debug.WriteLine("");
         }
@@ -685,7 +685,7 @@ namespace Highpoint.Sage.Core
         /// <summary>
         /// Checks to see that an executive can handle seperate threads.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that an executive can handle seperate threads.")]
         public void TestThreadSepFunctionality()
         {
@@ -776,11 +776,11 @@ namespace Highpoint.Sage.Core
                                              "9/1/1998 1:06:39 AM"};
         #endregion Test Times
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Heap collection.")]
         public void RecreateFailure()
         {
-            IExecutive exec = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.ExecutiveFastLight, Highpoint.Sage", Guid.NewGuid());
+            IExecutive exec = ExecFactory.Instance.CreateExecutive("Highpoint.Sage.Core.ExecutiveFastLight, Sage", Guid.NewGuid());
             foreach (string s in _testTimes)
             {
                 DateTime dt = DateTime.Parse(s);
@@ -802,7 +802,7 @@ namespace Highpoint.Sage.Core
             Console.WriteLine("At " + exec.Now + ", servicing event that was requested for " + userData.ToString() + errMsg);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test different mechanisms for acquiring an instance of IExecutive.")]
         public void TestExecAcquisition()
         {
@@ -829,7 +829,7 @@ namespace Highpoint.Sage.Core
             Console.WriteLine(exec4.ToString());
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the event that is supposed to fire each time the clock is supposed to change.")]
         public void TestClockAboutToChangeEvent()
         {
@@ -853,7 +853,7 @@ namespace Highpoint.Sage.Core
 
             Console.WriteLine(_result);
 
-            Assert.IsTrue(_result.Equals("16/05/2007 12:34:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:34:56 PM, is about to change.\r\n16/05/2007 12:35:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:35:56 PM, is about to change.\r\n16/05/2007 12:37:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:37:56 PM, is about to change.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:40:56 PM, is about to change.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:42:56 PM, is about to change.\r\n16/05/2007 12:44:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:44:56 PM, is about to change.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:47:56 PM, is about to change.\r\n16/05/2007 12:51:56 PM : Event is firing.\r\n", StringComparison.Ordinal));
+            Assert.True(_result.Equals("16/05/2007 12:34:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:34:56 PM, is about to change.\r\n16/05/2007 12:35:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:35:56 PM, is about to change.\r\n16/05/2007 12:37:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:37:56 PM, is about to change.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:40:56 PM, is about to change.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:42:56 PM, is about to change.\r\n16/05/2007 12:44:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:44:56 PM, is about to change.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:47:56 PM, is about to change.\r\n16/05/2007 12:51:56 PM : Event is firing.\r\n", StringComparison.Ordinal));
         }
 
         private string _result = null;
@@ -873,7 +873,7 @@ namespace Highpoint.Sage.Core
         }
 
         private int _exec1_ExecutiveStarted_SingleShot_Count = 0;
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the single shot event (fires once when the first event is about to fire, then unregisters.")]
         public void TestSingleShotEvent()
         {
@@ -908,7 +908,7 @@ namespace Highpoint.Sage.Core
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Executive's capability to run fast with a range of event type mixes.")]
         public void TestPerformance()
         {
@@ -952,7 +952,7 @@ namespace Highpoint.Sage.Core
             }
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test the Executive's capability to execute a simple event join.")]
         public void TestEventJoinDetachable()
         {
@@ -1005,7 +1005,7 @@ namespace Highpoint.Sage.Core
         // IExecutive.LiveDetachableEvents that must survive the Phase 1 and Phase 2
         // collection migrations.
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that events queued on the executive appear in EventList in chronological order.")]
         public void TestEventListContainsQueuedEvents()
         {
@@ -1019,15 +1019,15 @@ namespace Highpoint.Sage.Core
             exec.RequestEvent(new ExecEventReceiver((e, ud) => { }), t2, 0.0, "second");
 
             IReadOnlyList<IExecEvent> eventList = exec.EventList;
-            Assert.AreEqual(3, eventList.Count, "EventList should contain 3 queued events");
+            Assert.Equal(3, eventList.Count);
 
             // EventList snapshot is sorted chronologically
-            Assert.AreEqual(t1, eventList[0].When, "First event in list should be earliest");
-            Assert.AreEqual(t2, eventList[1].When, "Second event in list should be middle");
-            Assert.AreEqual(t3, eventList[2].When, "Third event in list should be latest");
+            Assert.Equal(t1, eventList[0].When);
+            Assert.Equal(t2, eventList[1].When);
+            Assert.Equal(t3, eventList[2].When);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that EventList.IsReadOnly is true — callers cannot mutate the queue through the list reference.")]
         public void TestEventListIsReadOnly()
         {
@@ -1035,14 +1035,14 @@ namespace Highpoint.Sage.Core
             exec.RequestEvent(new ExecEventReceiver((e, ud) => { }), new DateTime(2025, 6, 1), 0.0, null);
 
             IReadOnlyList<IExecEvent> eventList = exec.EventList;
-            Assert.IsInstanceOfType(eventList, typeof(IList), "EventList should expose IList for read-only inspection");
-            Assert.IsTrue(((IList)eventList).IsReadOnly, "EventList must be read-only so callers cannot corrupt the event queue");
+            Assert.IsAssignableFrom<IList>(eventList);
+            Assert.True(((IList)eventList).IsReadOnly, "EventList must be read-only so callers cannot corrupt the event queue");
         }
 
         // Fields used by TestLiveDetachableEventsContainsRunningEvent
         private int _liveDetachCountDuringEvent = -1;
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that LiveDetachableEvents contains the running event during execution and is empty after the executive completes.")]
         public void TestLiveDetachableEventsContainsRunningEvent()
         {
@@ -1052,8 +1052,8 @@ namespace Highpoint.Sage.Core
             exec.RequestEvent(new ExecEventReceiver(CaptureDetachableCount), when, 0.0, null, ExecEventType.Detachable);
             exec.Start();
 
-            Assert.AreEqual(1, _liveDetachCountDuringEvent, "LiveDetachableEvents should contain exactly 1 running event during detachable event execution");
-            Assert.AreEqual(0, exec.LiveDetachableEvents.Count, "LiveDetachableEvents should be empty after all events have completed");
+            Assert.Equal(1, _liveDetachCountDuringEvent);
+            Assert.Equal(0, exec.LiveDetachableEvents.Count);
         }
 
         private void CaptureDetachableCount(IExecutive exec, object userData)
@@ -1061,13 +1061,13 @@ namespace Highpoint.Sage.Core
             _liveDetachCountDuringEvent = exec.LiveDetachableEvents.Count;
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies that LiveDetachableEvents.IsReadOnly is true — callers cannot mutate the live-event list.")]
         public void TestLiveDetachableEventsIsReadOnly()
         {
             IExecutive exec = ExecFactory.Instance.CreateExecutive();
-            Assert.IsInstanceOfType(exec.LiveDetachableEvents, typeof(IList), "LiveDetachableEvents should expose IList for read-only inspection");
-            Assert.IsTrue(((IList)exec.LiveDetachableEvents).IsReadOnly, "LiveDetachableEvents must be read-only so callers cannot corrupt the running-event list");
+            Assert.IsAssignableFrom<IList>(exec.LiveDetachableEvents);
+            Assert.True(((IList)exec.LiveDetachableEvents).IsReadOnly, "LiveDetachableEvents must be read-only so callers cannot corrupt the running-event list");
         }
 
         // ── Phase 2 prep tests ────────────────────────────────────────────────────
@@ -1075,24 +1075,22 @@ namespace Highpoint.Sage.Core
         // changes in Phase 2 (ArrayList → IReadOnlyList<T>).  They will remain
         // ignored (and compilable) until those changes are applied.
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that IExecutive.EventList is typed as IReadOnlyList<IExecEvent>.")]
         public void TestEventListTypedAsIReadOnlyList()
         {
             IExecutive exec = ExecFactory.Instance.CreateExecutive();
             // After Phase 2 this cast must succeed; currently EventList returns IList.
-            Assert.IsInstanceOfType(exec.EventList, typeof(IReadOnlyList<IExecEvent>),
-                "EventList should be typed as IReadOnlyList<IExecEvent> after Phase 2 migration");
+            Assert.IsAssignableFrom<IReadOnlyList<IExecEvent>>(exec.EventList);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that IExecutive.LiveDetachableEvents is typed as IReadOnlyList<IDetachableEventController>.")]
         public void TestLiveDetachableEventsTypedAsIReadOnlyList()
         {
             IExecutive exec = ExecFactory.Instance.CreateExecutive();
             // After Phase 2 this cast must succeed; currently LiveDetachableEvents returns ArrayList.
-            Assert.IsInstanceOfType(exec.LiveDetachableEvents, typeof(IReadOnlyList<IDetachableEventController>),
-                "LiveDetachableEvents should be typed as IReadOnlyList<IDetachableEventController> after Phase 2 migration");
+            Assert.IsAssignableFrom<IReadOnlyList<IDetachableEventController>>(exec.LiveDetachableEvents);
         }
 
         #region Internal Methods

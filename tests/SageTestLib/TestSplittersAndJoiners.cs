@@ -2,7 +2,7 @@
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.ItemBased.SplittersAndJoiners;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -12,17 +12,17 @@ namespace Highpoint.Sage.ItemBased.Blocks
     /// <summary>
     /// Summary description for zTestBranchBlocks.
     /// </summary>
-    [TestClass]
-    public class SplitterTester
+
+    public class SplitterTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -34,7 +34,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestSplitters()
         {
 
@@ -46,7 +46,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
                 port.PortDataPresented += new PortDataEvent(OnPortDataPresented);
 
             sps.Input.Put(new object());
-            Assert.IsTrue(_lastResult == _nPorts + 1, "Not all output ports reported arrival of the pushed object.");
+            Assert.True(_lastResult == _nPorts + 1, "Not all output ports reported arrival of the pushed object.");
         }
 
         private void OnPortDataPresented(object data, IPort where)
@@ -59,17 +59,17 @@ namespace Highpoint.Sage.ItemBased.Blocks
     /// <summary>
     /// Summary description for zTestBranchBlocks.
     /// </summary>
-    [TestClass]
-    public class JoinerTester
+
+    public class JoinerTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -81,7 +81,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestJoiner()
         {
 
@@ -97,7 +97,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
                 if (port is IInputPort)
                     ((IInputPort)port).Put(new object());
             }
-            Assert.IsTrue(_lastResult == _nPorts * 2, "Not all output ports reported arrival of the pushed object.");
+            Assert.True(_lastResult == _nPorts * 2, "Not all output ports reported arrival of the pushed object.");
         }
 
         private void OnPortDataPresented(object data, IPort where)

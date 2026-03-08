@@ -1,6 +1,6 @@
-﻿using Highpoint.Sage.Mathematics;
+using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.SystemDynamics.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +12,7 @@ using System.Xml.Linq;
 namespace Highpoint.Sage.SystemDynamics
 {
 
-    [TestClass]
+
     public class BoilingPointTester
     {
         public BoilingPointTester()
@@ -20,12 +20,12 @@ namespace Highpoint.Sage.SystemDynamics
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLynxHare()
         {
 

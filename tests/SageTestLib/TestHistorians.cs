@@ -1,15 +1,15 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Randoms;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Utility
 {
 
-    [TestClass]
-    public class HistorianTester
+
+    public class HistorianTester : IDisposable
     {
         private readonly RandomServer _rs;
         public HistorianTester()
@@ -17,12 +17,12 @@ namespace Highpoint.Sage.Utility
             _rs = new RandomServer();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -32,7 +32,7 @@ namespace Highpoint.Sage.Utility
         TimeSpan _accumulatedDeviation = TimeSpan.Zero;
         readonly DateTime _startDate = new DateTime(2006, 01, 27, 09, 26, 00);
 
-        [TestMethod]
+        [Fact]
         public void TestEventTimeHistorian()
         {
             IRandomChannel irc = _rs.GetRandomChannel();

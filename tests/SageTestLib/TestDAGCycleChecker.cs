@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -9,8 +9,8 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Graphs
 {
 
-    [TestClass]
-    public class DAGCycleCheckerTester
+
+    public class DAGCycleCheckerTester : IDisposable
     {
 
         private Random _random;
@@ -21,17 +21,17 @@ namespace Highpoint.Sage.Graphs
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test initializes a model and runs a validation")]
         public void TestBasicValidation()
         {
@@ -91,7 +91,7 @@ namespace Highpoint.Sage.Graphs
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test initializes a model and runs a validation")]
         public void TestValidationWithImpliedRelationships()
         {
@@ -122,7 +122,7 @@ namespace Highpoint.Sage.Graphs
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test initializes a model and runs a validation")]
         public void TestValidationPerformance()
         {
@@ -158,7 +158,7 @@ namespace Highpoint.Sage.Graphs
                 Console.WriteLine(i.ToString() + "," + (TimeSpan.FromTicks(totalTicks / nSeeds)).TotalSeconds);
             }
         }
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test initializes a model and runs a validation")]
         public void TestInnerEdgePerformance()
         {

@@ -1,26 +1,26 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Mathematics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Tests.Mathematics
 {
 
-    [TestClass]
-    public class zTestRationalizer
+
+    public class zTestRationalizer : IDisposable
     {
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test checks the basic function of a rationalizer to five digits, and fractions up to ninths.")]
         public void TestBaseFunctionality()
         {

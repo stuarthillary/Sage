@@ -2,30 +2,30 @@
 #if NYRFPT
 using System;
 using System.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using Highpoint.Sage.Graphs;
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Persistence;
 
 namespace Highpoint.Sage.Graphs.Tasks {
 
-	[TestClass]
+
 	public class TaskGraphPersistenceTester {
 		private Random m_random = new Random();
 
 		public TaskGraphPersistenceTester(){Init();}
         
-		[TestInitialize] 
+
 		public void Init() {
 		}
-		[TestCleanup]
-		public void destroy() {
+
+		public void Dispose() {
 			Debug.WriteLine( "Done." );
 		}
 		
 		// Ta(4 hr) -> Tb(1 hr)
 		// Tc(1 hr) -> Td(1 hr) Check to see that Td starts at T=1.
-		[TestMethod]
+		[Fact]
 		[Highpoint.Sage.Utility.FieldDescription("Checks to see that a plain graph can be created, stored and reloaded.  It also confirms that Td still starts at T=1")]
 		public void TestPlainGraphPersistence(){
 
@@ -37,27 +37,27 @@ namespace Highpoint.Sage.Graphs.Tasks {
 
 			tg1.model.Start();
 
-			Assert.AreEqual(tg1.ta.GetStartTime(tg1.GraphContext),new DateTime(1,1,1,0,0,0), "Task A did not start at 12AM 1/1/1");
-			Assert.AreEqual(tg1.ta.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
+			Assert.Equal(tg1.ta.GetStartTime(tg1.GraphContext),new DateTime(1,1,1,0,0,0), "Task A did not start at 12AM 1/1/1");
+			Assert.Equal(tg1.ta.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
 
-			Assert.AreEqual(tg1.tb.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
-			Assert.AreEqual(tg1.tb.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,5,0,0), "Task B did not finish at 5AM 1/1/1");
+			Assert.Equal(tg1.tb.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
+			Assert.Equal(tg1.tb.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,5,0,0), "Task B did not finish at 5AM 1/1/1");
 
-			Assert.AreEqual(tg1.tc.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,0,0,0), "Task C did not start at 12AM 1/1/1");
-			Assert.AreEqual(tg1.tc.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,1,0,0), "Task C did not finish at 1AM 1/1/1");
+			Assert.Equal(tg1.tc.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,0,0,0), "Task C did not start at 12AM 1/1/1");
+			Assert.Equal(tg1.tc.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,1,0,0), "Task C did not finish at 1AM 1/1/1");
 
-			Assert.AreEqual(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,1,0,0), "Task D did not start at 1AM 1/1/1");
-			Assert.AreEqual(tg1.td.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,2,0,0), "Task D did not start at 1AM 1/1/1");
+			Assert.Equal(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,1,0,0), "Task D did not start at 1AM 1/1/1");
+			Assert.Equal(tg1.td.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,2,0,0), "Task D did not start at 1AM 1/1/1");
 
-			Assert.AreEqual(tg1.parent.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,0,0,0), "Task parent did not start at 12AM 1/1/1");
+			Assert.Equal(tg1.parent.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,0,0,0), "Task parent did not start at 12AM 1/1/1");
 			// AEL, bug \"Set finish time on a task\" submitted
-			//Assert.AreEqual(tg1.parent.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,5,0,0), "Task parent did not finish at 5AM 1/1/1");
+			//Assert.Equal(tg1.parent.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,5,0,0), "Task parent did not finish at 5AM 1/1/1");
 
 		}
 
 		// Ta(4 hr) -> Tb(1 hr)
 		// Tc(1 hr) -> Td(1 hr) (Td costart-slaved to Tb, so it starts at t=4, not t=1.)
-		[TestMethod]
+		[Fact]
 		[Highpoint.Sage.Utility.FieldDescription("Checks to see that store and reload also works with a costart relationship defined.  It also confirms that Td still costart-slaved to Tb, so it starts at t=4, not t=1.")]
 		public void TestCoStartPersistance(){
 
@@ -70,15 +70,15 @@ namespace Highpoint.Sage.Graphs.Tasks {
 
 			tg1.model.Start();
 
-			Assert.AreEqual(tg1.tb.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
+			Assert.Equal(tg1.tb.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
 
-			Assert.AreEqual(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task D did not start at 4AM 1/1/1");
+			Assert.Equal(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task D did not start at 4AM 1/1/1");
 
 		}
 
 		// Ta(4 hr) -> Tb(1 hr)
 		// Tc(1 hr) -> Td(1 hr) (Tc cofinish-slaved to Ta, so it ends at t=4, not t=1.)
-		[TestMethod]
+		[Fact]
 		[Highpoint.Sage.Utility.FieldDescription("Checks to see that store and reload also works with a cofinish relationship defined.  It also confirms that Tc still cofinish-slaved to Ta, so it ends at t=4, not t=1.")]
 		public void TestCoFinishPersistence(){
 
@@ -91,15 +91,15 @@ namespace Highpoint.Sage.Graphs.Tasks {
 
 			tg1.model.Start();
 
-			Assert.AreEqual(tg1.ta.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
+			Assert.Equal(tg1.ta.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
 
-			Assert.AreEqual(tg1.tc.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task C did not finish at 4AM 1/1/1");
+			Assert.Equal(tg1.tc.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task C did not finish at 4AM 1/1/1");
 
 		}
 
 		// Ta(4 hr) -> Tb(1 hr)
 		// Tc(1 hr) -> Td(1 hr) (Tc.finish synched to Ta.finish, so tb and td start at t=4.)
-		[TestMethod] 
+		[Fact] 
 		[Highpoint.Sage.Utility.FieldDescription("Checks to see that store and reload also works with a synchro start relationship defined.  It also confirms that Td still SynchroStart-slaved to Tb as well as Tc still SynchroStart-slaved to Tb.")]
 		[Ignore(/*"Vertex deserialization not yet implemented in VertexSynchronizers."*/)]
 		public void TestSynchroStartPersistence(){
@@ -124,27 +124,27 @@ namespace Highpoint.Sage.Graphs.Tasks {
 			tg2.model.Start();
 
 			// Test graph 1
-			Assert.AreEqual(tg1.tb.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
+			Assert.Equal(tg1.tb.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
 
-			Assert.AreEqual(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task D did not start at 4AM 1/1/1");
+			Assert.Equal(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task D did not start at 4AM 1/1/1");
 
 			// AEL, bug \"Set finish time on a task\" submitted
-			//Assert.AreEqual(tg1.parent.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,5,0,0), "Task parent did not finish at 5AM 1/1/1");
+			//Assert.Equal(tg1.parent.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,5,0,0), "Task parent did not finish at 5AM 1/1/1");
 
 			// Test graph 2
-			Assert.AreEqual(tg2.tb.GetStartTime(tg2.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
+			Assert.Equal(tg2.tb.GetStartTime(tg2.GraphContext), new DateTime(1,1,1,4,0,0), "Task B did not start at 4AM 1/1/1");
 
-			Assert.AreEqual(tg2.tc.GetStartTime(tg2.GraphContext), new DateTime(1,1,1,4,0,0), "Task C did not start at 4AM 1/1/1");
+			Assert.Equal(tg2.tc.GetStartTime(tg2.GraphContext), new DateTime(1,1,1,4,0,0), "Task C did not start at 4AM 1/1/1");
 
 			// AEL, bug \"Set finish time on a task\" submitted
-			//Assert.AreEqual(tg2.parent.GetFinishTime(tg2.GraphContext), new DateTime(1,1,1,6,0,0), "Task parent did not finish at 6AM 1/1/1");
+			//Assert.Equal(tg2.parent.GetFinishTime(tg2.GraphContext), new DateTime(1,1,1,6,0,0), "Task parent did not finish at 6AM 1/1/1");
 
 		}
 
 		
 		// Ta(4 hr) -> Tb(1 hr)
 		// Tc(1 hr) -> Td(1 hr) (Tc.finish synched to Ta.finish, so tb and td start at t=4.)
-		[TestMethod] 
+		[Fact] 
 		[Highpoint.Sage.Utility.FieldDescription("Checks to see that store and reload also works with a synchro finish relationship defined."
 			 +"It also confirms that Tc still SynchroFinish-slaved to Ta as well as Ta still SynchroFinish-slaved to Tc.")]
 		[Ignore(/*"Synchro-finish is a future feature - not yet implemented in code."*/)]
@@ -166,22 +166,22 @@ namespace Highpoint.Sage.Graphs.Tasks {
 			loadXML(ref tg2);
 
 			// Test graph 1
-			Assert.AreEqual(tg1.ta.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
+			Assert.Equal(tg1.ta.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
 
-			Assert.AreEqual(tg1.tc.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task C did not finish at 4AM 1/1/1");
+			Assert.Equal(tg1.tc.GetFinishTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task C did not finish at 4AM 1/1/1");
 
-			Assert.AreEqual(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task D did not start at 4AM 1/1/1");
+			Assert.Equal(tg1.td.GetStartTime(tg1.GraphContext), new DateTime(1,1,1,4,0,0), "Task D did not start at 4AM 1/1/1");
 
 			tg1.model.Start();
 			Debug.WriteLine("Test 2");
 			tg2.model.Start();
 
 			// Test graph 2
-			Assert.AreEqual(tg2.ta.GetFinishTime(tg2.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
+			Assert.Equal(tg2.ta.GetFinishTime(tg2.GraphContext), new DateTime(1,1,1,4,0,0), "Task A did not finish at 4AM 1/1/1");
 
-			Assert.AreEqual(tg2.tc.GetFinishTime(tg2.GraphContext), new DateTime(1,1,1,1,0,0), "Task C did not finish at 1AM 1/1/1");
+			Assert.Equal(tg2.tc.GetFinishTime(tg2.GraphContext), new DateTime(1,1,1,1,0,0), "Task C did not finish at 1AM 1/1/1");
 
-			Assert.AreEqual(tg2.td.GetStartTime(tg2.GraphContext), new DateTime(1,1,1,1,0,0), "Task D did not start at 1AM 1/1/1");
+			Assert.Equal(tg2.td.GetStartTime(tg2.GraphContext), new DateTime(1,1,1,1,0,0), "Task D did not start at 1AM 1/1/1");
 
 		}
 

@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -10,8 +10,8 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Resources
 {
 
-    [TestClass]
-    public class ResourceTester
+
+    public class ResourceTester : IDisposable
     {
 
         public ResourceTester()
@@ -19,17 +19,17 @@ namespace Highpoint.Sage.Resources
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Allocates and deallocates resources and checks the behavior")]
         public void TestPersistentResourceBasics()
         {
@@ -124,7 +124,7 @@ namespace Highpoint.Sage.Resources
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks if resources can be augmented or depleted")]
         public void TestConsumableResourceBasics()
         {
@@ -179,16 +179,16 @@ namespace Highpoint.Sage.Resources
                 MaterialResourceItem mri = (MaterialResourceItem)materialInventory[mt];
                 bool result = mri.Acquire(mrr, false);
                 Debug.Write((result ? "Request honored." : "Request denied."));
-                Assert.IsTrue(result == expected, "This test is a failure");
+                Assert.True(result == expected, "This test is a failure");
                 Debug.WriteLine(((result == expected) ? " - this was expected." : " - THIS IS A TEST FAILURE!"));
-                Assert.IsTrue(expected == result, testDescription);
+                Assert.True(expected == result, testDescription);
                 Debug.WriteLine("After - " + itemName + " has " + item.Available + " liters, and a capacity of " + item.Capacity + ".");
                 Debug.WriteLine("");
             }
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("AEL, not sure what this is testing")]
         public void TestMaterialConduits()
         {
@@ -255,16 +255,16 @@ namespace Highpoint.Sage.Resources
                 MaterialResourceItem mri = (MaterialResourceItem)materialInventory1[mt];
                 bool result = mri.Acquire(mrr, false);
                 Debug.Write((result ? "Request honored." : "Request denied."));
-                Assert.IsTrue(result == expected, "This test is a failure");
+                Assert.True(result == expected, "This test is a failure");
                 Debug.WriteLine(((result == expected) ? " - this was expected." : " - THIS IS A TEST FAILURE!"));
-                Assert.IsTrue(result == expected, testDescription);
+                Assert.True(result == expected, testDescription);
                 Debug.WriteLine("After - " + itemName + " has " + item.Available + " liters, and a capacity of " + item.Capacity + ".");
                 Debug.WriteLine("");
             }
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("AEL, not sure what this is testing")]
         public void TestEarmarking()
         {
@@ -302,7 +302,7 @@ namespace Highpoint.Sage.Resources
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("AEL, not sure what this is testing")]
         public void TestAdvancedEarmarking()
         {
@@ -372,13 +372,13 @@ namespace Highpoint.Sage.Resources
             }
             else
             {
-                Assert.IsTrue(false, "Access Regulation", "Sub-test failed : " + result);
+                Assert.True(false, "Sub-test failed : " + result);
             }
         }
 
 
         private IResourceManager _resourcePoolForStarvation;
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Allocates and deallocates resources and checks the behavior")]
         public void TestStarvation()
         {
@@ -409,7 +409,7 @@ namespace Highpoint.Sage.Resources
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies ResourceManager.Add and Remove correctly update the resource pool — guards against ArrayList→List migration regressions.")]
         public void TestResourceManagerAddRemoveAndCount()
         {
@@ -420,23 +420,23 @@ namespace Highpoint.Sage.Resources
             Resource rsc2 = new Resource(model, "Resource B", Guid.NewGuid(), 1.0, 1.0, true, true, true);
             Resource rsc3 = new Resource(model, "Resource C", Guid.NewGuid(), 1.0, 1.0, true, true, true);
 
-            Assert.AreEqual(0, rm.Resources.Count, "Pool should start empty");
+            Assert.Equal(0, rm.Resources.Count);
 
             rm.Add(rsc1);
             rm.Add(rsc2);
-            Assert.AreEqual(2, rm.Resources.Count, "Pool should have 2 resources after adding two");
+            Assert.Equal(2, rm.Resources.Count);
 
             rm.Add(rsc3);
-            Assert.AreEqual(3, rm.Resources.Count, "Pool should have 3 resources after adding a third");
+            Assert.Equal(3, rm.Resources.Count);
 
             rm.Remove(rsc2);
-            Assert.AreEqual(2, rm.Resources.Count, "Pool should have 2 resources after removing one");
-            Assert.IsFalse(rm.Resources.Contains(rsc2), "Removed resource should not appear in Resources list");
-            Assert.IsTrue(rm.Resources.Contains(rsc1),  "Remaining resource rsc1 should still be in pool");
-            Assert.IsTrue(rm.Resources.Contains(rsc3),  "Remaining resource rsc3 should still be in pool");
+            Assert.Equal(2, rm.Resources.Count);
+            Assert.False(rm.Resources.Contains(rsc2), "Removed resource should not appear in Resources list");
+            Assert.True(rm.Resources.Contains(rsc1),  "Remaining resource rsc1 should still be in pool");
+            Assert.True(rm.Resources.Contains(rsc3),  "Remaining resource rsc3 should still be in pool");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Verifies ResourceManager resources can be enumerated via foreach and looked up by Guid — guards against ArrayList→List migration regressions.")]
         public void TestResourceManagerEnumeration()
         {
@@ -448,21 +448,21 @@ namespace Highpoint.Sage.Resources
             rm.Add(new Resource(model, "R2", guid1, 1.0, 1.0, true, true, true));
             rm.Add(new Resource(model, "R3", guid2, 1.0, 1.0, true, true, true));
 
-            Assert.AreEqual(3, rm.Resources.Count, "ResourceManager should hold 3 resources");
+            Assert.Equal(3, rm.Resources.Count);
 
             // Verify foreach enumeration (IEnumerable path)
             int count = 0;
             foreach (IResource r in rm)
             {
-                Assert.IsNotNull(r, "Enumerated resource should not be null");
+                Assert.NotNull(r);
                 count++;
             }
-            Assert.AreEqual(3, count, "foreach should iterate exactly 3 resources");
+            Assert.Equal(3, count);
 
             // Verify Guid-based indexer
-            Assert.IsNotNull(rm[guid0], "Lookup by Guid[0] should succeed");
-            Assert.IsNotNull(rm[guid1], "Lookup by Guid[1] should succeed");
-            Assert.IsNotNull(rm[guid2], "Lookup by Guid[2] should succeed");
+            Assert.NotNull(rm[guid0]);
+            Assert.NotNull(rm[guid1]);
+            Assert.NotNull(rm[guid2]);
         }
 
         sealed class ResourceRequest : Highpoint.Sage.Resources.ResourceRequest

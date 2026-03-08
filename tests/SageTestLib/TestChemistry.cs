@@ -1,5 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -10,26 +10,26 @@ namespace Highpoint.Sage.Materials.Chemistry
     /// <summary>
     /// Summary description for zTestChemistry.
     /// </summary>
-    [TestClass]
-    public class Chemistry101
+
+    public class Chemistry101 : IDisposable
     {
         public Chemistry101()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test checks the basic reaction of two substances including the mixture temperature")]
         public void TestReactionBasics()
         {
@@ -85,15 +85,15 @@ namespace Highpoint.Sage.Materials.Chemistry
                 }
             }
 
-            Assert.IsTrue(Math.Abs(soda.Mass - 1.03) < 0.01, "The Caustic Soda part is not 2.88 kg");
-            Assert.IsTrue(Math.Abs(water.Mass - 4.94) < 0.01, "The Water part is not 4.5 kg");
-            Assert.IsTrue(Math.Abs(sodium.Mass - 16.03) < 0.01, "The Sodium Cloride part is not 14.61 kg");
+            Assert.True(Math.Abs(soda.Mass - 1.03) < 0.01, "The Caustic Soda part is not 2.88 kg");
+            Assert.True(Math.Abs(water.Mass - 4.94) < 0.01, "The Water part is not 4.5 kg");
+            Assert.True(Math.Abs(sodium.Mass - 16.03) < 0.01, "The Sodium Cloride part is not 14.61 kg");
             Console.WriteLine(mixture.Temperature);
-            Assert.IsTrue(Math.Abs(mixture.Temperature - 35.91) < 0.01, "The temperature is not 33.09 degrees C");
+            Assert.True(Math.Abs(mixture.Temperature - 35.91) < 0.01, "The temperature is not 33.09 degrees C");
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test checks the basic reaction of two substances and a catalyst.")]
         public void TestCatalyticReactionBasics()
         {
@@ -125,7 +125,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 Debug.WriteLine(constituent.ToString());
             }
 
-            Assert.IsTrue(nReactions == 1, String.Format("Reaction occurred {0} times, but should have happened once.", nReactions));
+            Assert.True(nReactions == 1, String.Format("Reaction occurred {0} times, but should have happened once.", nReactions));
             if (nReactions != 1)
             {
                 Console.WriteLine("Test failed. Catalytic reaction happened {0} times, but should only have happened once.", nReactions);
@@ -157,7 +157,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                 Debug.WriteLine(constituent.ToString());
             }
 
-            Assert.IsTrue(nReactions == 0, String.Format("Reaction occurred {0} times, but should not have happened.", nReactions));
+            Assert.True(nReactions == 0, String.Format("Reaction occurred {0} times, but should not have happened.", nReactions));
             if (nReactions != 0)
             {
                 Console.WriteLine("Test failed. Catalytic reaction happened {0} times, but should not have happened.", nReactions);
@@ -167,7 +167,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test checks that materials only can be combined, if there is a reaction definition")]
         public void TestRP_CombineAPI()
         {
@@ -226,7 +226,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             Debug.WriteLine("\r\nMixture");
             Debug.WriteLine(resultB.ToString());
 
-            Assert.IsTrue(!reactionBHappened, "Reaction B should not have happened");
+            Assert.True(!reactionBHappened, "Reaction B should not have happened");
 
         }
 

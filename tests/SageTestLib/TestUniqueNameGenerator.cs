@@ -1,13 +1,13 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Highpoint.Sage.Utility
 {
-    [TestClass]
+
     public class UniqueNameGeneratorTester
     {
-        [TestMethod]
+        [Fact]
         public void TestUniqueNameGenerator()
         {
 
@@ -27,7 +27,7 @@ namespace Highpoint.Sage.Utility
 
             string result = string.Concat(cat00, cat01, cat02, cat03, dog00, dog01, dog02, dog03, dog04);
             //Console.WriteLine(result);
-            Assert.AreEqual(result, "Cat01Cat02Cat0000Cat0001Dog00Dog01Dog001Dog002Dog02");
+            Assert.Equal(result, "Cat01Cat02Cat0000Cat0001Dog00Dog01Dog001Dog002Dog02");
         }
     }
 }

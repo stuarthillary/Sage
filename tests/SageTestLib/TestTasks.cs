@@ -1,7 +1,7 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -9,8 +9,8 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Graphs.Tasks
 {
 
-    [TestClass]
-    public class TaskTester
+
+    public class TaskTester : IDisposable
     {
 
         private readonly Random _random = new Random();
@@ -20,17 +20,17 @@ namespace Highpoint.Sage.Graphs.Tasks
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test runs a parent task, which spans over the length of the five child tasks running in a sequence.")]
         public void TestChildSequencing()
         {
@@ -55,24 +55,24 @@ namespace Highpoint.Sage.Graphs.Tasks
             model.Start();
 
             IDictionary gc = tp.GraphContexts[0];
-            Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), parent.GetStartTime(gc), "Parent task did't start at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), children[0].GetStartTime(gc), "Child task 1 did't start at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), children[1].GetStartTime(gc), "Child task 2 did't start at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 1, 0, 0), children[2].GetStartTime(gc), "Child task 3 did't start at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 3, 0, 0), children[3].GetStartTime(gc), "Child task 4 did't start at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 6, 0, 0), children[4].GetStartTime(gc), "Child task 5 did't start at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 0, 0, 0), children[0].GetFinishTime(gc), "Child task 1 did't finish at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 1, 0, 0), children[1].GetFinishTime(gc), "Child task 2 did't finish at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 3, 0, 0), children[2].GetFinishTime(gc), "Child task 3 did't finish at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 6, 0, 0), children[3].GetFinishTime(gc), "Child task 4 did't finish at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 10, 0, 0), children[4].GetFinishTime(gc), "Child task 5 did't finish at the correct time.");
-            Assert.AreEqual(new DateTime(1, 1, 1, 10, 0, 0), parent.GetFinishTime(gc), "Parent task did't finish at the correct time.");
+            Assert.Equal(new DateTime(1, 1, 1, 0, 0, 0), parent.GetStartTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 0, 0, 0), children[0].GetStartTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 0, 0, 0), children[1].GetStartTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 1, 0, 0), children[2].GetStartTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 3, 0, 0), children[3].GetStartTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 6, 0, 0), children[4].GetStartTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 0, 0, 0), children[0].GetFinishTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 1, 0, 0), children[1].GetFinishTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 3, 0, 0), children[2].GetFinishTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 6, 0, 0), children[3].GetFinishTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 10, 0, 0), children[4].GetFinishTime(gc));
+            Assert.Equal(new DateTime(1, 1, 1, 10, 0, 0), parent.GetFinishTime(gc));
 
         }
 
         // Ta(4 hr) -> Tb(1 hr)
         // Tc(1 hr) -> Td(1 hr) Check to see that Td starts at T=1.
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks to see that Td starts at T=1")]
         public void TestPlainGraph()
         {
@@ -81,29 +81,29 @@ namespace Highpoint.Sage.Graphs.Tasks
 
             tg1.Model.Start();
 
-            Assert.IsTrue(tg1.Ta.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 0, 0, 0)), "Task A did not start at 12AM 1/1/1");
-            Assert.IsTrue(tg1.Ta.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task A did not finish at 4AM 1/1/1");
+            Assert.True(tg1.Ta.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 0, 0, 0)), "Task A did not start at 12AM 1/1/1");
+            Assert.True(tg1.Ta.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task A did not finish at 4AM 1/1/1");
 
-            Assert.IsTrue(tg1.Tb.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
-            Assert.IsTrue(tg1.Tb.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task B did not finish at 5AM 1/1/1");
+            Assert.True(tg1.Tb.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
+            Assert.True(tg1.Tb.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task B did not finish at 5AM 1/1/1");
 
-            Assert.IsTrue(tg1.Tc.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 0, 0, 0)), "Task C did not start at 12AM 1/1/1");
-            Assert.IsTrue(tg1.Tc.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 1, 0, 0)), "Task C did not finish at 1AM 1/1/1");
+            Assert.True(tg1.Tc.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 0, 0, 0)), "Task C did not start at 12AM 1/1/1");
+            Assert.True(tg1.Tc.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 1, 0, 0)), "Task C did not finish at 1AM 1/1/1");
 
-            Assert.IsTrue(tg1.Td.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 1, 0, 0)), "Task D did not start at 1AM 1/1/1");
-            Assert.IsTrue(tg1.Td.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 2, 0, 0)), "Task D did not start at 1AM 1/1/1");
+            Assert.True(tg1.Td.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 1, 0, 0)), "Task D did not start at 1AM 1/1/1");
+            Assert.True(tg1.Td.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 2, 0, 0)), "Task D did not start at 1AM 1/1/1");
 
-            Assert.IsTrue(tg1.Parent.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 0, 0, 0)), "Task parent did not start at 12AM 1/1/1");
-            Assert.IsTrue(tg1.Parent.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task parent did not finish at 5AM 1/1/1");
+            Assert.True(tg1.Parent.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 0, 0, 0)), "Task parent did not start at 12AM 1/1/1");
+            Assert.True(tg1.Parent.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task parent did not finish at 5AM 1/1/1");
 
-            Assert.IsTrue(tg1.Follow.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task follow did not start at 5AM 1/1/1");
-            Assert.IsTrue(tg1.Follow.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task follow did not finish at 5AM 1/1/1");
+            Assert.True(tg1.Follow.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task follow did not start at 5AM 1/1/1");
+            Assert.True(tg1.Follow.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task follow did not finish at 5AM 1/1/1");
 
         }
 
         // Ta(4 hr) -> Tb(1 hr)
         // Tc(1 hr) -> Td(1 hr) (Td costart-slaved to Tb, so it starts at t=4, not t=1.)
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks Td costart-slaved to Tb, so it starts at t=4, not t=1.")]
         public void TestCoStart()
         {
@@ -113,15 +113,15 @@ namespace Highpoint.Sage.Graphs.Tasks
 
             tg1.Model.Start();
 
-            Assert.IsTrue(tg1.Tb.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
+            Assert.True(tg1.Tb.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
 
-            Assert.IsTrue(tg1.Td.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task D did not start at 4AM 1/1/1");
+            Assert.True(tg1.Td.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task D did not start at 4AM 1/1/1");
 
         }
 
         // Ta(4 hr) -> Tb(1 hr)
         // Tc(1 hr) -> Td(1 hr) (Tc cofinish-slaved to Ta, so it ends at t=4, not t=1.)
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks Tc cofinish-slaved to Ta, so it ends at t=4, not t=1.")]
         public void TestCoFinish()
         {
@@ -131,15 +131,15 @@ namespace Highpoint.Sage.Graphs.Tasks
 
             tg1.Model.Start();
 
-            Assert.IsTrue(tg1.Ta.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task A did not finish at 4AM 1/1/1");
+            Assert.True(tg1.Ta.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task A did not finish at 4AM 1/1/1");
 
-            Assert.IsTrue(tg1.Tc.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task C did not finish at 4AM 1/1/1");
+            Assert.True(tg1.Tc.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task C did not finish at 4AM 1/1/1");
 
         }
 
         // Ta(4 hr) -> Tb(1 hr)
         // Tc(1 hr) -> Td(1 hr) (Tc.finish synched to Ta.finish, so tb and td start at t=4.)
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Checks if two tasks can be synchronized to start at the the same time.")]
         public void TestSynchroStart()
         {
@@ -156,25 +156,25 @@ namespace Highpoint.Sage.Graphs.Tasks
             tg2.Model.Start();
 
             // Test graph 1
-            Assert.IsTrue(tg1.Tb.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
+            Assert.True(tg1.Tb.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
 
-            Assert.IsTrue(tg1.Td.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task D did not start at 4AM 1/1/1");
+            Assert.True(tg1.Td.GetStartTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task D did not start at 4AM 1/1/1");
 
-            Assert.IsTrue(tg1.Parent.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task parent did not finish at 5AM 1/1/1");
+            Assert.True(tg1.Parent.GetFinishTime(tg1.GraphContext).Equals(new DateTime(1, 1, 1, 5, 0, 0)), "Task parent did not finish at 5AM 1/1/1");
 
             // Test graph 2
-            Assert.IsTrue(tg2.Tb.GetStartTime(tg2.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
+            Assert.True(tg2.Tb.GetStartTime(tg2.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task B did not start at 4AM 1/1/1");
 
-            Assert.IsTrue(tg2.Tc.GetStartTime(tg2.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task C did not start at 4AM 1/1/1");
+            Assert.True(tg2.Tc.GetStartTime(tg2.GraphContext).Equals(new DateTime(1, 1, 1, 4, 0, 0)), "Task C did not start at 4AM 1/1/1");
 
-            Assert.IsTrue(tg2.Parent.GetFinishTime(tg2.GraphContext).Equals(new DateTime(1, 1, 1, 6, 0, 0)), "Task parent did not finish at 6AM 1/1/1");
+            Assert.True(tg2.Parent.GetFinishTime(tg2.GraphContext).Equals(new DateTime(1, 1, 1, 6, 0, 0)), "Task parent did not finish at 6AM 1/1/1");
 
         }
 
         /*
         // Ta(4 hr) -> Tb(1 hr)
         // Tc(1 hr) -> Td(1 hr) (Tc.finish synched to Ta.finish, so tb and td start at t=4.)
-        [TestMethod] 
+        [Fact] 
 		[Highpoint.Sage.Utility.Description("Checks if two tasks can be synchronized to end at the the same time.")]
 		[Ignore("This is a future feature - not yet implemented in code.")]
 		public void TestSynchroFinish(){

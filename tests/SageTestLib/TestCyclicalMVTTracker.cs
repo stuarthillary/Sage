@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Materials;
 using Highpoint.Sage.Materials.Chemistry;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -15,8 +15,8 @@ namespace Highpoint.Sage.Tests.Scheduling
     /// <summary>
     /// Tests charge sources.
     /// </summary>
-    [TestClass]
-    public class MVTTrackerTester
+
+    public class MVTTrackerTester : IDisposable
     {
 
         public MVTTrackerTester()
@@ -24,12 +24,12 @@ namespace Highpoint.Sage.Tests.Scheduling
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -37,7 +37,7 @@ namespace Highpoint.Sage.Tests.Scheduling
         /// <summary>
         /// Exercises an MVTTracker.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMVTTracker()
         {
             Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model("MVTTracker model");
@@ -74,7 +74,7 @@ namespace Highpoint.Sage.Tests.Scheduling
         /// <summary>
         /// Exercises an MVTTracker.
         /// </summary>
-        [TestMethod]
+        [Fact]
         public void TestMVTrackerWithNullMixtures()
         {
             Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model("MVTTracker model");
@@ -97,8 +97,8 @@ namespace Highpoint.Sage.Tests.Scheduling
             Debug.WriteLine("Masses      : " + cmvt.MassHistory.ToString());
             Debug.WriteLine("Volumes     : " + cmvt.VolumeHistory.ToString());
 
-            Assert.IsTrue(cmvt.MassHistory.ToString().Equals("[0/0/0/0]", StringComparison.Ordinal));
-            Assert.IsTrue(cmvt.VolumeHistory.ToString().Equals("[0/0/0/0]", StringComparison.Ordinal));
+            Assert.True(cmvt.MassHistory.ToString().Equals("[0/0/0/0]", StringComparison.Ordinal));
+            Assert.True(cmvt.VolumeHistory.ToString().Equals("[0/0/0/0]", StringComparison.Ordinal));
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections.Generic;
 //using _Debug = System.Diagnostics.Debug;
@@ -8,16 +8,16 @@ using System.Collections.Generic;
 namespace Highpoint.Sage.Randoms
 {
 
-    [TestClass]
+
     public class MersenneTester
     {
-        [TestMethod]
+        [Fact]
         public void TestMersenneAgainstMatumotosGoldNoBuffering()
         {
             RunGoldTest(0);
         }
 
-        [TestMethod]
+        [Fact]
         public void RunIntervalTest()
         {
             RandomServer rs = new RandomServer();
@@ -45,27 +45,27 @@ namespace Highpoint.Sage.Randoms
                     {
                         Console.WriteLine("Validating that " + d + " is on the interval [" + min + ", " + max + "]");
                     }
-                    Assert.IsTrue((min == max && d == min) || (d >= min && d < max), String.Format("{0} was not in the interval {1} to {2}.", d, min, max));
+                    Assert.True((min == max && d == min) || (d >= min && d < max), String.Format("{0} was not in the interval {1} to {2}.", d, min, max));
                 }
             }
 
             rc.Dispose();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMersenneAgainstMatumotosGoldWithBuffering()
         {
             RunGoldTest(10000);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestMersenneAgainstMatumotosGoldWithBufferingMulti()
         {
             for (int i = 0; i < 20; i++)
                 RunGoldTest(10);
         }
 
-        [TestMethod]
+        [Fact]
         public void PerformanceTestNoThreading()
         {
             RandomServer rs = new RandomServer();
@@ -79,7 +79,7 @@ namespace Highpoint.Sage.Randoms
             rc.Dispose(); // For symmetry. Doesn't actually do anything when buffer size is zero.
         }
 
-        [TestMethod]
+        [Fact]
         public void PerformanceTestWithThreading()
         {
             RandomServer rs = new RandomServer();
@@ -103,7 +103,7 @@ namespace Highpoint.Sage.Randoms
                 int fromRNG = rc.Next();
                 int fromGold = (int)_int32Gold[i];
                 //Console.WriteLine("Comparing RNG's {0} to KG's {1}.",fromRNG,fromGold);
-                Assert.IsTrue(fromRNG == fromGold, String.Format("Failure to match known good at position {0}.", i));
+                Assert.True(fromRNG == fromGold, String.Format("Failure to match known good at position {0}.", i));
             }
 
             for (int i = 0; i < 1000; i++)
@@ -112,7 +112,7 @@ namespace Highpoint.Sage.Randoms
                 fromRNG = Math.Round(fromRNG, 8);
                 double fromGold = _real32Gold[i];
                 //Console.WriteLine("Comparing RNG's {0} to KG's {1}.",fromRNG,fromGold);
-                Assert.IsTrue(fromRNG == fromGold, String.Format("Failure to match known good at position {0}.", i));
+                Assert.True(fromRNG == fromGold, String.Format("Failure to match known good at position {0}.", i));
             }
             rc.Dispose();
         }

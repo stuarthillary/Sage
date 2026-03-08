@@ -2,7 +2,7 @@
 #if NYRFPT
 using System;
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 
 namespace Highpoint.Sage.Scheduling {
@@ -10,7 +10,7 @@ namespace Highpoint.Sage.Scheduling {
 	/// <summary>
 	/// Summary description for zTestTimePeriods.
 	/// </summary>
-	[TestClass]
+
 	public class ActivityTester {
 	
 #region Private Fields
@@ -52,16 +52,16 @@ namespace Highpoint.Sage.Scheduling {
 #endregion
 
 #region Test Setup & Tear-Down
-		[TestInitialize] 
+
 		public void Init() {
 		}
-		[TestCleanup]
-		public void destroy() {
+
+		public void Dispose() {
 			Debug.WriteLine( "Done." );
 		}
 #endregion
 
-		[TestMethod]
+		[Fact]
 		public void TestActivities(){
 
 			Activity A = new Activity("A",Guid.NewGuid());
@@ -77,7 +77,7 @@ namespace Highpoint.Sage.Scheduling {
 			
 		}
 
-		//[TestMethod]
+		//[Fact]
 		public void TestActivitiesDeep(){
 			Now = new DateTime(2004,05,16,12,00,00);
 
@@ -105,7 +105,7 @@ namespace Highpoint.Sage.Scheduling {
 			
 		}
 		
-        //[TestMethod]
+        //[Fact]
 		public void TestActivitiesDeepRandom(){
 
 			Activity A = new Activity("A",Guid.NewGuid());
@@ -117,7 +117,7 @@ namespace Highpoint.Sage.Scheduling {
 			Dump(A);
 		}
 
-		//[TestMethod]
+		//[Fact]
 		public void TestTaskGraphAdjustments(){
 			Activity campaign=null, batch1=null;
 

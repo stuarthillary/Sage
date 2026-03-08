@@ -4,7 +4,7 @@ using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,8 +13,8 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Materials
 {
 
-    [TestClass]
-    public class MaterialServiceTester
+
+    public class MaterialServiceTester : IDisposable
     {
 
         public MaterialServiceTester()
@@ -22,18 +22,18 @@ namespace Highpoint.Sage.Materials
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestCleanup]
-        public void Destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Test to remove material from a mixture")]
         public void TestChargeWithSufficientSupply()
         {

@@ -6,17 +6,13 @@ namespace Highpoint.Sage.Utility
 {
     public static class UnitTestDetector
     {
-        static UnitTestDetector()
-        {
-            string testAssemblyName = "Microsoft.VisualStudio.TestPlatform.TestFramework";
-            UnitTestDetector.IsInUnitTest = AppDomain.CurrentDomain.GetAssemblies()
-                .Any(a => a.FullName?.StartsWith(testAssemblyName, StringComparison.Ordinal) == true);
-        }
-
-        public static bool IsInUnitTest
-        {
-            get; private set;
-        }
+        // Checked lazily each call so late-loaded test runner assemblies are detected.
+        public static bool IsInUnitTest =>
+            AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.FullName is string name &&
+                     (name.StartsWith("Microsoft.VisualStudio.TestPlatform.TestFramework", StringComparison.Ordinal) ||
+                      name.StartsWith("xunit.core", StringComparison.Ordinal) ||
+                      name.StartsWith("xunit.execution", StringComparison.Ordinal)));
     }
 
 

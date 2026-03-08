@@ -1,5 +1,5 @@
-/* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿/* This source code licensed under the GNU Affero General Public License */
+using Xunit;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -9,21 +9,21 @@ namespace Highpoint.Sage.Utility
     /// <summary>
 	/// Summary description for zTestTemperatureController.
 	/// </summary>
-	[TestClass]
-    public class TreeNodeHelperTester
+
+    public class TreeNodeHelperTester : IDisposable
     {
         public TreeNodeHelperTester()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -31,7 +31,7 @@ namespace Highpoint.Sage.Utility
         private readonly string _adamsResult = "Joseph Adams 1654-1736\r\n\tJohn Adams Sr, 1690-1761\r\n\t\tJohn Adams, Jr 1735-1826\r\n\t\t\tAbigail Adams 1765-1813\r\n\t\t\tSusanna Adams 1768-1770\r\n\t\t\tCharles Adams b. 1770\r\n\t\t\tThomas Boylston Adams b. 1772\r\n\t\t\tJohn Quincy Adams 1767-1848\r\n\t\t\t\tGeorge Washington Adams b. 1801\r\n\t\t\t\tJohn Adams, III b. 1803\r\n\t\t\t\tCharles Francis Adams b. 1807\r\n\t\t\t\tLouisa Catherine Adams b. 1811\r\n";
         private readonly string _adamsResultJQAChildrenSequenced = "Joseph Adams 1654-1736\r\n\tJohn Adams Sr, 1690-1761\r\n\t\tJohn Adams, Jr 1735-1826\r\n\t\t\tAbigail Adams 1765-1813\r\n\t\t\tSusanna Adams 1768-1770\r\n\t\t\tCharles Adams b. 1770\r\n\t\t\tThomas Boylston Adams b. 1772\r\n\t\t\tJohn Quincy Adams 1767-1848\r\n\t\t\t\tCharles Francis Adams b. 1807\r\n\t\t\t\tGeorge Washington Adams b. 1801\r\n\t\t\t\tJohn Adams, III b. 1803\r\n\t\t\t\tLouisa Catherine Adams b. 1811\r\n";
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test creates and navigates a tree built of the TreeNodeHelper proxy.")]
         public void TestTreeNodeHelperBasics()
         {
@@ -65,10 +65,10 @@ namespace Highpoint.Sage.Utility
 
 
             string result = root.ToStringDeep();
-            Assert.IsTrue(_adamsResult.Equals(result, StringComparison.Ordinal), "TestTreeNodeHelperBasics", StringComparison.Ordinal);
+            Assert.True(_adamsResult.Equals(result, StringComparison.Ordinal), "TestTreeNodeHelperBasics");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestReadOnlyTreeNodeHelperBasics()
         {
             string ja0 = "Joseph Adams 1654-1736";
@@ -109,16 +109,16 @@ namespace Highpoint.Sage.Utility
             {
                 blewUp = true;
             }
-            Assert.IsTrue(blewUp, "TestReadOnlyTreeNodeHelperBasics");
+            Assert.True(blewUp, "TestReadOnlyTreeNodeHelperBasics");
 
 
             string result = jqaNode.GetRoot().ToStringDeep();
 
             Console.WriteLine(result);
-            Assert.IsTrue(_adamsResult.Equals(result, StringComparison.Ordinal), "TestReadOnlyTreeNodeHelperBasics", StringComparison.Ordinal);
+            Assert.True(_adamsResult.Equals(result, StringComparison.Ordinal), "TestReadOnlyTreeNodeHelperBasics");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTreeNodeHelperChildSequencing()
         {
             string ja0 = "Joseph Adams 1654-1736";
@@ -152,7 +152,7 @@ namespace Highpoint.Sage.Utility
             string result = jqaNode.GetRoot().ToStringDeep();
 
             Console.WriteLine(result);
-            Assert.IsTrue(_adamsResultJQAChildrenSequenced.Equals(result, StringComparison.Ordinal), "TestTreeNodeHelperChildSequencing");
+            Assert.True(_adamsResultJQAChildrenSequenced.Equals(result, StringComparison.Ordinal), "TestTreeNodeHelperChildSequencing");
         }
     }
 }

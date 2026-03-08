@@ -2,7 +2,7 @@
 using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.ItemBased.SplittersAndJoiners;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -14,17 +14,17 @@ namespace Highpoint.Sage.ItemBased
     /// <summary>
     /// Summary description for zTestBranchBlocks.
     /// </summary>
-    [TestClass]
-    public class BranchBlockTester
+
+    public class BranchBlockTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -40,7 +40,7 @@ namespace Highpoint.Sage.ItemBased
                                               1,0,0,1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,};
         private int _itemNumber;
 
-        [TestMethod]
+        [Fact]
         public void TestStochasticBranchBlock()
         {
             Model model = new Model();
@@ -54,11 +54,11 @@ namespace Highpoint.Sage.ItemBased
             {
                 ss2cbb.Input.Put(new object());
                 Debug.Write(_lastResult + ",");
-                Assert.IsTrue(_lastResult == _expected[_itemNumber], "Unexpected choice.");
+                Assert.True(_lastResult == _expected[_itemNumber], "Unexpected choice.");
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void TestDelegatedBranchBlock()
         {
             Model model = new Model();
@@ -72,7 +72,7 @@ namespace Highpoint.Sage.ItemBased
             {
                 d2cbb.Input.Put(new object());
                 Debug.Write(_lastResult + ",");
-                Assert.IsTrue(_lastResult == _expected[_itemNumber], "Unexpected choice.");
+                Assert.True(_lastResult == _expected[_itemNumber], "Unexpected choice.");
             }
         }
 

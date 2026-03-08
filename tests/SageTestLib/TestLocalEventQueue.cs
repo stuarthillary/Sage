@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
 //using System.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -13,17 +13,17 @@ namespace Highpoint.Sage.Utility
     /// <summary>
     /// Summary description for zTestLocalEventQueue.
     /// </summary>
-    [TestClass]
-    public class LocalEventQueueTester : IHasName
+
+    public class LocalEventQueueTester : IHasName, IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -32,7 +32,7 @@ namespace Highpoint.Sage.Utility
         private int _numEvents;
         private LocalEventQueue _leq;
 
-        [TestMethod]
+        [Fact]
         public void TestLocalEventQueue()
         {
             IExecutive exec = ExecFactory.Instance.CreateExecutive();
@@ -54,7 +54,7 @@ namespace Highpoint.Sage.Utility
 
         }
 
-        [TestMethod]
+        [Fact]
         public void TestLocalEventQueue2()
         {
             IExecutive exec = ExecFactory.Instance.CreateExecutive();

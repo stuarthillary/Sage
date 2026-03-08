@@ -1,5 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
@@ -8,20 +8,20 @@ namespace Highpoint.Sage.Mathematics
     /// <summary>
     /// Summary description for zTestInterpolations.
     /// </summary>
-    [TestClass]
-    public class Interpolations101
+
+    public class Interpolations101 : IDisposable
     {
         public Interpolations101()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -29,7 +29,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// One line segment defined, tests outsides, vertices and middle of the segment.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("One line segment defined, tests outsides, vertices and middle of the segment")]
         public void TestInterpolationFrom2Points()
         {
@@ -51,7 +51,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// One line segment defined, tests outsides, vertices and middle of the segment.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("One line segment defined, Replace each Y value, ensure that it was actually replaced.")]
         public void TestInterpolationPointReplacement()
         {
@@ -70,7 +70,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// One line segment defined, tests outsides, vertices and middle of the segment with negative slope.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("One line segment defined, tests outsides, vertices and middle of the segment with negative slope")]
         public void TestInterpolationFrom2PointsNegativeSlope()
         {
@@ -94,7 +94,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// Three line segments defined, tests outsides, vertices and middles of each.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Three line segments defined, tests outsides, vertices and middles of each")]
         public void TestInterpolationFrom4Points()
         {
@@ -120,7 +120,7 @@ namespace Highpoint.Sage.Mathematics
 
         private void Verify(IInterpolable interp, double xValue, double expectedYValue)
         {
-            Assert.IsTrue(Math.Abs(interp.GetYValue(xValue) - expectedYValue) < 0.000001, "Point x = " + xValue + " does not result in y = " + expectedYValue + ".");
+            Assert.True(Math.Abs(interp.GetYValue(xValue) - expectedYValue) < 0.000001, "Point x = " + xValue + " does not result in y = " + expectedYValue + ".");
         }
     }
 }

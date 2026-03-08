@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,20 +13,20 @@ namespace Highpoint.Sage.Scheduling.Cost
     /// <summary>
     /// Summary description for zTestCost.
     /// </summary>
-    [TestClass]
-    public class zTestCost1
+
+    public class zTestCost1 : IDisposable
     {
         public zTestCost1()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -35,7 +35,7 @@ namespace Highpoint.Sage.Scheduling.Cost
 
 
 
-        [TestMethod]
+        [Fact]
         public void TestCostBasics1()
         {
 
@@ -49,7 +49,7 @@ namespace Highpoint.Sage.Scheduling.Cost
             DumpCostData(_alice);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestCostBasics2()
         {
 

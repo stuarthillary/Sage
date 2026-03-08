@@ -1,14 +1,14 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Core
 {
 
-    [TestClass]
-    public class DESynchTester
+
+    public class DESynchTester : IDisposable
     {
 
         private int NUM_EVENTS = 12;
@@ -24,17 +24,17 @@ namespace Highpoint.Sage.Core
         private int _secondary = 0;
         private DateTime _synchtime = new DateTime();
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test checks the submission of detached events and synchronization of those events with an ISynchChannel")]
         public void TestBaseFunctionality()
         {
@@ -65,15 +65,15 @@ namespace Highpoint.Sage.Core
                 _submitted++;
             }
 
-            Assert.IsTrue(_submitted > 0, "There are no events submitted");
-            Assert.IsTrue(_synchronized > 0, "There are no events synchronized");
-            Assert.IsTrue(_secondary == 0, "There cannot be secondary events submitted yet");
+            Assert.True(_submitted > 0, "There are no events submitted");
+            Assert.True(_synchronized > 0, "There are no events synchronized");
+            Assert.True(_secondary == 0, "There cannot be secondary events submitted yet");
 
             exec.Start();
 
-            Assert.IsTrue(_submitted == 0, "Not all submitted events had been fired");
-            Assert.IsTrue(_synchronized == 0, "Not all synchronized events had been fired");
-            Assert.IsTrue(_secondary > 0, "There has not been a secondary events submitted");
+            Assert.True(_submitted == 0, "Not all submitted events had been fired");
+            Assert.True(_synchronized == 0, "Not all synchronized events had been fired");
+            Assert.True(_secondary > 0, "There has not been a secondary events submitted");
         }
 
         private void MyExecEventReceiver(IExecutive exec, object userData)
@@ -110,7 +110,7 @@ namespace Highpoint.Sage.Core
             }
             else
             {
-                Assert.IsTrue(_synchtime.Equals(exec.Now), "Synchronized event did not fire at the synchronization time");
+                Assert.True(_synchtime.Equals(exec.Now), "Synchronized event did not fire at the synchronization time");
             }
             _synchronized--;
             _submitted--;

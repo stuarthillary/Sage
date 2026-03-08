@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 
@@ -8,7 +8,7 @@ using System.Collections;
 namespace Highpoint.Sage.Tests.Scheduling
 {
 
-    [TestClass]
+
     public class TestActions
     {
 
@@ -19,7 +19,7 @@ namespace Highpoint.Sage.Tests.Scheduling
         private static TimeSpan TWENTY_MINS = TimeSpan.FromMinutes(20.0);
         #endregion
 
-        [TestMethod]
+        [Fact]
         public void DoActionTest1()
         {
 

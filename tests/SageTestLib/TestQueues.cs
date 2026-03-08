@@ -6,7 +6,7 @@ using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,17 +19,17 @@ namespace Highpoint.Sage.ItemBased.Queues
     /// <summary>
     /// Summary description for zTestQueues.
     /// </summary>
-    [TestClass]
-    public class QueueTester
+
+    public class QueueTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -41,7 +41,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestQueueBasics()
         {
 
@@ -71,7 +71,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         }
 
 #if ORACLE_CLIENT
-        [TestMethod]
+        [Fact]
         public void TestQueueSerialization() {
             Guid qg1 = Guid.NewGuid();
             Guid qg2 = Guid.NewGuid();

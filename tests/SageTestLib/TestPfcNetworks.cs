@@ -1,6 +1,6 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.IO;
@@ -9,7 +9,7 @@ using System.Xml;
 namespace Highpoint.Sage.Graphs.PFC
 {
 
-    [TestClass]
+
     public class PFCGraphTester
     {
 
@@ -26,7 +26,7 @@ namespace Highpoint.Sage.Graphs.PFC
             _pfcTestFileName = Path.GetTempFileName();
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesConvergentStepStep()
         {
             string shouldBe =
@@ -43,7 +43,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesConvergentStepTransition()
         {
             string shouldBe =
@@ -61,7 +61,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesConvergentTransitionStep()
         {
             string shouldBe =
@@ -74,7 +74,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesConvergentTransitionTransition()
         {
             string shouldBe =
@@ -88,7 +88,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelConvergentStepStep()
         {
             string shouldBe =
@@ -102,7 +102,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelConvergentStepTransition()
         {
             string shouldBe =
@@ -115,7 +115,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelConvergentTransitionStep()
         {
             string shouldBe =
@@ -133,7 +133,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelConvergentTransitionTransition()
         {
             string shouldBe =
@@ -150,7 +150,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelDivergentStepStep()
         {
             string shouldBe =
@@ -164,7 +164,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelDivergentStepTransition()
         {
             string shouldBe =
@@ -182,7 +182,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelDivergentTransitionStep()
         {
             string shouldBe =
@@ -195,7 +195,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_ParallelDivergentTransitionTransition()
         {
             string shouldBe =
@@ -212,7 +212,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesDivergentStepStep()
         {
             string shouldBe =
@@ -229,7 +229,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesDivergentStepTransition()
         {
             string shouldBe =
@@ -242,7 +242,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesDivergentTransitionStep()
         {
             string shouldBe =
@@ -260,7 +260,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SeriesDivergentTransitionTransition()
         {
             string shouldBe =
@@ -274,7 +274,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleBindingStepStep()
         {
             string shouldBe =
@@ -285,7 +285,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleBindingStepTransition()
         {
             string shouldBe =
@@ -295,7 +295,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleBindingTransitionStep()
         {
             string shouldBe =
@@ -305,7 +305,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SimpleBindingTransitionTransition()
         {
             string shouldBe =
@@ -316,7 +316,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SynchronizerConstruct_Transitions()
         {
             Model model = new Model("SFC Test 1");
@@ -337,7 +337,7 @@ namespace Highpoint.Sage.Graphs.PFC
             string shouldBe = "{T_Alice-->[L_000(SFC 1.Root)]-->S_000}\r\n{S_000-->[L_001(SFC 1.Root)]-->T_000}\r\n{T_Bob-->[L_002(SFC 1.Root)]-->S_001}\r\n{S_001-->[L_003(SFC 1.Root)]-->T_000}\r\n{T_Charley-->[L_004(SFC 1.Root)]-->S_002}\r\n{S_002-->[L_005(SFC 1.Root)]-->T_000}\r\n{T_David-->[L_006(SFC 1.Root)]-->S_003}\r\n{S_003-->[L_007(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_008(SFC 1.Root)]-->S_004}\r\n{S_004-->[L_009(SFC 1.Root)]-->T_Edna}\r\n{T_000-->[L_010(SFC 1.Root)]-->S_005}\r\n{S_005-->[L_011(SFC 1.Root)]-->T_Frank}\r\n{T_000-->[L_012(SFC 1.Root)]-->S_006}\r\n{S_006-->[L_013(SFC 1.Root)]-->T_Gary}\r\n{T_000-->[L_014(SFC 1.Root)]-->S_007}\r\n{S_007-->[L_015(SFC 1.Root)]-->T_Hailey}\r\n";
 
             Console.WriteLine("After a synchronization of transitions, structure is \r\n" + structureString);
-            Assert.AreEqual(structureString, shouldBe, "Structure should have been\r\n" + shouldBe + "\r\nbut it was\r\n" + structureString + "\r\ninstead.");
+            Assert.Equal(structureString, shouldBe);
 
             if (_runSFCs)
             {
@@ -357,7 +357,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_SynchronizerConstruct_Steps()
         {
             Model model = new Model("SFC Test 1");
@@ -379,7 +379,7 @@ namespace Highpoint.Sage.Graphs.PFC
             string shouldBe = "{S_Alice-->[L_000(SFC 1.Root)]-->T_000}\r\n{S_Bob-->[L_001(SFC 1.Root)]-->T_000}\r\n{S_Charley-->[L_002(SFC 1.Root)]-->T_000}\r\n{S_David-->[L_003(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_004(SFC 1.Root)]-->S_Edna}\r\n{T_000-->[L_005(SFC 1.Root)]-->S_Frank}\r\n{T_000-->[L_006(SFC 1.Root)]-->S_Gary}\r\n{T_000-->[L_007(SFC 1.Root)]-->S_Hailey}\r\n";
 
             Console.WriteLine("After a synchronization of steps, structure is \r\n" + structureString);
-            Assert.AreEqual(structureString, shouldBe, "Structure should have been\r\n" + shouldBe + "\r\nbut it was\r\n" + structureString + "\r\ninstead.");
+            Assert.Equal(structureString, shouldBe);
 
             if (_runSFCs)
             {
@@ -401,7 +401,7 @@ namespace Highpoint.Sage.Graphs.PFC
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_InsertStepAndTransition()
         {
             Model model = new Model("SFC Test 1");
@@ -433,11 +433,11 @@ namespace Highpoint.Sage.Graphs.PFC
 
             structureString = PfcDiagnostics.GetStructure(pfc);
             Console.WriteLine("Structure is \r\n" + structureString);
-            Assert.IsTrue(structureString.Equals("{START-->[L_000(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_002(SFC 1.Root)]-->STEP_1}\r\n{STEP_1-->[L_003(SFC 1.Root)]-->T_001}\r\n{T_001-->[L_004(SFC 1.Root)]-->FINISH}\r\n", StringComparison.Ordinal));
+            Assert.True(structureString.Equals("{START-->[L_000(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_002(SFC 1.Root)]-->STEP_1}\r\n{STEP_1-->[L_003(SFC 1.Root)]-->T_001}\r\n{T_001-->[L_004(SFC 1.Root)]-->FINISH}\r\n", StringComparison.Ordinal));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_RemoveStep()
         {
             string testName = "PFC With Simultaneous Branch";
@@ -492,13 +492,13 @@ namespace Highpoint.Sage.Graphs.PFC
             // Need to delete the predecessor transition
 
             IPfcTransitionNode predecessorTrans = (IPfcTransitionNode)step4.PredecessorNodes[0];
-            Assert.IsTrue(predecessorTrans.Name == t3.Name, "The predecessor trans should be T3");
+            Assert.True(predecessorTrans.Name == t3.Name, "The predecessor trans should be T3");
 
             IPfcStepNode predecessorStep = (IPfcStepNode)predecessorTrans.PredecessorNodes[0];
-            Assert.IsTrue(predecessorStep.Name == step3.Name, "The predecessor step should be STEP3");
+            Assert.True(predecessorStep.Name == step3.Name, "The predecessor step should be STEP3");
 
             IPfcTransitionNode successorTrans = (IPfcTransitionNode)step4.SuccessorNodes[0];
-            Assert.IsTrue(successorTrans.Name == t4.Name, "The successor trans should be T4");
+            Assert.True(successorTrans.Name == t4.Name, "The successor trans should be T4");
 
 
             // Connect the predecessor step to the successor transition
@@ -515,11 +515,11 @@ namespace Highpoint.Sage.Graphs.PFC
             // Delete step
             pfc.Delete(step4);
 
-            Assert.IsTrue(pfc.Transitions[t3.Name] == null, "T3 Should be Deleted");
-            Assert.IsTrue(pfc.Steps[step4.Name] == null, "Step4 Should be Deleted");
+            Assert.True(pfc.Transitions[t3.Name] == null, "T3 Should be Deleted");
+            Assert.True(pfc.Steps[step4.Name] == null, "Step4 Should be Deleted");
         }
 
-        [TestMethod]
+        [Fact]
         public void Test_InsertStepIntoLoop()
         {
             string testName = "PFC with loop gets the loop extended";
@@ -591,7 +591,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             string result = PfcDiagnostics.GetStructure(pfc);
             Console.WriteLine(result);
-            Assert.IsTrue(result.Equals("{START-->[L_000(SFC 1.Root)]-->T1}\r\n{T1-->[L_001(SFC 1.Root)]-->STEP1}\r\n{STEP1-->[L_003(SFC 1.Root)]-->T3}\r\n{T2-->[L_004(SFC 1.Root)]-->STEP1}\r\n{T3-->[L_005(SFC 1.Root)]-->FINISH}\r\n{STEP2-->[L_006(SFC 1.Root)]-->T2}\r\n{STEP1-->[L_007(SFC 1.Root)]-->T4}\r\n{T4-->[L_008(SFC 1.Root)]-->STEP2}\r\n", StringComparison.Ordinal));
+            Assert.True(result.Equals("{START-->[L_000(SFC 1.Root)]-->T1}\r\n{T1-->[L_001(SFC 1.Root)]-->STEP1}\r\n{STEP1-->[L_003(SFC 1.Root)]-->T3}\r\n{T2-->[L_004(SFC 1.Root)]-->STEP1}\r\n{T3-->[L_005(SFC 1.Root)]-->FINISH}\r\n{STEP2-->[L_006(SFC 1.Root)]-->T2}\r\n{STEP1-->[L_007(SFC 1.Root)]-->T4}\r\n{T4-->[L_008(SFC 1.Root)]-->STEP2}\r\n", StringComparison.Ordinal));
 
 
         }
@@ -647,7 +647,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             string structureString = PfcDiagnostics.GetStructure(pfc);
             Console.WriteLine("After a " + testName + ", structure is \r\n" + structureString);
-            Assert.AreEqual(StripCRLF(structureString), StripCRLF(shouldBe), "Structure should have been\r\n" + shouldBe + "\r\nbut it was\r\n" + structureString + "\r\ninstead.");
+            Assert.Equal(StripCRLF(structureString), StripCRLF(shouldBe));
 
             if (_testSerializationToo)
             {
@@ -676,7 +676,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             string structureString = PfcDiagnostics.GetStructure(pfc);
             Console.WriteLine("After a " + testName + ", structure is \r\n" + structureString);
-            Assert.AreEqual(StripCRLF(structureString), StripCRLF(shouldBe), "Structure should have been\r\n" + shouldBe + "\r\nbut it was\r\n" + structureString + "\r\ninstead.");
+            Assert.Equal(StripCRLF(structureString), StripCRLF(shouldBe));
 
             if (_testSerializationToo)
             {
@@ -731,7 +731,7 @@ namespace Highpoint.Sage.Graphs.PFC
 
             string structureString = PfcDiagnostics.GetStructure(pfc2);
             Console.WriteLine("After storing and reloading a " + testName + ", the reloaded structure is \r\n" + structureString);
-            Assert.AreEqual(StripCRLF(structureString), StripCRLF(shouldBe), "Structure should have been\r\n" + shouldBe + "\r\nbut it was\r\n" + structureString + "\r\ninstead.");
+            Assert.Equal(StripCRLF(structureString), StripCRLF(shouldBe));
 
         }
 
@@ -837,7 +837,7 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 set
                 {
-                    Assert.IsTrue(_nextExpected.Count == 0, "We are adding new expected activations, but have not yet observed all of the previously expected ones. This is an error.");
+                    Assert.True(_nextExpected.Count == 0, "We are adding new expected activations, but have not yet observed all of the previously expected ones. This is an error.");
                     foreach (IPfcNode t in value)
                     {
                         _nextExpected.Enqueue(t);
@@ -847,9 +847,9 @@ namespace Highpoint.Sage.Graphs.PFC
 
             private void onActivationHappened(IPfcNode whoActivated)
             {
-                Assert.IsTrue(_nextExpected.Count > 0, "Unexpected activation occurred on " + whoActivated.Name + ".");
+                Assert.True(_nextExpected.Count > 0, "Unexpected activation occurred on " + whoActivated.Name + ".");
                 IPfcNode t = _nextExpected.Dequeue();
-                Assert.AreEqual(t, whoActivated, "" + whoActivated.Name + " activated, but we were expecting " + t.Name + " to do so. This is an error.");
+                Assert.Equal(t, whoActivated);
                 Console.WriteLine("Activation happened with " + t.Name + ".");
             }
         }

@@ -5,15 +5,15 @@ using System.Diagnostics;
 namespace Highpoint.Sage.Utility
 {
     using Highpoint.Sage.Core;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Xunit;
     using System;
     using System.Collections;
 
     /// <summary>
     /// Summary description for TupleTester.
 	/// </summary>
-	[TestClass]
-    public class TupleTester
+
+    public class TupleTester : IDisposable
     {
         private ITupleSpace _tsut; // ExchangeUnderTest.
         private ArrayList _results;
@@ -41,17 +41,17 @@ namespace Highpoint.Sage.Utility
             _blockTilGone = new ExecEventReceiver(BlockTilGoneTuple);
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
 
-        [TestMethod]
+        [Fact]
         public void TestTupleBasics()
         {
             string[] expected = new string[] { "632254657940000000:RT1:" + HashCode(_k1), "632254657940000000:RT2b:" + HashCode(_k1), "632254657940000000:PT1:" + HashCode(_k1), "632254657940000000:PT2:" + HashCode(_k1), "632254657940000000:TT1:" + HashCode(_k1), "632254657940000000:TT2a:" + HashCode(_k1) };
@@ -68,7 +68,7 @@ namespace Highpoint.Sage.Utility
             return k1.GetHashCode(StringComparison.Ordinal).ToString();
         }
 
-        [TestMethod]
+        [Fact]
         public void TestRead()
         {
             string[] expected = new string[] { "632254657940000000:PT1:" + HashCode(_k1), "632254657940000000:PT2:" + HashCode(_k1), "632254659740000000:RT1:" + HashCode(_k1), "632254659740000000:RT2a:" + HashCode(_k1) };
@@ -79,7 +79,7 @@ namespace Highpoint.Sage.Utility
             _exec.Start();
             EvaluateTest(expected, false);
         }
-        [TestMethod]
+        [Fact]
         public void TestTake()
         {
             string[] expected = new string[] { "632254657940000000:PT1:" + HashCode(_k1), "632254657940000000:PT2:" + HashCode(_k1), "632254659740000000:TT1:" + HashCode(_k1), "632254659740000000:TT2a:" + HashCode(_k1) };
@@ -89,7 +89,7 @@ namespace Highpoint.Sage.Utility
             _exec.Start();
             EvaluateTest(expected, false);
         }
-        [TestMethod]
+        [Fact]
         public void TestBlockingPost()
         {
             string[] expected = new string[] { "632254657940000000:BPT1:" + HashCode(_k1), "632254657940000000:RT1:" + HashCode(_k1), "632254657940000000:RT2a:" + HashCode(_k1), "632254657940000000:RT1:" + HashCode(_k1), "632254657940000000:RT2a:" + HashCode(_k1), "632254657940000000:TT1:" + HashCode(_k1), "632254657940000000:TT2a:" + HashCode(_k1), "632254657940000000:BPT2:" + HashCode(_k1) };
@@ -103,7 +103,7 @@ namespace Highpoint.Sage.Utility
             EvaluateTest(expected, false);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBlockingRead()
         {
             string[] expected = new string[] { "632254657940000000:RT1:" + HashCode(_k1), "632254657940000000:RT2b:" + HashCode(_k1), "632254657940000000:BRT1:" + HashCode(_k1), "632254657940000000:PT1:" + HashCode(_k1), "632254657940000000:PT2:" + HashCode(_k1), "632254657940000000:BRT2:" + HashCode(_k1), "632254657940000000:TT1:" + HashCode(_k1), "632254657940000000:TT2a:" + HashCode(_k1) };
@@ -116,7 +116,7 @@ namespace Highpoint.Sage.Utility
             EvaluateTest(expected, false);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBlockingTake()
         {
             string[] expected = new string[] { "632254657940000000:RT1:" + HashCode(_k1), "632254657940000000:RT2b:" + HashCode(_k1), "632254657940000000:BTT1:" + HashCode(_k1), "632254657940000000:PT1:" + HashCode(_k1), "632254657940000000:PT2:" + HashCode(_k1), "632254657940000000:BTT2:" + HashCode(_k1), "632254657940000000:RT1:" + HashCode(_k1), "632254657940000000:RT2b:" + HashCode(_k1) };
@@ -129,7 +129,7 @@ namespace Highpoint.Sage.Utility
             EvaluateTest(expected, false);
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBlock()
         {
             string[] expected = new string[] { "632254657940000000:PT1:" + HashCode(_k1), "632254657940000000:PT2:" + HashCode(_k1), "632254658540000000:WTG1:" + HashCode(_k1), "632254659140000000:RT1:" + HashCode(_k1), "632254659140000000:RT2a:" + HashCode(_k1), "632254659740000000:TT1:" + HashCode(_k1), "632254659740000000:TT2a:" + HashCode(_k1), "632254659740000000:WTG2:" + HashCode(_k1) };
@@ -229,13 +229,13 @@ namespace Highpoint.Sage.Utility
             {
                 string msg = "Incorrect number of elements in \"Expected\" results.";
                 if (expected.Length != _results.Count)
-                    Assert.IsTrue(false, msg);
+                    Assert.True(false, msg);
                 for (int i = 0; i < _results.Count; i++)
                 {
                     if (!expected[i].Equals(_results[i]))
                     {
                         msg = "Argument mismatch in element " + i + " of the expected test results.";
-                        Assert.IsTrue(false, msg);
+                        Assert.True(false, msg);
                     }
                 }
             }

@@ -1,7 +1,7 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,21 +11,21 @@ using System.Linq;
 namespace Highpoint.Sage.Utility
 {
 
-    [TestClass]
-    public class ExtensionTester
+
+    public class ExtensionTester : IDisposable
     {
         public ExtensionTester()
         {
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -33,27 +33,27 @@ namespace Highpoint.Sage.Utility
         /// <summary>
         /// Tests the PercentileGetter extension.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Tests the Byte XOR extension.")]
         public void TestByteXOR()
         {
             byte[] ba1 = new byte[] { 0xF0, 0xF0 };
             byte[] ba2 = new byte[] { 0x0F, 0x0F };
             byte[] ba3 = ba1.XOR(ba2);
-            Assert.AreEqual(ba3[0], 0xFF, "Comparison 1a.");
-            Assert.AreEqual(ba3[1], 0xFF, "Comparison 1b.");
+            Assert.Equal(ba3[0], 0xFF);
+            Assert.Equal(ba3[1], 0xFF);
 
             ba2 = new byte[] { 0xFF, 0xFF };
             ba3 = ba1.XOR(ba2);
-            Assert.AreEqual(ba3[0], 0x0F, "Comparison 2a.");
-            Assert.AreEqual(ba3[1], 0x0F, "Comparison 2b.");
+            Assert.Equal(ba3[0], 0x0F);
+            Assert.Equal(ba3[1], 0x0F);
 
             ba3 = ba2.XOR(ba2);
-            Assert.AreEqual(ba3[0], 0x00, "Comparison 3a.");
-            Assert.AreEqual(ba3[1], 0x00, "Comparison 3b.");
+            Assert.Equal(ba3[0], 0x00);
+            Assert.Equal(ba3[1], 0x00);
         }
 
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Tests the CommasAndAndedList operations.")]
         public void TestCommasAndAndedListOperations()
         {
@@ -73,7 +73,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(strings[i]);
                 }
                 string result = StringOperations.ToCommasAndAndedList(((IEnumerable<string>)tmp));
-                Assert.IsTrue(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
                 Console.WriteLine(result);
 
             }
@@ -86,7 +86,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(strings[i]);
                 }
                 string result = StringOperations.ToCommasAndAndedList(tmp);
-                Assert.IsTrue(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
                 Console.WriteLine(result);
             }
 
@@ -98,7 +98,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(new Thingy(strings[i]));
                 }
                 string result = StringOperations.ToCommasAndAndedListOfNames(tmp);
-                Assert.IsTrue(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
                 Console.WriteLine(result);
             }
 
@@ -110,7 +110,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(new Thingy(strings[i]));
                 }
                 string result = StringOperations.ToCommasAndAndedList(tmp, n => n.Name);
-                Assert.IsTrue(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
                 Console.WriteLine(result);
             }
 
@@ -137,8 +137,8 @@ namespace Highpoint.Sage.Utility
 namespace Highpoint.Sage.Mathematics
 {
 
-    [TestClass]
-    public class ExtensionTester
+
+    public class ExtensionTester : IDisposable
     {
 
         public ExtensionTester()
@@ -146,13 +146,13 @@ namespace Highpoint.Sage.Mathematics
             Init();
         }
 
-        [TestInitialize]
+
         public void Init()
         {
         }
 
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -160,7 +160,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// Tests the PercentileGetter extension.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Tests the PercentileGetter extension.")]
         public void TestPercentileGetter()
         {
@@ -176,7 +176,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// Tests the PercentileGetter extension.
         /// </summary>
-        [TestMethod]
+        [Fact]
         [Highpoint.Sage.Utility.FieldDescription("Tests the  BoundBySigmas extension.")]
         public void TestSigmaBounding()
         {
@@ -186,7 +186,7 @@ namespace Highpoint.Sage.Mathematics
             double[] hiBound = new double[] { 3, 2, 1, 3, .5, .25 };
             int[] expecteds = new int[] { 9, 9, 7, 8, 6, 2 };
 
-            TestSigmaBounding(testData, expecteds, loBound, hiBound);
+            RunSigmaBoundingTest(testData, expecteds, loBound, hiBound);
         }
 
         private void TestPG(double[] srcData, double[] targets, double[] expecteds, bool interpolate)
@@ -208,12 +208,12 @@ namespace Highpoint.Sage.Mathematics
                 Console.WriteLine(" > {0} value at percentile {1} was {2} - expected {3}."
                     , (interpolate ? "Interpolated" : "Uninterpolated"), targets[i], result, expecteds[i]);
 
-                Assert.IsTrue(Math.Abs((result - expecteds[i]) / result) < 1E-8,
+                Assert.True(Math.Abs((result - expecteds[i]) / result) < 1E-8,
                     string.Format("Getting {0} percentile returned {1}, should have returned {2}.", targets[i], result, expecteds[i]));
             }
         }
 
-        private void TestSigmaBounding(double[] srcData, int[] expecteds, double[] loBounds, double[] hiBounds)
+        private void RunSigmaBoundingTest(double[] srcData, int[] expecteds, double[] loBounds, double[] hiBounds)
         {
 
             List<Thingy> thingies = new List<Thingy>();
@@ -235,7 +235,7 @@ namespace Highpoint.Sage.Mathematics
                 IEnumerable<Thingy> boundedThingies = thingies.BoundBySigmas<Thingy>(n => n.DoubleValue, loBounds[i], hiBounds[i], ref state);
                 IEnumerable<Thingy> enumerable = boundedThingies as Thingy[] ?? boundedThingies.ToArray();
                 int numBoundedThingies = enumerable.Count();
-                Assert.AreEqual(expecteds[i], numBoundedThingies, string.Format("ERROR: Thingy list bounded -{0} to +{1} should have yielded {2} elements, and yielded {3} instead.", loBounds[i], hiBounds[i], expecteds[i], numBoundedThingies));
+                Assert.Equal(expecteds[i], numBoundedThingies);
             }
         }
 

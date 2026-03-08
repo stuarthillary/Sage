@@ -2,7 +2,8 @@
 
 
 using Highpoint.Sage.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using Xunit;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.ItemBased.Blocks
@@ -10,17 +11,17 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
     /// <summary>BlockModelPersistence.
     /// </summary>
-    [TestClass]
-    public class BlockModelTester
+
+    public class BlockModelTester : IDisposable
     {
 
         #region MSTest Goo
-        [TestInitialize]
+
         public void Init()
         {
         }
-        [TestCleanup]
-        public void destroy()
+
+        public void Dispose()
         {
             Debug.WriteLine("Done.");
         }
@@ -30,7 +31,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         {
         }
 
-        [TestMethod]
+        [Fact]
         public void TestBlockModelPersistence()
         {
 
