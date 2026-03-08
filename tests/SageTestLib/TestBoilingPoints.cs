@@ -24,7 +24,7 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
         private BasicReactionSupporter _brs;
 
 
-        public void Init()
+        private void Init()
         {
             _brs = new BasicReactionSupporter();
 

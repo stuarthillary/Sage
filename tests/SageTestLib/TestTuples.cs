@@ -42,7 +42,7 @@ namespace Highpoint.Sage.Utility
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -229,13 +229,13 @@ namespace Highpoint.Sage.Utility
             {
                 string msg = "Incorrect number of elements in \"Expected\" results.";
                 if (expected.Length != _results.Count)
-                    Assert.True(false, msg);
+                    Assert.Fail(msg);
                 for (int i = 0; i < _results.Count; i++)
                 {
                     if (!expected[i].Equals(_results[i]))
                     {
                         msg = "Argument mismatch in element " + i + " of the expected test results.";
-                        Assert.True(false, msg);
+                        Assert.Fail(msg);
                     }
                 }
             }

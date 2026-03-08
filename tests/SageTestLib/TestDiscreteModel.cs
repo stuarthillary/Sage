@@ -20,7 +20,7 @@ namespace Highpoint.Sage.Core
         private TimeSpan _timedifference = TimeSpan.FromMinutes(10);
 
 
-        public void Init()
+        private void Init()
         {
         }
 

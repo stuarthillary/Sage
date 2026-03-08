@@ -22,7 +22,7 @@ namespace Highpoint.Sage.Utility
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -160,7 +160,7 @@ namespace Highpoint.Sage.Utility
             Console.WriteLine("This test manipulates a tree that holds elements that derive from TreeNode.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.True(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal));
+            Assert.Equal(StripCRLF(REQUIRED_ITERATIONSTRING1), StripCRLF(sb.ToString()));
 
         }
 
@@ -209,7 +209,7 @@ namespace Highpoint.Sage.Utility
             Console.WriteLine("This test manipulates a tree that holds elements that implement ITreeNode.");
             Console.WriteLine(sb.ToString());
             Console.WriteLine();
-            Assert.True(StripCRLF(sb.ToString()).Equals(StripCRLF(REQUIRED_ITERATIONSTRING1), StringComparison.Ordinal));
+            Assert.Equal(StripCRLF(REQUIRED_ITERATIONSTRING1), StripCRLF(sb.ToString()));
 
         }
 
@@ -259,7 +259,7 @@ Dingus";
                 ITreeNode<string> dingus = bob.AddChild("Dingus");
                 dingus.AddChild(bob);
 
-                Assert.True(false, "Circular tree structure was not caught.");
+                Assert.Fail("Circular tree structure was not caught.");
             }
             catch (ArgumentException)
             {
@@ -292,7 +292,7 @@ Dingus";
             {
                 s += activity.Payload.Name;
             });
-            Assert.True(s.Equals("EthelFrankGeorge", StringComparison.Ordinal));
+            Assert.Equal("EthelFrankGeorge", s);
 
             s = string.Empty;
             bob.SortChildren(new Comparison<ITreeNode<Activity>>(ReverseSortTreeNodeActivities));
@@ -300,7 +300,7 @@ Dingus";
             {
                 s += activity.Payload.Name;
             });
-            Assert.True(s.Equals("GeorgeFrankEthel", StringComparison.Ordinal));
+            Assert.Equal("GeorgeFrankEthel", s);
 
             Console.WriteLine(s);
 
@@ -329,7 +329,7 @@ Dingus";
             Assert.True(alice.HasChild(bob), "\"alice\"'s children should include \"bob\", but doesn't.");
             Assert.True(alice.RemoveChild(bob), "\"alice\" failed to remove existing child \"bob\"");
             Assert.False(alice.HasChild(bob), "\"alice\"'s children should not include \"bob\", but still does.");
-            Assert.Equal(bob.Parent, null);
+            Assert.Null(bob.Parent);
 
             Assert.False(dingus.RemoveChild(bob), "\"dingus\" claimed success in removing existing child \"bob\"");
 

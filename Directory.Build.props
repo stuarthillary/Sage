@@ -24,7 +24,9 @@
 
   <PropertyGroup>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <!-- TreatWarningsAsErrors deferred: pre-existing SYSLIB/CS warnings need cleanup first -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- CA rule suppressions are managed in .editorconfig via dotnet_diagnostic entries.
+         Genuine quality issues are tracked as work items in the project backlog. -->
   </PropertyGroup>
 
   <ItemGroup>

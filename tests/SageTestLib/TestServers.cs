@@ -28,7 +28,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
 
         #region MSTest Goo
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -422,7 +422,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
             Console.WriteLine("Queue level is now " + current);
         }
 
-        public void TestIOOB()
+        private void TestIOOB()
         {
             throw new NotImplementedException();
         }

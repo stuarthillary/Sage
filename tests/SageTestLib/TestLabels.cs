@@ -14,7 +14,7 @@ namespace Highpoint.Sage.Utility
             LabelManager lm2 = new LabelManager();
 
             lm1.SetLabel("Plain", null);
-            Assert.True(lm1.GetLabel(null).Equals("Plain", StringComparison.Ordinal));
+            Assert.Equal("Plain", lm1.GetLabel(null));
 
             LabelManager.SetContext("Brown");
             lm1.Label = "Chocolate";
@@ -24,30 +24,30 @@ namespace Highpoint.Sage.Utility
 
             LabelManager.SetContext(null);
             Console.WriteLine(lm1.Label);
-            Assert.True(lm1.Label.Equals("Plain", StringComparison.Ordinal));
+            Assert.Equal("Plain", lm1.Label);
 
             LabelManager.SetContext("Brown");
 
             Console.WriteLine(lm1.Label);
-            Assert.True(lm1.Label.Equals("Chocolate", StringComparison.Ordinal));
+            Assert.Equal("Chocolate", lm1.Label);
 
             LabelManager.SetContext("Red");
 
             Console.WriteLine(lm1.Label);
-            Assert.True(lm1.Label.Equals("Cherry", StringComparison.Ordinal));
+            Assert.Equal("Cherry", lm1.Label);
 
             LabelManager.SetContext("Orange");
 
             Console.WriteLine(lm1.GetLabel(null));
-            Assert.True(lm1.Label.Equals("", StringComparison.Ordinal));
+            Assert.Equal("", lm1.Label);
 
             lm2.Label = "Bob";
 
             LabelManager.SetContext("Brown");
-            Assert.True(lm2.Label.Equals("", StringComparison.Ordinal));
+            Assert.Equal("", lm2.Label);
 
             LabelManager.SetContext("Orange");
-            Assert.True(lm2.Label.Equals("Bob", StringComparison.Ordinal));
+            Assert.Equal("Bob", lm2.Label);
 
         }
     }

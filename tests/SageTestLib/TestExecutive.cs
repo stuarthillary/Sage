@@ -32,7 +32,7 @@ namespace Highpoint.Sage.Core
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -181,7 +181,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
         }
 
-        public void ExecEventRecieverPriority(IExecutive exec, object userData)
+        private void ExecEventRecieverPriority(IExecutive exec, object userData)
         {
             if (_validatePriority < (int)userData)
             {
@@ -231,7 +231,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
         }
 
-        public void ExecEventRecieverWhen(IExecutive exec, object userData)
+        private void ExecEventRecieverWhen(IExecutive exec, object userData)
         {
             if (_validateWhen.Ticks > ((DateTime)userData).Ticks)
             {
@@ -300,7 +300,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("");
         }
 
-        public void ExecEventRecieverUnRequestHash(IExecutive exec, object userData)
+        private void ExecEventRecieverUnRequestHash(IExecutive exec, object userData)
         {
             if (_validateUnRequest.Contains(userData))
             {
@@ -662,7 +662,7 @@ namespace Highpoint.Sage.Core
 
         #region TestExecutiveUnRequestSelector() support methods.
 
-        public void ExecEventRecieverUnRequestEventReceiver(IExecutive exec, object userData)
+        private void ExecEventRecieverUnRequestEventReceiver(IExecutive exec, object userData)
         {
             if (_validateUnRequest.Contains(userData))
             {
@@ -671,7 +671,7 @@ namespace Highpoint.Sage.Core
             Debug.WriteLine("Primary firing event number" + (int)userData);
         }
 
-        public void ExecEventRecieverUnRequestDelegate(IExecutive exec, object userData)
+        private void ExecEventRecieverUnRequestDelegate(IExecutive exec, object userData)
         {
             if (_validateUnRequest.Contains(userData))
             {
@@ -853,7 +853,7 @@ namespace Highpoint.Sage.Core
 
             Console.WriteLine(_result);
 
-            Assert.True(_result.Equals("16/05/2007 12:34:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:34:56 PM, is about to change.\r\n16/05/2007 12:35:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:35:56 PM, is about to change.\r\n16/05/2007 12:37:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:37:56 PM, is about to change.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:40:56 PM, is about to change.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:42:56 PM, is about to change.\r\n16/05/2007 12:44:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:44:56 PM, is about to change.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:47:56 PM, is about to change.\r\n16/05/2007 12:51:56 PM : Event is firing.\r\n", StringComparison.Ordinal));
+            Assert.Equal("16/05/2007 12:34:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:34:56 PM, is about to change.\r\n16/05/2007 12:35:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:35:56 PM, is about to change.\r\n16/05/2007 12:37:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:37:56 PM, is about to change.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n16/05/2007 12:40:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:40:56 PM, is about to change.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n16/05/2007 12:42:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:42:56 PM, is about to change.\r\n16/05/2007 12:44:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:44:56 PM, is about to change.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n16/05/2007 12:47:56 PM : Event is firing.\r\n\tClock, currently at 16/05/2007 12:47:56 PM, is about to change.\r\n16/05/2007 12:51:56 PM : Event is firing.\r\n", _result);
         }
 
         private string _result = null;
@@ -895,7 +895,7 @@ namespace Highpoint.Sage.Core
         private double[] _arrPctSynch = new double[] { 1.0, 0.5, 0.2, 0.1, 0.0 };
         private int[] _arrEcc = new int[] { 10000, 100000, 1000000 };
 
-        public void TestPerformanceMultiple()
+        private void TestPerformanceMultiple()
         {
             foreach (double pctSynch in _arrPctSynch)
             {
@@ -1053,7 +1053,7 @@ namespace Highpoint.Sage.Core
             exec.Start();
 
             Assert.Equal(1, _liveDetachCountDuringEvent);
-            Assert.Equal(0, exec.LiveDetachableEvents.Count);
+            Assert.Empty(exec.LiveDetachableEvents);
         }
 
         private void CaptureDetachableCount(IExecutive exec, object userData)

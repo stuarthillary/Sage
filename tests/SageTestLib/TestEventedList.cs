@@ -19,7 +19,7 @@ namespace Highpoint.Sage.Tests.Utility
 
         #region Prep Work
 
-        public void Init()
+        private void Init()
         {
             _responses = "";
             _uut = new EventedList<string>();
@@ -107,7 +107,7 @@ namespace Highpoint.Sage.Tests.Utility
             string addee = "String 1";
             _uut.Add(addee);
 
-            Assert.True(_responses.Equals("m_uut_AboutToAddItem String 1 | m_uut_AddedItem String 1 | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.Equal("m_uut_AboutToAddItem String 1 | m_uut_AddedItem String 1 | m_uut_ContentsChanged | ", _responses);
             Console.WriteLine(_responses);
         }
 
@@ -120,9 +120,9 @@ namespace Highpoint.Sage.Tests.Utility
             string[] addee = new string[] { "String 2", "String 3" };
             _uut.AddRange(addee);
 
-            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
-            Assert.True(_uut[0].Equals("String 2", StringComparison.Ordinal));
-            Assert.True(_uut[1].Equals("String 3", StringComparison.Ordinal));
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", _responses);
+            Assert.Equal("String 2", _uut[0]);
+            Assert.Equal("String 3", _uut[1]);
             Console.WriteLine(_responses);
         }
 
@@ -135,9 +135,9 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.AddRange(new string[] { "Bob", "Mary", "Sue" });
             _uut.Remove("Mary");
 
-            Assert.True(_uut[0].Equals("Bob", StringComparison.Ordinal));
-            Assert.True(_uut[1].Equals("Sue", StringComparison.Ordinal));
-            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.Equal("Bob", _uut[0]);
+            Assert.Equal("Sue", _uut[1]);
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", _responses);
             Console.WriteLine(_responses);
         }
 
@@ -153,8 +153,8 @@ namespace Highpoint.Sage.Tests.Utility
                 return s.Length.Equals(3);
             });
 
-            Assert.True(_uut[0].Equals("Mary", StringComparison.Ordinal));
-            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItems System.Predicate`1[System.String] | m_uut_RemovedItems System.Predicate`1[System.String] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.Equal("Mary", _uut[0]);
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItems System.Predicate`1[System.String] | m_uut_RemovedItems System.Predicate`1[System.String] | m_uut_ContentsChanged | ", _responses);
             Console.WriteLine(_responses);
         }
 
@@ -167,9 +167,9 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.AddRange(new string[] { "Bob", "Mary", "Sue" });
             _uut.RemoveAt(1);
 
-            Assert.True(_uut[0].Equals("Bob", StringComparison.Ordinal));
-            Assert.True(_uut[1].Equals("Sue", StringComparison.Ordinal));
-            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.Equal("Bob", _uut[0]);
+            Assert.Equal("Sue", _uut[1]);
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToRemoveItem Mary | m_uut_RemovedItem Mary | m_uut_ContentsChanged | ", _responses);
             Console.WriteLine(_responses);
         }
 
@@ -183,7 +183,7 @@ namespace Highpoint.Sage.Tests.Utility
             _uut.Clear();
 
             Assert.True(_uut.Count == 0);
-            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_ContentsChanged | ", _responses);
             Console.WriteLine(_responses);
         }
 
@@ -232,13 +232,13 @@ namespace Highpoint.Sage.Tests.Utility
 
             _uut.InsertRange(1, new string[] { "Paul", "Randy", "Sara" });
 
-            Assert.True(_uut[0].Equals("Bob", StringComparison.Ordinal));
-            Assert.True(_uut[1].Equals("Paul", StringComparison.Ordinal));
-            Assert.True(_uut[2].Equals("Randy", StringComparison.Ordinal));
-            Assert.True(_uut[3].Equals("Sara", StringComparison.Ordinal));
-            Assert.True(_uut[4].Equals("Mary", StringComparison.Ordinal));
-            Assert.True(_uut[5].Equals("Tim", StringComparison.Ordinal));
-            Assert.True(_responses.Equals("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", StringComparison.Ordinal));
+            Assert.Equal("Bob", _uut[0]);
+            Assert.Equal("Paul", _uut[1]);
+            Assert.Equal("Randy", _uut[2]);
+            Assert.Equal("Sara", _uut[3]);
+            Assert.Equal("Mary", _uut[4]);
+            Assert.Equal("Tim", _uut[5]);
+            Assert.Equal("m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | m_uut_AboutToAddItems System.String[] | m_uut_AddedItems System.String[] | m_uut_ContentsChanged | ", _responses);
             Console.WriteLine(_responses);
         }
 

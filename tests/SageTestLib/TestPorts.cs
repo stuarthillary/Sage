@@ -70,6 +70,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
     public class ManagementFacadeTester
     {
 
+        [Fact]
         public void TestManagementBasics()
         {
 

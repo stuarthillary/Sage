@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Core
         private DateTime _synchtime = new DateTime();
 
 
-        public void Init()
+        private void Init()
         {
         }
 

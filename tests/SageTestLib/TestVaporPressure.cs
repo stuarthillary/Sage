@@ -33,7 +33,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
         }
 
 
-        public void Init()
+        private void Init()
         {
             _brs = new BasicReactionSupporter();
             _computedVaporPressureInPascals = new Hashtable();

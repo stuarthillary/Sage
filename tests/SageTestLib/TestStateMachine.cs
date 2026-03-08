@@ -28,7 +28,7 @@ namespace Highpoint.Sage.Core
         }
 
 
-        public void Init()
+        private void Init()
         {
             _batch = new Hashtable();
             _testCounter = 0;
@@ -482,14 +482,14 @@ namespace Highpoint.Sage.Core
             return new SimpleTransitionFailureReason("Felt like rejecting transition to Idle.", null);
         }
 
-        public void CommitTransitionToIdle(IModel model, object userData)
+        private void CommitTransitionToIdle(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to Idle transition.");
             CheckBatch(userData);
         }
 
-        public void RollbackTransitionToIdle(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
+        private void RollbackTransitionToIdle(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Idle transition.");
@@ -519,14 +519,14 @@ namespace Highpoint.Sage.Core
             return new SimpleTransitionFailureReason("Felt like rejecting transition to Valid.", null);
         }
 
-        public void CommitTransitiontoValid(IModel model, object userData)
+        private void CommitTransitiontoValid(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to Valid transition.");
             CheckBatch(userData);
         }
 
-        public void RollbackTransitiontoValid(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
+        private void RollbackTransitiontoValid(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Valid transition.");
@@ -556,14 +556,14 @@ namespace Highpoint.Sage.Core
             return new SimpleTransitionFailureReason("Felt like rejecting transition to Running.", null);
         }
 
-        public void CommitTransitionToRunning(IModel model, object userData)
+        private void CommitTransitionToRunning(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to Running transition.");
             CheckBatch(userData);
         }
 
-        public void RollbackTransitionToRunning(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
+        private void RollbackTransitionToRunning(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Running transition.");
@@ -592,14 +592,14 @@ namespace Highpoint.Sage.Core
             return new SimpleTransitionFailureReason("Felt like rejecting transition to Paused.", null);
         }
 
-        public void CommitTransitionToPaused(IModel model, object userData)
+        private void CommitTransitionToPaused(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to Paused transition.");
             CheckBatch(userData);
         }
 
-        public void RollbackTransitionToPaused(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
+        private void RollbackTransitionToPaused(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Paused transition.");
@@ -628,14 +628,14 @@ namespace Highpoint.Sage.Core
             return new SimpleTransitionFailureReason("Felt like rejecting transition to Finished.", null);
         }
 
-        public void CommitTransitionToFinished(IModel model, object userData)
+        private void CommitTransitionToFinished(IModel model, object userData)
         {
             CheckBatch(userData);
             if (_outputEnabled)
                 Debug.WriteLine("Committing to Finished transition.");
         }
 
-        public void RollbackTransitionToFinished(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
+        private void RollbackTransitionToFinished(IModel model, object userData, IReadOnlyList<ITransitionFailureReason> reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Rolling back Finished transition.");
@@ -738,84 +738,84 @@ namespace Highpoint.Sage.Core
             //CheckBatch(userData);
         }
 
-        public void CommitTransitionOutOfIdle_1(IModel model, object userData)
+        private void CommitTransitionOutOfIdle_1(IModel model, object userData)
         {
             CheckBatch(userData);
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle (1).");
         }
 
-        public void CommitTransitionOutOfIdle_2(IModel model, object userData)
+        private void CommitTransitionOutOfIdle_2(IModel model, object userData)
         {
             CheckBatch(userData);
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle (2).");
         }
 
-        public void CommitTransitionOutOfIdle_3(IModel model, object userData)
+        private void CommitTransitionOutOfIdle_3(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle (3).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionOutOfIdle_4(IModel model, object userData)
+        private void CommitTransitionOutOfIdle_4(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle (4).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionToValid_1(IModel model, object userData)
+        private void CommitTransitionToValid_1(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition to Valid (1).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionToValid_2(IModel model, object userData)
+        private void CommitTransitionToValid_2(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition to Valid (2).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionToValid_3(IModel model, object userData)
+        private void CommitTransitionToValid_3(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition to Valid (3).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionToValid_4(IModel model, object userData)
+        private void CommitTransitionToValid_4(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition to Valid (4).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionIdleToValid_1(IModel model, object userData)
+        private void CommitTransitionIdleToValid_1(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle to Valid (1).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionIdleToValid_2(IModel model, object userData)
+        private void CommitTransitionIdleToValid_2(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle to Valid (2).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionIdleToValid_3(IModel model, object userData)
+        private void CommitTransitionIdleToValid_3(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle to Valid (3).");
             CheckBatch(userData);
         }
 
-        public void CommitTransitionIdleToValid_4(IModel model, object userData)
+        private void CommitTransitionIdleToValid_4(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Committing to transition from Idle to Valid (4).");
@@ -830,14 +830,14 @@ namespace Highpoint.Sage.Core
             return null;
         }
 
-        public void UniversalCommitTransition(IModel model, object userData)
+        private void UniversalCommitTransition(IModel model, object userData)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Universal handler reports, Committing to Valid transition.");
             CheckBatch(userData);
         }
 
-        public void UniversalRollbackTransition(IModel model, object userData, IList reasonsForFailure)
+        private void UniversalRollbackTransition(IModel model, object userData, IList reasonsForFailure)
         {
             if (_outputEnabled)
                 Debug.WriteLine("Universal handler reports, Rolling back transition.");

@@ -41,7 +41,7 @@ namespace Highpoint.Sage.Tests.Scheduling
 
         }
 
-        public void DoActionTest2()
+        private void DoActionTest2()
         {
             IExecutive exec = ExecFactory.Instance.CreateExecutive();
 

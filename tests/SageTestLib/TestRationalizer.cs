@@ -12,7 +12,7 @@ namespace Highpoint.Sage.Tests.Mathematics
     public class zTestRationalizer : IDisposable
     {
 
-        public void Init()
+        private void Init()
         {
         }
 

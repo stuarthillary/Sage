@@ -21,7 +21,7 @@ namespace Highpoint.Sage.SystemDynamics
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

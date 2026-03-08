@@ -20,7 +20,7 @@ namespace Highpoint.Sage.Utility
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -40,17 +40,17 @@ namespace Highpoint.Sage.Utility
             byte[] ba1 = new byte[] { 0xF0, 0xF0 };
             byte[] ba2 = new byte[] { 0x0F, 0x0F };
             byte[] ba3 = ba1.XOR(ba2);
-            Assert.Equal(ba3[0], 0xFF);
-            Assert.Equal(ba3[1], 0xFF);
+            Assert.Equal(0xFF, ba3[0]);
+            Assert.Equal(0xFF, ba3[1]);
 
             ba2 = new byte[] { 0xFF, 0xFF };
             ba3 = ba1.XOR(ba2);
-            Assert.Equal(ba3[0], 0x0F);
-            Assert.Equal(ba3[1], 0x0F);
+            Assert.Equal(0x0F, ba3[0]);
+            Assert.Equal(0x0F, ba3[1]);
 
             ba3 = ba2.XOR(ba2);
-            Assert.Equal(ba3[0], 0x00);
-            Assert.Equal(ba3[1], 0x00);
+            Assert.Equal(0x00, ba3[0]);
+            Assert.Equal(0x00, ba3[1]);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(strings[i]);
                 }
                 string result = StringOperations.ToCommasAndAndedList(((IEnumerable<string>)tmp));
-                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.Equal(results[count - 1], result);
                 Console.WriteLine(result);
 
             }
@@ -86,7 +86,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(strings[i]);
                 }
                 string result = StringOperations.ToCommasAndAndedList(tmp);
-                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.Equal(results[count - 1], result);
                 Console.WriteLine(result);
             }
 
@@ -98,7 +98,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(new Thingy(strings[i]));
                 }
                 string result = StringOperations.ToCommasAndAndedListOfNames(tmp);
-                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.Equal(results[count - 1], result);
                 Console.WriteLine(result);
             }
 
@@ -110,7 +110,7 @@ namespace Highpoint.Sage.Utility
                     tmp.Add(new Thingy(strings[i]));
                 }
                 string result = StringOperations.ToCommasAndAndedList(tmp, n => n.Name);
-                Assert.True(result.Equals(results[count - 1], StringComparison.Ordinal));
+                Assert.Equal(results[count - 1], result);
                 Console.WriteLine(result);
             }
 
@@ -147,7 +147,7 @@ namespace Highpoint.Sage.Mathematics
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

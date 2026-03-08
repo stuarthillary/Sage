@@ -27,7 +27,7 @@ namespace Highpoint.Sage.Utility
 
             string result = string.Concat(cat00, cat01, cat02, cat03, dog00, dog01, dog02, dog03, dog04);
             //Console.WriteLine(result);
-            Assert.Equal(result, "Cat01Cat02Cat0000Cat0001Dog00Dog01Dog001Dog002Dog02");
+            Assert.Equal("Cat01Cat02Cat0000Cat0001Dog00Dog01Dog001Dog002Dog02", result);
         }
     }
 }

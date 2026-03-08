@@ -22,7 +22,7 @@ namespace Highpoint.Sage.Scheduling.Cost
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

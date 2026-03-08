@@ -18,7 +18,7 @@ namespace Highpoint.Sage.Core
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

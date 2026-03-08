@@ -18,7 +18,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

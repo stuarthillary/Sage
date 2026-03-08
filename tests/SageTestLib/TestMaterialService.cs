@@ -23,7 +23,7 @@ namespace Highpoint.Sage.Materials
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

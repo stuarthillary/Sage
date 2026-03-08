@@ -20,7 +20,7 @@ namespace Highpoint.Sage.ItemBased
 
         #region MSTest Goo
 
-        public void Init()
+        private void Init()
         {
         }
 

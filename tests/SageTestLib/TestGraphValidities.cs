@@ -26,7 +26,7 @@ namespace Highpoint.Sage.Tasks
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

@@ -42,7 +42,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
 
         #region MSTest Goo
 
-        public void Init()
+        private void Init()
         {
             _brs = new BasicReactionSupporter();
             _computedVaporPressureIn = new Hashtable();

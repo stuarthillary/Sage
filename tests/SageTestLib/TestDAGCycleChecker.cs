@@ -22,7 +22,7 @@ namespace Highpoint.Sage.Graphs
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

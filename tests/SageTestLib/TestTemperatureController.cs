@@ -24,7 +24,7 @@ namespace Highpoint.Sage.Thermodynamics
         private static readonly TemperatureControllerMode CONST_RAMP = TemperatureControllerMode.Constant_RampRate;
 
 
-        public void Init()
+        private void Init()
         {
         }
 

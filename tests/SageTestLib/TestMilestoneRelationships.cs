@@ -42,7 +42,7 @@ namespace Highpoint.Sage.Scheduling
         private readonly DateTime _twentyMinsAgo;
 
 
-        public void Init()
+        private void Init()
         {
         }
 

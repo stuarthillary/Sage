@@ -19,7 +19,7 @@ namespace Highpoint.Sage.Utility
 
         #region MSTest Goo
 
-        public void Init()
+        private void Init()
         {
         }
 

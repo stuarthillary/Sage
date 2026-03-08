@@ -20,7 +20,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -483,6 +483,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         }
 
+        [Fact]
         public void TestVaporSpaceMixtureHandling()
         {
             Model model = new Model("Hello, world.", Guid.NewGuid());
@@ -601,7 +602,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
             w1.Temperature = 85.0;
             w1.Add((Substance)waterType.CreateMass(100, 37));
-            Assert.True(results.Equals(RESULT1, StringComparison.Ordinal));
+            Assert.Equal(RESULT1, results);
 
             results = string.Empty;
             w1.SuspendChangeEvents();
@@ -615,7 +616,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             w1.Temperature = 95.0;
             w1.Add((Substance)waterType.CreateMass(100, 37));
             w1.ResumeChangeEvents(true);
-            Assert.True(results.Equals(RESULT2, StringComparison.Ordinal));
+            Assert.Equal(RESULT2, results);
 
             // NOW, SAME TEST, BUT ON A MIXTURE INSTEAD.
             MaterialType acetoneType = (MaterialType)brs.MyMaterialCatalog["Acetone"];
@@ -629,7 +630,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             results = string.Empty;
             m1.AddMaterial((Substance)waterType.CreateMass(100, 37));
             m1.AddMaterial((Substance)acetoneType.CreateMass(100, 45));
-            Assert.True(results.Equals(RESULT3, StringComparison.Ordinal));
+            Assert.Equal(RESULT3, results);
 
             results = string.Empty;
             m1.SuspendChangeEvents();
@@ -645,7 +646,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             m1.AddMaterial((Substance)acetoneType.CreateMass(100, 99));
             Assert.True(results.Length == 0);
             m1.ResumeChangeEvents(true);
-            Assert.True(results.Equals(RESULT4, StringComparison.Ordinal));
+            Assert.Equal(RESULT4, results);
 
         }
 
@@ -955,7 +956,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// processor with sample material types and reactions.
         /// </summary>
         /// <param name="brs">The instance of ISupportsReactions that we will load..</param>
-        public static void InitializeForTesting(BasicReactionSupporter brs)
+        private static void InitializeForTesting(BasicReactionSupporter brs)
         {
             LoadSampleCatalog(brs.MyMaterialCatalog);
             LoadSampleReactions(brs);

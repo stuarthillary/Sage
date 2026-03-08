@@ -23,7 +23,7 @@ namespace Highpoint.Sage.Mathematics
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -76,6 +76,7 @@ namespace Highpoint.Sage.Mathematics
             }
         }
 
+        [Fact]
         public void TestSingleDatapointAsTwoInLinearDoubleInterpolable()
         {
             LinearDoubleInterpolator ldi = new LinearDoubleInterpolator();
@@ -86,6 +87,7 @@ namespace Highpoint.Sage.Mathematics
 
         }
 
+        [Fact]
         public void TestDistributionEmpirical()
         {
             double[] binBounds = new double[] { 4.0, 7.0, 8.0, 10.0, 13.0, 14.0 };
@@ -139,6 +141,7 @@ namespace Highpoint.Sage.Mathematics
         /// <summary>
         /// Tests the universal distribution.
         /// </summary>
+        [Fact]
         public void TestUniversalDistribution()
         {
             double delta = 0.002;

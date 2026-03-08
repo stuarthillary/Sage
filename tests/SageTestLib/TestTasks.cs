@@ -21,7 +21,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

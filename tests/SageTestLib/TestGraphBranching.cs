@@ -21,7 +21,7 @@ namespace Highpoint.Sage.Graphs
 
         #region MSTest Goo
 
-        public void Init()
+        private void Init()
         {
         }
 

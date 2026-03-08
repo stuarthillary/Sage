@@ -20,7 +20,7 @@ namespace Highpoint.Sage.Resources
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -372,7 +372,7 @@ namespace Highpoint.Sage.Resources
             }
             else
             {
-                Assert.True(false, "Sub-test failed : " + result);
+                Assert.Fail("Sub-test failed : " + result);
             }
         }
 
@@ -420,7 +420,7 @@ namespace Highpoint.Sage.Resources
             Resource rsc2 = new Resource(model, "Resource B", Guid.NewGuid(), 1.0, 1.0, true, true, true);
             Resource rsc3 = new Resource(model, "Resource C", Guid.NewGuid(), 1.0, 1.0, true, true, true);
 
-            Assert.Equal(0, rm.Resources.Count);
+            Assert.Empty(rm.Resources);
 
             rm.Add(rsc1);
             rm.Add(rsc2);

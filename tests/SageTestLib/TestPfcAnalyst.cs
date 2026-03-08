@@ -303,7 +303,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             string result = PfcDiagnostics.GetStructure(pfc).ToString();
             Console.WriteLine(result);
 
-            Assert.True(result.Equals("{START-->[L_000(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_002(SFC 1.Root)]-->NEW_STEP}\r\n{NEW_STEP-->[L_003(SFC 1.Root)]-->T_001}\r\n{T_001-->[L_004(SFC 1.Root)]-->FINISH}\r\n", StringComparison.Ordinal));
+            Assert.Equal("{START-->[L_000(SFC 1.Root)]-->T_000}\r\n{T_000-->[L_002(SFC 1.Root)]-->NEW_STEP}\r\n{NEW_STEP-->[L_003(SFC 1.Root)]-->T_001}\r\n{T_001-->[L_004(SFC 1.Root)]-->FINISH}\r\n", result);
 
         }
 
@@ -1013,7 +1013,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             Assert.Equal(0, nFailures);
         }
 
-        public void _Test_ComplexLoopingPfcUpdateStructure()
+        private void _Test_ComplexLoopingPfcUpdateStructure()
         {
             //        START
             //          |
@@ -1180,7 +1180,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             pfc.MakeLinkPrimary(step1.Successors[0]); // L4 <-- Priority MaxValue.
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(startStep, true);
-            Assert.Equal(primaryPath, "START, STEP1 and FINISH");
+            Assert.Equal("START, STEP1 and FINISH", primaryPath);
 
             step2.Predecessors[0].Priority = 1;
             step2.Predecessors[0].Predecessor.Predecessors[0].Priority = 1;
@@ -1188,7 +1188,7 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             step1.Predecessors[0].Predecessor.Predecessors[0].Priority = 0;
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(startStep, true);
-            Assert.Equal(primaryPath, "START, STEP2 and FINISH");
+            Assert.Equal("START, STEP2 and FINISH", primaryPath);
 
             step1.Predecessors[0].Priority = 1;
             step1.Predecessors[0].Predecessor.Predecessors[0].Priority = 1;
@@ -1196,17 +1196,17 @@ namespace Highpoint.Sage.Tests.Graphs.PFC
             step2.Predecessors[0].Predecessor.Predecessors[0].Priority = 0;
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(startStep, true);
-            Assert.Equal(primaryPath, "START, STEP1 and FINISH");
+            Assert.Equal("START, STEP1 and FINISH", primaryPath);
 
             pfc = Pfcs.CreateTestPfc();
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(Pfcs.nA, true);
-            Assert.Equal(primaryPath, "Step_A, Step_B, Step_C, Step_D, Step_E, Step_N and Step_O");
+            Assert.Equal("Step_A, Step_B, Step_C, Step_D, Step_E, Step_N and Step_O", primaryPath);
 
             Pfcs.nF.PredecessorNodes[0].Predecessors[0].Priority = 1;
             pfc.UpdateStructure();
             primaryPath = PfcAnalyst.GetPrimaryPathAsString(Pfcs.nA, true);
-            Assert.Equal(primaryPath, "Step_A, Step_B, Step_F, Step_G, Step_H, Step_J, Step_L, Step_M, Step_N and Step_O");
+            Assert.Equal("Step_A, Step_B, Step_F, Step_G, Step_H, Step_J, Step_L, Step_M, Step_N and Step_O", primaryPath);
 
         }
 

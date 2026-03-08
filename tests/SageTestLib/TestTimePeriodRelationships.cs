@@ -64,7 +64,7 @@ namespace Highpoint.Sage.Scheduling
 
         #region Test Setup & TearDown
 
-        public void Init()
+        private void Init()
         {
         }
 

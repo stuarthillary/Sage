@@ -16,7 +16,7 @@ namespace Highpoint.Sage.Utility
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 

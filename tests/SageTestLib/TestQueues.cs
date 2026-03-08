@@ -25,7 +25,7 @@ namespace Highpoint.Sage.ItemBased.Queues
 
         #region MSTest Goo
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -474,7 +474,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             {
                 _parameters = new Hashtable();
                 _modelObjectDictionary = new ModelObjectDictionary();
-                _modelConfig = new ModelConfig("Sage");
+                _modelConfig = new ModelConfig(new Dictionary<string, string>());
                 _executive = ExecFactory.Instance.CreateExecutive();
                 _modelWarnings = new List<IModelWarning>();
                 _modelErrors = new List<IModelError>();

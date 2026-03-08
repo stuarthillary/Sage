@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Tests.Scheduling
         }
 
 
-        public void Init()
+        private void Init()
         {
         }
 
@@ -97,8 +97,8 @@ namespace Highpoint.Sage.Tests.Scheduling
             Debug.WriteLine("Masses      : " + cmvt.MassHistory.ToString());
             Debug.WriteLine("Volumes     : " + cmvt.VolumeHistory.ToString());
 
-            Assert.True(cmvt.MassHistory.ToString().Equals("[0/0/0/0]", StringComparison.Ordinal));
-            Assert.True(cmvt.VolumeHistory.ToString().Equals("[0/0/0/0]", StringComparison.Ordinal));
+            Assert.Equal("[0/0/0/0]", cmvt.MassHistory.ToString());
+            Assert.Equal("[0/0/0/0]", cmvt.VolumeHistory.ToString());
         }
 
         /// <summary>
