@@ -120,7 +120,7 @@ protected string? _name = null; // Set in constructor
 		public event EdgeEvent? EdgeFinishingEvent;
 
 #if DEBUG
-        string[] m_breakpointEvents = new string[] { };//{"GetVat","Charge 1"};
+        string[] m_breakpointEvents = Array.Empty<string>();//{/"GetVat","Charge 1"};
 #endif
 
         /// <summary>

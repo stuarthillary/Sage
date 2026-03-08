@@ -1,4 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
+using System;
 using System.Collections;
 
 namespace Highpoint.Sage.Materials.Chemistry.Emissions
@@ -35,7 +36,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
 
         #region >>> Usability Support <<<
         private static readonly string description = "This model is a placeholder for operations that cause no emissions.";
-        private static readonly EmissionParam[] parameters = { };
+        private static readonly EmissionParam[] parameters = Array.Empty<EmissionParam>();
         private static readonly string[] keys = { "No Emissions" };
         /// <summary>
         /// This is a description of what emissions mode this model computes (such as Air Dry, Gas Sweep, etc.)

@@ -178,10 +178,10 @@ namespace Highpoint.Sage.Mathematics
             double[] yVals = (double[])_model!.ModelObjects[p[1]!]!;
 
             Type idiType = (Type)_model!.ModelObjects[p[2]!]!;
-            ConstructorInfo? ci = idiType.GetConstructor(new Type[] { });
+            ConstructorInfo? ci = idiType.GetConstructor(Array.Empty<Type>());
             if (ci != null)
             {
-                IDoubleInterpolator idi = (IDoubleInterpolator)ci.Invoke(new object[] { })!;
+                IDoubleInterpolator idi = (IDoubleInterpolator)ci.Invoke(Array.Empty<object>())!;
 
                 _cdf = new EmpiricalCDF(xVals, yVals, idi);
             }

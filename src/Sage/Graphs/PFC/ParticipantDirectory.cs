@@ -47,7 +47,7 @@ namespace Highpoint.Sage.Graphs.PFC.Expressions
                 {
                     if (!_knownMacros.TryGetValue(macroType, out macro))
                     {
-                        macro = (Macro)(macroType.GetConstructor(new Type[] { })!.Invoke(new object[] { }));
+                        macro = (Macro)(macroType.GetConstructor(Array.Empty<Type>())!.Invoke(Array.Empty<object>()));
                         _knownMacros.Add(macroType, macro);
                     }
                 }

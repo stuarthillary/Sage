@@ -352,7 +352,7 @@ namespace Highpoint.Sage.Graphs.PFC
                     throw new ApplicationException("PFCs are not currently executable.");
                 }
 
-                testEvaluator.NextExpectedActivations = new IPfcTransitionNode[] { }; // Ensure it's empty and all have fired.
+                testEvaluator.NextExpectedActivations = Array.Empty<IPfcTransitionNode>(); // Ensure it's empty and all have fired.
 
             }
         }
@@ -396,7 +396,7 @@ namespace Highpoint.Sage.Graphs.PFC
                     throw new ApplicationException("PFCs are not currently executable.");
                 }
 
-                testEvaluator.NextExpectedActivations = new IPfcTransitionNode[] { }; // Ensure it's empty and all have fired.
+                testEvaluator.NextExpectedActivations = Array.Empty<IPfcTransitionNode>(); // Ensure it's empty and all have fired.
 
             }
         }

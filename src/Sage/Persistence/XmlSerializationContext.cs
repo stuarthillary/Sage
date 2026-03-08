@@ -462,7 +462,7 @@ namespace Highpoint.Sage.Persistence
         {
             Type type = GetTypeFromNode(node);
 
-            ConstructorInfo ci = type.GetConstructor(new Type[] { });
+            ConstructorInfo ci = type.GetConstructor(Array.Empty<Type>());
             if (ci == null)
             {
                 throw new ApplicationException("ConstructorInfo was null. (Does type " + type + " have a default constructor?)");

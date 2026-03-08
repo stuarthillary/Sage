@@ -29,7 +29,7 @@ namespace Highpoint.Sage.SystemDynamics
         public void TestLynxHare()
         {
 
-            string[] args = new string[] { };
+            string[] args = Array.Empty<string>();
             XElement parameters = null;
             string outputFileName = null;
 

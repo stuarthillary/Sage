@@ -316,7 +316,7 @@ namespace Highpoint.Sage.Graphs
         class Node
         {
             #region Private Fields
-            private static readonly Node[] _emptyArray = new Node[] { };
+            private static readonly Node[] _emptyArray = Array.Empty<Node>();
             private bool m_onPath;
             private bool m_visited;
             private readonly object m_element;

@@ -27,7 +27,7 @@ namespace Highpoint.Sage.ItemBased.Servers
 
             _requestTemplates = requestTemplates;
             if (_requestTemplates == null)
-                _requestTemplates = new IResourceRequest[] { };
+                _requestTemplates = Array.Empty<IResourceRequest>();
 
             _resourcesInUse = new Hashtable();
 

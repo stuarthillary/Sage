@@ -89,7 +89,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
         [Highpoint.Sage.Utility.FieldDescription("This test runs a series of known scenarios, and compares their VP's to known-correct values.")]
         public void TestKnownVaporPressureValues()
         {
-            string[] knownBad = new string[] { };//"Hydrazine"};
+            string[] knownBad = Array.Empty<string>();//"Hydrazine"};
             ArrayList untestables = new ArrayList(knownBad);
             ArrayList testables = new ArrayList(_brs.MyMaterialCatalog.MaterialTypes);
 

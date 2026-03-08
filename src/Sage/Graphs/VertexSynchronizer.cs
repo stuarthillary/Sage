@@ -91,7 +91,7 @@ namespace Highpoint.Sage.Graphs
             {
                 vertex.SetSynchronizer(null);
             }
-            _vertices = new Vertex[] { };
+            _vertices = Array.Empty<Vertex>();
         }
 
         internal void NotifySatisfied(Vertex vertex, IDictionary graphContext)
