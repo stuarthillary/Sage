@@ -34,7 +34,7 @@ namespace Highpoint.Sage.Graphs.Validity
         private readonly StructureChangeHandler _structureChangeListener;
         private Dictionary<IHasValidity, ValidityNode> _htNodes = null!; // assigned in Refresh(), called from ctor
         private readonly Stack<string> _suspendResumeStack = null!; // assigned in ctor when _diagnostics is true
-        private Dictionary<IHasValidity, bool> _oldValidities = null; // For holding pre-refresh validities so that refresh can fire the right change events.
+        private Dictionary<IHasValidity, bool>? _oldValidities = null; // For holding pre-refresh validities so that refresh can fire the right change events.
         #endregion
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Highpoint.Sage.Graphs.Validity
         /// <param name="root">The root task of the directed acyclic graph.</param>
 		public ValidationService(Tasks.Task root)
         {
-            _root = root.PreVertex;
+            _root = root.PreVertex!;
             _suspensions = 0;
             _dirty = true;
             _structureChangeListener = new StructureChangeHandler(OnStructureChange);
@@ -86,8 +86,8 @@ namespace Highpoint.Sage.Graphs.Validity
             if (_diagnostics)
             {
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(0, true);
-                System.Diagnostics.StackFrame sf = st.GetFrame(1);
-                string where = sf.GetMethod() + " [" + sf.GetFileName() + ", line " + sf.GetFileLineNumber() + "]";
+                System.Diagnostics.StackFrame? sf = st.GetFrame(1);
+                string where = sf!.GetMethod() + " [" + sf!.GetFileName() + ", line " + sf!.GetFileLineNumber() + "]";
                 _suspendResumeStack.Push(where);
                 //_Debug.WriteLine("Suspend (" + _suspensions + ") : " + where);
             }
@@ -113,8 +113,8 @@ namespace Highpoint.Sage.Graphs.Validity
             if (_diagnostics)
             {
                 System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(0, true);
-                System.Diagnostics.StackFrame sf = st.GetFrame(1);
-                string where = sf.GetMethod() + " [" + sf.GetFileName() + ", line " + sf.GetFileLineNumber() + "]";
+                System.Diagnostics.StackFrame? sf = st.GetFrame(1);
+                string where = sf!.GetMethod() + " [" + sf!.GetFileName() + ", line " + sf!.GetFileLineNumber() + "]";
                 where = where.Split(new char[] { ',' }, 2)[0];
                 string stackThinks = _suspendResumeStack.Pop();
                 stackThinks = stackThinks.Split(new char[] { ',' }, 2)[0];

@@ -47,7 +47,7 @@ namespace Highpoint.Sage.Graphs
             _nodes = new Dictionary<object, Node>();
             _frontier = new List<Node>();
 
-            Build(_rootEdge.PreVertex);
+            Build(_rootEdge.PreVertex!);
 
             _frontier.Add(_nodes[_rootEdge.PreVertex]);
 
@@ -177,7 +177,7 @@ namespace Highpoint.Sage.Graphs
 
         private Node _Build(object element)
         {
-            if (!_nodes.TryGetValue(element, out Node node))
+            if (!_nodes.TryGetValue(element, out Node? node))
             {
                 node = new Node(element);
                 _nodes.Add(element, node);
@@ -205,7 +205,7 @@ namespace Highpoint.Sage.Graphs
                 foreach (Node s in n.Successors)
                 {
                     //Console.WriteLine("\r\n" + n.Name + " has successor " + s.Name);
-                    ArrayList preds = (ArrayList)ht[s];
+                    ArrayList? preds = (ArrayList?)ht[s];
                     if (preds == null)
                     {
                         //Console.WriteLine("\tCreated a new record for " + s.Name);
@@ -224,7 +224,7 @@ namespace Highpoint.Sage.Graphs
 
             foreach (DictionaryEntry de in ht)
             {
-                ((Node)de.Key).Predecessors = (Node[])((ArrayList)de.Value).ToArray(typeof(Node));
+                ((Node)de.Key!).Predecessors = (Node[])((ArrayList)de.Value!).ToArray(typeof(Node));
             }
         }
 

@@ -86,7 +86,7 @@ namespace Highpoint.Sage.Graphs
         /// <summary>
         /// This edge's Name.
         /// </summary>
-protected string _name = null!; // Set in constructor
+protected string? _name = null; // Set in constructor
         /// <summary>
         /// This edge's parent edge.
         /// </summary>
@@ -295,14 +295,14 @@ protected string _name = null!; // Set in constructor
             [DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 
         /// <summary>
 		/// A description of this Edge.
 		/// </summary>
-		public string Description
+        public string Description
         {
             get
             {

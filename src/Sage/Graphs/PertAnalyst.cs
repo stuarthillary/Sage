@@ -51,13 +51,13 @@ namespace Highpoint.Sage.Graphs.Analysis
 
         protected Vertex NextVertexInCriticalPath(Vertex vertex, ref double mean, ref double variance)
         {
-            Edge targetEdge = null;
+            Edge? targetEdge = null;
             foreach (Edge edge in vertex.SuccessorEdges)
             {
                 targetEdge = edge;
                 if (targetEdge is Ligature)
-                    targetEdge = edge.PostVertex.PrincipalEdge;
-                EdgeData ed = (EdgeData)Edges[targetEdge];
+                    targetEdge = edge.PostVertex?.PrincipalEdge;
+                EdgeData? ed = (EdgeData?)Edges[targetEdge!];
                 if (ed == null)
                     continue;
                 if (IsCriticalPath(targetEdge))
@@ -65,7 +65,7 @@ namespace Highpoint.Sage.Graphs.Analysis
                     _criticalPath.Add(targetEdge);
                     mean += ed.MeanDuration;
                     variance += ed.Variance2;
-                    return targetEdge.PostVertex;
+                    return targetEdge.PostVertex!;
                 }
             }
 

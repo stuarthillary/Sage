@@ -76,7 +76,7 @@ namespace Highpoint.Sage.Graphs
         public void FireIfAppropriate(IDictionary graphContext, Edge edge)
         {
 
-            string activeChannel = (string)graphContext[_cbmDataKey];
+            string? activeChannel = (string?)graphContext[_cbmDataKey];
 
             DateTime now = _model.Executive.Now;
             double currentPriority = _model.Executive.CurrentPriorityLevel;
@@ -173,7 +173,7 @@ namespace Highpoint.Sage.Graphs
 
         private static void LaunchEdge(IExecutive exec, object? userData)
         {
-            EdgeLaunchData eld = (EdgeLaunchData)userData;
+            EdgeLaunchData eld = (EdgeLaunchData)userData!;
             eld.Edge.PreVertexSatisfied(eld.GraphContext);
         }
 
@@ -187,17 +187,17 @@ namespace Highpoint.Sage.Graphs
         /// <returns>The Conditional Branch Manager for a given task.</returns>
         public static ConditionalBranchManager For(Task task, bool force)
         {
-            if (!force && task.PostVertex.EdgeFiringManager != null)
+            if (!force && task.PostVertex!.EdgeFiringManager != null)
             {
                 throw new ApplicationException(string.Format(_cantForceOverride, task.Name));
             }
 
-            if (task.PostVertex.EdgeFiringManager == null)
+            if (task.PostVertex!.EdgeFiringManager == null)
             {
-                task.PostVertex.EdgeFiringManager = new ConditionalBranchManager((Model)task.Model);
+                task.PostVertex!.EdgeFiringManager = new ConditionalBranchManager((Model)task.Model);
             }
 
-            return (ConditionalBranchManager)task.PostVertex.EdgeFiringManager;
+            return (ConditionalBranchManager)task.PostVertex!.EdgeFiringManager;
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="task">The task.</param>
         public static void ClearBranchesFor(Task task)
         {
-            task.PostVertex.EdgeFiringManager = null;
+            task.PostVertex!.EdgeFiringManager = null;
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="channel">The channel.</param>
         public static void CreateBranchLink(Task from, Task to, string channel)
         {
-            Edge.Connect(from.PostVertex, to.PreVertex).Channel = channel;
+            Edge.Connect(from.PostVertex!, to.PreVertex!).Channel = channel;
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace Highpoint.Sage.Graphs
                 {
                     if (_master == null && _masterGuid != Guid.Empty)
                     {
-                        _master = (Task)_model.ModelObjects[_masterGuid];
+                        _master = (Task?)_model.ModelObjects[_masterGuid];
                     }
                     return _master;
                 }
@@ -334,7 +334,7 @@ namespace Highpoint.Sage.Graphs
                 {
                     if (_target == null && _targetGuid != Guid.Empty)
                     {
-                        _target = (Task)_model.ModelObjects[_targetGuid];
+                        _target = (Task?)_model.ModelObjects[_targetGuid];
                     }
                     return _target;
                 }
@@ -374,7 +374,7 @@ namespace Highpoint.Sage.Graphs
         {
 
             StringBuilder sb = new StringBuilder();
-            sb.Append("<ConditionalBranchManager>\r\n<DefaultChannel>" + XmlTransform.Xmlify(cbm._defaultChannel) + "</DefaultChannel>\r\n");
+            sb.Append("<ConditionalBranchManager>\r\n<DefaultChannel>" + XmlTransform.Xmlify(cbm._defaultChannel ?? string.Empty) + "</DefaultChannel>\r\n");
             foreach (BranchScenario bs in cbm._branchScenarios)
             {
 
@@ -397,7 +397,7 @@ namespace Highpoint.Sage.Graphs
             if (node == null)
                 throw new ArgumentException("Attempt to create a ConditionalBranchManager from a null XmlNode.");
 
-            XmlNode selectSingleNode = node.SelectSingleNode("DefaultChannel");
+            XmlNode? selectSingleNode = node.SelectSingleNode("DefaultChannel");
             if (selectSingleNode != null)
             {
                 ConditionalBranchManager cbm = new ConditionalBranchManager(model)
@@ -406,29 +406,29 @@ namespace Highpoint.Sage.Graphs
                 };
 
 
-                XmlNodeList xmlNodeList = node.SelectNodes("BranchScenario");
+                XmlNodeList? xmlNodeList = node.SelectNodes("BranchScenario");
                 if (xmlNodeList != null)
                     foreach (XmlNode innerNode in xmlNodeList)
                     {
-                        XmlNode singleNode = innerNode.SelectSingleNode("Condition");
+                        XmlNode? singleNode = innerNode.SelectSingleNode("Condition");
                         if (singleNode == null)
                             continue;
                         string condition = singleNode.InnerText;
                         //condition = XmlConvert.deXmlify(condition); Not necessary, since it came from an Xml document in the first place.
 
-                        XmlNode xmlNode = innerNode.SelectSingleNode("Channel");
+                        XmlNode? xmlNode = innerNode.SelectSingleNode("Channel");
                         if (xmlNode == null)
                             continue;
                         string channel = xmlNode.InnerText;
 
                         //channel = XmlConvert.deXmlify(channel); Not necessary, since it came from an Xml document in the first place.
 
-                        XmlNode selectSingleNode1 = innerNode.SelectSingleNode("MasterGuid");
+                        XmlNode? selectSingleNode1 = innerNode.SelectSingleNode("MasterGuid");
                         if (selectSingleNode1 == null)
                             continue;
                         Guid masterGuid = XmlConvert.ToGuid(selectSingleNode1.InnerText);
 
-                        XmlNode singleNode1 = innerNode.SelectSingleNode("TargetGuid");
+                        XmlNode? singleNode1 = innerNode.SelectSingleNode("TargetGuid");
                         if (singleNode1 == null)
                             continue;
                         Guid targetGuid = XmlConvert.ToGuid(singleNode1.InnerText);

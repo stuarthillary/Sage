@@ -90,8 +90,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <param name="edge">The edge whose start and finish vertices are to be the subject of this analyst's 
 		/// evaluation.</param>
 		public CpmAnalyst(Edge edge){
-			Start = edge.PreVertex;
-			Finish = edge.PostVertex;
+			Start = edge.PreVertex!;
+			Finish = edge.PostVertex!;
 			m_traceStack = new Stack<Vertex>();
 			Reset();
 		}
@@ -138,7 +138,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			m_traceStack.Clear();
 			ProbeForward(Start,0);
 
-			VertexData vd = (VertexData)Vertices[Finish];
+			VertexData? vd = (VertexData?)Vertices[Finish];
 			if ( vd == null ) {
 				throw new ApplicationException("There is no path from the start to the finish vertices.");
 			}
@@ -173,7 +173,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			if ( s_diagnostics ) _Debug.WriteLine(new DateTime(elapsedTime) + " : Probing forward to vertex " + vertex.Name + " at " + string.Format("{0:f2}",TimeSpan.FromTicks(elapsedTime).TotalMinutes));
 
 			if ( VertexPegs != null && VertexPegs.Contains(vertex) ) {
-				elapsedTime = (long)VertexPegs[vertex];
+				elapsedTime = (long)VertexPegs[vertex]!;
 			}
 
 			IList nextEdges;
@@ -195,8 +195,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 				if ( edge is ISupportsCpmAnalysis ) {
 					edgeData.NominalDuration = ((ISupportsCpmAnalysis)edge).GetNominalDuration().Ticks;
 				}
-				if ( s_diagnostics ) _Debug.WriteLine("From vertex " + vertex.Name + ", we look forward " + TimeSpan.FromTicks(edgeData.NominalDuration) + " to " + edge.PostVertex.Name + ".");
-				ProbeForward(edge.PostVertex,vertexData.Earliest+edgeData.NominalDuration);
+				if ( s_diagnostics ) _Debug.WriteLine("From vertex " + vertex.Name + ", we look forward " + TimeSpan.FromTicks(edgeData.NominalDuration) + " to " + edge.PostVertex?.Name + ".");
+				ProbeForward(edge.PostVertex!,vertexData.Earliest+edgeData.NominalDuration);
 			}
 			Debug.Assert(m_traceStack.Pop()==vertex);
 		}
@@ -220,7 +220,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 					+ $"{TimeSpan.FromTicks(elapsedTime).TotalMinutes:f2}");
 			}
             
-			if ( VertexPegs != null && VertexPegs.Contains(vertex) )  elapsedTime = (long)VertexPegs[vertex];
+			if ( VertexPegs != null && VertexPegs.Contains(vertex) )  elapsedTime = (long)VertexPegs[vertex]!;
 
 			IList nextEdges;
 			VertexData vertexData = GetVertexData(vertex);
@@ -240,15 +240,15 @@ namespace Highpoint.Sage.Graphs.Analysis {
 
 			m_traceStack.Push(vertex);
 			foreach ( Edge edge in nextEdges ) {
-				EdgeData edgeData = (EdgeData)Edges[edge];
-				if ( edgeData == null ) {
+				EdgeData? edgeData = (EdgeData?)Edges[edge];
+if ( edgeData == null ) {
 					edgeData = new EdgeData(edge);
 					Edges.Add(edge,edgeData);
 				}
 				if ( edge is ISupportsCpmAnalysis ) {
 					edgeData.NominalDuration = ((ISupportsCpmAnalysis)edge).GetNominalDuration().Ticks;
 				}
-				ProbeBackward(edge.PreVertex,vertexData.Latest-edgeData.NominalDuration);
+				ProbeBackward(edge.PreVertex!,vertexData.Latest-edgeData.NominalDuration);
 			}
 			Debug.Assert(m_traceStack.Pop()==vertex);
 		}
@@ -285,15 +285,15 @@ namespace Highpoint.Sage.Graphs.Analysis {
 
 			foreach ( SynchronizerData sd in Synchronizers.Values ) {
 				foreach ( Vertex pre in sd.Synchronizer.Members ) {
-					VertexData preData = (VertexData)Vertices[pre];
-					Vertex post = pre.PrincipalEdge.PostVertex;
-					VertexData postData = (VertexData)Vertices[post];
-					EdgeData ed = (EdgeData)Edges[pre.PrincipalEdge];
+					VertexData? preData = (VertexData?)Vertices[pre];
+					Vertex? post = pre.PrincipalEdge?.PostVertex;
+					VertexData? postData = post != null ? (VertexData?)Vertices[post] : null;
+					EdgeData? ed = (EdgeData?)Edges[pre.PrincipalEdge!];
 					if ( ed == null ) { 
-						LogEdgeNotFoundError(pre.PrincipalEdge.Name + " not found in DAG Analysis.",pre.PrincipalEdge);
+						LogEdgeNotFoundError(pre.PrincipalEdge!.Name + " not found in DAG Analysis.",pre.PrincipalEdge!);
 						return false;
 					}
-					postData.Latest = preData.Latest + ed.NominalDuration;
+					postData!.Latest = preData!.Latest + ed.NominalDuration;
 					
 					if ( s_diagnostics ) {
 						_Debug.WriteLine("Resetting " + post.Name + " latest time to " + pre.Name + "'s latest (" 
@@ -348,10 +348,10 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			//_Debug.WriteLine("Validating from vertex " + startVertex.Name);
 			foreach ( Edge edge in startVertex.SuccessorEdges ) {
 				//_Debug.WriteLine("\tValidating edge " + edge.Name);
-				if ( m_verifiedEdges.Add(edge) ) {
-					VertexData vdPre  = (VertexData)Vertices[startVertex];
-					EdgeData   ed     = (EdgeData)Edges[edge];
-					VertexData vdPost = (VertexData)Vertices[edge.PostVertex];
+				if ( m_verifiedEdges!.Add(edge) ) {
+					VertexData? vdPre  = (VertexData?)Vertices[startVertex];
+					EdgeData?   ed     = (EdgeData?)Edges[edge];
+					VertexData? vdPost = (VertexData?)Vertices[edge.PostVertex!];
 
 					if ( vdPre != null && vdPost != null && ed != null ) {
 						string svdPreEarliest = $"{TimeSpan.FromTicks(vdPre.Earliest).TotalMinutes:F2}";
@@ -361,19 +361,19 @@ namespace Highpoint.Sage.Graphs.Analysis {
 						// Apply heuristics.
 						if ( vdPre.Earliest + ed.NominalDuration - vdPost.Earliest > .001 ) {
 							m_errorCount++;
-							if ( s_diagnosticsValidation ) m_sb.Append(edge.Name + " earliest-time anomaly - earliest start is " + svdPreEarliest + ", duration is " + ed.NominalDuration + ", and earliest finish is " + svdPostEarliest + ".\r\n");
+							if ( s_diagnosticsValidation ) m_sb!.Append(edge.Name + " earliest-time anomaly - earliest start is " + svdPreEarliest + ", duration is " + ed.NominalDuration + ", and earliest finish is " + svdPostEarliest + ".\r\n");
 						}
 						if ( vdPre.Latest   + ed.NominalDuration - vdPost.Latest   > .001 ) {
 							m_errorCount++;
-							if ( s_diagnosticsValidation ) m_sb.Append(edge.Name + " latest-time anomaly - latest start is " + svdPreLatest + ", duration is " + ed.NominalDuration + ", and latest finish is " + svdPostLatest + ".\r\n");
+							if ( s_diagnosticsValidation ) m_sb!.Append(edge.Name + " latest-time anomaly - latest start is " + svdPreLatest + ", duration is " + ed.NominalDuration + ", and latest finish is " + svdPostLatest + ".\r\n");
 						}
 						if ( vdPre.Earliest > vdPre.Latest ) {
 							m_errorCount++;
-							if ( s_diagnosticsValidation ) m_sb.Append(edge.Name + "'s earliest start (" + svdPreEarliest + ") is later than its earliest finish (" + svdPostEarliest + ").\r\n"); 
+							if ( s_diagnosticsValidation ) m_sb!.Append(edge.Name + "'s earliest start (" + svdPreEarliest + ") is later than its earliest finish (" + svdPostEarliest + ").\r\n"); 
 						}
 						if ( vdPost.Earliest > vdPost.Latest ) {
 							m_errorCount++;
-							if ( s_diagnosticsValidation ) m_sb.Append(edge.Name + "'s latest start (" + svdPreLatest + ") is later than its latest finish (" + svdPostLatest + ").\r\n");
+							if ( s_diagnosticsValidation ) m_sb!.Append(edge.Name + "'s latest start (" + svdPreLatest + ") is later than its latest finish (" + svdPostLatest + ").\r\n");
 						}
 					}
 					_ValidateResults(edge.PostVertex);
@@ -390,7 +390,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <returns>The earliest start time observed for the specified edge.</returns>
 		public long GetEarliestStart(Edge edge) {
 			if ( !m_analyzed ) Analyze(); 
-			VertexData vd = (VertexData)Vertices[edge.PreVertex];
+			VertexData? vd = (VertexData?)Vertices[edge.PreVertex!];
 			if ( vd != null ) return vd.Earliest;
 			if ( s_permitUnknownEdges ) return 0;
 			return _OnEdgeNotFound(edge);
@@ -404,7 +404,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <returns>The earliest finish time observed for the specified edge.</returns>
 		public long GetEarliestFinish(Edge edge){
 			if ( !m_analyzed ) Analyze(); 
-			VertexData vd = (VertexData)Vertices[edge.PostVertex];
+			VertexData? vd = (VertexData?)Vertices[edge.PostVertex!];
 			if ( vd != null ) return vd.Earliest;
 			if ( s_permitUnknownEdges ) return 0;
 			return _OnEdgeNotFound(edge);
@@ -418,7 +418,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <returns>The latest start time observed for the specified edge.</returns>
 		public long GetLatestStart(Edge edge){
 			if ( !m_analyzed ) Analyze(); 
-			VertexData vd = (VertexData)Vertices[edge.PreVertex];
+			VertexData? vd = (VertexData?)Vertices[edge.PreVertex!];
 			if ( vd != null ) return vd.Latest;
 			if ( s_permitUnknownEdges ) return 0;
 			return _OnEdgeNotFound(edge);
@@ -432,7 +432,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <returns>The latest finish time observed for the specified edge.</returns>
 		public long GetLatestFinish(Edge edge){
 			if ( !m_analyzed ) Analyze(); 
-			VertexData vd = (VertexData)Vertices[edge.PostVertex];
+			VertexData? vd = (VertexData?)Vertices[edge.PostVertex!];
 			if ( vd != null ) return vd.Latest;
 			if ( s_permitUnknownEdges ) return 0;
 			return _OnEdgeNotFound(edge);
@@ -447,7 +447,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <returns>The slip time, in ticks, that was recorded for the specified edge.</returns>
 		public long GetAcceptableSlip(Edge edge){
 			if ( !m_analyzed ) Analyze(); 
-			VertexData vd = (VertexData)Vertices[edge.PreVertex];
+			VertexData? vd = (VertexData?)Vertices[edge.PreVertex!];
 			if ( vd != null ) return vd.Latest-vd.Earliest;
 			if ( s_permitUnknownEdges ) return 0;
 			return _OnEdgeNotFound(edge);
@@ -455,8 +455,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 
 		private long _OnEdgeNotFound(Edge edge){
 			string msg = "CPM Analyst was asked for data on " + edge.Name + ",";
-			bool hasPreData = ((VertexData)Vertices[edge.PreVertex]!=null);
-			bool hasPostData = ((VertexData)Vertices[edge.PostVertex]!=null);
+			bool hasPreData = (Vertices[edge.PreVertex!] as VertexData) != null;
+			bool hasPostData = (Vertices[edge.PostVertex!] as VertexData) != null;
 			if ( !hasPreData && !hasPostData ) {
 				msg += " but the analyst has no data on either the pre or the post vertices.";
 				if ( !Edges.Contains(edge) ) {
@@ -522,8 +522,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <returns>true, if this edge is on the critical path.</returns>
 		public bool IsCriticalPath(Edge edge){
 			if ( !m_analyzed ) Analyze(); 
-			VertexData vdPre = (VertexData)Vertices[edge.PreVertex];
-			VertexData vdPost = (VertexData)Vertices[edge.PostVertex];
+			VertexData? vdPre = (VertexData?)Vertices[edge.PreVertex!];
+			VertexData? vdPost = (VertexData?)Vertices[edge.PostVertex!];
 			if ( vdPre == null || vdPost == null ) {
 				// Always throws an exception. '==0' is to fake out the compiler to fit the bool return of this method.
 				return _OnEdgeNotFound(edge)==0;
@@ -537,7 +537,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		}
 		
 		protected VertexData GetVertexData(Vertex vertex) {
-			VertexData vertexData = (VertexData)Vertices[vertex];
+			VertexData? vertexData = (VertexData?)Vertices[vertex];
 			if ( vertexData == null ) {
 				vertexData = new VertexData(vertex);
 				Vertices.Add(vertex,vertexData);
@@ -546,16 +546,16 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		}
 
 		protected SynchronizerData GetSynchronizerData(Vertex vertex){
-			SynchronizerData sd = (SynchronizerData)Synchronizers[vertex.Synchronizer];
+			SynchronizerData? sd = (SynchronizerData?)Synchronizers[vertex.Synchronizer!];
 			if ( sd == null ) {
-				sd = new SynchronizerData(vertex.Synchronizer);
-				Synchronizers.Add(vertex.Synchronizer,sd);
+				sd = new SynchronizerData(vertex.Synchronizer!);
+				Synchronizers.Add(vertex.Synchronizer!,sd);
 			}
 			return sd;
 		}
 
 		protected EdgeData GetEdgeData(Edge edge){
-			EdgeData edgeData = (EdgeData)Edges[edge];
+			EdgeData? edgeData = (EdgeData?)Edges[edge];
 			if ( edgeData == null ) {
 				edgeData = new EdgeData(edge);
 				Edges.Add(edge,edgeData);
@@ -573,10 +573,10 @@ namespace Highpoint.Sage.Graphs.Analysis {
 			if ( vertices.Contains(vertex) ) return;
 			vertices.Add(vertex);
 			foreach ( Edge pre in vertex.PredecessorEdges ) {
-				if ( pre is Ligature ) _GetContemporaneousVertices(pre.PreVertex, ref vertices);
+				if ( pre is Ligature ) _GetContemporaneousVertices(pre.PreVertex!, ref vertices);
 			}
 			foreach ( Edge post in vertex.SuccessorEdges ) {
-				if ( post is Ligature ) _GetContemporaneousVertices(post.PostVertex, ref vertices);
+				if ( post is Ligature ) _GetContemporaneousVertices(post.PostVertex!, ref vertices);
 			}
 		}
 		#endregion
@@ -726,7 +726,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 				if ( m_members.Count == m_fwdVisits.Count ) {
 					List<Edge> edges = new List<Edge>();
 					foreach ( Vertex peer in m_members ) {
-						((VertexData)vertexDataHashtable[peer]).Earliest = m_earliest;
+						((VertexData)vertexDataHashtable[peer]!).Earliest = m_earliest;
 						foreach (Edge edge in peer.SuccessorEdges)
 							edges.Add(edge);
 					}
@@ -741,7 +741,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 				if ( m_members.Count == m_revVisits.Count ) {
 					List<Edge> edges = new List<Edge>();
 					foreach ( Vertex peer in m_members ) {
-						((VertexData)vertexDataHashtable[peer]).Latest = m_latest;
+						((VertexData)vertexDataHashtable[peer]!).Latest = m_latest;
 						foreach (Edge edge in peer.PredecessorEdges)
 							edges.Add(edge);
 					}

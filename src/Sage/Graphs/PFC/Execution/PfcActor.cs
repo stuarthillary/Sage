@@ -57,9 +57,9 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         public abstract void SetStochasticMode(StochasticMode mode);
 
         #region Implementation of IModelObject
-        private string _name = null!;
+        private string? _name = null;
         private Guid _guid = Guid.Empty;
-        private IModel _model = null!;
+        private IModel? _model = null;
         private string? _description;
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _model;
+                return _model!;
             }
         }
 
@@ -84,7 +84,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
 
@@ -123,7 +123,7 @@ namespace Highpoint.Sage.Graphs.PFC.Execution
         /// <param name="guid">The IModelObject's new GUID value.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
         #endregion
 

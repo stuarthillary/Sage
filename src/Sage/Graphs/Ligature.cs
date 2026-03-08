@@ -96,7 +96,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="to">The edge at which this ligature ends.</param>
         /// <returns>System.String.</returns>
         public static string CreateName(Edge from, Edge to){
-			return CreateName(from.PostVertex,to.PreVertex);
+			return CreateName(from.PostVertex!,to.PreVertex!);
 		}
 
         /// <summary>

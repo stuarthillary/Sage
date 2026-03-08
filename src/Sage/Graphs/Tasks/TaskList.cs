@@ -39,7 +39,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         public Task MasterTask
@@ -258,7 +258,7 @@ namespace Highpoint.Sage.Graphs.Tasks
 
         #region IModelObject Members
 
-        private IModel _model = null!; // Set in InitializeIdentity
+        private IModel? _model = null; // Set in InitializeIdentity
         /// <summary>
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
@@ -267,7 +267,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         {
             get
             {
-                return _model;
+                return _model!;
             }
         }
 

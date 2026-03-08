@@ -11,9 +11,9 @@ namespace Highpoint.Sage.Graphs.PFC
     {
 
         #region Private Fields
-        private IModel _model = null!;       // initialized via InitializeIdentity
-        private string _name = null!;        // initialized via InitializeIdentity
-        private string _description = null!; // initialized via InitializeIdentity
+        private IModel? _model = null;       // initialized via InitializeIdentity
+        private string? _name = null;        // initialized via InitializeIdentity
+        private string? _description = null; // initialized via InitializeIdentity
         private Guid _guid;
         private object? _userData;
         private IProcedureFunctionChart? _parent;
@@ -172,7 +172,7 @@ namespace Highpoint.Sage.Graphs.PFC
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _model;
+                return _model!;
             }
         }
         /// <summary>
@@ -185,7 +185,7 @@ namespace Highpoint.Sage.Graphs.PFC
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _name;
+                return _name!;
             }
         }
         /// <summary>
@@ -209,7 +209,7 @@ namespace Highpoint.Sage.Graphs.PFC
             [System.Diagnostics.DebuggerStepThrough]
             get
             {
-                return _description;
+                return _description!;
             }
         }
 

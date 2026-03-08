@@ -25,8 +25,8 @@ namespace Highpoint.Sage.Graphs
             }
             else
             {
-                object channelMarker = null;
-                Hashtable channelHandlers = (Hashtable)graphContext[_preEdgesSatisfiedKey];
+                object? channelMarker = null;
+                Hashtable? channelHandlers = (Hashtable?)graphContext[_preEdgesSatisfiedKey];
                 if (channelHandlers == null)
                 {
                     channelHandlers = new Hashtable();
@@ -34,17 +34,17 @@ namespace Highpoint.Sage.Graphs
                     foreach (Edge _edge in preEdges)
                     {
                         channelMarker = _edge.Channel;
-                        if (!channelHandlers.Contains(channelMarker))
+                        if (!channelHandlers.Contains(channelMarker!))
                         {
-                            channelHandlers.Add(channelMarker, new ChannelMonitor(_vertex, channelMarker));
+                            channelHandlers.Add(channelMarker!, new ChannelMonitor(_vertex, channelMarker!));
                         }
                     }
                 }
 
                 channelMarker = edge.Channel;
-                ChannelMonitor channelMonitor = (ChannelMonitor)channelHandlers[channelMarker];
+                ChannelMonitor? channelMonitor = (ChannelMonitor?)channelHandlers![channelMarker!];
 
-                if (channelMonitor.RegisterSatisfiedEdge(graphContext, edge))
+                if (channelMonitor!.RegisterSatisfiedEdge(graphContext, edge))
                 {
                     graphContext.Remove(_preEdgesSatisfiedKey);
                     _vertex.FireVertex(graphContext);

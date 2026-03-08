@@ -453,8 +453,8 @@ namespace Highpoint.Sage.Graphs.PFC
                     Console.WriteLine("Before: " + StringOperations.ToCommasAndAndedListOfNames<IPfcNode>(parent.Nodes));
                 }
 
-                IPfcLinkElement link1, link2;
-                IPfcNode shimNode;
+                IPfcLinkElement? link1, link2;
+                IPfcNode? shimNode;
                 parent.Bind(origin, target, out link1, out shimNode, out link2, false);
 
                 if (_diagnostics)

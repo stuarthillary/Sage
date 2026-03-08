@@ -26,7 +26,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         private DateTime _when;
         private double _priority;
         private ExecEventType _eet;
-        private IModel _model = null!; // Set in InitializeIdentity
+        private IModel? _model = null; // Set in InitializeIdentity
         private string? _description = null;
         private Guid _guid = Guid.Empty;
         private string? _name = null;
@@ -66,7 +66,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// <param name="guid">The GUID of this component.</param>
         public void InitializeIdentity(IModel model, string name, string? description, Guid guid)
         {
-            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description, ref _guid, guid);
+            IMOHelper.Initialize(ref _model, model, ref _name, name, ref _description, description ?? string.Empty, ref _guid, guid);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// The model that owns this object, or from which this object gets time, etc. data.
         /// </summary>
         /// <value>The model.</value>
-        public IModel Model => _model;
+        public IModel Model => _model!;
 
         #region >>> Implementation of IXmlPersistable <<<
         /// <summary>

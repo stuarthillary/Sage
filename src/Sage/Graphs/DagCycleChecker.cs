@@ -60,7 +60,7 @@ namespace Highpoint.Sage.Graphs
             _errors.Clear();
             _nodes.Clear();
 
-            Build(_rootEdge.PreVertex);
+            Build(_rootEdge.PreVertex!);
             Node? start = _nodes[startElement ?? _rootEdge] as Node;
 
             Advance(start!);
@@ -80,7 +80,7 @@ namespace Highpoint.Sage.Graphs
 
         private Node Build(object element)
         {
-            Node node = _nodes[element] as Node;
+            Node? node = _nodes[element] as Node;
             if (node == null)
             {
                 node = new Node(element);
@@ -212,9 +212,9 @@ namespace Highpoint.Sage.Graphs
             int startOfLoop = pathObjArray.IndexOf(element);
             for (int i = startOfLoop; i >= 0; i--)
             {
-                object elementInPath = pathObjArray[i];
+                object? elementInPath = pathObjArray[i];
                 elements.Add(elementInPath);
-                narrative += elementInPath.ToString();
+                narrative += elementInPath?.ToString() ?? string.Empty;
                 if (i > 1)
                 {
                     narrative += ", ";
