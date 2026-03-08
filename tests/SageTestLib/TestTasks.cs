@@ -205,7 +205,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         }*/
 
 
-        sealed class TestGraph1
+        sealed class TestGraph1 : IDisposable
         {
             public TestTask Ta, Tb, Tc, Td;
             public TestTask Parent, Follow;
@@ -243,6 +243,11 @@ namespace Highpoint.Sage.Graphs.Tasks
                 {
                     return Tp.GraphContexts[0];
                 }
+            }
+
+            public void Dispose()
+            {
+                Model.Dispose();
             }
         }
 

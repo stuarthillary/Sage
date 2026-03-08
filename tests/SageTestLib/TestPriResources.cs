@@ -186,7 +186,7 @@ namespace Highpoint.Sage.Resources
         }
 
         #region Support Classes 
-        sealed class PriRscReqTester
+        sealed class PriRscReqTester : IDisposable
         {
             private readonly ResourceUser[] _users;
             private readonly SelfManagingResource _smr;
@@ -260,6 +260,11 @@ namespace Highpoint.Sage.Resources
             private string getExecNow(IExecutive exec)
             {
                 return exec.Now.ToString("dd/MM/yyyy HH:mm:ss tt");
+            }
+
+            public void Dispose()
+            {
+                _model.Dispose();
             }
         }
 

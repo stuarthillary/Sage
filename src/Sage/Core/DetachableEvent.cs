@@ -17,7 +17,7 @@ namespace Highpoint.Sage.Core
     /// <param name="args">The arguments that were to have been provided to the ExecEventReceiver.</param>
     public delegate void DetachableEventAbortHandler(IExecutive exec, IDetachableEventController idec, params object?[] args);
 
-    public class DetachableEvent : IDetachableEventController
+    public class DetachableEvent : IDetachableEventController, IDisposable
     {
 
         #region >>> Private Fields <<<
@@ -31,6 +31,7 @@ namespace Highpoint.Sage.Core
         private ManualResetEventSlim? _beginResetEvent = null;
         private ManualResetEventSlim? _resumeResetEvent = null;
         private ManualResetEventSlim? _suspendResetEvent = null;
+        private bool _disposed = false;
 
         #endregion
 
@@ -257,6 +258,18 @@ namespace Highpoint.Sage.Core
 
         private readonly string _errMsg1 = "Detachable event control being inappropriately exercised from an event of type ";
         private readonly string _errMsg1Explanation = "The caller is trying to suspend an event thread from a thread that was not launched as result of a detachable event.";
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _beginResetEvent?.Dispose();
+            _resumeResetEvent?.Dispose();
+            _suspendResetEvent?.Dispose();
+
+            _disposed = true;
+        }
     }
 }
 

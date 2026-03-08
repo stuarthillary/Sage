@@ -24,7 +24,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
     }
 
 
-    public class PortTester
+    public class PortTester : IDisposable
     {
         private readonly Model _model;
         readonly int _nBlocks = 10;
@@ -63,6 +63,11 @@ namespace Highpoint.Sage.ItemBased.Blocks
             Debug.WriteLine(sppo.Out.Peek(null));
 
             Debug.WriteLine(sppo.Out.Take(null));
+        }
+
+        public void Dispose()
+        {
+            _model.Dispose();
         }
     }
 

@@ -478,7 +478,7 @@ namespace Highpoint.Sage.Mathematics
     }
 
 
-    public class Histograms101
+    public class Histograms101 : IDisposable
     {
         private readonly IModel _model = new Model();
         public Histograms101()
@@ -552,6 +552,11 @@ namespace Highpoint.Sage.Mathematics
             {
                 Debug.WriteLine(hist.GetLabel(i) + ", " + bins[i]);
             }
+        }
+
+        public void Dispose()
+        {
+            _model.Dispose();
         }
     }
 }
