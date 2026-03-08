@@ -82,13 +82,10 @@ namespace Highpoint.Sage.ItemBased
 		#region Implementation of IHasIdentity
 		private readonly string m_name;
 		public string Name { get { return m_name; } }
-		private string? m_description;
 		/// <summary>
 		/// A description of this SimplePortOwner.
 		/// </summary>
-		public string Description {
-			get { return m_description==null?m_name:m_description; }
-		}
+		public string Description => m_name;
 		private Guid m_guid = Guid.Empty;
 		public Guid Guid => m_guid;
 		#endregion

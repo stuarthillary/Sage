@@ -35,7 +35,7 @@ namespace Highpoint.Sage.Utility
                     {
                         if (_hash == null)
                         {
-                            _hash = new System.Security.Cryptography.SHA1Managed();
+                            _hash = System.Security.Cryptography.SHA1.Create();
                         }
                     }
                 }

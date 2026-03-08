@@ -954,9 +954,9 @@ namespace Highpoint.Sage.Core
                         _executive._state = ExecState.Running;
                     }
                 }
-                catch (ThreadInterruptedException e)
+                catch (ThreadInterruptedException)
                 {
-                    //Console.WriteLine($"Interrupted by thread. {e.Message}");
+                    //Console.WriteLine($"Interrupted by thread.");
                 }
             }
         }

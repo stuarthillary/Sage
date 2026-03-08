@@ -109,7 +109,7 @@ namespace Highpoint.Sage.Randoms
                     }
                 }
             }
-            catch (ThreadInterruptedException e)
+            catch (ThreadInterruptedException)
             {
             }
         }

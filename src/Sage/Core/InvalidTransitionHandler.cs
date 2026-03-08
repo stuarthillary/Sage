@@ -16,7 +16,7 @@ namespace Highpoint.Sage.Core
                 return false;
             }
         }
-        public new void AddPrepareEvent(PrepareTransitionEvent pte, double priority)
+        public void AddPrepareEvent(PrepareTransitionEvent pte, double priority)
         {
             Puke();
         }
@@ -24,7 +24,7 @@ namespace Highpoint.Sage.Core
         {
             Puke();
         }
-        public new void AddCommitEvent(CommitTransitionEvent cte, double priority)
+        public void AddCommitEvent(CommitTransitionEvent cte, double priority)
         {
             Puke();
         }
@@ -32,7 +32,7 @@ namespace Highpoint.Sage.Core
         {
             Puke();
         }
-        public new void AddRollbackEvent(RollbackTransitionEvent rte, double priority)
+        public void AddRollbackEvent(RollbackTransitionEvent rte, double priority)
         {
             Puke();
         }

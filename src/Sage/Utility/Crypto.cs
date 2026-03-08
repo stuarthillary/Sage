@@ -19,25 +19,18 @@ namespace Highpoint.Sage.Utility
         /// <returns>The cipher text string resultant from the encryption.</returns>
         public static string EncryptString(string plainText, string key)
         {
-            TripleDESCryptoServiceProvider tripProvider = new TripleDESCryptoServiceProvider();
+            using TripleDES tripProvider = TripleDES.Create();
             UnicodeEncoding uEncode = new UnicodeEncoding();
-            // stores plaintext as a byte array
             byte[] bytePlainText = uEncode.GetBytes(plainText);
-            // create a memory stream to hold encrypted text
             MemoryStream cipherText = new MemoryStream();
-            // private key
-            byte[] slt = new byte[0];
-            Rfc2898DeriveBytes passwordderiveBytes = new Rfc2898DeriveBytes(key, slt);
-            byte[] byteDeriveKey = passwordderiveBytes.GetBytes(24);
-            tripProvider.Key = byteDeriveKey;
-            // initialization vector is the encryption seed
-            tripProvider.IV = passwordderiveBytes.GetBytes(8);
-            // create a cryto-writer to encrypt the bytearray
-            // into a stream
+            byte[] slt = Array.Empty<byte>();
+            // Derive key + IV bytes using PBKDF2-SHA1 (1000 iterations, same as previous default)
+            byte[] keyMaterial = Rfc2898DeriveBytes.Pbkdf2(key, slt, 1000, HashAlgorithmName.SHA1, 32);
+            tripProvider.Key = keyMaterial[..24];
+            tripProvider.IV = keyMaterial[24..];
             CryptoStream encrypted = new CryptoStream(cipherText, tripProvider.CreateEncryptor(), CryptoStreamMode.Write);
             encrypted.Write(bytePlainText, 0, bytePlainText.Length);
             encrypted.FlushFinalBlock();
-            // return result as a Base64 encoded string
             return Convert.ToBase64String(cipherText.ToArray());
         }
 
@@ -49,31 +42,21 @@ namespace Highpoint.Sage.Utility
         /// <returns>The plain text resultant from the decryption.</returns>
         public static string DecryptString(string cipherText, string key)
         {
-            TripleDESCryptoServiceProvider tripProvider = new TripleDESCryptoServiceProvider();
+            using TripleDES tripProvider = TripleDES.Create();
             UnicodeEncoding uEncode = new UnicodeEncoding();
-            // stores ciphertext as a byte array
             byte[] byteCipherText = Convert.FromBase64String(cipherText);
-            // create a memory stream to hold encrypted text
             MemoryStream plainText = new MemoryStream();
             MemoryStream cipherTextStream = new MemoryStream(byteCipherText);
-            // private key
-            byte[] slt = new byte[0];
-            Rfc2898DeriveBytes passwordderiveBytes = new Rfc2898DeriveBytes(key, slt);
-            byte[] byteDeriveKey = passwordderiveBytes.GetBytes(24);
-            tripProvider.Key = byteDeriveKey;
-            // initialization vector is the encryption seed
-            tripProvider.IV = passwordderiveBytes.GetBytes(8);
-            // create a cryto-stream decoder to decode
-            // a cipher text stream into a plain text stream
+            byte[] slt = Array.Empty<byte>();
+            byte[] keyMaterial = Rfc2898DeriveBytes.Pbkdf2(key, slt, 1000, HashAlgorithmName.SHA1, 32);
+            tripProvider.Key = keyMaterial[..24];
+            tripProvider.IV = keyMaterial[24..];
             CryptoStream decrypted = new CryptoStream(cipherTextStream, tripProvider.CreateDecryptor(), CryptoStreamMode.Read);
             StreamWriter writer = new StreamWriter(plainText);
             StreamReader reader = new StreamReader(decrypted);
             writer.Write(reader.ReadToEnd());
-            // clean up afterwards
             writer.Flush();
             decrypted.Clear();
-            tripProvider.Clear();
-            // return result as a Base64 encoded string
             return uEncode.GetString(plainText.ToArray());
         }
 
@@ -125,11 +108,8 @@ namespace Highpoint.Sage.Utility
                 // Allocate a byte array, which will hold the salt.
                 saltBytes = new byte[saltSize];
 
-                // Initialize a random number generator.
-                RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-
                 // Fill the salt with cryptographically strong byte values.
-                rng.GetNonZeroBytes(saltBytes);
+                RandomNumberGenerator.Fill(saltBytes);
             }
 
             // Convert plain text into a byte array.
@@ -160,23 +140,23 @@ namespace Highpoint.Sage.Utility
             switch (hashAlgorithm.ToUpper())
             {
                 case "SHA1":
-                    hash = new SHA1Managed();
+                    hash = SHA1.Create();
                     break;
 
                 case "SHA256":
-                    hash = new SHA256Managed();
+                    hash = SHA256.Create();
                     break;
 
                 case "SHA384":
-                    hash = new SHA384Managed();
+                    hash = SHA384.Create();
                     break;
 
                 case "SHA512":
-                    hash = new SHA512Managed();
+                    hash = SHA512.Create();
                     break;
 
                 default:
-                    hash = new MD5CryptoServiceProvider();
+                    hash = MD5.Create();
                     break;
             }
 

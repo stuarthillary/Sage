@@ -19,16 +19,7 @@ namespace Highpoint.Sage.Dependencies
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
 
-        #region protected ctors
-        /// <summary>
-        /// Initializes a new instance of this class with serialized data. 
-        /// </summary>
-        /// <param name="info">The <see cref="System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown. </param>
-        /// <param name="context">The <see cref="System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
-        protected GraphCycleException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
-        #endregion
-
-        private IList _members = null!; // Set in constructors or during deserialization.
+        private IList _members = null!; // Set in constructors.
         /// <summary>
         /// Gets the members of the cycle.
         /// </summary>

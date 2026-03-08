@@ -97,6 +97,7 @@ namespace Highpoint.Sage.Materials
             _from = from;
             _to = to;
             _what = typespecs;
+            _duration = duration;
         }
 
         /// <summary>
