@@ -24,8 +24,12 @@ All 1,244 CS8xxx nullable reference type warnings have been eliminated from the 
 
 ## Verification
 
-- **Build:** \dotnet build src/Sage/Sage.csproj --no-incremental\ → 0 CS8 warnings ✅
-- **Tests:** \dotnet test tests/SageTestLib/Sage.Tests.csproj\ → 319/319 passing ✅
+- **Build:** `dotnet build src/Sage/Sage.csproj --no-incremental` → 0 CS8 warnings ✅
+- **Tests:** `dotnet test tests/SageTestLib/Sage.Tests.csproj` → 319/319 passing ✅
+
+## Bonus Fix
+
+Discovered and fixed pre-existing thread-safety bug in `ParticipantDirectory._knownMacros` — the static dictionary was accessed without a lock, causing intermittent `ArgumentException` under parallel xUnit test execution. Added `_knownMacrosLock` and wrapped `TryGetValue + Add` in a `lock` block.
 
 ## Commits
 

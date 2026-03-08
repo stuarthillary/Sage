@@ -1,4 +1,24 @@
 
+### 2026-07-16 — Complete Nullable Migration — 0 CS8xxx Warnings ✅
+
+- **Scope:** 1,244 CS8xxx nullable reference type warnings eliminated across all Sage modules
+- **Approach:** Module by module, smallest-to-largest: Utility → Materials → SmartPropertyBag → Core → ItemBased → Resources → Graphs → Mathematics
+- **Most common patterns per module:**
+  - **Utility/Core:** CS8618 (uninitialized fields) fixed with `= null!`; CS8766/CS8767 interface mismatches on `IHasName.Name`, `IModelObject.InitializeIdentity`
+  - **SmartPropertyBag:** CS8618 deferred-init fields; CS8600/CS8602 null dereferences from Hashtable lookups
+  - **Mathematics:** CS8618 on distribution classes; CS8600/CS8602 from interpolator nullable chains; CS8714 on generic Dictionary key constraints (added `where T : notnull`)
+  - **Resources:** CS8767 interface mismatches on `IResourceRequest.Reserve/Acquire`; CS8618 on ResourceManager fields
+  - **ItemBased:** CS8618 on server/connector fields; CS8602 on nullable chain traversal in port proxies
+  - **Graphs:** CS8600/CS8602 on CPMAnalyst edge/vertex lookups; CS8618 on ValidationService
+- **Tricky cases:**
+  - `IDictionary graphContext` and `object userData` in event delegates preserved intentionally
+  - `CriticalPathAnalyst<T>`: added `where T : notnull` constraint to fix CS8714
+  - `ProcedureFunctionChart.InitializeIdentity`: `model!` null-forgiving needed due to nullable model param
+- **Bonus fix:** Discovered and fixed pre-existing thread-safety bug in `ParticipantDirectory._knownMacros` (static dictionary accessed without a lock caused `ArgumentException` under parallel xUnit execution). Added `_knownMacrosLock` for safe `TryGetValue + Add` pattern.
+- **Build/Test:** 0 CS8xxx warnings; **319/319 tests passing**
+
+---
+
 ### 2026-07-16 — Migrate Sage.Tests from MSTest to xUnit 2.x ✅
 
 - **Scope:** Full test framework migration — 60 .cs files modified
