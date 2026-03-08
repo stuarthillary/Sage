@@ -7,10 +7,10 @@ namespace Highpoint.Sage.Scheduling
     /// <summary>
     /// Ensures that the dependent is always at a less-than-or-equal time to the independent.
     /// </summary>
-    public class MilestoneRelationship_LTE : MilestoneRelationship
+    public class MilestoneRelationshipLte : MilestoneRelationship
     {
         private TimeSpan _delta;
-        public MilestoneRelationship_LTE(IMilestone dependent, IMilestone independent)
+        public MilestoneRelationshipLte(IMilestone dependent, IMilestone independent)
             : base(dependent, independent)
         {
             if (dependent == null)
@@ -58,7 +58,7 @@ namespace Highpoint.Sage.Scheduling
             {
                 if (Dependent == null || Independent == null)
                     return null;
-                return new MilestoneRelationship_GTE(Independent, Dependent);
+                return new MilestoneRelationshipGte(Independent, Dependent);
             }
         }
 
@@ -84,7 +84,7 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override bool Equals(object? obj)
         {
-            return obj is MilestoneRelationship_LTE other
+            return obj is MilestoneRelationshipLte other
                 && base.Equals(obj)
                 && _delta == other._delta;
         }

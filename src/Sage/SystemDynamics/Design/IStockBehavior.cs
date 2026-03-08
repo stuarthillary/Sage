@@ -3,7 +3,7 @@ namespace Highpoint.Sage.SystemDynamics.Design
 {
     public interface IStockBehavior
     {
-        bool Non_Negative
+        bool NonNegative
         {
             get;
         }

@@ -118,16 +118,16 @@ namespace Highpoint.Sage.ItemBased.Ports
                     port.PortDataRejected += dce;
                 if (_bcmListeners != null)
                     foreach (PortEvent pe in _bcmListeners)
-                        port.BeforeConnectionMade += pe;
+                        port.ConnectionMadePending += pe;
                 if (_bcbListeners != null)
                     foreach (PortEvent pe in _bcbListeners)
-                        port.BeforeConnectionBroken += pe;
+                        port.ConnectionBrokenPending += pe;
                 if (_acmListeners != null)
                     foreach (PortEvent pe in _acmListeners)
-                        port.AfterConnectionMade += pe;
+                        port.ConnectionMadeOccurred += pe;
                 if (_acbListeners != null)
                     foreach (PortEvent pe in _acbListeners)
-                        port.AfterConnectionBroken += pe;
+                        port.ConnectionBrokenOccurred += pe;
 
                 PortAdded?.Invoke(port);
 
@@ -163,16 +163,16 @@ namespace Highpoint.Sage.ItemBased.Ports
                 port.PortDataRejected -= dce;
             if (_bcmListeners != null)
                 foreach (PortEvent pe in _bcmListeners)
-                    port.BeforeConnectionMade -= pe;
+                    port.ConnectionMadePending -= pe;
             if (_bcbListeners != null)
                 foreach (PortEvent pe in _bcbListeners)
-                    port.BeforeConnectionBroken -= pe;
+                    port.ConnectionBrokenPending -= pe;
             if (_acmListeners != null)
                 foreach (PortEvent pe in _acmListeners)
-                    port.AfterConnectionMade -= pe;
+                    port.ConnectionMadeOccurred -= pe;
             if (_acbListeners != null)
                 foreach (PortEvent pe in _acbListeners)
-                    port.AfterConnectionBroken -= pe;
+                    port.ConnectionBrokenOccurred -= pe;
 
                 PortRemoved?.Invoke(port);
 
@@ -279,7 +279,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent? BeforeConnectionMade
+        public event PortEvent? ConnectionMadePending
         {
             add
             {
@@ -291,7 +291,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     _bcmListeners = new ArrayList();
                 _bcmListeners.Add(value);
                 foreach (IPort port in _ports)
-                    port.BeforeConnectionMade += value;
+                    port.ConnectionMadePending += value;
             }
             remove
             {
@@ -301,14 +301,14 @@ namespace Highpoint.Sage.ItemBased.Ports
                 }
                 _bcmListeners.Remove(value);
                 foreach (IPort port in _ports)
-                    port.BeforeConnectionMade -= value;
+                    port.ConnectionMadePending -= value;
             }
         }
 
         /// <summary>
         /// This event fires immediately after the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent? AfterConnectionMade
+        public event PortEvent? ConnectionMadeOccurred
         {
             add
             {
@@ -320,7 +320,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     _acmListeners = new ArrayList();
                 _acmListeners.Add(value);
                 foreach (IPort port in _ports)
-                    port.AfterConnectionMade += value;
+                    port.ConnectionMadeOccurred += value;
             }
             remove
             {
@@ -330,7 +330,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 }
                 _acmListeners.Remove(value);
                 foreach (IPort port in _ports)
-                    port.AfterConnectionMade -= value;
+                    port.ConnectionMadeOccurred -= value;
             }
         }
 
@@ -338,7 +338,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately before the port's connector property becomes null.
         /// </summary>
-        public event PortEvent? BeforeConnectionBroken
+        public event PortEvent? ConnectionBrokenPending
         {
             add
             {
@@ -350,7 +350,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     _bcbListeners = new ArrayList();
                 _bcbListeners.Add(value);
                 foreach (IPort port in _ports)
-                    port.BeforeConnectionBroken += value;
+                    port.ConnectionBrokenPending += value;
             }
             remove
             {
@@ -360,14 +360,14 @@ namespace Highpoint.Sage.ItemBased.Ports
                 }
                 _bcbListeners.Remove(value);
                 foreach (IPort port in _ports)
-                    port.BeforeConnectionBroken -= value;
+                    port.ConnectionBrokenPending -= value;
             }
         }
 
         /// <summary>
         /// This event fires immediately after the port's connector property becomes null.
         /// </summary>
-        public event PortEvent? AfterConnectionBroken
+        public event PortEvent? ConnectionBrokenOccurred
         {
             add
             {
@@ -379,7 +379,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     _acbListeners = new ArrayList();
                 _acbListeners.Add(value);
                 foreach (IPort port in _ports)
-                    port.AfterConnectionBroken += value;
+                    port.ConnectionBrokenOccurred += value;
             }
             remove
             {
@@ -389,7 +389,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 }
                 _acbListeners.Remove(value);
                 foreach (IPort port in _ports)
-                    port.AfterConnectionBroken -= value;
+                    port.ConnectionBrokenOccurred -= value;
             }
         }
         #endregion

@@ -7,10 +7,10 @@ namespace Highpoint.Sage.Scheduling
     /// <summary>
     /// Ensures that the dependent is always at the same offset to the independent as when it was initially established.
     /// </summary>
-    public class MilestoneRelationship_Strut : MilestoneRelationship
+    public class MilestoneRelationshipStrut : MilestoneRelationship
     {
         private TimeSpan _delta;
-        public MilestoneRelationship_Strut(IMilestone dependent, IMilestone independent)
+        public MilestoneRelationshipStrut(IMilestone dependent, IMilestone independent)
             : base(dependent, independent)
         {
             if (dependent == null)
@@ -47,7 +47,7 @@ namespace Highpoint.Sage.Scheduling
             {
                 if (Dependent == null || Independent == null)
                     return null;
-                return new MilestoneRelationship_Strut(Independent, Dependent);
+                return new MilestoneRelationshipStrut(Independent, Dependent);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override bool Equals(object? obj)
         {
-            return obj is MilestoneRelationship_Strut other
+            return obj is MilestoneRelationshipStrut other
                 && base.Equals(obj)
                 && _delta == other._delta;
         }

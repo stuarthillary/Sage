@@ -31,22 +31,22 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
-        event PortEvent? BeforeConnectionMade;
+        event PortEvent? ConnectionMadePending;
 
         /// <summary>
         /// This event fires immediately after the port's connector property becomes non-null.
         /// </summary>
-        event PortEvent? AfterConnectionMade;
+        event PortEvent? ConnectionMadeOccurred;
 
         /// <summary>
         /// This event fires immediately before the port's connector property becomes null.
         /// </summary>
-        event PortEvent? BeforeConnectionBroken;
+        event PortEvent? ConnectionBrokenPending;
 
         /// <summary>
         /// This event fires immediately after the port's connector property becomes null.
         /// </summary>
-        event PortEvent? AfterConnectionBroken;
+        event PortEvent? ConnectionBrokenOccurred;
     }
 
 }

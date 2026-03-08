@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBeProtected.Global
 
 namespace Highpoint.Sage.Mathematics
@@ -17,7 +16,7 @@ namespace Highpoint.Sage.Mathematics
     /// be and'ed together. Most queries can be applied to a range of bins, or to a full category or
     /// set of categories.
     /// </summary>
-    public abstract class Histogram1D_Base<T> : IHistogram1D<T>
+    public abstract class Histogram1DBase<T> : IHistogram1D<T>
         where T : INumber<T>
     {
 
@@ -43,7 +42,7 @@ namespace Highpoint.Sage.Mathematics
         /// <param name="name">The name of the histogram.</param>
         /// <param name="guid">The guid of the histogram.</param>
         // ReSharper disable once PublicConstructorInAbstractClass
-        public Histogram1D_Base(T[] rawData, T lowBound, T highBound, uint nBins, string name, Guid guid)
+        public Histogram1DBase(T[] rawData, T lowBound, T highBound, uint nBins, string name, Guid guid)
         {
             _rawData = rawData;
             LowBound = lowBound;

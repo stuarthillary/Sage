@@ -390,7 +390,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent? BeforeConnectionMade
+        public event PortEvent? ConnectionMadePending
         {
             add
             {
@@ -398,7 +398,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.BeforeConnectionMade += value;
+                _ward.ConnectionMadePending += value;
             }
             remove
             {
@@ -406,14 +406,14 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.BeforeConnectionMade -= value;
+                _ward.ConnectionMadePending -= value;
             }
         }
 
         /// <summary>
         /// This event fires immediately after the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent? AfterConnectionMade
+        public event PortEvent? ConnectionMadeOccurred
         {
             add
             {
@@ -421,7 +421,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.AfterConnectionMade += value;
+                _ward.ConnectionMadeOccurred += value;
             }
             remove
             {
@@ -429,14 +429,14 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.AfterConnectionMade -= value;
+                _ward.ConnectionMadeOccurred -= value;
             }
         }
 
         /// <summary>
         /// This event fires immediately before the port's connector property becomes null.
         /// </summary>
-        public event PortEvent? BeforeConnectionBroken
+        public event PortEvent? ConnectionBrokenPending
         {
             add
             {
@@ -444,7 +444,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.BeforeConnectionBroken += value;
+                _ward.ConnectionBrokenPending += value;
             }
             remove
             {
@@ -452,14 +452,14 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.BeforeConnectionBroken -= value;
+                _ward.ConnectionBrokenPending -= value;
             }
         }
 
         /// <summary>
         /// This event fires immediately after the port's connector property becomes null.
         /// </summary>
-        public event PortEvent? AfterConnectionBroken
+        public event PortEvent? ConnectionBrokenOccurred
         {
             add
             {
@@ -467,7 +467,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.AfterConnectionBroken += value;
+                _ward.ConnectionBrokenOccurred += value;
             }
             remove
             {
@@ -475,7 +475,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                 {
                     return;
                 }
-                _ward.AfterConnectionBroken -= value;
+                _ward.ConnectionBrokenOccurred -= value;
             }
         }
 

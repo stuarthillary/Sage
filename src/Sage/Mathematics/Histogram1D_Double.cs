@@ -7,7 +7,7 @@ namespace Highpoint.Sage.Mathematics
     /// <summary>
     /// Summary description for Histogram1D.
     /// </summary>
-    public sealed class Histogram1D_Double : Histogram1D_Base<double>
+    public sealed class Histogram1D_Double : Histogram1DBase<double>
     {
         #region >>> Local Private Variables. <<<
         

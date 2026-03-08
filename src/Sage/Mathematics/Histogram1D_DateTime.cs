@@ -7,7 +7,7 @@ namespace Highpoint.Sage.Mathematics
     /// <summary>
     /// Histogram1D_DateTime creates a one dimensional histogram from an array of DateTime data.
     /// </summary>
-    public class Histogram1D_DateTime : Histogram1D_Base<long>
+    public class Histogram1D_DateTime : Histogram1DBase<long>
     {
         public Histogram1D_DateTime(DateTime[] rawData, DateTime lowBound, DateTime highBound, uint nBins, string name, Guid guid)
             : base(rawData.Select(x => x.Ticks).ToArray(), lowBound.Ticks, highBound.Ticks, nBins, name, guid)

@@ -172,15 +172,15 @@ namespace Highpoint.Sage.ItemBased.Ports
 
                 if (_makeBreakListeners > 0)
                 {
-                    if (value == null && _beforeConnectionBroken != null)
-                        _beforeConnectionBroken(this);
-                    if (value != null && _beforeConnectionMade != null)
-                        _beforeConnectionMade(this);
+                    if (value == null && _connectionBrokenPending != null)
+                        _connectionBrokenPending(this);
+                    if (value != null && _connectionMadePending != null)
+                        _connectionMadePending(this);
                     _connector = value;
-                    if (value == null && _afterConnectionBroken != null)
-                        _afterConnectionBroken(this);
-                    if (value != null && _afterConnectionMade != null)
-                        _afterConnectionMade(this);
+                    if (value == null && _connectionBrokenOccurred != null)
+                        _connectionBrokenOccurred(this);
+                    if (value != null && _connectionMadeOccurred != null)
+                        _connectionMadeOccurred(this);
                 }
                 else
                 {
@@ -190,11 +190,11 @@ namespace Highpoint.Sage.ItemBased.Ports
         }
 
         #region Port Made/Broken Event Management
-        private event PortEvent? _beforeConnectionMade;
+        private event PortEvent? _connectionMadePending;
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent? BeforeConnectionMade
+        public event PortEvent? ConnectionMadePending
         {
             add
             {
@@ -203,7 +203,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners++;
-                _beforeConnectionMade += value;
+                _connectionMadePending += value;
             }
             remove
             {
@@ -212,15 +212,15 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners--;
-                _beforeConnectionMade -= value;
+                _connectionMadePending -= value;
             }
         }
 
-        private event PortEvent? _afterConnectionMade;
+        private event PortEvent? _connectionMadeOccurred;
         /// <summary>
         /// This event fires immediately after the port's connector property becomes non-null.
         /// </summary>
-        public event PortEvent? AfterConnectionMade
+        public event PortEvent? ConnectionMadeOccurred
         {
             add
             {
@@ -229,7 +229,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners++;
-                _afterConnectionMade += value;
+                _connectionMadeOccurred += value;
             }
             remove
             {
@@ -238,16 +238,16 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners--;
-                _afterConnectionMade -= value;
+                _connectionMadeOccurred -= value;
             }
         }
 
 
-        private event PortEvent? _beforeConnectionBroken;
+        private event PortEvent? _connectionBrokenPending;
         /// <summary>
         /// This event fires immediately before the port's connector property becomes null.
         /// </summary>
-        public event PortEvent? BeforeConnectionBroken
+        public event PortEvent? ConnectionBrokenPending
         {
             add
             {
@@ -256,7 +256,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners++;
-                _beforeConnectionBroken += value;
+                _connectionBrokenPending += value;
             }
             remove
             {
@@ -265,15 +265,15 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners--;
-                _beforeConnectionBroken -= value;
+                _connectionBrokenPending -= value;
             }
         }
 
-        private event PortEvent? _afterConnectionBroken;
+        private event PortEvent? _connectionBrokenOccurred;
         /// <summary>
         /// This event fires immediately after the port's connector property becomes null.
         /// </summary>
-        public event PortEvent? AfterConnectionBroken
+        public event PortEvent? ConnectionBrokenOccurred
         {
             add
             {
@@ -282,7 +282,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners++;
-                _afterConnectionBroken += value;
+                _connectionBrokenOccurred += value;
             }
             remove
             {
@@ -291,7 +291,7 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 _makeBreakListeners--;
-                _afterConnectionBroken -= value;
+                _connectionBrokenOccurred -= value;
             }
         }
         #endregion

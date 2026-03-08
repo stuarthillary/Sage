@@ -67,7 +67,7 @@ namespace Highpoint.Sage.Scheduling
             Debug.WriteLine(ms2.ToString());
 
             Debug.WriteLine("Milestone 1 is at " + ms1 + ", and Milestone 2 is at " + ms2 + ". Strutting them together.");
-            MilestoneRelationship mr = new MilestoneRelationship_Strut(ms1, ms2);
+            MilestoneRelationship mr = new MilestoneRelationshipStrut(ms1, ms2);
             ms1.AddRelationship(mr);
             ms2.AddRelationship(mr);
 

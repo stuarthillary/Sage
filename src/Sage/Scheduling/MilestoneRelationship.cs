@@ -11,7 +11,7 @@ namespace Highpoint.Sage.Scheduling
     /// This is an abstract class from which all MilestoneRelationships are derived.<b></b>
     /// A MilestoneRelationship represents a relationship between a dependent milestone
     /// such as "Oven Heatup Finishes" and an independent one such as "Bake Cookies."
-    /// In this case, the relationship would be a MilestoneRelationship_GTE(heatupDone,startBaking);<b></b>
+    /// In this case, the relationship would be a MilestoneRelationshipGte(heatupDone,startBaking);<b></b>
     /// meaning that if the heatupDone milestone is changed, then the startBaking milestone will
     /// also be adjusted, if the change resulted in startBaking occurring before heatupDone.
     /// </summary>

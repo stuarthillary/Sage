@@ -5,19 +5,19 @@ using System;
 namespace Highpoint.Sage.Scheduling
 {
     /// <summary>
-    /// Ensures that the dependent is always at a greater-than-or-equal time to the independent.
+    /// Ensures that the independent milestone is not permitted to move.
     /// </summary>
-    public class MilestoneRelationship_GTE : MilestoneRelationship
+    public class MilestoneRelationshipPin : MilestoneRelationship
     {
-        private TimeSpan _delta;
-        public MilestoneRelationship_GTE(IMilestone dependent, IMilestone independent)
+        private readonly DateTime _independentDateTime;
+        public MilestoneRelationshipPin(IMilestone? dependent, IMilestone independent)
             : base(dependent, independent)
         {
-            if (dependent == null)
-                throw new ArgumentNullException(nameof(dependent));
-            if (independent == null)
-                throw new ArgumentNullException(nameof(independent));
-            _delta = independent.DateTime - dependent.DateTime;
+            if (base.dependent != null)
+                throw new ApplicationException("The MilestoneRelationshipPin relationship uses only the independent milestone, and you have specified a dependent one. The dependent milestone should be null.");
+            if (base.independent == null)
+                throw new ApplicationException("The MilestoneRelationshipPin relationship requires an independent milestone.");
+            _independentDateTime = base.independent.DateTime;
             AssessInitialCorrectnessForCtor();
         }
 
@@ -30,21 +30,7 @@ namespace Highpoint.Sage.Scheduling
         /// <param name="maxDateTime">The maximum acceptable DateTime value for the dependent milestone.</param>
         public override void Reaction(DateTime independentNewValue, out DateTime minDateTime, out DateTime maxDateTime)
         {
-            minDateTime = independentNewValue;
-            maxDateTime = DateTime.MaxValue;
-        }
-
-        /// <summary>
-        /// Determines whether this relationship is currently satisfied.
-        /// </summary>
-        /// <returns>
-        /// 	<c>true</c> if this instance is satisfied; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool IsSatisfied()
-        {
-            IMilestone dependentMilestone = dependent ?? throw new InvalidOperationException("Dependent milestone is required.");
-            IMilestone independentMilestone = independent ?? throw new InvalidOperationException("Independent milestone is required.");
-            return (!Enabled || dependentMilestone.DateTime >= independentMilestone.DateTime);
+            throw new ApplicationException("Cannot move " + independent + " - it is frozen.");
         }
 
         /// <summary>
@@ -56,10 +42,21 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                if (Dependent == null || Independent == null)
-                    return null;
-                return new MilestoneRelationship_LTE(Independent, Dependent);
+                return null;
             }
+        }
+
+        /// <summary>
+        /// Determines whether this relationship is currently satisfied.
+        /// </summary>
+        /// <returns>
+        /// 	<c>true</c> if this instance is satisfied; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool IsSatisfied()
+        {
+            if (independent == null)
+                return true;
+            return (!Enabled || _independentDateTime == independent.DateTime);
         }
 
         /// <summary>
@@ -70,9 +67,9 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override string ToString()
         {
-            string dependentName = Dependent?.Name ?? "<unknown>";
-            string independentName = Independent?.Name ?? "<unknown>";
-            return dependentName + " occurs when or after " + independentName + " occurs.";
+            string dependentName = Dependent?.Name ?? "<none>";
+            string dependentDate = Dependent?.DateTime.ToString() ?? "<unknown>";
+            return dependentName + " is frozen at " + dependentDate + ".";
         }
 
         /// <summary>
@@ -84,9 +81,9 @@ namespace Highpoint.Sage.Scheduling
         /// </returns>
         public override bool Equals(object? obj)
         {
-            return obj is MilestoneRelationship_GTE other
+            return obj is MilestoneRelationshipPin other
                 && base.Equals(obj)
-                && _delta == other._delta;
+                && _independentDateTime == other._independentDateTime;
         }
 
         /// <summary>

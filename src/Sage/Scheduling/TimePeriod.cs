@@ -43,7 +43,7 @@ namespace Highpoint.Sage.Scheduling
         private Guid _guid;
         private readonly string _description = "";
         private static readonly string _default_Name = "TimePeriod";
-        private MilestoneRelationship_Strut? _inferenceRelationship;
+        private MilestoneRelationshipStrut? _inferenceRelationship;
         private enum MsRel
         {
             Before, On, After
@@ -128,8 +128,8 @@ namespace Highpoint.Sage.Scheduling
 
                 // These two are always present, and always active, therefore we do not put them in the
                 // arraylist of internal (i.e. clearable) relationships. A TimePeriod can NEVER end before it starts.
-                MilestoneRelationship mr1 = new MilestoneRelationship_LTE(StartMilestone, EndMilestone);
-                MilestoneRelationship mr2 = new MilestoneRelationship_GTE(EndMilestone, StartMilestone);
+                MilestoneRelationship mr1 = new MilestoneRelationshipLte(StartMilestone, EndMilestone);
+                MilestoneRelationship mr2 = new MilestoneRelationshipGte(EndMilestone, StartMilestone);
                 mr1.AddReciprocal(mr2);
                 mr2.AddReciprocal(mr1);
             }
@@ -166,26 +166,26 @@ namespace Highpoint.Sage.Scheduling
                             break;
 
                         case TimeAdjustmentMode.FixedStart:
-                            relationship = new MilestoneRelationship_Pin(null, StartMilestone);
+                            relationship = new MilestoneRelationshipPin(null, StartMilestone);
                             _adjustmentModeRelationships.Add(relationship);
                             break;
 
                         case TimeAdjustmentMode.FixedDuration:
-                            MilestoneRelationship fwd = new MilestoneRelationship_Strut(StartMilestone, EndMilestone);
+                            MilestoneRelationship fwd = new MilestoneRelationshipStrut(StartMilestone, EndMilestone);
                             _adjustmentModeRelationships.Add(fwd);
-                            MilestoneRelationship rev = new MilestoneRelationship_Strut(EndMilestone, StartMilestone);
+                            MilestoneRelationship rev = new MilestoneRelationshipStrut(EndMilestone, StartMilestone);
                             _adjustmentModeRelationships.Add(rev);
                             fwd.AddReciprocal(rev);
                             rev.AddReciprocal(fwd);
                             break;
 
                         case TimeAdjustmentMode.FixedEnd:
-                            relationship = new MilestoneRelationship_Pin(null, EndMilestone);
+                            relationship = new MilestoneRelationshipPin(null, EndMilestone);
                             _adjustmentModeRelationships.Add(relationship);
 
                             break;
                         case TimeAdjustmentMode.InferStartTime:
-                            _inferenceRelationship = new MilestoneRelationship_Strut(StartMilestone, EndMilestone);
+                            _inferenceRelationship = new MilestoneRelationshipStrut(StartMilestone, EndMilestone);
                             relationship = _inferenceRelationship;
                             _adjustmentModeRelationships.Add(relationship);
                             break;
@@ -194,15 +194,15 @@ namespace Highpoint.Sage.Scheduling
                             break;
 
                         case TimeAdjustmentMode.InferEndTime:
-                            _inferenceRelationship = new MilestoneRelationship_Strut(EndMilestone, StartMilestone);
+                            _inferenceRelationship = new MilestoneRelationshipStrut(EndMilestone, StartMilestone);
                             relationship = _inferenceRelationship;
                             _adjustmentModeRelationships.Add(relationship);
                             break;
 
                         case TimeAdjustmentMode.Locked:
-                            relationship = new MilestoneRelationship_Pin(null, StartMilestone);
+                            relationship = new MilestoneRelationshipPin(null, StartMilestone);
                             _adjustmentModeRelationships.Add(relationship);
-                            relationship = new MilestoneRelationship_Pin(null, EndMilestone);
+                            relationship = new MilestoneRelationshipPin(null, EndMilestone);
                             _adjustmentModeRelationships.Add(relationship);
                             break;
                     }
@@ -327,18 +327,18 @@ namespace Highpoint.Sage.Scheduling
                 switch (m)
                 {
                     case MsRel.Before:
-                        mr1 = new MilestoneRelationship_LTE(a, b);
-                        mr2 = new MilestoneRelationship_GTE(b, a);
+                        mr1 = new MilestoneRelationshipLte(a, b);
+                        mr2 = new MilestoneRelationshipGte(b, a);
                         //a.AddRelationship(mr);
                         break;
                     case MsRel.On:
-                        mr1 = new MilestoneRelationship_Strut(a, b);
-                        mr2 = new MilestoneRelationship_Strut(b, a);
+                        mr1 = new MilestoneRelationshipStrut(a, b);
+                        mr2 = new MilestoneRelationshipStrut(b, a);
                         //a.AddRelationship(mr);
                         break;
                     case MsRel.After:
-                        mr1 = new MilestoneRelationship_GTE(a, b);
-                        mr2 = new MilestoneRelationship_LTE(b, a);
+                        mr1 = new MilestoneRelationshipGte(a, b);
+                        mr2 = new MilestoneRelationshipLte(b, a);
                         //a.AddRelationship(mr);
                         break;
                     default:
@@ -368,17 +368,17 @@ namespace Highpoint.Sage.Scheduling
             //        foreach (MilestoneRelationship mr in a.Relationships) {
             //            //if ( 
             //        }
-            //        mr1 = new MilestoneRelationship_LTE(a, b);
+            //        mr1 = new MilestoneRelationshipLte(a, b);
             //        mr2 = mr1.Reciprocal;
             //        //a.AddRelationship(mr);
             //        break;
             //    case MS_REL.On:
-            //        mr1 = new MilestoneRelationship_Strut(a, b);
+            //        mr1 = new MilestoneRelationshipStrut(a, b);
             //        mr2 = mr1.Reciprocal;
             //        //a.AddRelationship(mr);
             //        break;
             //    case MS_REL.After:
-            //        mr1 = new MilestoneRelationship_GTE(a, b);
+            //        mr1 = new MilestoneRelationshipGte(a, b);
             //        mr2 = mr1.Reciprocal;
             //        //a.AddRelationship(mr);
             //        break;

@@ -38,8 +38,8 @@ namespace Highpoint.Sage.Scheduling
             // arraylist of internal (i.e. clearable) relationships. A TimePeriod can NEVER end before it starts.
             if (supportsReactiveAdjustment)
             {
-                new MilestoneRelationship_LTE(StartMilestone, EndMilestone);
-                new MilestoneRelationship_GTE(EndMilestone, StartMilestone);
+                new MilestoneRelationshipLte(StartMilestone, EndMilestone);
+                new MilestoneRelationshipGte(EndMilestone, StartMilestone);
             }
         }
         #endregion

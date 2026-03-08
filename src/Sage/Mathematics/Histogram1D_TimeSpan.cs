@@ -7,7 +7,7 @@ namespace Highpoint.Sage.Mathematics
     /// <summary>
     /// Summary description for Histogram1D.
     /// </summary>
-    public class Histogram1D_TimeSpan : Histogram1D_Base<long>
+    public class Histogram1D_TimeSpan : Histogram1DBase<long>
     {
         public Histogram1D_TimeSpan(TimeSpan[] rawData, TimeSpan lowBound, TimeSpan highBound, uint nBins, string name, Guid guid)
             : base(rawData.Select(x => x.Ticks).ToArray(), lowBound.Ticks, highBound.Ticks, nBins, name, guid) { }
