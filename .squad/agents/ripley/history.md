@@ -188,3 +188,74 @@
 8. **Locked exclusions respected:** `object userData` → annotate as `object?` but do NOT genericize. `IDictionary graphContext` → keep non-generic, annotate as nullable only where null is actually passed.
 
 9. **4-phase plan:** Phase 1 (Core interfaces + SageOptions + ExecEvent, ~21 files, 1-2 hours), Phase 2 (Core engine implementations, ~12 files, 4-6 hours), Phase 3 (remaining modules in 12 batches by risk, weeks), Phase 4 (cleanup + WarningsAsErrors enforcement).
+
+### 2026-07-15 — CA Rule Analysis: Enabling Suppressed Analyzers (COMPLETE ✅)
+
+**Status:** Analysis complete. Full recommendation table produced.
+
+**Current state:** ✅ Build succeeds with 0 errors, 322/322 tests passing. `TreatWarningsAsErrors=true` is enabled. ~80 CA rules are suppressed as `severity = none` in `.editorconfig`.
+
+**Method:** Ran targeted builds with each suppressed rule temporarily enabled as `severity = warning` to count actual violations. Tested 20 rules across quality, performance, design, and exception handling categories.
+
+**Test results — violations counted per rule:**
+
+| Rule | Category | Violation Count | Fix Complexity | Notes |
+|------|----------|-----------------|----------------|-------|
+| CA1001 | Dispose | 2 | Low | Types with disposable fields should be disposable |
+| CA2215 | Dispose | 2 | Low | Dispose should call base.Dispose |
+| CA2200 | Quality | 10 | Low | Rethrow to preserve stack details (use `throw;` not `throw ex;`) |
+| CA1816 | Dispose | 12 | Low | Dispose should call GC.SuppressFinalize |
+| CA1031 | Quality | 16 | Medium | Do not catch general exception types (often intentional) |
+| CA2213 | Dispose | 18 | Low | Disposable fields should be disposed |
+| CA1825 | Perf | 20 | Low | Avoid zero-length array allocations (use Array.Empty<T>()) |
+| CA1063 | Dispose | 20 | Medium | Implement IDisposable correctly (full pattern) |
+| CA2214 | Quality | 24 | Medium | Do not call overridable methods in constructors |
+| CA1052 | Design | 24 | Low | Static holder types should be static/sealed |
+| CA2000 | Dispose | 34 | Medium | Dispose objects before losing scope |
+| CA1822 | Perf | 124 | Low | Mark members as static (auto-fixable by IDE) |
+| CA1032 | Quality | 130 | Low | Implement standard exception constructors |
+| CA1051 | Design | 184 | High | Do not declare visible instance fields (breaking) |
+| CA1805 | Perf | 344 | Low | Do not initialize unnecessarily (auto-fixable) |
+| CA2201 | Quality | 456 | Medium | Do not raise reserved exception types (Exception, ApplicationException) |
+| CA1062 | Quality | 1122 | Very High | Validate arguments of public methods (null checks) |
+
+**Rules NOT tested (high friction, already known):**
+- CA1707 (no underscores in identifiers): Previously attempted, crashed mid-refactor, reverted. Estimated >500 violations.
+- Naming rules (CA1708-CA1724): Breaking API changes, legacy contracts. Intentionally suppressed.
+- Localization rules (CA1303-CA1311): Library has no UI. Intentionally suppressed.
+- API design rules (CA1000-CA1044): Breaking changes. Intentionally suppressed.
+
+**Top candidates for enabling (recommended priority order):**
+
+**Tier 1 — Enable immediately (mechanical fixes, <25 violations):**
+1. **CA1001** (2 violations) — Types with disposable fields should be disposable
+2. **CA2215** (2 violations) — Dispose should call base.Dispose
+3. **CA2200** (10 violations) — Use `throw;` instead of `throw ex;`
+4. **CA1816** (12 violations) — Dispose should call GC.SuppressFinalize
+5. **CA2213** (18 violations) — Disposable fields should be disposed
+6. **CA1825** (20 violations) — Use Array.Empty<T>() instead of `new T[0]`
+7. **CA1052** (24 violations) — Static utility classes should be sealed or static
+
+**Total Tier 1: 88 fixes, all mechanical.**
+
+**Tier 2 — Enable in next pass (judgment required, 20-130 violations):**
+8. **CA1063** (20 violations) — Full IDisposable pattern
+9. **CA2214** (24 violations) — Virtual method calls in constructors
+10. **CA2000** (34 violations) — Dispose objects before losing scope (often false positives)
+11. **CA1822** (124 violations) — Mark methods as static (IDE auto-fix)
+12. **CA1032** (130 violations) — Standard exception constructors
+
+**Total Tier 2: 332 fixes, mostly mechanical but require review.**
+
+**Tier 3 — Defer indefinitely (high count or breaking):**
+- **CA1051** (184 violations) — Public instance fields (breaking API change)
+- **CA1805** (344 violations) — Unnecessary initialization (low value, high noise)
+- **CA2201** (456 violations) — Reserved exception types (requires exception hierarchy redesign)
+- **CA1062** (1122 violations) — Null argument validation (requires full null check audit)
+
+**Architectural notes:**
+- Several exceptions inherit from `ApplicationException` (CA2201) — legacy .NET 1.x practice. Modern pattern is `Exception` base. Fixing this requires a new exception hierarchy (see `.squad/decisions/inbox/ripley-exception-hierarchy.md` if created).
+- `CA1051` violations are primarily in Materials/Chemistry domain models where public fields are intentional DTO-like structures.
+- `CA1062` is noisy in practice — many false positives where null checks exist but analyzer doesn't recognize them.
+
+**Recommendation to Stuart:** Start with **Tier 1 (7 rules, 88 fixes)**. Enable them one-by-one, fix violations, commit each rule separately. Estimated effort: 4-6 hours for Parker. Tier 2 can follow in a second pass once Tier 1 is proven.

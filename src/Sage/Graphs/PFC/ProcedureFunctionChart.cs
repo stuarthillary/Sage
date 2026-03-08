@@ -2066,10 +2066,10 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 pfc.ReadXml(reader);
             }
-            catch (FormatException fe)
+            catch (FormatException)
             {
                 Console.WriteLine("FormatException at \"" + reader.ReadOuterXml() + "\" element. Probably a version mismatch.");
-                throw fe;
+                throw;
             }
 
             return pfc;
@@ -2091,10 +2091,10 @@ namespace Highpoint.Sage.Graphs.PFC
             {
                 pfc.ReadXml(reader);
             }
-            catch (FormatException fe)
+            catch (FormatException)
             {
                 Console.WriteLine("FormatException at \"" + reader.ReadOuterXml() + "\" element. Probably a version mismatch.");
-                throw fe;
+                throw;
             }
             return pfc;
 

@@ -436,12 +436,12 @@ namespace Highpoint.Sage.Scheduling
                     StartMilestone.MoveTo(value);
                     ChangeEvent?.Invoke(this, ChangeType.StartTime, null);
                 }
-                catch (MilestoneAdjustmentException mae)
+                catch (MilestoneAdjustmentException)
                 {
                     StartMilestone.PushActiveSetting(false);
                     StartMilestone.MoveTo(was);
                     StartMilestone.PopActiveSetting();
-                    throw mae;
+                    throw;
                 }
             }
         }
@@ -466,12 +466,12 @@ namespace Highpoint.Sage.Scheduling
                     EndMilestone.MoveTo(value);
                     ChangeEvent?.Invoke(this, ChangeType.EndTime, null);
                 }
-                catch (MilestoneAdjustmentException mae)
+                catch (MilestoneAdjustmentException)
                 {
                     EndMilestone.PushActiveSetting(false);
                     EndMilestone.MoveTo(was);
                     EndMilestone.PopActiveSetting();
-                    throw mae;
+                    throw;
                 }
             }
         }
@@ -541,7 +541,7 @@ namespace Highpoint.Sage.Scheduling
                     ChangeEvent?.Invoke(this, ChangeType.Duration, null);
 
                 }
-                catch (MilestoneAdjustmentException mae)
+                catch (MilestoneAdjustmentException)
                 {
                     StartMilestone.PushActiveSetting(false);
                     EndMilestone.PushActiveSetting(false);
@@ -549,7 +549,7 @@ namespace Highpoint.Sage.Scheduling
                     EndMilestone.MoveTo(endWas);
                     StartMilestone.PopActiveSetting();
                     EndMilestone.PopActiveSetting();
-                    throw mae;
+                    throw;
                 }
             }
         }
