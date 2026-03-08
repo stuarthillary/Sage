@@ -703,3 +703,18 @@ xUnit 2.x is mature, stable, widely adopted, and fully compatible with the exist
 - SageOptions.cs (DefaultExecutiveType fix)
 - UnitTestDetector.cs (xUnit assembly detection)
 
+### 2026-03-08T17-41-06: User directive — temp file policy
+
+**By:** Stuart (via Copilot)
+
+**What:** Temp files in the repo root are acceptable AS LONG AS they are not committed to git. C:\Users\smhil\AppData\Local\Temp is also an acceptable location for scratch/temp files.
+
+**Why:** User request — captured for team memory
+
+### 2026-03-08T17-41-06: User directive — user name correction
+
+**By:** Stuart (via Copilot)
+
+**What:** The user's name is Stuart, not Steve. Always use Stuart when addressing the PM.
+
+**Why:** User correction — the team used the wrong name
