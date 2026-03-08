@@ -35,6 +35,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -428,3 +429,4 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
     }
 }
+

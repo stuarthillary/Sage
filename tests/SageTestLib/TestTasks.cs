@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Core;
 using Xunit;
@@ -28,6 +28,7 @@ namespace Highpoint.Sage.Graphs.Tasks
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -365,4 +366,5 @@ namespace Highpoint.Sage.Graphs.Tasks
         }
     }
 }
+
 

@@ -76,6 +76,7 @@ namespace Highpoint.Sage.ItemBased
         {
             _model.Executive.ExecutiveStarted -= new ExecutiveEvent(StartPulsing);
             _model.Executive.UnRequestEvents(this);
+            GC.SuppressFinalize(this);
         }
     }
 }

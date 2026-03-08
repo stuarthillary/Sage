@@ -26,6 +26,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
 
@@ -313,3 +314,4 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
     }
 }
+

@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Sage -> E:\source\Sage\BuildOutput\AnyCPU\Debug\Sage.dll
+  Sage.Examples -> E:\source\Sage\BuildOutput\AnyCPU\Debug\Sage.Examples.dll
+  Sage.Benchmarks -> E:\source\Sage\benchmarks\SageBenchmarks\bin\Debug\net10.0\Sage.Benchmarks.dll
+  Sage.Tests -> E:\source\Sage\BuildOutput\AnyCPU\Debug\Sage.Tests.dll
+  Sage.Scratch -> E:\source\Sage\BuildOutput\AnyCPU\Debug\Sage.Scratch.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.11

@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Xunit;
 using System;
 using System.Collections;
@@ -81,6 +81,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
 

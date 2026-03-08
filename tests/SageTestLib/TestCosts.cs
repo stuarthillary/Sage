@@ -29,6 +29,7 @@ namespace Highpoint.Sage.Scheduling.Cost
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         private Thing _alice, _bob, _charlie, _dave, _edna, _frank, _george, _harry;
@@ -177,3 +178,4 @@ namespace Highpoint.Sage.Scheduling.Cost
 
     }
 }
+

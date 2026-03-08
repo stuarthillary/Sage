@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using Xunit;
 using System;
@@ -25,6 +25,7 @@ namespace Highpoint.Sage.Tests.Utility
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         readonly string[] _testTimes = new string[]{"9/1/1998 12:00:00 AM",

@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Graphs.Tasks;
 using Highpoint.Sage.Core;
@@ -28,6 +28,7 @@ namespace Highpoint.Sage.Graphs
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -184,3 +185,4 @@ namespace Highpoint.Sage.Graphs
 
     }
 }
+

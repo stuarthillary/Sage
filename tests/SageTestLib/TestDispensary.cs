@@ -39,6 +39,7 @@ namespace Highpoint.Sage.Materials
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         [Fact]

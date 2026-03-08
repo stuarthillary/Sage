@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
 using Xunit;
 using System;
@@ -29,6 +29,7 @@ namespace Highpoint.Sage.Resources
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -373,3 +374,4 @@ namespace Highpoint.Sage.Resources
 
     }
 }
+

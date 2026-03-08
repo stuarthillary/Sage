@@ -71,6 +71,7 @@ namespace Highpoint.Sage.Scheduling
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -324,3 +325,4 @@ namespace Highpoint.Sage.Scheduling
 
     }
 }
+

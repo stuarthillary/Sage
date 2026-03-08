@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Utility;
 using Xunit;
@@ -28,6 +28,7 @@ namespace Highpoint.Sage.Utility
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -155,6 +156,7 @@ namespace Highpoint.Sage.Mathematics
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -265,3 +267,4 @@ namespace Highpoint.Sage.Mathematics
         }
     }
 }
+

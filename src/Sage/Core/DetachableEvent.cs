@@ -269,6 +269,7 @@ namespace Highpoint.Sage.Core
             _suspendResetEvent?.Dispose();
 
             _disposed = true;
+            GC.SuppressFinalize(this);
         }
     }
 }

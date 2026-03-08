@@ -1,4 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
+using System;
 using System.Threading;
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -123,6 +124,7 @@ namespace Highpoint.Sage.Randoms
                 _bufferThread.Join();
             }
             base.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         #endregion

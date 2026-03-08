@@ -97,6 +97,7 @@ namespace Highpoint.Sage.Materials.Chemistry.EmissionModels
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 

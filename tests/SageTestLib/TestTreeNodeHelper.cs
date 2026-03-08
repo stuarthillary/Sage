@@ -1,4 +1,4 @@
-﻿/* This source code licensed under the GNU Affero General Public License */
+/* This source code licensed under the GNU Affero General Public License */
 using Xunit;
 using System;
 using System.Collections;
@@ -26,6 +26,7 @@ namespace Highpoint.Sage.Utility
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         private readonly string _adamsResult = "Joseph Adams 1654-1736\r\n\tJohn Adams Sr, 1690-1761\r\n\t\tJohn Adams, Jr 1735-1826\r\n\t\t\tAbigail Adams 1765-1813\r\n\t\t\tSusanna Adams 1768-1770\r\n\t\t\tCharles Adams b. 1770\r\n\t\t\tThomas Boylston Adams b. 1772\r\n\t\t\tJohn Quincy Adams 1767-1848\r\n\t\t\t\tGeorge Washington Adams b. 1801\r\n\t\t\t\tJohn Adams, III b. 1803\r\n\t\t\t\tCharles Francis Adams b. 1807\r\n\t\t\t\tLouisa Catherine Adams b. 1811\r\n";

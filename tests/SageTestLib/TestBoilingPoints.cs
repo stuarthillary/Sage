@@ -66,6 +66,7 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -186,3 +187,4 @@ namespace Highpoint.Sage.Materials.Chemistry.BoilingPoints
     }
 
 }
+

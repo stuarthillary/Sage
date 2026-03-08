@@ -39,6 +39,7 @@ namespace Highpoint.Sage.Core
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         private static void CheckBatch(object userData)
@@ -858,3 +859,4 @@ namespace Highpoint.Sage.Core
         #endregion
     }
 }
+

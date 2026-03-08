@@ -19,6 +19,7 @@ namespace Highpoint.Sage.Tests.Mathematics
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         [Fact]
         [Highpoint.Sage.Utility.FieldDescription("This test checks the basic function of a rationalizer to five digits, and fractions up to ninths.")]
@@ -67,3 +68,4 @@ namespace Highpoint.Sage.Tests.Mathematics
         }
     }
 }
+

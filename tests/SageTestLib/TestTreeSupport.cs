@@ -30,6 +30,7 @@ namespace Highpoint.Sage.Utility
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         /// <summary>

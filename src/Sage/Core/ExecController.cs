@@ -237,6 +237,7 @@ namespace Highpoint.Sage.Core
                 _renderThread.Interrupt();
                 _renderThread.Join();
             }
+            GC.SuppressFinalize(this);
         }
 
         internal void Begin(IExecutive? iExecutive, object? userData)

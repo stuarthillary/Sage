@@ -32,6 +32,7 @@ namespace Highpoint.Sage.Tests.Scheduling
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -201,3 +202,4 @@ namespace Highpoint.Sage.Tests.Scheduling
 
     }
 }
+

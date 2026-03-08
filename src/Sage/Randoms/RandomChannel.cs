@@ -1,4 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
+using System;
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace Highpoint.Sage.Randoms
@@ -103,6 +104,7 @@ namespace Highpoint.Sage.Randoms
 
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
 
     }

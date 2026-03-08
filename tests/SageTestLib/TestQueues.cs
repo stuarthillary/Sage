@@ -32,6 +32,7 @@ namespace Highpoint.Sage.ItemBased.Queues
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -1127,8 +1128,10 @@ namespace Highpoint.Sage.ItemBased.Queues
                 {
                     this.ExecutiveController.Dispose();
                 }
+                        GC.SuppressFinalize(this);
             }
 
         }
     }
 }
+

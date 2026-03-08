@@ -340,6 +340,7 @@ namespace Highpoint.Sage.Core
             {
                 ExecutiveController.Dispose();
             }
+            GC.SuppressFinalize(this);
         }
 
         #region >>> Error and Warning Management <<<

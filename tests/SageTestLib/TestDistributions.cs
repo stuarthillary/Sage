@@ -30,6 +30,7 @@ namespace Highpoint.Sage.Mathematics
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         private IModel _model = null;
 
@@ -557,6 +558,7 @@ namespace Highpoint.Sage.Mathematics
         public void Dispose()
         {
             _model.Dispose();
+                    GC.SuppressFinalize(this);
         }
     }
 }

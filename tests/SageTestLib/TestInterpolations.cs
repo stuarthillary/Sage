@@ -24,6 +24,7 @@ namespace Highpoint.Sage.Mathematics
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -124,3 +125,4 @@ namespace Highpoint.Sage.Mathematics
         }
     }
 }
+

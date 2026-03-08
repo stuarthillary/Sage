@@ -34,6 +34,7 @@ namespace Highpoint.Sage.Tasks
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         //		[Fact]
@@ -690,4 +691,5 @@ namespace Highpoint.Sage.Tasks
         }
     }
 }
+
 

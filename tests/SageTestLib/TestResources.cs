@@ -27,6 +27,7 @@ namespace Highpoint.Sage.Resources
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -493,4 +494,5 @@ namespace Highpoint.Sage.Resources
 
     }
 }
+
 

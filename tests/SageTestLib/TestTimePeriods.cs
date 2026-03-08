@@ -45,6 +45,7 @@ namespace Highpoint.Sage.Scheduling
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -210,3 +211,4 @@ namespace Highpoint.Sage.Scheduling
         }
     }
 }
+

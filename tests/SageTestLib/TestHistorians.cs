@@ -25,6 +25,7 @@ namespace Highpoint.Sage.Utility
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         int NUM_SAMPLES = 9000;
@@ -79,3 +80,4 @@ namespace Highpoint.Sage.Utility
         }
     }
 }
+

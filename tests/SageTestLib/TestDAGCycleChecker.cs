@@ -29,6 +29,7 @@ namespace Highpoint.Sage.Graphs
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
 
         [Fact]
@@ -314,4 +315,5 @@ namespace Highpoint.Sage.Graphs
         }
     }
 }
+
 

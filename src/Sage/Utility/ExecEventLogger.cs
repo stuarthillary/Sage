@@ -51,6 +51,7 @@ namespace Highpoint.Sage.Diagnostics
             {
                 // ignored
             }
+            GC.SuppressFinalize(this);
         }
 
         private void Executive_EventAboutToFire(long key, ExecEventReceiver eer, double priority, DateTime when, object? userData, ExecEventType eventType)

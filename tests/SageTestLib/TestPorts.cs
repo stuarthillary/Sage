@@ -68,6 +68,7 @@ namespace Highpoint.Sage.ItemBased.Blocks
         public void Dispose()
         {
             _model.Dispose();
+                    GC.SuppressFinalize(this);
         }
     }
 
@@ -788,3 +789,4 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
     }
 }
+

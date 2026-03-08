@@ -95,6 +95,7 @@ namespace Highpoint.Sage.Tests.Utility
         public void Dispose()
         {
             Debug.WriteLine("Done.");
+                    GC.SuppressFinalize(this);
         }
         #endregion
 
