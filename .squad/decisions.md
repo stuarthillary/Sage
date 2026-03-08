@@ -2,6 +2,12 @@
 
 ## Active Decisions
 
+### Parker Nullable Migration Complete (COMPLETE ✅)
+
+
+
+---
+
 ### Queue/Stack Generic Migration (COMPLETE ✅)
 
 **Author:** Parker (.NET Developer)  
@@ -718,3 +724,4 @@ xUnit 2.x is mature, stable, widely adopted, and fully compatible with the exist
 **What:** The user's name is Stuart, not Steve. Always use Stuart when addressing the PM.
 
 **Why:** User correction — the team used the wrong name
+
