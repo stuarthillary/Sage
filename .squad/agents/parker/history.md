@@ -333,3 +333,19 @@ amespace Highpoint.Sage.Scratch
 - **Critical decisions:** Kept IDictionary graphContext non-nullable (architectural), kept object userData in event delegates (intentional design)
 - **Build/Test:** dotnet build Sage.csproj --no-incremental 0 CS8 warnings; dotnet test Sage.Tests.csproj 319/319 passing.
 - **Final count:** 0 CS8xxx warnings across all 548 source files.
+
+## Learnings
+
+### 2026-03-08 — Completed Interrupted Naming Refactor ✅
+- **Scope:** Fixed broken build from incomplete naming refactoring (16 errors)
+- **Files fixed:**
+  - Histogram1D_Base.cs: Fixed constructor name to match renamed class (Histogram1DBase)
+  - Histogram1D_DateTime/TimeSpan/Double.cs: Updated base class references
+  - GenericPort.cs: Updated private event field invocations (_connectionMadePending, _connectionMadeOccurred, _connectionBrokenPending, _connectionBrokenOccurred)
+  - OutputPortProxy.cs, InputPortProxy.cs, PortSet.cs: Completed IPortEvents implementation with new event names
+  - MilestoneRelationship*.cs: Staged new files (Gte, Lte, Pin, Strut) - renamed from underscore versions
+- **Event naming pattern:** BeforeConnectionMade → ConnectionMadePending, AfterConnectionMade → ConnectionMadeOccurred, BeforeConnectionBroken → ConnectionBrokenPending, AfterConnectionBroken → ConnectionBrokenOccurred
+- **Class naming pattern:** Histogram1D_Base → Histogram1DBase (PascalCase, no underscores)
+- **Build/Test:** 0 errors, 322/322 tests passing
+- **Note:** CA1707 and other naming analyzers remain at severity=none (122+ violations would require major refactoring)
+
