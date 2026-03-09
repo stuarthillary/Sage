@@ -349,3 +349,25 @@ amespace Highpoint.Sage.Scratch
 - **Build/Test:** 0 errors, 322/322 tests passing
 - **Note:** CA1707 and other naming analyzers remain at severity=none (122+ violations would require major refactoring)
 
+
+
+---
+
+### 2026-01-XX — Enable 7 Tier 1 CA Rules — Code Quality Hardening ✅
+
+- **Scope:** Enabled and fixed 7 Tier 1 CA code analysis rules across Sage and test projects
+- **Process:** Rule-by-rule enable → fix → build → test → commit workflow
+- **Rules enabled:**
+  1. **CA2200** (5 violations): Changed 	hrow ex; → 	hrow; to preserve stack traces in TimePeriod.cs and ProcedureFunctionChart.cs
+  2. **CA1001** (5 violations): Added IDisposable to types owning disposable fields (DetachableEvent, 4 test classes)
+  3. **CA2215** (1 violation): Added ase.Dispose() call in BufferedRandomChannel.Dispose()
+  4. **CA1816** (56 violations): Added GC.SuppressFinalize(this) to all Dispose() methods (7 core classes, 49 test classes)
+  5. **CA2213** (11 violations): Added disposal calls for IDisposable fields in Dispose() methods (Executive, 8 test classes)
+  6. **CA1825** (13 violations): Replaced 
+ew T[0] and 
+ew T[]{} with Array.Empty<T>() for performance
+  7. **CA1052** (12 violations): Made static holder types static or sealed (10 static, 2 sealed due to inheritance)
+- **Total fixes:** 103 violations across 77 files
+- **Build/Test:** 0 CA errors, 0 warnings; **324/324 tests passing**
+- **Impact:** Improved code quality, resource management, and performance; proper disposal patterns enforced throughout
+
