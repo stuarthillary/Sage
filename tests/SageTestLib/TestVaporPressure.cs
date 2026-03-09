@@ -16,12 +16,13 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
     public class VaporPressureTester : IDisposable
     {
 
-        public class Constants : Highpoint.Sage.Materials.Chemistry.Constants
+        public sealed class Constants
         {
             public static double kgPerPound = 0.453592;
             public static double pascalsPer_mmHg = 133.322;
             public static double cubicFtPerGallon = 0.134;
             public static double litersPerGallon = 3.7854118;
+            public static double CELSIUS_TO_KELVIN = Highpoint.Sage.Materials.Chemistry.Constants.CELSIUS_TO_KELVIN;
         }
 
         private BasicReactionSupporter _brs;

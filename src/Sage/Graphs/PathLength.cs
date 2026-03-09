@@ -13,7 +13,7 @@ namespace Highpoint.Sage.Graphs.Analysis
     /// methods are static, but since all of its data members are locals, it
     /// may be considered threadsafe.
     /// </summary>
-    public class PathLength
+    public static class PathLength
     {
 
         //private static readonly bool m_diagnostics = false;

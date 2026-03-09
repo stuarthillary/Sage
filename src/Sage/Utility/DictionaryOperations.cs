@@ -8,7 +8,7 @@ namespace Highpoint.Sage.Utility
     /// <summary>
     /// A class of helper Operations focused on Dictionaries. This is an old class, kept for backward compatibility.
     /// </summary>
-    public class DictionaryOperations
+    public static class DictionaryOperations
     {
 
         /// <summary>

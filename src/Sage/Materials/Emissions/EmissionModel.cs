@@ -18,7 +18,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// Contains constant strings that are to be used as keys for storing emissions parameters into 
         /// the parameters hashtable that holds the data pertinent to an emissions calculation.
         /// </summary>
-		public class ParamNames
+		public static class ParamNames
         {
             /// <summary>
             /// The key that identifies the Air Leak Duration.
@@ -137,7 +137,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         /// <summary>
         /// Useful constants for emission model computations.
         /// </summary>
-        public class Constants : Chemistry.Constants
+        public sealed class Constants
         {
             /// <summary>
             /// Multiply a double representing the number of pounds (avoirdupois) of a substance by this, to get kilograms.

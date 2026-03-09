@@ -11,7 +11,7 @@ namespace Highpoint.Sage.Graphs.PFC
     /// <summary>
     /// The PfcAnalyst is a static class that provides analytical helper methods.
     /// </summary>
-    public class PfcAnalyst
+    public static class PfcAnalyst
     {
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("PFC.Analyst");
 

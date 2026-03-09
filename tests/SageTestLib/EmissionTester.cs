@@ -33,7 +33,7 @@ namespace Highpoint.Sage.Materials.Chemistry.Emissions
         private double _vacuumSystemPressureIn;
         #endregion
 
-        public class Constants : Highpoint.Sage.Materials.Chemistry.Constants
+        public sealed class Constants
         {
             public const double KgPerPound = 0.453592;
             public const double PascalsPer_mmHg = 133.322;

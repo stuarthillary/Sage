@@ -12,7 +12,7 @@ namespace Highpoint.Sage.Resources
     /// All requests must have a default resource manager specified, unless otherwise indicated in the
     /// specific API.
     /// </summary>
-    public class MultiRequestProcessor
+    public static class MultiRequestProcessor
     {
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace Highpoint.Sage.Materials.Chemistry.VaporPressure
     /// <summary>
     /// Summary description for VaporPressureCalculator.
     /// </summary>
-    public class VaporPressureCalculator
+    public static class VaporPressureCalculator
     {
 
         // A material that is less that 5% of the mixture by mass, can be ignored if we don't have data on it.

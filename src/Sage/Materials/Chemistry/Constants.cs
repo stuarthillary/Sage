@@ -7,7 +7,7 @@ namespace Highpoint.Sage.Materials.Chemistry
     /// <summary>
     /// A class that holds useful chemistry constants.
     /// </summary>
-	public class Constants
+	public sealed class Constants
     {
 
         // http://physics.nist.gov/cuu/Constants/Table/allascii.txt

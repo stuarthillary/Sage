@@ -10,11 +10,8 @@ namespace Highpoint.Sage.Graphs
     /// <summary>
     /// A class that holds a collection of static methods which provide abstraced data about StructureChangeTypes.
     /// </summary>
-	public class StructureChangeTypeSvc
+	public static class StructureChangeTypeSvc
     {
-        private StructureChangeTypeSvc()
-        {
-        }
         /// <summary>
         /// Determines whether StructureChangeType was a pre-edge change.
         /// </summary>

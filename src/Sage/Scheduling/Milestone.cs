@@ -238,7 +238,7 @@ namespace Highpoint.Sage.Scheduling
             return (((_name == null || _name.Length == 0) ? ("Milestone : ") : (_name + " : ")) + _dateTime);
         }
 
-        public class MilestoneMovementManager
+        public sealed class MilestoneMovementManager
         {
             public static void Adjust(Milestone prospectiveMover, DateTime newValue)
             {

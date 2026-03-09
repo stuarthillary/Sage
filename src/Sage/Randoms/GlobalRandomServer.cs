@@ -8,7 +8,7 @@ namespace Highpoint.Sage.Randoms
     /// Class GlobalRandomServer is a singleton RandomServer that exists and can be obtained from anywhere in a process space. See 
     /// RandomServer for details.
     /// </summary>
-    public class GlobalRandomServer
+    public static class GlobalRandomServer
     {
         #region Private Fields
         private static readonly object @lock = new object();

@@ -8,7 +8,7 @@ namespace Highpoint.Sage.Scratch
     using Resources;
     using _Debug = System.Diagnostics.Debug;
 
-    public class AllTests
+    public sealed class AllTests
     {
 
         public static void Main(string[] args)

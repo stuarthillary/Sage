@@ -9,7 +9,7 @@ namespace Highpoint.Sage.Utility
     /// <summary>
     /// A class of static Cryptography helper functions.
     /// </summary>
-    public class Crypto
+    public static class Crypto
     {
         /// <summary>
         /// Triple-DES encrypts the plain text using the provided key.

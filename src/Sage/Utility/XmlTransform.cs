@@ -9,7 +9,7 @@ namespace Highpoint.Sage.Utility
     /// <summary>
     /// Class XmlTransform converts xml to non-xml and vice versa by changing angle-brackets to ampersand-l-t's, etc, and vice versa.
     /// </summary>
-    public class XmlTransform
+    public static class XmlTransform
     {
 
         /// <summary>
