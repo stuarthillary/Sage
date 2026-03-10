@@ -12,250 +12,61 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
-### 2025-07-15 — Full Architectural Assessment
+### 2026-03-09 — CA Rules Enablement Analysis Complete ✅
 
-**Solution structure:**
-- Single monolithic assembly `Highpoint.Sage.dll` from `src/Sage/Sage.csproj` targeting .NET 8
-- 548 .cs source files across 16 module directories
-- ~304 MSTest tests in `Sage_Aux/SageTestLib/`
-- Builds clean (0 errors, ~3,746 warnings)
+**Status:** Tier 1 analysis complete, decision pending
 
-**Core engine architecture:**
-- Two `IExecutive` implementations: `Executive` (full-featured, ~1,150 lines) and `ExecutiveFastLight` (single-threaded heap-based, ~900 lines)
-- Both are `internal sealed` classes, instantiated via `ExecFactory` singleton using reflection
-- `Executive` uses `SortedList` (non-generic) as event queue — O(n) insert/dequeue. This is the #1 performance bottleneck
-- `ExecutiveFastLight` uses a proper binary min-heap — O(log n) — but lacks priority, rescission, detachable events
-- Event dispatch: delegate-based `ExecEventReceiver(IExecutive exec, object userData)` — untyped userData everywhere
-- Three event types: Synchronous (inline), Detachable (coroutine-like via Task.Run + ManualResetEventSlim), Asynchronous (fire-and-forget)
-- `DetachableEvent` in `Sage/Core/DetachableEvent.cs` — suspend/resume semantics via thread signaling
+**Methodology:**
+- Analyzed 20 suppressed Roslyn analyzer rules from .editorconfig
+- For each rule: temporary severity = warning, counted actual violations
+- Categorized by violation count + fix complexity
+- Restored .editorconfig after each test to maintain baseline (0 errors)
 
-**Key files:**
-- `Sage/Core/IExecutive.cs` — primary interface
-- `Sage/Core/Executive.cs` — full executive (SortedList-based)
-- `Sage/Core/ExecutiveFastLight.cs` — fast executive (heap-based)
-- `Sage/Core/ExecEvent.cs` — event record with disabled object pool
-- `Sage/Core/ExecFactory.cs` — singleton factory with reflection-based construction
-- `Sage/Core/ExecController.cs` — rate throttling + render frame dispatch (visualization support)
-- `Sage/Core/Model.cs` — simulation container, owns executive + state machine + services
-- `Sage/Core/StateMachine.cs` — two-phase-commit state machine
-- `Sage/Core/DetachableEvent.cs` — coroutine implementation
+**Key Findings:**
 
-**Legacy patterns identified:**
-- 304 ArrayList, 265 Hashtable, 31 non-generic SortedList uses
-- 250 ApplicationException throws
-- No nullable reference types enabled
-- 89 public delegate declarations (vs modern EventHandler<T>/Action<T>)
-- Configuration via System.Configuration.ConfigurationManager (app.config XML)
-- MarshalByRefObject on Executive class
-- Mix of `_camelCase` and `m_camelCase` field naming
-- ExecEvent object pool exists but is disabled (`_usePool = false`)
+**Tier 1: 7 rules, 88 violations, 4-6 hours effort — READY TO ENABLE IMMEDIATELY**
+1. CA2200 — Rethrow to preserve stack details (10 violations)
+2. CA1001 — Types with disposable fields should be disposable (2 violations)
+3. CA2215 — Dispose should call base.Dispose (2 violations)
+4. CA1816 — Dispose should call GC.SuppressFinalize (12 violations)
+5. CA2213 — Disposable fields should be disposed (18 violations)
+6. CA1825 — Avoid zero-length array allocations (20 violations)
+7. CA1052 — Static holder types should be static/sealed (24 violations)
 
-**Visualization readiness:**
-- `ExecController` already supports frame rate + time scaling + Render event
-- `EventAboutToFire` / `EventHasCompleted` monitors exist
-- Missing: structured event stream, snapshot mechanism, change notifications, spatial model
+**Tier 2: 5 rules, 332 violations, 8-12 hours effort — Future Pass**
+- CA1063 (Implement IDisposable correctly), CA2214 (Don't call overridable in constructors), CA2000 (Dispose before losing scope), CA1822 (Mark as static), CA1032 (Exception constructors)
 
-**Modernization priorities (ordered):**
-1. Replace SortedList with priority queue in Executive
-2. Enable nullable reference types
-3. Replace non-generic collections with generic equivalents
-4. Modernize configuration (remove ConfigurationManager)
-5. Type-safe event data (replace `object userData`)
-6. Exception hierarchy cleanup (replace ApplicationException)
-7. Observable event stream for visualization
-8. Update test infrastructure (MSTest 3.x, SDK 17.x)
-9. Project splitting (monolith → focused packages)
-10. Modern C# idioms (file-scoped namespaces, records, patterns)
-
-### 2026-03-06 — TupleSpace Failures Resolved ✅
-
-**Status:** Fixed and merge-ready  
-**Tests:** 304/304 passing  
-**Branch:** `feature/dotnet10`  
-**Commit:** `5276d47`
-
-**Root Cause:** Pre-existing race condition in `Exchange.NonBlockingPost()` (not thread pool starvation). Generic `HashtableOfLists<TKey,TValue>` indexer throws `KeyNotFoundException` if key doesn't exist. .NET 10's different thread pool timing exposed this timing-dependent bug.
-
-**Fix Applied:** Added `ContainsKey()` checks in `Exchange.NonBlockingPost()` before accessing `_waitersToRead` and `_waitersToTake` dictionaries.
-
-**Option 2 (Explicit Thread) Evaluation:** Tested but NOT RECOMMENDED—fixes TupleSpace but breaks ResourceManager tests. Exchange.cs fix alone is sufficient and surgical.
-
-**Files Modified:** Only `Sage/Utility/Exchange.cs` (2 guard checks)
-
-**Recommendation:** ✅ Merge `feature/dotnet10` to main immediately. No architectural changes needed.
-
-### 2026-03-06 — Collection Modernization Strategy (COMPLETE ✅)
-
-**Status:** Strategy merged to decisions.md
-
-**Deliverable:** `.squad/decisions/decisions.md` → "Decision: Non-Generic Collection Modernization — Three-Phase Strategy" (deduplicated, comprehensive)
-
-**Key decision captured:**
-- 3-phase risk tiering: Phase 1 (60%, internal, non-breaking, low risk), Phase 2 (30%, public API, breaking, medium risk), Phase 3 (10%, intentional, never replace)
-- **Critical exclusions locked:** `object userData` (intentional heterogeneous payloads), `IDictionary graphContext` (intentional polymorphic execution context — 50+ signatures), XmlSerializationContext (serialization contract), DynamicConstruction (WIP code)
-- **Phase 1 greenlit for immediate start:** Private fields/local variables only, zero public API changes, all 310 tests as validation gate
-- **Collection mapping reference** provided (ArrayList→List, Hashtable→Dictionary, etc.)
-- **Risk mitigations** documented (thread safety, ordering differences, casting differences)
-- **Success criteria** established for each phase
-
-**Architectural insight:** Not all non-generic collections are technical debt. `object userData` enables heterogeneous event payloads across any simulation model. `IDictionary graphContext` provides runtime flexibility for graph execution contexts (analogous to ASP.NET ViewData). These are intentional design patterns, not modernization targets.
-
-**Parker's detailed inventory** (.squad/decisions/inbox/parker-collection-inventory.md) provides file-by-file implementation guide with difficulty tiers.
-
-### 2026-07-15 — Phase 2 Public API Spec (COMPLETE ✅)
-
-**Deliverable:** `.squad/decisions/inbox/ripley-phase2-api-spec.md`
-
-**Scope confirmed:** 12 files, 7 change groups covering all public API collection replacements.
-
-**Key findings during analysis:**
-
-- `ExecEvent` is `internal` — confirmed `ExecEvent.cs:9`. The public interface `IExecutive.EventList` must return `IReadOnlyList<IExecEvent>`, NOT `IReadOnlyList<ExecEvent>`. The covariance of `IReadOnlyList<out T>` means `Executive.cs` can return `ReadOnlyCollection<ExecEvent>` (from `snapshot.AsReadOnly()`) and it satisfies the covariant `IReadOnlyList<IExecEvent>` — no casting needed.
-
-- `ExecutiveFastLight._ExecEvent` is a private nested class that does NOT implement `IExecEvent`. The existing `EventList` implementation on `ExecutiveFastLight` is already broken at runtime (elements can't be cast to `IExecEvent`). Phase 2 is an opportunity to fix this by returning an empty `IReadOnlyList<IExecEvent>` from that implementation (the fast executive doesn't support rescindable events anyway).
-
-- `TestQueues.cs:886` calls `_executive.EventList.Clear()` — this was already a `NotSupportedException` at runtime since `EventList` has always returned a `ReadOnly`-wrapped list. Compile-time fix is a bonus of the type change.
-
-- `IVertex.PredecessorEdges` / `IVertex.SuccessorEdges` return `IList` — these are intentionally NOT changed in Phase 2 since they're deep interface contracts with 20+ callers. Only the backing `protected ArrayList` fields in `Vertex.cs` are updated to `List<Edge>`.
-
-- No subclasses of `Vertex` exist in the codebase — the `protected` field change is safe without a broader subclass audit.
-
-- Non-generic `HashtableOfLists` appears in only 1 active production call site (`ProcedureFunctionChart.cs:2594`) — migrates cleanly to `HashtableOfLists<string, IPfcElement>` since both `IPfcNode` and `IPfcLinkElement` inherit `IPfcElement`. The remaining 3 non-generic usages are dead code (`#if NOT_DEFINED` in `TupleSpace.cs`).
-
-- Highest risk item: `Vertex.cs` XML deserialization (`DeserializeFrom`) hardcodes `(ArrayList)xmlsc.LoadObject(...)`. Change the cast to `(IList)` to be resilient. Validate with `TestGraphPersistence`.
-
-**Implementation order spec:** Leaf changes first → implementations → interfaces (forces compile errors) → callers → test files → validate all 310 tests.
-
-### 2026-07-15 — Configuration Modernization Architecture Assessment (COMPLETE ✅)
-
-**Status:** Architecture assessment complete. Decision record and Parker work spec written.
+**Tier 3: 4 rules, 2106 violations — Keep Suppressed (Breaking Changes)**
+- CA1051 (No visible fields — DTO breaking), CA1805 (No unnecessary init), CA2201 (No reserved exceptions), CA1062 (Validate arguments — 1122 violations, high false positive)
 
 **Deliverables:**
-- `.squad/decisions/inbox/ripley-config-modernization-arch.md` — full architecture decision
-- `.squad/decisions/inbox/ripley-config-modernization-parker-spec.md` — detailed implementation spec for Parker
-- `.squad/skills/library-safe-options/SKILL.md` — reusable pattern for library-safe options
+- .squad/decisions/ripley-ca-rules-analysis.md — comprehensive analysis with per-rule friction assessment (merged to decisions.md)
+- .squad/orchestration-log/2026-03-09T23-27-56Z-ripley.md — orchestration log
 
-**Key findings:**
+**Build status:** 0 errors, 0 warnings. TreatWarningsAsErrors=true.
 
-1. **6 call sites** use `System.Configuration.ConfigurationManager` across 5 files:
-   - `Executive.cs` — reads `WorkerThreads`, `IgnoreCausalityViolations` from "Sage" section (constructor)
-   - `ExecutiveFastLight.cs` — reads `IgnoreCausalityViolations` from "Sage" + `ExecBreakAt` from "diagnostics" (constructor)
-   - `ExecFactory.cs` — reads `ExecutiveType` from "Sage" section (lazy, in `CreateExecutive(Guid)`)
-   - `ModelConfig.cs` — reads arbitrary keys from named section (constructor)
-   - `DiagnosticAids.cs` — reads `diagnostics` section for per-key trace flags (static, lazy-init)
-   - `EmissionsService.cs` — reads `EmissionsService` custom section via `IConfigurationSectionHandler` (singleton constructor)
+**Decision Request:** Approve Tier 1 enablement (7 rules, 88 fixes, 4-6 hours, Parker to implement)?
 
-2. **All 6 sites have defaults** when config is missing — the library already works without app.config. This makes the migration safe: replace with options POCOs whose defaults match no-config behavior.
+**Next Steps:**
+- Stuart to approve/defer Tier 1 decision
+- If approved: Parker to enable rules one-by-one with per-rule commits + verification
+- If deferred: Keep as future sprint
 
-3. **No simulation determinism risk** — config keys control thread pool sizing, causality enforcement, diagnostic output, and emissions model selection. None affect event ordering or RNG seeds.
+## Core Context (Summarized Old Entries)
 
-4. **Library-safe pattern chosen:** POCO options classes with optional constructor parameters (`options = null`, coalesced to `new Options()` in body). No `IOptions<T>`, no `Microsoft.Extensions.*` dependency in the library itself. DI extension methods deferred to a follow-up.
+**2025-07-15 — Full Architectural Assessment:** Single monolithic assembly Highpoint.Sage.dll (548 files, 16 modules). Two IExecutive implementations: Executive (full-featured, ~1,150 lines, SortedList-based O(n) event queue — #1 performance bottleneck) and ExecutiveFastLight (~900 lines, binary heap O(log n), single-threaded, lacks priority/rescission/detachable). Event dispatch: delegate-based ExecEventReceiver(IExecutive, object userData) — untyped userData everywhere. Three event types: Synchronous (inline), Detachable (coroutine via Task.Run+ManualResetEventSlim), Asynchronous (fire-forget). Legacy patterns: 304 ArrayList, 265 Hashtable, 31 non-generic SortedList, 250 ApplicationException throws, no nullable refs, 89 delegate declarations, System.Configuration.ConfigurationManager, MarshalByRefObject on Executive, mixed _camelCase/m_camelCase field naming, ExecEvent object pool disabled. Modernization priorities: (1) Replace SortedList with priority queue, (2) Enable nullable refs, (3) Modernize collections, (4) Replace ConfigurationManager, (5) Type-safe events, (6) Exception cleanup, (7) Observable event stream, (8) Update test infrastructure, (9) Project splitting, (10) Modern C# idioms.
 
-5. **Only one public API concern:** `ModelConfig` is on `IModel.ModelConfig`. The class is preserved but rewritten to use `Dictionary<string, string>` internally. The `string sectionName` constructor is marked `[Obsolete]`.
+**2026-03-06 — TupleSpace Failures Resolved:** Pre-existing race condition in Exchange.NonBlockingPost() (not thread pool starvation). Generic HashtableOfLists<TKey,TValue> indexer throws KeyNotFoundException if key missing. .NET 10's different thread pool timing exposed timing-dependent bug. Fix: Added ContainsKey() checks in two locations. Branch eature/dotnet10 fixed and merge-ready. Build: 0 errors, Tests: 304/304 passing.
 
-6. **`Utility/ConfigurationManager.cs`** is already dead code (entirely commented out). Delete during cleanup.
+**2026-03-06 — Collection Modernization Strategy:** 3-phase risk tiering (Phase 1: 60% internal non-breaking low-risk, Phase 2: 30% public API breaking medium-risk, Phase 3: 10% intentional never-replace). Critical exclusions locked: object userData (intentional heterogeneous payloads), IDictionary graphContext (intentional polymorphic execution context, 50+ signatures), XmlSerializationContext (serialization contract), DynamicConstruction (WIP code). Phase 1 greenlit for immediate start (private fields/locals only, zero public API changes). Collection mapping reference + risk mitigations + success criteria documented. Architectural insight: not all non-generic collections are debt.
 
-7. **`EmissionsServiceConfigurationHandler`** implements `IConfigurationSectionHandler` — a System.Configuration artifact. Mark `[Obsolete]`, defer deletion.
+**2026-07-15 — Phase 2 Public API Spec:** 7 change groups, 12 files. IExecutive.LiveDetachableEvents/EventList return types → IReadOnlyList<T>. Vertex edges return types. ResourceManager.Resources → IReadOnlyList<IResource>. ExecEvent is internal, covariance safe. ExecutiveFastLight._ExecEvent doesn't implement IExecEvent (broken at runtime, opportunity to fix by returning empty list). TestQueues.cs:886 calls .Clear() (already NotSupportedException). PredecessorEdges/SuccessorEdges NOT changed (deep contracts, 20+ callers). No Vertex subclasses in codebase. Highest risk: Vertex.cs XML deserialization hardcodes ArrayList cast—change to (IList) and validate with TestGraphPersistence.
 
-8. **Migration order:** DiagnosticAids (lowest risk) → Executive/ExecutiveFastLight (internal) → ExecFactory (public singleton, additive) → ModelConfig (public interface) → EmissionsService (complex but isolated) → remove package reference + cleanup.
+**2026-07-15 — Configuration Modernization Architecture:** 6 call sites use ConfigurationManager (Executive, ExecutiveFastLight, ExecFactory, ModelConfig, DiagnosticAids, EmissionsService across 5 files). All sites have defaults—library works without app.config. Library-safe pattern chosen: POCO options classes with optional constructor parameters, no IOptions<T>, no Microsoft.Extensions dependency. No simulation determinism risk (config controls thread pool, causality enforcement, diagnostics, emissions—not event ordering/RNG). Only public API concern: ModelConfig on IModel.ModelConfig (class preserved, uses Dictionary internally, string sectionName constructor marked Obsolete). Utility/ConfigurationManager.cs is dead code (delete). EmissionsServiceConfigurationHandler implements IConfigurationSectionHandler (mark Obsolete, defer deletion). Migration order: DiagnosticAids → Executive/ExecutiveFastLight → ExecFactory → ModelConfig → EmissionsService → cleanup. Skill extracted for library-safe options pattern.
 
-**Skill extracted:** `.squad/skills/library-safe-options/SKILL.md` — reusable pattern for removing ConfigurationManager from .NET class libraries without introducing DI dependencies.
+**2026-07-15 — Nullable Reference Types Migration Architecture:** 4,446 warnings when <Nullable>enable</Nullable> set. Warning distribution: CS8618 (constructor init, 31%, 1,378 violations) > CS8625 (null literal, 22%, 988) > CS8600 (null conversion, 18%, 812) = 71% of total. Module distribution: Graphs (1,160) > ItemBased (656) > Materials (568) > Core (502) > Utility (484) > Mathematics (290) > Resources (264) > Persistence (186) > others. Persistence worst per-file (186/7 = 26.6/file). Recommended approach: Global enable + #nullable disable pragma per file, remove file-by-file (Microsoft pattern, clear tracking). SageTestLib deferred (test files pass null as inputs, annotations add noise). Permanent disable files: WeakHashTable.cs, Persistence/XmlSerializationContext.cs, Persistence/CreationContext.cs (XML deserialization). Locked exclusions: object userData → object? no genericize, IDictionary graphContext → non-generic annotate nullable only. 4-phase plan: Phase 1 (Core interfaces + options + ExecEvent, ~21 files, 1-2h), Phase 2 (Core engine, ~12 files, 4-6h), Phase 3 (remaining modules, 12 batches by risk, weeks), Phase 4 (cleanup + WarningsAsErrors).
 
-### 2026-07-15 — Nullable Reference Types Migration Architecture (COMPLETE ✅)
+**2026-07-15 — CA Rule Analysis:** 20 suppressed rules tested (violations counted per rule). Tier 1 ready for immediate enablement: CA2200 (10), CA1001 (2), CA2215 (2), CA1816 (12), CA2213 (18), CA1825 (20), CA1052 (24) = 88 total, all mechanical, non-breaking. Tier 2 future: CA1063 (20), CA2214 (24), CA2000 (34), CA1822 (124), CA1032 (130) = 332 total, mostly mechanical, judgment required. Tier 3 defer: CA1051 (184, breaking), CA1805 (344, low value), CA2201 (456, hierarchy redesign), CA1062 (1122, false positives). Several exceptions inherit ApplicationException (legacy .NET 1.x). CA1051 violations primarily in Materials/Chemistry DTOs. CA1062 noisy—many false positives. Rules NOT tested: CA1707 (>500, previously crashed), naming rules (500+, breaking API), localization (no UI), API design (breaking). Recommendation: Start Tier 1 (7 rules, 88 fixes, 4-6h for Parker), enable one-by-one, Tier 2 in next pass.
 
-**Status:** Architecture assessment complete. Decision record and Parker work spec written.
+**2026-07-15 — Core Engine Analysis for Test Coverage:** Deep analysis of src/Sage/Core/ identifying correctness-critical behaviors. 13 components across 25+ files: Executive, ExecutiveFastLight, ExecEvent/ExecEventComparer/ExecEventRemover, ExecFactory, StateMachine, EnumStateMachine, DetachableEvent, DetachableEventSynchronizer, Model, Metronome, ExecController, InitializationManager, SageOptions. 130+ testable claims identified with unique IDs (E-ORD-01 through INIT-07). Executive vs ExecutiveFastLight causality divergence: Executive throws CausalityException or returns long.MinValue; ExecutiveFastLight silently clamps to _now + logs. ExecutiveFastLight state tracking bug: _execState initialized to Stopped, never updated (always returns Stopped). StateMachine Prepare handlers don't short-circuit (intentional, allows full validation reporting). DetachableEvent thread identity assertions (Debug.Assert only, not enforced in Release). Event removal deferred + batched (not immediate, may fire between UnRequestEvent call and next loop if called from handler). Recommended test priority order: Event ordering → Causality → Lifecycle → Cancellation → StateMachine → Detachable → Model → Rest.
 
-**Deliverables:**
-- `.squad/decisions/inbox/ripley-nullable-arch.md` — full architecture decision with phased plan
-- `.squad/decisions/inbox/ripley-nullable-parker-spec.md` — Phase 1 implementation spec for Parker
-
-**Key findings:**
-
-1. **4,446 nullable warnings** when `<Nullable>enable</Nullable>` is set in Sage.csproj. Build succeeds (0 errors).
-
-2. **Warning type distribution:** CS8618 (constructor init) dominates at 1,378 (31%). CS8625 (null literal) at 988 (22%). CS8600 (null conversion) at 812 (18%). These three account for 71% of all warnings.
-
-3. **Module distribution:** Graphs (1,160) > ItemBased (656) > Materials (568) > Core (502) > Utility (484) > Mathematics (290) > Resources (264) > Persistence (186) > Scheduling (134) > SmartPropertyBag (120) > Dependencies (28) > SystemDynamics (28) > Randoms (24).
-
-4. **Persistence is the worst per-file:** 186 warnings in 7 files = 26.6 warnings/file. XML serialization code is inherently null-heavy.
-
-5. **Recommended approach: Global enable + suppress (Option 1).** Add `<Nullable>enable</Nullable>` to csproj, prepend `#nullable disable` to all files, remove pragma file-by-file as each is annotated. This is Microsoft's recommended approach and provides clear migration tracking.
-
-6. **SageTestLib deferred indefinitely.** Test files routinely pass null as test inputs — nullable annotations in tests add noise without safety benefit.
-
-7. **Permanent `#nullable disable` files identified:** WeakHashTable.cs (weak reference collection), Persistence/XmlSerializationContext.cs, Persistence/CreationContext.cs (XML deserialization pipelines).
-
-8. **Locked exclusions respected:** `object userData` → annotate as `object?` but do NOT genericize. `IDictionary graphContext` → keep non-generic, annotate as nullable only where null is actually passed.
-
-9. **4-phase plan:** Phase 1 (Core interfaces + SageOptions + ExecEvent, ~21 files, 1-2 hours), Phase 2 (Core engine implementations, ~12 files, 4-6 hours), Phase 3 (remaining modules in 12 batches by risk, weeks), Phase 4 (cleanup + WarningsAsErrors enforcement).
-
-### 2026-07-15 — CA Rule Analysis: Enabling Suppressed Analyzers (COMPLETE ✅)
-
-**Status:** Analysis complete. Full recommendation table produced.
-
-**Current state:** ✅ Build succeeds with 0 errors, 322/322 tests passing. `TreatWarningsAsErrors=true` is enabled. ~80 CA rules are suppressed as `severity = none` in `.editorconfig`.
-
-**Method:** Ran targeted builds with each suppressed rule temporarily enabled as `severity = warning` to count actual violations. Tested 20 rules across quality, performance, design, and exception handling categories.
-
-**Test results — violations counted per rule:**
-
-| Rule | Category | Violation Count | Fix Complexity | Notes |
-|------|----------|-----------------|----------------|-------|
-| CA1001 | Dispose | 2 | Low | Types with disposable fields should be disposable |
-| CA2215 | Dispose | 2 | Low | Dispose should call base.Dispose |
-| CA2200 | Quality | 10 | Low | Rethrow to preserve stack details (use `throw;` not `throw ex;`) |
-| CA1816 | Dispose | 12 | Low | Dispose should call GC.SuppressFinalize |
-| CA1031 | Quality | 16 | Medium | Do not catch general exception types (often intentional) |
-| CA2213 | Dispose | 18 | Low | Disposable fields should be disposed |
-| CA1825 | Perf | 20 | Low | Avoid zero-length array allocations (use Array.Empty<T>()) |
-| CA1063 | Dispose | 20 | Medium | Implement IDisposable correctly (full pattern) |
-| CA2214 | Quality | 24 | Medium | Do not call overridable methods in constructors |
-| CA1052 | Design | 24 | Low | Static holder types should be static/sealed |
-| CA2000 | Dispose | 34 | Medium | Dispose objects before losing scope |
-| CA1822 | Perf | 124 | Low | Mark members as static (auto-fixable by IDE) |
-| CA1032 | Quality | 130 | Low | Implement standard exception constructors |
-| CA1051 | Design | 184 | High | Do not declare visible instance fields (breaking) |
-| CA1805 | Perf | 344 | Low | Do not initialize unnecessarily (auto-fixable) |
-| CA2201 | Quality | 456 | Medium | Do not raise reserved exception types (Exception, ApplicationException) |
-| CA1062 | Quality | 1122 | Very High | Validate arguments of public methods (null checks) |
-
-**Rules NOT tested (high friction, already known):**
-- CA1707 (no underscores in identifiers): Previously attempted, crashed mid-refactor, reverted. Estimated >500 violations.
-- Naming rules (CA1708-CA1724): Breaking API changes, legacy contracts. Intentionally suppressed.
-- Localization rules (CA1303-CA1311): Library has no UI. Intentionally suppressed.
-- API design rules (CA1000-CA1044): Breaking changes. Intentionally suppressed.
-
-**Top candidates for enabling (recommended priority order):**
-
-**Tier 1 — Enable immediately (mechanical fixes, <25 violations):**
-1. **CA1001** (2 violations) — Types with disposable fields should be disposable
-2. **CA2215** (2 violations) — Dispose should call base.Dispose
-3. **CA2200** (10 violations) — Use `throw;` instead of `throw ex;`
-4. **CA1816** (12 violations) — Dispose should call GC.SuppressFinalize
-5. **CA2213** (18 violations) — Disposable fields should be disposed
-6. **CA1825** (20 violations) — Use Array.Empty<T>() instead of `new T[0]`
-7. **CA1052** (24 violations) — Static utility classes should be sealed or static
-
-**Total Tier 1: 88 fixes, all mechanical.**
-
-**Tier 2 — Enable in next pass (judgment required, 20-130 violations):**
-8. **CA1063** (20 violations) — Full IDisposable pattern
-9. **CA2214** (24 violations) — Virtual method calls in constructors
-10. **CA2000** (34 violations) — Dispose objects before losing scope (often false positives)
-11. **CA1822** (124 violations) — Mark methods as static (IDE auto-fix)
-12. **CA1032** (130 violations) — Standard exception constructors
-
-**Total Tier 2: 332 fixes, mostly mechanical but require review.**
-
-**Tier 3 — Defer indefinitely (high count or breaking):**
-- **CA1051** (184 violations) — Public instance fields (breaking API change)
-- **CA1805** (344 violations) — Unnecessary initialization (low value, high noise)
-- **CA2201** (456 violations) — Reserved exception types (requires exception hierarchy redesign)
-- **CA1062** (1122 violations) — Null argument validation (requires full null check audit)
-
-**Architectural notes:**
-- Several exceptions inherit from `ApplicationException` (CA2201) — legacy .NET 1.x practice. Modern pattern is `Exception` base. Fixing this requires a new exception hierarchy (see `.squad/decisions/inbox/ripley-exception-hierarchy.md` if created).
-- `CA1051` violations are primarily in Materials/Chemistry domain models where public fields are intentional DTO-like structures.
-- `CA1062` is noisy in practice — many false positives where null checks exist but analyzer doesn't recognize them.
-
-**Recommendation to Stuart:** Start with **Tier 1 (7 rules, 88 fixes)**. Enable them one-by-one, fix violations, commit each rule separately. Estimated effort: 4-6 hours for Parker. Tier 2 can follow in a second pass once Tier 1 is proven.

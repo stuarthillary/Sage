@@ -2230,3 +2230,1249 @@ The samples project needed to be renamed to follow team naming conventions and a
 None. This was a directed refactoring task.
 
 
+
+
+---
+
+# Parker — Tier 1 CA Rules Complete
+
+**Author:** Parker (.NET Developer)  
+**Date:** 2026-01-XX  
+**Status:** Complete  
+**Requested by:** Stuart Hillary (via Coordinator)
+
+## Summary
+
+Successfully enabled and fixed all 7 Tier 1 CA (Code Analysis) rules across the Sage solution. All violations have been corrected using proper C# idioms and best practices.
+
+## Rules Enabled
+
+### 1. CA2200 — Rethrow to Preserve Stack Details (5 violations)
+- **Fix:** Changed `throw ex;` → `throw;` in catch blocks
+- **Files:** TimePeriod.cs (3), ProcedureFunctionChart.cs (2)
+- **Impact:** Preserves original exception stack traces for better debugging
+
+### 2. CA1001 — Types Owning Disposable Fields Should Be Disposable (5 violations)
+- **Fix:** Added IDisposable implementation to classes with disposable fields
+- **Files:** DetachableEvent, Histograms101, PortTester, TestGraph1, PriRscReqTester
+- **Impact:** Proper resource management for ManualResetEventSlim and IModel instances
+
+### 3. CA2215 — Dispose Should Call Base.Dispose() (1 violation)
+- **Fix:** Added `base.Dispose()` call to override Dispose method
+- **Files:** BufferedRandomChannel.cs
+- **Impact:** Ensures complete cleanup of inherited resources
+
+### 4. CA1816 — Dispose Should Call SuppressFinalize (56 violations)
+- **Fix:** Added `GC.SuppressFinalize(this)` to all Dispose() methods
+- **Files:** Core (4), Randoms (2), ItemBased (1), Tests (49)
+- **Impact:** Prevents unnecessary finalization overhead for disposed objects
+
+### 5. CA2213 — Disposable Fields Should Be Disposed (11 violations)
+- **Fix:** Added disposal calls for IDisposable fields using `field?.Dispose()` pattern
+- **Files:** Executive, + 8 test classes (DispensaryTester, QueueTester, DIModel, etc.)
+- **Impact:** Eliminates resource leaks from undisposed managed resources
+
+### 6. CA1825 — Avoid Zero-Length Array Allocations (13 violations)
+- **Fix:** Replaced `new T[0]` and `new T[]{}` with `Array.Empty<T>()`
+- **Files:** NoEmissionModel, DagDeadlockChecker, Edge, VertexSynchronizer, etc.
+- **Impact:** Performance improvement by reusing cached empty arrays
+
+### 7. CA1052 — Static Holder Types Should Be Static (12 violations)
+- **Fix:** Added `static` keyword to utility classes with only static members
+- **Classes made static (10):** GlobalRandomServer, ParamNames, PathLength, MultiRequestProcessor, Crypto, DictionaryOperations, StructureChangeTypeSvc, VaporPressureCalculator, PfcAnalyst, XmlTransform
+- **Classes made sealed (2):** Constants, MilestoneMovementManager (used as base or in inheritance chains)
+- **Impact:** Prevents instantiation of utility classes, clearer intent
+
+## Statistics
+
+- **Total violations fixed:** 103
+- **Files modified:** 77
+- **Commits:** 7 (one per rule)
+- **Build result:** 0 errors, 0 warnings
+- **Test result:** 324/324 passing
+
+## Observations
+
+### Patterns Found
+
+1. **Missing GC.SuppressFinalize:** Most widespread issue (56 violations), mostly in test fixture classes using xUnit's IDisposable pattern
+2. **Undisposed fields:** Common in test helper classes that create IModel instances but don't dispose them
+3. **Zero-length arrays:** Found in reflection-heavy code (Type[] arrays) and collection initialization code
+4. **Static holders:** Utility classes accumulated over time without proper static modifiers
+
+### Files With Most Issues
+
+- Test files: 61 violations (mostly CA1816 and CA2213)
+- Core/Scheduling: TimePeriod.cs (3 CA2200 violations)
+- Graphs: Multiple CA1825 violations in graph analysis code
+- Randoms: BufferedRandomChannel needed both CA2215 and CA1816 fixes
+
+### Integration Notes
+
+- All changes are backward-compatible
+- No public API changes except making utility classes static (already used that way)
+- Constants and MilestoneMovementManager kept as sealed due to inheritance usage
+- Test count increased by 2 (322→324) after fixing dispose issues
+
+## Recommendations
+
+1. Consider enabling remaining Tier 2 CA rules (Ripley has analysis ready)
+2. Review other static utility classes in codebase for consistency
+3. Update coding guidelines to require GC.SuppressFinalize in all Dispose implementations
+4. Consider code review checklist for proper IDisposable patterns
+
+## Next Steps
+
+- [ ] Ripley to review for Tier 2 CA rules
+- [ ] Consider adding .editorconfig rules to enforce these patterns going forward
+- [ ] Update team documentation with IDisposable best practices
+
+---
+
+# CA Rule Enablement Analysis
+
+**Author:** Ripley (Lead/Architect)  
+**Date:** 2026-07-15  
+**Status:** Analysis Complete — Ready for Decision  
+**Requested by:** Stuart Hillary
+
+## Executive Summary
+
+Analyzed 20 suppressed CA (Roslyn analyzer) rules currently set to `severity = none` in `.editorconfig` to determine which can be promoted to `severity = error` with manageable fix effort.
+
+**Current build state:** ✅ 0 errors, 322/322 tests passing, `TreatWarningsAsErrors=true` enabled.
+
+**Result:** **7 rules are ready to enable immediately** (Tier 1, 88 total fixes, 4-6 hours effort).
+
+---
+
+## Method
+
+1. Read `.editorconfig` suppressions (lines 253-361) — ~80 CA rules suppressed
+2. For each "quality issues" rule (lines 339-361), ran targeted build with rule temporarily enabled as `severity = warning`
+3. Counted actual violations using pattern matching on build output
+4. Categorized rules by friction level (violation count + fix complexity)
+5. Restored `.editorconfig` after each test to maintain 0-error baseline
+
+---
+
+## Test Results
+
+Ran builds with 17 rules temporarily enabled. Counted violations per rule:
+
+| Rule | Category | Violations | Fix Complexity | Description |
+|------|----------|------------|----------------|-------------|
+| CA1001 | Dispose | 2 | Low | Types with disposable fields should be disposable |
+| CA2215 | Dispose | 2 | Low | Dispose should call base.Dispose |
+| CA2200 | Quality | 10 | Low | Rethrow to preserve stack details (use `throw;` not `throw ex;`) |
+| CA1816 | Dispose | 12 | Low | Dispose should call GC.SuppressFinalize |
+| CA1031 | Quality | 16 | Medium | Do not catch general exception types |
+| CA2213 | Dispose | 18 | Low | Disposable fields should be disposed |
+| CA1825 | Perf | 20 | Low | Avoid zero-length array allocations (use Array.Empty<T>()) |
+| CA1063 | Dispose | 20 | Medium | Implement IDisposable correctly |
+| CA2214 | Quality | 24 | Medium | Do not call overridable methods in constructors |
+| CA1052 | Design | 24 | Low | Static holder types should be static or sealed |
+| CA2000 | Dispose | 34 | Medium | Dispose objects before losing scope |
+| CA1822 | Perf | 124 | Low | Mark members as static (IDE auto-fixable) |
+| CA1032 | Quality | 130 | Low | Implement standard exception constructors |
+| CA1051 | Design | 184 | High | Do not declare visible instance fields (breaking) |
+| CA1805 | Perf | 344 | Low | Do not initialize unnecessarily |
+| CA2201 | Quality | 456 | Medium | Do not raise reserved exception types |
+| CA1062 | Quality | 1122 | Very High | Validate arguments of public methods |
+
+---
+
+## Recommendations
+
+### Tier 1: Enable Immediately ✅
+**Total: 7 rules, 88 violations, 4-6 hours effort**
+
+1. **CA1001** — Types with disposable fields should be disposable (2 violations)
+   - Fix: Add `IDisposable` to 2 classes that hold disposable fields
+   
+2. **CA2215** — Dispose should call base.Dispose (2 violations)
+   - Fix: Add `base.Dispose(disposing)` calls in 2 overrides
+   
+3. **CA2200** — Rethrow to preserve stack details (10 violations)
+   - Fix: Change `throw ex;` to `throw;` in 10 catch blocks
+   
+4. **CA1816** — Dispose should call GC.SuppressFinalize (12 violations)
+   - Fix: Add `GC.SuppressFinalize(this)` to 12 Dispose methods
+   
+5. **CA2213** — Disposable fields should be disposed (18 violations)
+   - Fix: Add field disposal in 18 Dispose methods
+   
+6. **CA1825** — Avoid zero-length array allocations (20 violations)
+   - Fix: Replace `new T[0]` with `Array.Empty<T>()` in 20 locations
+   
+7. **CA1052** — Static holder types should be sealed (24 violations)
+   - Fix: Add `sealed` or `static` keyword to 24 utility classes
+   - Note: Classes are: `ParamNames`, `PathLength`, `Constants`, `GlobalRandomServer`, `StructureChangeTypeSvc`, `MultiRequestProcessor`, `VaporPressureCalculator`, `MilestoneMovementManager`, `Crypto`, `DictionaryOperations`, `PfcAnalyst`, `XmlTransform` (12 unique types × 2 builds = 24 warnings)
+
+**All Tier 1 fixes are mechanical, non-breaking, and safe.**
+
+---
+
+### Tier 2: Enable in Next Pass
+**Total: 5 rules, 332 violations, 8-12 hours effort**
+
+8. **CA1063** — Implement IDisposable correctly (20 violations)
+   - Requires full dispose pattern (protected virtual Dispose, finalizer considerations)
+   
+9. **CA2214** — Do not call overridable methods in constructors (24 violations)
+   - Requires reviewing constructor logic, may need design changes
+   
+10. **CA2000** — Dispose objects before losing scope (34 violations)
+    - Many false positives where disposal happens in caller or transferred ownership
+    - Requires case-by-case judgment
+    
+11. **CA1822** — Mark members as static (124 violations)
+    - IDE can auto-fix most, but may affect inheritance or testability
+    
+12. **CA1032** — Implement standard exception constructors (130 violations)
+    - Add 3 constructors (message, message+inner, serialization) to custom exceptions
+
+---
+
+### Tier 3: Keep Suppressed
+**Total: 4 rules, 2106 violations — defer indefinitely**
+
+- **CA1051** — Do not declare visible instance fields (184 violations)
+  - Breaking public API change (fields → properties)
+  - Primarily in Materials/Chemistry domain models (DTO-like structures)
+  
+- **CA1805** — Do not initialize unnecessarily (344 violations)
+  - Low value (micro-optimization), high noise
+  - `private int _count = 0;` warnings
+  
+- **CA2201** — Do not raise reserved exception types (456 violations)
+  - Requires exception hierarchy redesign (ApplicationException → custom base)
+  - Breaking change for callers catching specific exception types
+  
+- **CA1062** — Validate arguments of public methods (1122 violations)
+  - Very high false positive rate (analyzer doesn't recognize guard clauses)
+  - Would require full null check audit across 548 files
+
+---
+
+### Rules Not Tested (Confirmed High Friction)
+
+- **CA1707** — No underscores in identifiers
+  - Previously attempted by another agent, crashed mid-refactor
+  - Estimated >500 violations (field naming convention: `_fieldName`)
+  
+- **Naming rules** (CA1708-CA1724) — Breaking API changes, legacy contracts
+  
+- **Localization rules** (CA1303-CA1311) — Library has no UI, no localization needed
+  
+- **API design rules** (CA1000-CA1044) — Breaking changes, legacy public API
+
+---
+
+## Implementation Plan
+
+### Step 1: Enable Tier 1 Rules (One at a Time)
+
+For each rule in Tier 1:
+
+1. Edit `.editorconfig`: Change `dotnet_diagnostic.CAXXXX.severity = none` → `error`
+2. Build: `dotnet build Sage.slnx -v minimal`
+3. Fix all violations (use IDE quick fixes where available)
+4. Build again: Verify 0 errors
+5. Test: `dotnet test` → Verify 322/322 pass
+6. Commit: `git commit -m "Enable CAXXXX: <description>"`
+
+**Order recommendation:**
+1. CA2200 (throw statements — safest)
+2. CA1001 (2 classes)
+3. CA2215 (2 base calls)
+4. CA1816 (12 suppressions)
+5. CA2213 (18 field disposals)
+6. CA1825 (20 array allocations)
+7. CA1052 (24 sealed keywords)
+
+**Estimated time:** 30-45 minutes per rule × 7 = 4-6 hours total.
+
+---
+
+### Step 2: Review Tier 2 (Future Decision)
+
+After Tier 1 stabilizes:
+- Assess appetite for 332 additional fixes
+- Consider deferring CA1822 and CA1032 to a dedicated "cleanup sprint"
+- Prioritize CA1063, CA2214, CA2000 (dispose correctness) over perf rules
+
+---
+
+### Step 3: Document Tier 3 Exclusions
+
+Add comment block to `.editorconfig` explaining why each Tier 3 rule stays suppressed:
+
+```editorconfig
+# Tier 3 suppressions — intentional design choices or breaking changes
+dotnet_diagnostic.CA1051.severity = none  # Public fields in DTO-like structures (Materials)
+dotnet_diagnostic.CA1805.severity = none  # Unnecessary init — low value, high noise
+dotnet_diagnostic.CA2201.severity = none  # Reserved exceptions — requires hierarchy redesign
+dotnet_diagnostic.CA1062.severity = none  # Null validation — 1122 violations, high false positive rate
+```
+
+---
+
+## Risks and Mitigations
+
+### Risk: Tier 1 Fixes Introduce Bugs
+
+**Mitigation:** Run full test suite after EACH rule enablement. Commit each rule separately for easy revert.
+
+### Risk: CA1052 Breaks Subclass Extensions
+
+**Mitigation:** Grep for `: ClassName` inheritance before marking sealed. The 12 utility classes are confirmed static-only (no subclasses in codebase).
+
+### Risk: CA1816/CA2213 Dispose Changes Affect Finalization
+
+**Mitigation:** Review each disposable class's finalizer (if any). Most don't have finalizers — GC.SuppressFinalize is a no-op but satisfies pattern.
+
+---
+
+## Verification
+
+After all Tier 1 rules enabled:
+
+```bash
+dotnet build E:\source\Sage\Sage.slnx -v minimal
+# Expected: Build succeeded. 0 Error(s)
+
+dotnet test E:\source\Sage\tests\SageTests\SageTests.csproj
+# Expected: Passed! - Failed: 0, Passed: 322, Skipped: 0
+```
+
+---
+
+## Decision Request
+
+**To Stuart:** Approve Tier 1 enablement (7 rules, 88 fixes)?
+
+- ✅ **Yes, proceed with Tier 1** → Assign to Parker, 4-6 hour task
+- ⏸️ **Not yet** → What concerns need addressing?
+- ❌ **No, keep all suppressed** → Document reason in decisions.md
+
+---
+
+## Notes
+
+- Build was temporarily broken during testing when CA1052 was left enabled. Restored to `severity = none` after counting violations.
+- All test builds were run with rules at `severity = warning` to count violations without blocking. Production enablement will use `severity = error` (enforced by `TreatWarningsAsErrors=true`).
+- The 12 CA1052 violations appear as 24 warnings (each type reported twice in build output).
+
+---
+
+# Decision: Naming Analyzer Rules Remain Suppressed (CA1707, CA1708, CA1710, CA1711, CA1713, CA1716, CA1720, CA1721, CA1724, CA1700)
+
+**Date:** 2026-07-16  
+**Author:** Parker (.NET Developer)  
+**Status:** Confirmed
+
+## Context
+
+During an interrupted refactoring session, an agent changed naming analyzer rules in `.editorconfig` from `severity = none` to `severity = error`. This caused 500+ analyzer errors to become build-breaking.
+
+The rules affected:
+- **CA1707:** Identifiers should not contain underscores (122 violations)
+- **CA1720:** Identifier contains type name (e.g., "Guid", "Object") (418 violations)
+- **CA1716:** Identifiers should not match keywords (54 violations)
+- **CA1708:** Identifiers should differ by more than case (30 violations)
+- **CA1710, CA1711, CA1713, CA1721, CA1724, CA1700:** Various naming conventions (50+ violations)
+
+## Decision
+
+**Reverted all naming analyzer rules back to `severity = none`.**
+
+## Rationale
+
+1. **Scope too large:** Fixing 500+ naming violations would require:
+   - Renaming 122+ identifiers with underscores (public API surface)
+   - Changing 418+ properties/parameters named "Guid" or "Object"
+   - Breaking changes to legacy API contracts
+   - Major refactoring across the entire codebase
+
+2. **Prior design decision:** The comment in `.editorconfig` explicitly states:
+   > "Suppressed rules for naming conventions, type name conflicts, and keyword collisions. These are legacy API contracts, or breaking changes that would require major refactoring."
+
+3. **Build restored:** Reverting these rules allowed the build to succeed (0 errors, 322/322 tests passing).
+
+4. **Not a regression:** The previous commit (bdee0a4) had these rules set to `none`, so reverting restores the intended state.
+
+## Future Consideration
+
+If the team decides to enforce stricter naming conventions:
+1. Create a phased migration plan
+2. Use `severity = suggestion` first to identify violations without breaking builds
+3. Fix violations incrementally by module/namespace
+4. Consider using Roslyn code fixers/refactoring tools to automate renames
+5. Coordinate with the team on breaking change policy (major version bump?)
+
+## Related Files
+
+- `.editorconfig` lines 257-267 (naming analyzer rules)
+- Previous commit: bdee0a4 "Enable TreatWarningsAsErrors; suppress design-choice CA rules via .editorconfig"
+
+---
+
+# Core Simulation Engine — Test Coverage Gap Report
+
+**Author:** Hudson (Tester / QA)  
+**Date:** 2026-05-30  
+**Requested by:** Stuart Hillary  
+**Build status:** ✅ 0 errors, 0 warnings (`dotnet build Sage.slnx -v minimal`)
+
+---
+
+## Scope
+
+Audit of test coverage for:
+- `Executive` / `ExecutiveFastLight` — event dispatch, queue, state machine
+- `StateMachine` — transitions, handlers, error paths
+- `Model` / `IModel` — lifecycle, initialization, dispose
+- `InitializationManager` — ordering, dependency sequencing
+- DES correctness: causality, determinism, reproducibility
+
+Primary test files examined:
+- `tests/SageTestLib/TestExecutive.cs`
+- `tests/SageTestLib/TestStateMachine.cs`
+- `tests/SageTestLib/TestDiscreteModel.cs`
+- `tests/SageTestLib/TestQueues.cs` (partial InitializationManager coverage)
+
+---
+
+## COVERED (well-tested)
+
+- **Event delivery count**: all submitted events are serviced — `TestExecutiveCount`, `TestExecutiveCountDefaultParameter`
+- **Event time ordering**: events fire in chronological order — `TestExecutiveWhen`
+- **Same-time priority ordering**: higher-priority events fire first among same-time events — `TestExecutivePriority` (all at same `now`, varying priority)
+- **UnRequestEvent by hash code** — `TestExecutiveUnRequestHash`
+- **UnRequestEvents by target object** — `TestExecutiveUnRequestTarget`
+- **UnRequestEvents by delegate** — `TestExecutiveUnRequestDelegate`
+- **Stop/Start cycle (timing)** — `TestExecutiveStopStart`
+- **Pause/Resume cycle (timing)** — `TestExecutivePauseResume`
+- **Detachable event threading** — `TestThreadSepFunctionality`
+- **ClockAboutToChange event** — `TestClockAboutToChangeEvent` (deterministic output string comparison)
+- **ExecutiveStarted_SingleShot fires once** — `TestSingleShotEvent`
+- **Join on detachable events** — `TestEventJoinDetachable`
+- **EventList snapshot sorted/chronological** — `TestEventListContainsQueuedEvents`
+- **EventList is read-only** — `TestEventListIsReadOnly`
+- **LiveDetachableEvents populated during execution** — `TestLiveDetachableEventsContainsRunningEvent`
+- **LiveDetachableEvents is read-only** — `TestLiveDetachableEventsIsReadOnly`
+- **Performance throughput baseline** — `TestPerformance`
+- **StateMachine legal transition success (with follow-on)** — `TestTransitionSuccessWithFollowon`
+- **StateMachine legal transition success (no follow-on)** — `TestTransitionSuccessWithoutFollowon`
+- **StateMachine prepare failure → rollback → state preserved** — `TestTransitionFailure`
+- **StateMachine illegal transition throws** — `TestTransitionIllegal`, `TestTransitionIllegalToo`
+- **StateMachine full state chain** (Idle→Validated→Running→Paused→Running→Finished) — `TestTransitionChainSuccess`
+- **StateMachine multiple handlers (Universal/Inbound/Outbound/Specific)** — `TestTransitionMultipleHandlers`, `TestTransitionMultipleHandlersSorted`
+- **StateMachine all states accessible via dictionary** — `TestStateMachineAllStatesAccessibleViaDictionary`
+- **Metronome firing rate** — `TestDiscreteModel` (fires correct count at correct intervals)
+- **Daemon event does not keep exec alive** — implicit in `TestClockAboutToChangeEvent`
+
+---
+
+## PARTIALLY COVERED (exists but thin)
+
+- **Executive.Reset()**: called in `TestExecutiveStopStart` and `TestExecutivePauseResume` as setup scaffolding, but **no assertions** verify that the event queue is cleared, that `Now` returns `DateTime.MinValue`, or that `State == ExecState.Stopped`. Reset correctness is assumed, not proven.
+
+- **Same-time, equal-priority tiebreaking**: `TestExecutivePriority` proves higher priority fires first among same-time events, but never tests the **submission-order tiebreaker** when priorities are also equal. The `CompareEvents` method uses `Key` (sequential integer) as the tiebreaker — this is untested.
+
+- **Handler-originated event scheduling**: `SteadyStateEventStream` in `TestExecutiveStopStart` and `PerfTestExecute` in `TestPerformance` both request new events from within handlers, but **no ordering assertion** exists. This scenario (re-entrant scheduling) is exercised but not verified.
+
+- **Daemon events**: one daemon event is registered in `TestClockAboutToChangeEvent` and confirmed to not fire; but there is **no dedicated test** asserting that an exec with *only* daemon events terminates gracefully rather than running forever.
+
+- **Executive state values**: `TestExecutiveStopStart` and `TestExecutivePauseResume` assert on **wall-clock timing**, but never assert `exec.State == ExecState.Paused` after `Stop()` with queued events, or `exec.State == ExecState.Finished` after all events consumed.
+
+- **Model start lifecycle flags**: `TestDiscreteModel` calls `model.Start()` and asserts on tick count, but never checks `model.IsRunning`, `model.IsCompleted`, or `model.IsReady`.
+
+- **EventCount**: `TestPerformance` uses `exec.EventCount` as a loop ceiling but never asserts the exact final value against the expected number of events serviced.
+
+---
+
+## NOT COVERED (no tests at all)
+
+### Executive / Event Dispatch
+
+- **CausalityException — event scheduled in the past**: When `IgnoreCausalityViolations = false`, `RequestEvent` throws `CausalityException` if `when < _now`. No test exists for this at all — neither the exception path nor the silent-ignore path (`IgnoreCausalityViolations = true` returns `long.MinValue`).  
+  **Risk:** The entire causality constraint is untested. A regression here silently allows simulations to process events out of order, producing wrong results with no error signal.
+
+- **Exception in event handler propagates correctly**: When a synchronous handler throws, the executive stores `_terminationException`, sets `_stopRequested = true`, and — after the dispatch loop — re-throws as `RuntimeException`. No test verifies: (a) the exception reaches the caller of `Start()`, (b) the exec transitions to `ExecState.Paused` (not `Finished`) while events remain queued, or (c) `_terminationException` is cleared on the next `Start()` after `Reset()`.  
+  **Risk:** An exception swallowing regression would let a simulation report success while in a corrupted mid-run state.
+
+- **Empty event queue — exec starts and finishes gracefully**: `exec.Start()` with zero events queued (no `RequestEvent` calls). Should complete without error and end in `ExecState.Finished`. Not tested.  
+  **Risk:** Potential null dereference or infinite loop in edge-case dispatch path that is easy to miss.
+
+- **RequestEvent on a Finished executive throws**: After a run completes (`State == Finished`), `RequestEvent` throws `ApplicationException("...in the 'Finished' state")`. No test.  
+  **Risk:** Error contract for the post-run state is undocumented by tests; a refactor could silently change behavior.
+
+- **Abort() mid-dispatch**: `Executive.Abort()` sets `_abortRequested = true` and calls `de.Abort()` on all running detachables. No test verifies that abort exits cleanly, that `ExecutiveAborted` fires, or that `RunningDetachables` is empty afterward.  
+  **Risk:** Detachable event threads left hanging or deadlocked on abort are not caught.
+
+- **RunNumber increments across runs**: `exec.RunNumber` should be `-1` initially and increment each time `Start()` is called. After Reset+Start+Reset+Start it should be 1. Not tested.  
+  **Risk:** RunNumber is used for tracking/debugging; silent regression goes undetected.
+
+- **ResubmitEventAtTime**: `Executive.ResubmitEventAtTime(eventID, newTime, deleteOldOne)` is a public API. No tests exist for it at all — neither happy path (event resubmitted at new time) nor error path (event not in queue).  
+  **Risk:** Rescheduling semantics are entirely unproven.
+
+- **RequestImmediateEvent**: schedules at current `_now` / `_currentPriorityLevel`. Not tested.  
+  **Risk:** Untested public API that is easy to regress silently.
+
+### Model / IModel Lifecycle
+
+- **Model.Start() called twice without Reset()**: calls `_stateMachine.DoTransition(GetStartEnum())` on an already-running state machine. No test verifies whether this throws, is a no-op, or causes state corruption.  
+  **Risk:** Double-start is a common user error; behavior under this condition is undefined and untested.
+
+- **Model.Dispose() releases resources**: `Dispose()` calls `Exec.Dispose()` and optionally `ExecutiveController.Dispose()`. No test verifies that resources are actually released. `IExecutive.Dispose()` is called but the Executive's implementation of `Dispose` is also untested.  
+  **Risk:** Resource leaks in long-running or pooled simulation environments.
+
+- **Model lifecycle flags after run**: No test asserts `model.IsRunning == false`, `model.IsCompleted == true`, `model.IsReady == false` after a completed run.
+
+### InitializationManager
+
+- **Initializer dependency ordering**: `InitializationManager` uses a `GraphSequencer` for topological ordering. No test verifies that initializers run in dependency-respecting sequence. `TestQueues.cs` only checks that `InitializationBeginning`/`InitializationCompleted` events fire — not that ordering is correct.  
+  **Risk:** A GraphSequencer regression could scramble initialization order, producing subtly wrong simulations.
+
+- **Re-initialization (second generation)**: calling `Clear()` and re-running initialization. Not tested.
+
+### Determinism / Reproducibility
+
+- **Same seed → same output**: No test runs the same simulation twice with the same `RandomSeed` and asserts identical results. Global mutable state (e.g., `_clrConfigDone` static in `Executive`, `_ignoreCausalityViolations` static) could break cross-test isolation.  
+  **Risk:** Non-determinism would be invisible in CI because each test runs once. The static `_ignoreCausalityViolations` being modified across tests is a real cross-contamination risk today.
+
+- **Global static state isolation**: `Executive._clrConfigDone` and `Executive._ignoreCausalityViolations` are `static` fields modified by instance constructors. Multiple test classes constructing executives in parallel could mutate shared state. No test isolates or audits this.  
+  **Risk:** Test ordering-sensitive failures, rare CI flakiness.
+
+---
+
+## RECOMMENDED NEW TESTS (prioritized)
+
+### Priority 1 — Correctness-Critical, High Risk
+
+1. **`[Fact] public void Executive_EventHandlerException_PropagatesToCaller()`**  
+   Schedule one event, throw in the handler, assert `RuntimeException` is caught by the caller of `Start()` with the original exception as `InnerException`. Assert `exec.State` is `ExecState.Paused` (events remain) or `ExecState.Stopped` (queue empty) but NOT `Finished`.
+
+2. **`[Fact] public void Executive_CausalityViolation_ThrowsWhenNotIgnored()`**  
+   Create exec with `ExecutiveOptions { IgnoreCausalityViolations = false }`. Schedule an event. Inside that handler, call `RequestEvent` with `when < exec.Now`. Assert `CausalityException` is thrown.
+
+3. **`[Fact] public void Executive_CausalityViolation_SilentlyIgnoredWhenOptionSet()`**  
+   Same setup but `IgnoreCausalityViolations = true`. Past-time request returns `long.MinValue` and execution completes normally.
+
+4. **`[Fact] public void Executive_Reset_ClearsQueueAndResetsNow()`**  
+   Schedule 5 events, call `exec.Reset()`. Assert `exec.EventList.Count == 0`, `exec.Now == DateTime.MinValue`, `exec.State == ExecState.Stopped`.
+
+5. **`[Fact] public void Executive_SameTimeEqualPriority_DispatchedBySubmissionOrder()`**  
+   Submit 5 events at identical `when` and identical `priority`. Assert they fire in submission order (by key). Proves tiebreaker determinism.
+
+6. **`[Fact] public void Executive_EmptyQueue_StartsAndFinishesGracefully()`**  
+   `exec.Start()` with no events. Assert no exception, `exec.State == ExecState.Finished`, `exec.EventCount == 0`.
+
+7. **`[Fact] public void Executive_Determinism_SameSeedProducesSameOutput()`**  
+   Run two simulation instances with identical seeded `RandomServer`. Assert event sequences and output are bit-for-bit identical.
+
+### Priority 2 — Important, Medium Risk
+
+8. **`[Fact] public void Executive_StateAfterAllEventsProcessed_IsFinished()`**  
+   Run exec to completion, assert `exec.State == ExecState.Finished`.
+
+9. **`[Fact] public void Executive_StateAfterStop_IsPausedWhenEventsRemain()`**  
+   During dispatch (from inside handler), call `exec.Stop()` on a background thread with events still queued. After `Start()` returns, assert `exec.State == ExecState.Paused`.
+
+10. **`[Fact] public void Executive_RequestEventOnFinishedExec_Throws()`**  
+    Run exec to completion, call `RequestEvent`. Assert `ApplicationException` with message containing "Finished".
+
+11. **`[Fact] public void Executive_RunNumber_IncrementsAcrossRestarts()`**  
+    Assert `exec.RunNumber == -1` before first run, `0` after first `Start()`, `1` after `Reset()` + second `Start()`.
+
+12. **`[Fact] public void Executive_DaemonOnlyQueue_DoesNotKeepExecAlive()`**  
+    Submit only daemon events (via `RequestDaemonEvent`). Assert exec finishes immediately without executing them.
+
+13. **`[Fact] public void Executive_AbortMidRun_CleansUpDetachables()`**  
+    Start a long-running detachable event, call `exec.Abort()` from another thread. Assert `exec.RunningDetachables.Count == 0` after completion and `ExecutiveAborted` fired.
+
+14. **`[Fact] public void Executive_ResubmitEventAtTime_ReschedulesCorrectly()`**  
+    Schedule event at T1. Call `ResubmitEventAtTime(id, T2, deleteOldOne: true)`. Assert the event fires at T2 and not at T1.
+
+15. **`[Fact] public void Model_LifecycleFlags_CorrectAfterRun()`**  
+    After `model.Start()` returns, assert `model.IsRunning == false`, `model.IsCompleted == true`.
+
+16. **`[Fact] public void Model_StartTwice_ThrowsOrIsNoOp()`**  
+    Call `model.Start()` twice without `Reset()`. Assert either a meaningful exception is thrown or the second call is safely ignored. Document the contract.
+
+### Priority 3 — Nice to Have
+
+17. **`[Fact] public void InitializationManager_InitializersRunInDependencyOrder()`**  
+    Register initializers A and B where B depends on A. Assert A's init code ran before B's.
+
+18. **`[Fact] public void Model_Dispose_ReleasesExec()`**  
+    Create and start a model, call `model.Dispose()`. Assert no hanging threads and that subsequent `model.Executive` access is safe or throws.
+
+19. **`[Fact] public void Executive_RequestImmediateEvent_SchedulesAtCurrentTime()`**  
+    Inside a handler, call `exec.RequestImmediateEvent(...)`. Assert the new event fires at the exact same `exec.Now` as the current event.
+
+20. **`[Fact] public void Executive_StaticState_DoesNotLeakBetweenTestRuns()`**  
+    Construct two executives in sequence — second with `IgnoreCausalityViolations = false`. Assert causality enforcement is active regardless of what the first exec set.
+
+21. **`[Fact] public void Executive_EventCount_MatchesExpectedAfterRun()`**  
+    Schedule N deterministic events, run to completion. Assert `exec.EventCount == N`.
+
+---
+
+## Summary Statistics
+
+| Category | Count |
+|---|---|
+| Well-covered behaviors | 24 |
+| Partially covered | 6 |
+| Not covered at all | 18 |
+| Recommended new tests | 21 |
+
+**Highest-risk uncovered gap:** CausalityException enforcement is a foundational DES correctness guarantee with **zero test coverage**. This should be addressed before any further Executive refactoring.
+
+---
+
+# Core Engine Analysis — Testable Claims for Hudson
+
+**Author:** Ripley (Lead/Architect)  
+**Date:** 2026-07-15  
+**Purpose:** Comprehensive mapping of Sage Core engine components, their behavioral contracts, and testable claims for test case authoring.
+
+---
+
+## 1. Executive Event Dispatch Engine
+
+### 1.1 IExecutive / Executive (Full-Featured)
+
+**Files:** `src/Sage/Core/IExecutive.cs`, `src/Sage/Core/Executive.cs`  
+**Class:** `internal sealed class Executive : MarshalByRefObject, IExecutive`
+
+#### 1.1.1 Event Ordering — THE #1 CORRECTNESS CONCERN
+
+The heap-based event queue orders by three criteria in `CompareEvents()`:
+
+1. **Time ascending** — earlier `When` fires first
+2. **Priority descending** — higher `double` priority value fires first within same time
+3. **Key ascending** — lower key (earlier insertion) fires first as tiebreaker
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-ORD-01 | Events scheduled at different times fire in chronological order (earliest first) |
+| E-ORD-02 | Events scheduled at the same time fire in descending priority order (higher priority first) |
+| E-ORD-03 | Events at the same time and same priority fire in insertion order (FIFO by key) |
+| E-ORD-04 | The three-level ordering (time → priority → key) is stable across queue sizes from 1 to 1000+ events |
+| E-ORD-05 | Default priority is 0.0 when not explicitly specified |
+| E-ORD-06 | `RequestImmediateEvent` schedules at `_now` with `_currentPriorityLevel` (inherits current event's time and priority) |
+| E-ORD-07 | Negative priorities are valid and sort after zero-priority events at the same time |
+
+#### 1.1.2 Simulation Time Fidelity
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-TIME-01 | `IExecutive.Now` returns `DateTime.MinValue` (1/1/0001 12:00 AM) before `Start()` is called |
+| E-TIME-02 | `IExecutive.Now` advances monotonically — never decreases during a run |
+| E-TIME-03 | `IExecutive.Now` equals the `When` of the currently firing event inside the event handler |
+| E-TIME-04 | `SetStartTime(DateTime)` establishes the initial `Now` value before execution begins |
+| E-TIME-05 | `ClockAboutToChange` fires after the last event at a given time completes, before advancing to the next time, IF more non-daemon events exist |
+| E-TIME-06 | `LastEventServed` holds the DateTime of the last event processed (persists across runs) |
+| E-TIME-07 | `EventCount` accurately tracks the number of events serviced in the current run |
+
+#### 1.1.3 Causality Checking
+
+When `IgnoreCausalityViolations = true` (the default), scheduling an event in the past returns `long.MinValue` and silently drops it. When `false`, it throws `CausalityException`.
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-CAUS-01 | With `IgnoreCausalityViolations = true` (default): scheduling an event at a past time returns `long.MinValue` and the event is never dispatched |
+| E-CAUS-02 | With `IgnoreCausalityViolations = false`: scheduling an event at a past time throws `CausalityException` |
+| E-CAUS-03 | Scheduling an event at exactly `Now` (current time) does NOT trigger a causality violation |
+| E-CAUS-04 | Causality checking only applies when state is `Running`; scheduling past events before `Start()` is allowed |
+
+#### 1.1.4 Event Scheduling API
+
+**Methods to test:** `RequestEvent` (4 overloads), `RequestImmediateEvent`, `RequestDaemonEvent`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-SCHED-01 | `RequestEvent(eer, when)` uses priority 0.0 and null userData |
+| E-SCHED-02 | `RequestEvent(eer, when, userData)` uses priority 0.0 |
+| E-SCHED-03 | `RequestEvent(eer, when, priority, userData)` uses `ExecEventType.Synchronous` by default |
+| E-SCHED-04 | Each `RequestEvent` call returns a unique, monotonically increasing `long` key |
+| E-SCHED-05 | The returned key can be used to cancel the event via `UnRequestEvent` |
+| E-SCHED-06 | `RequestDaemonEvent` creates events that do not keep the executive alive (executive finishes when only daemon events remain) |
+| E-SCHED-07 | An executive with ONLY daemon events in its queue terminates immediately on `Start()` |
+| E-SCHED-08 | `RequestImmediateEvent` can only be called from within an event handler (during execution) |
+
+#### 1.1.5 Event Cancellation / Descheduling
+
+Removal is **deferred** — pushed onto a `Stack<ExecEventRemover>`, processed in batch at the top of the dispatch loop. Removal rebuilds the heap from a filtered snapshot.
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-CANCEL-01 | `UnRequestEvent(key)` prevents a scheduled event from firing |
+| E-CANCEL-02 | `UnRequestEvent(long.MinValue)` is a safe no-op (handles causality-violation return values) |
+| E-CANCEL-03 | `UnRequestEvents(IExecEventSelector)` removes all events matching the selector predicate |
+| E-CANCEL-04 | `UnRequestEvents(object target)` removes all events whose callback target matches the given object |
+| E-CANCEL-05 | `UnRequestEvents(Delegate method)` removes all events whose callback method matches the given delegate |
+| E-CANCEL-06 | Cancelling an event that has already fired is safe (no exception) |
+| E-CANCEL-07 | `ResubmitEventAtTime(eventID, newTime, deleteOldOne=true)` removes the old event and schedules a new one at the new time |
+| E-CANCEL-08 | `ResubmitEventAtTime(eventID, newTime, deleteOldOne=false)` schedules a duplicate at the new time while keeping the original |
+| E-CANCEL-09 | After cancellation, `EventList` no longer contains the cancelled event |
+
+#### 1.1.6 Executive Lifecycle & State Machine
+
+**States:** `Stopped` → `Running` → `Paused` / `Finished`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-LIFE-01 | Initial state is `ExecState.Stopped` |
+| E-LIFE-02 | `Start()` transitions state to `Running` and blocks the calling thread until all non-daemon events are processed |
+| E-LIFE-03 | After `Start()` completes normally, state is `Finished` (not `Stopped`) |
+| E-LIFE-04 | `Pause()` during execution transitions to `Paused` — current event completes, then executive suspends |
+| E-LIFE-05 | `Resume()` from `Paused` transitions back to `Running` and continues dispatching |
+| E-LIFE-06 | `Stop()` sets `_stopRequested` — executive finishes current event, then exits the dispatch loop |
+| E-LIFE-07 | `Abort()` immediately sets `_abortRequested`, aborts all running detachable events, and calls `Reset()` |
+| E-LIFE-08 | `Reset()` clears the event queue, resets `Now` to default, increments `RunNumber`, and fires `ExecutiveReset` |
+| E-LIFE-09 | After `Reset()`, the executive can be re-started with new events |
+| E-LIFE-10 | `RunNumber` increments by 1 each time `Start()` is called |
+
+#### 1.1.7 Lifecycle Events (Notifications)
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-EVT-01 | `ExecutiveStarted` fires when `Start()` begins execution |
+| E-EVT-02 | `ExecutiveStarted_SingleShot` fires on first `Start()` only, then clears all subscribers (does not fire on subsequent runs) |
+| E-EVT-03 | `ExecutiveStopped` fires when the executive stops normally |
+| E-EVT-04 | `ExecutiveFinished` fires after `Start()` exits (always, including after abort) |
+| E-EVT-05 | `ExecutivePaused` fires when `Pause()` succeeds |
+| E-EVT-06 | `ExecutiveResumed` fires when `Resume()` succeeds |
+| E-EVT-07 | `ExecutiveReset` fires when `Reset()` completes |
+| E-EVT-08 | `ExecutiveAborted` fires when `Abort()` completes |
+| E-EVT-09 | `EventAboutToFire` fires with correct (key, receiver, priority, when, userData, eventType) BEFORE each event dispatches |
+| E-EVT-10 | `EventHasCompleted` fires with same parameters AFTER each event dispatches |
+| E-EVT-11 | `ClockAboutToChange` fires between distinct time slices when more non-daemon events exist |
+
+#### 1.1.8 Exception Handling During Dispatch
+
+When an event handler throws, the exception is caught, stored as `_terminationException`, and `_stopRequested` is set. After the loop exits, it's rethrown wrapped in `RuntimeException` (unless abort was requested).
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-ERR-01 | An exception thrown in a synchronous event handler causes the executive to stop |
+| E-ERR-02 | The exception from a failing event handler is rethrown as a `RuntimeException` from `Start()` |
+| E-ERR-03 | Events queued after the failing event do NOT fire (executive stops on first exception) |
+| E-ERR-04 | If `Abort()` was requested, the exception is NOT rethrown (abort takes precedence) |
+| E-ERR-05 | `EventHasCompleted` still fires for the event that threw the exception |
+
+#### 1.1.9 Event Types (Dispatch Mechanisms)
+
+Three types: `Synchronous` (inline on executive thread), `Detachable` (own thread via Task.Run), `Asynchronous` (fire-and-forget via ThreadPool).
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| E-TYPE-01 | `Synchronous` events execute on the executive's thread and block until the handler returns |
+| E-TYPE-02 | `Detachable` events execute on a ThreadPool thread via `DetachableEvent.Begin()` |
+| E-TYPE-03 | `Asynchronous` events are queued to the ThreadPool and the executive immediately moves to the next event |
+| E-TYPE-04 | `CurrentEventType` returns the type of the currently executing event |
+| E-TYPE-05 | `CurrentEventType` returns `ExecEventType.None` when no event is being serviced |
+
+---
+
+### 1.2 ExecutiveFastLight (Single-Threaded)
+
+**File:** `src/Sage/Core/ExecutiveFastLight.cs`  
+**Class:** `internal sealed class ExecutiveFastLight : IExecutive`
+
+This is a stripped-down, high-performance executive using a min-heap ordered by time ONLY (no priority support).
+
+#### 1.2.1 Feature Limitations
+
+**Testable Claims (NotSupportedException expectations):**
+
+| ID | Claim |
+|----|-------|
+| EFL-LIM-01 | `RequestImmediateEvent` throws `NotSupportedException` ("does not support contemporaneous enqueueing") |
+| EFL-LIM-02 | `ResubmitEventAtTime` throws `NotSupportedException` ("does not support event deletion") |
+| EFL-LIM-03 | `UnRequestEvent` throws `ApplicationException` ("does not support unrequesting events") |
+| EFL-LIM-04 | `UnRequestEvents` (all overloads) throws `ApplicationException` |
+| EFL-LIM-05 | `Join` throws `ApplicationException` ("does not support Joining on events") |
+| EFL-LIM-06 | `Pause()` / `Resume()` / `Abort()` throw `ApplicationException` ("does not support pause, resume or abort") |
+| EFL-LIM-07 | `Detach()` throws `ApplicationException` ("does not support automated object detachment") |
+| EFL-LIM-08 | `ClearVolatiles()` throws `ApplicationException` ("does not support volatiles") |
+| EFL-LIM-09 | `CurrentPriorityLevel` always returns 0.0 |
+| EFL-LIM-10 | `LiveDetachableEvents` returns empty collection |
+| EFL-LIM-11 | `EventList` returns empty collection |
+| EFL-LIM-12 | `CurrentEventType` always returns `ExecEventType.Synchronous` |
+
+#### 1.2.2 Supported Behaviors
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| EFL-OK-01 | Events are dispatched in chronological order (time ascending) |
+| EFL-OK-02 | Same-time events are dispatched in FIFO insertion order (no priority sorting) |
+| EFL-OK-03 | Priority parameter is accepted but completely ignored in ordering |
+| EFL-OK-04 | `RequestDaemonEvent` creates daemon events that don't keep executive alive |
+| EFL-OK-05 | Executive finishes when only daemon events remain |
+| EFL-OK-06 | `Stop()` sets a flag that exits the dispatch loop after current event |
+| EFL-OK-07 | `Now` advances monotonically during execution |
+| EFL-OK-08 | `EventAboutToFire` and `EventHasCompleted` monitors fire correctly |
+| EFL-OK-09 | `ExecutiveStarted` and `ExecutiveFinished` events fire |
+| EFL-OK-10 | `RunNumber` increments on each `Start()` call |
+| EFL-OK-11 | **BUG NOTE:** `ExecState` property never changes from `Stopped` during execution (state tracking is broken) |
+
+#### 1.2.3 Causality Handling (Different from Executive)
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| EFL-CAUS-01 | With `IgnoreCausalityViolations = true`: past-time events are silently clamped to `_now` (NOT dropped — different from Executive) |
+| EFL-CAUS-02 | With `IgnoreCausalityViolations = false`: past-time events are logged to Console and clamped to `_now` (NOT thrown — different from Executive) |
+| EFL-CAUS-03 | During dispatch, if current time exceeds event time, event time is silently adjusted |
+
+---
+
+## 2. ExecEvent — Event Record
+
+**File:** `src/Sage/Core/ExecEvent.cs`  
+**Class:** `internal class ExecEvent : IExecEvent`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| EE-01 | `ExecEvent` exposes `Key`, `When`, `Priority`, `UserData`, `EventType`, `ExecEventReceiver`, `IsDaemon` as `IExecEvent` |
+| EE-02 | `ServiceCompleted` event fires when `OnServiceCompleted()` is called |
+| EE-03 | Object pool exists but is disabled (`_usePool = false`) — events are always freshly allocated |
+| EE-04 | `ToString()` returns a human-readable representation including key, time, priority, and target |
+
+---
+
+## 3. ExecEventComparer — Comparison Logic
+
+**File:** `src/Sage/Core/ExecEventComparer.cs`  
+**Class:** `internal class ExecEventComparer : IComparer`
+
+Implements the canonical event ordering used by the legacy `SortedList`-based queue (still used for `EventList` snapshots).
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| EC-01 | Earlier `When` sorts before later `When` |
+| EC-02 | Higher priority sorts before lower priority (at same time) |
+| EC-03 | Same key returns 0 (equality) |
+| EC-04 | Different keys at same time and same priority: first argument sorts before second (stable insertion order) |
+
+---
+
+## 4. ExecFactory — Executive Construction
+
+**File:** `src/Sage/Core/ExecFactory.cs`  
+**Class:** `public class ExecFactory` (singleton)
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| EF-01 | `ExecFactory.Instance` returns a singleton (same reference on repeated calls) |
+| EF-02 | `CreateExecutive()` with no args creates a `FullFeatured` executive with random Guid |
+| EF-03 | `CreateExecutive(ExecType.FullFeatured)` creates an `Executive` instance |
+| EF-04 | `CreateExecutive(ExecType.SingleThreaded)` creates an `ExecutiveFastLight` instance |
+| EF-05 | `CreateExecutive(Guid)` creates an executive with the specified Guid |
+| EF-06 | `Configure(options, execOptions)` sets defaults BEFORE first `Instance` access |
+| EF-07 | The factory uses reflection to find constructors: `(Guid, ExecutiveOptions)` preferred, then `(Guid, ExecutiveOptions, DiagnosticsOptions)`, then `(Guid)` |
+
+---
+
+## 5. StateMachine — Two-Phase Commit State Machine
+
+**File:** `src/Sage/Core/StateMachine.cs`
+
+### 5.1 Transition Protocol
+
+The state machine implements a two-phase commit: Prepare → (Commit | Rollback).
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-TX-01 | `DoTransition(targetState)` calls all Prepare handlers first; if ALL return null (no failure reasons), Commit handlers run |
+| SM-TX-02 | If ANY Prepare handler returns a non-null `ITransitionFailureReason`, Rollback handlers run and state does NOT change |
+| SM-TX-03 | After successful commit, `State` property returns the new target state |
+| SM-TX-04 | After rollback, `State` property still returns the original state |
+| SM-TX-05 | `TransitionCompletedSuccessfully` event fires after successful commit |
+| SM-TX-06 | Prepare handlers are collected from 4 sources: outbound (from current), specific (current→target), inbound (to target), universal |
+| SM-TX-07 | Handlers from all 4 sources are merged and sorted by priority (sequence number) before execution |
+| SM-TX-08 | ALL Prepare handlers run even after one fails — failure reasons are collected, not short-circuited |
+| SM-TX-09 | `DoTransition` returns null on success, or a list of `ITransitionFailureReason` on failure |
+
+### 5.2 Invalid Transitions
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-INV-01 | Attempting a transition not allowed by the transition matrix throws `TransitionFailureException` |
+| SM-INV-02 | `InvalidTransitionHandler.IsValidTransition` returns `false` |
+| SM-INV-03 | Adding handlers to an `InvalidTransitionHandler` throws `ApplicationException` |
+
+### 5.3 Nested Transitions and Follow-On States
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-NEST-01 | `_transitionInProgress` guard prevents nested `DoTransition` calls during Prepare/Commit (but follow-on states bypass this after commit completes) |
+| SM-NEST-02 | Follow-on states automatically trigger recursive `DoTransition` after commit completes |
+| SM-NEST-03 | `RunTransitionSequence(states...)` chains multiple transitions; stops on first failure and returns failure reasons |
+
+### 5.4 State Methods
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-METH-01 | A state method registered via `SetStateMethod(method, state)` executes AFTER commit handlers when entering that state |
+| SM-METH-02 | `SetStateMethod` returns the previously registered method (or null) |
+| SM-METH-03 | Only ONE state method per state (last registration wins) |
+
+### 5.5 ForceOverrideState
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-FORCE-01 | `ForceOverrideState(state)` changes `State` immediately with NO handlers called (no Prepare, no Commit, no Rollback) |
+| SM-FORCE-02 | After `ForceOverrideState`, subsequent `DoTransition` calls use the forced state as the current state |
+
+### 5.6 Structure Locking
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-LOCK-01 | `StructureLocked = true` caches merged handler lookups for performance |
+| SM-LOCK-02 | After locking, transitions use cached handlers (functional behavior unchanged) |
+
+### 5.7 Generic State Equivalents
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| SM-GEN-01 | `SetGenericStateEquivalents(idle, validated, initialized, running, finished)` maps application enums to `GenericStates` |
+| SM-GEN-02 | `GetStateEquivalentTo(GenericStates.Running)` returns the mapped application enum |
+
+---
+
+## 6. EnumStateMachine<TEnum> — Lightweight State Machine
+
+**File:** `src/Sage/Core/EnumStateMachine.cs`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| ESM-01 | `ToState(newState)` transitions to the new state unconditionally (all transitions allowed) |
+| ESM-02 | `ToState` does nothing if `newState == currentState` (no self-transition) |
+| ESM-03 | `TimeSpentInState(state)` accumulates time correctly based on executive's `Now` |
+| ESM-04 | Statistics reset on `ExecutiveStarted` event |
+| ESM-05 | Final state times updated on `ExecutiveFinished` event |
+| ESM-06 | When `trackTransitions = true`, `Transitions` records all (from, to, when) tuples |
+
+---
+
+## 7. DetachableEvent — Coroutine-Like Async Events
+
+**File:** `src/Sage/Core/DetachableEvent.cs`
+
+### 7.1 Lifecycle
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| DE-LIFE-01 | `Begin()` launches the event handler on a ThreadPool thread via `Task.Run` |
+| DE-LIFE-02 | `Begin()` blocks the executive thread until the detachable event either completes or calls `Suspend()` |
+| DE-LIFE-03 | `Suspend()` blocks the detachable event's thread and allows the executive to continue dispatching |
+| DE-LIFE-04 | `SuspendUntil(DateTime when)` schedules a resume callback at the specified time, then suspends |
+| DE-LIFE-05 | `SuspendFor(TimeSpan howLong)` is equivalent to `SuspendUntil(exec.Now + howLong)` |
+| DE-LIFE-06 | `Resume()` from an external thread schedules a resume callback on the executive, which unblocks the DE |
+| DE-LIFE-07 | `Resume(double priority)` can override the priority of the resume callback |
+| DE-LIFE-08 | After completion, the DE is removed from `Executive.RunningDetachables` |
+| DE-LIFE-09 | `RootEvent` property exposes the underlying `IExecEvent` |
+
+### 7.2 Thread Safety
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| DE-THREAD-01 | `Begin()` must be called on the executive thread (asserted) |
+| DE-THREAD-02 | `Suspend()` must be called on the DE's own thread (asserted) |
+| DE-THREAD-03 | `Resume()` must be called from a thread OTHER than the DE's thread |
+| DE-THREAD-04 | Resume acquires and releases the executive's event lock to synchronize with the dispatch loop |
+
+### 7.3 Abort Handling
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| DE-ABORT-01 | `Abort()` sets all ManualResetEventSlim primitives to unblock the DE regardless of its state |
+| DE-ABORT-02 | A user-registered `AbortHandler` fires before the DE is aborted |
+| DE-ABORT-03 | After `Abort()`, the DE checks `_abortRequested` and terminates gracefully |
+| DE-ABORT-04 | When the executive finishes while DEs are running, it attempts to abort all live DEs |
+
+### 7.4 Join Support
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| DE-JOIN-01 | `Executive.Join(eventCodes...)` suspends the calling detachable event until all specified events complete |
+| DE-JOIN-02 | All events in the Join must already be scheduled (not yet serviced) |
+| DE-JOIN-03 | The calling event must be a detachable event (assertion) |
+
+### 7.5 CurrentEventController
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| DE-CTRL-01 | `IExecutive.CurrentEventController` returns the `IDetachableEventController` for the currently executing detachable event |
+| DE-CTRL-02 | `CurrentEventController` returns null when no detachable event is executing |
+| DE-CTRL-03 | `IDetachableEventController` provides `Suspend()`, `SuspendUntil()`, `SuspendFor()`, `Resume()` methods |
+
+---
+
+## 8. DetachableEventSynchronizer — Barrier Pattern
+
+**File:** `src/Sage/Core/DetachableEventSynchronizer.cs`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| DESYNC-01 | `GetSynchChannel(sequencer)` allocates a synchronization channel with an ordering key |
+| DESYNC-02 | `ISynchChannel.Synchronize()` suspends the calling DE until all channels have called `Synchronize()` |
+| DESYNC-03 | When all channels have synchronized, DEs are resumed in `sequencer` order (ascending) |
+| DESYNC-04 | If a DE is aborted while waiting at the barrier, the abort handler cleans up properly |
+
+---
+
+## 9. Model — Simulation Container
+
+**File:** `src/Sage/Core/Model.cs`, `src/Sage/Core/IModel.cs`
+
+### 9.1 Executive Ownership
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| M-EXEC-01 | `Model` creates its own `IExecutive` via `ExecFactory` in the constructor |
+| M-EXEC-02 | `Model.Executive` property exposes the owned executive |
+| M-EXEC-03 | `Dispose()` disposes the executive |
+
+### 9.2 Model Lifecycle
+
+Default state machine: 2-state (Idle ↔ Running). Transition matrix allows Idle→Running and Running→Idle.
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| M-LIFE-01 | `Model.Start()` triggers state machine transition to `Running`, which calls `RunModel()` state method, which calls `Executive.Start()` (blocking) |
+| M-LIFE-02 | After `Model.Start()` returns, `IsCompleted = true` and `IsRunning = false` |
+| M-LIFE-03 | `Model.Pause()` delegates to `Executive.Pause()` — sets `IsPaused = true` |
+| M-LIFE-04 | `Model.Resume()` delegates to `Executive.Resume()` — sets `IsPaused = false` |
+| M-LIFE-05 | `Model.Abort()` calls `Executive.Stop()` then transitions state machine to Idle |
+| M-LIFE-06 | `Model.Reset()` only works when `IsCompleted = true`; resets executive, transitions to Idle, sets `IsReady = true` |
+| M-LIFE-07 | `Starting`, `Stopping`, `Completed`, `Resetting` events fire at appropriate lifecycle points |
+
+### 9.3 Error Management
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| M-ERR-01 | `AddError(error)` checks all registered `IErrorHandler`s first; if one handles it, error is cleared and method returns `false` |
+| M-ERR-02 | If no handler clears the error, it's added to the error list, `ErrorHappened` fires, and model aborts (transitions to Idle) |
+| M-ERR-03 | Error-triggered abort is suppressed if `StateMachine.IsTransitioning` (prevents nested abort during transition) |
+| M-ERR-04 | `HasErrors()` / `HasWarnings()` reflect current error/warning state |
+| M-ERR-05 | `ClearAllErrors()` / `ClearAllErrorsFor(target)` remove errors from the list |
+
+### 9.4 Random Seed / Determinism
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| M-RNG-01 | `RandomSeed` can be set exactly once before `RandomServer` is first accessed |
+| M-RNG-02 | Setting `RandomSeed` after `RandomServer` is initialized throws (or is no-op — verify behavior) |
+| M-RNG-03 | Two models with the same `RandomSeed`, same events, and same executive type produce identical event sequences (determinism) |
+
+### 9.5 Services
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| M-SVC-01 | `AddService<T>(service)` registers a service retrievable via `GetService<T>()` |
+| M-SVC-02 | `AddService<T>(service, name)` allows multiple services of the same type with different names |
+| M-SVC-03 | `GetService<T>(name)` returns null if no matching service is registered |
+
+---
+
+## 10. Metronome — Periodic Event Generation
+
+**Files:** `src/Sage/Core/MetronomeBase.cs`, `src/Sage/Core/SimpleMetronome.cs`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| MET-01 | `SimpleMetronome` fires `TickEvent` at regular `Period` intervals between `StartAt` and `FinishAfter` |
+| MET-02 | `TickIndex` increments by 1 on each tick |
+| MET-03 | `TotalTicksExpected` accurately predicts the number of ticks based on (FinishAfter - StartAt) / Period |
+| MET-04 | `Abort()` stops the metronome from generating further ticks |
+| MET-05 | When `autoFinish = true`, ticks are daemon events (don't keep executive alive) |
+| MET-06 | `SimpleMetronome.CreateMetronome` with identical parameters returns the same cached instance per executive |
+| MET-07 | Cache is cleaned up when executive finishes |
+
+---
+
+## 11. ExecController — Execution Throttling
+
+**File:** `src/Sage/Core/ExecController.cs`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| CTRL-01 | `Scale` controls the ratio of simulation time to real-world time (logarithmic: `linearScale = 10^logScale`) |
+| CTRL-02 | `FrameRate` must be ≤ 25; values > 25 throw |
+| CTRL-03 | `Scale = double.MinValue` disables throttling and sets FrameRate to 0 |
+| CTRL-04 | `Render` event fires at the specified frame rate during execution |
+| CTRL-05 | `Disable = true` bypasses all throttling |
+
+---
+
+## 12. InitializationManager — Dependency-Ordered Init
+
+**File:** `src/Sage/Core/InitializationManager.cs`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| INIT-01 | Zero-dependency initializers run before dependency-ordered initializers |
+| INIT-02 | Dependent initializers run in topological order based on Guid dependencies |
+| INIT-03 | Circular dependencies are detected and reported as `GraphCycleException` |
+| INIT-04 | Multi-generation initialization: tasks added during init trigger another generation |
+| INIT-05 | `Generation` property accurately tracks the current initialization generation |
+| INIT-06 | `InitializationBeginning` fires at the start of each generation |
+| INIT-07 | `InitializationCompleted` fires only after generation 0 completes |
+
+---
+
+## 13. SageOptions — Configuration
+
+**File:** `src/Sage/Core/SageOptions.cs`
+
+**Testable Claims:**
+
+| ID | Claim |
+|----|-------|
+| OPT-01 | `ExecutiveOptions` defaults: `IgnoreCausalityViolations = true`, `MaxWorkerThreads = 900`, `MinWorkerThreads = 100` |
+| OPT-02 | `ExecFactoryOptions` default: `DefaultExecutiveType = "Highpoint.Sage.Core.Executive, Sage"` |
+| OPT-03 | Options passed to `ExecFactory.Configure()` affect all subsequently created executives |
+
+---
+
+## Cross-Cutting Concerns — Priority Test Areas
+
+### Determinism
+- **CRITICAL:** Same event schedule + same seed = identical dispatch order and timing. This is THE fundamental contract of a DES library.
+- Test by running the same scenario twice with identical setup and verifying event-by-event dispatch order.
+
+### Executive Interchangeability
+- Both `Executive` and `ExecutiveFastLight` implement `IExecutive`, but `ExecutiveFastLight` has significant feature gaps.
+- Tests should verify that shared behaviors (time ordering, daemon events, lifecycle events) work identically on both implementations.
+- Tests should verify that unsupported features throw expected exceptions on `ExecutiveFastLight`.
+
+### Event Dispatch Integrity Under Load
+- Heap ordering must remain correct with 10, 100, 1000, 10000 events.
+- Interleaved scheduling (events scheduled from within event handlers) must maintain correct ordering.
+- Mixed priority/time combinations should be tested combinatorially.
+
+### State Machine Isolation
+- The two-phase commit protocol must be tested independently of the Model (StateMachine is usable standalone).
+- Rollback must leave NO side effects (state unchanged, no commit handlers fired).
+- Prepare handlers that fail must still allow subsequent Prepare handlers to run (no short-circuit).
+
+---
+
+## File Reference Index
+
+| Component | File | Key Methods |
+|-----------|------|-------------|
+| IExecutive interface | `src/Sage/Core/IExecutive.cs` | All scheduling, lifecycle, monitor APIs |
+| Executive (full) | `src/Sage/Core/Executive.cs` | `Start()`, `CompareEvents()`, `HeapEnqueue/Dequeue()`, dispatch loop |
+| ExecutiveFastLight | `src/Sage/Core/ExecutiveFastLight.cs` | `StartWcv()`, `StartWocv()`, `Enqueue/Dequeue()` |
+| ExecEvent | `src/Sage/Core/ExecEvent.cs` | `Get()`, `OnServiceCompleted()` |
+| ExecEventComparer | `src/Sage/Core/ExecEventComparer.cs` | `Compare()` |
+| ExecEventRemover | `src/Sage/Core/ExecEventRemover.cs` | `FilterOnEventId()`, `FilterOnFullData()`, `FilterOnTargetAll()` |
+| ExecFactory | `src/Sage/Core/ExecFactory.cs` | `Instance`, `Configure()`, `CreateExecutive()` |
+| StateMachine | `src/Sage/Core/StateMachine.cs` | `DoTransition()`, `ForceOverrideState()`, `RunTransitionSequence()` |
+| EnumStateMachine | `src/Sage/Core/EnumStateMachine.cs` | `ToState()`, `TimeSpentInState()` |
+| DetachableEvent | `src/Sage/Core/DetachableEvent.cs` | `Begin()`, `Suspend()`, `Resume()`, `Abort()` |
+| DetachableEventSynchronizer | `src/Sage/Core/DetachableEventSynchronizer.cs` | `GetSynchChannel()`, `Synchronize()` |
+| Model | `src/Sage/Core/Model.cs` | `Start()`, `Pause()`, `Resume()`, `Abort()`, `Reset()`, `RunModel()` |
+| MetronomeBase | `src/Sage/Core/MetronomeBase.cs` | `OnExecEvent()`, `Abort()` |
+| SimpleMetronome | `src/Sage/Core/SimpleMetronome.cs` | `CreateMetronome()`, `FireEvents()` |
+| ExecController | `src/Sage/Core/ExecController.cs` | `Scale`, `FrameRate`, `Render` |
+| InitializationManager | `src/Sage/Core/InitializationManager.cs` | `AddInitializationTask()`, `model_ModelInitializing()` |
+| SageOptions | `src/Sage/Core/SageOptions.cs` | `ExecutiveOptions`, `ExecFactoryOptions` |
+| InvalidTransitionHandler | `src/Sage/Core/InvalidTransitionHandler.cs` | `IsValidTransition`, `Puke()` |
+| CausalityException | `src/Sage/Core/CausalityException.cs` | Constructor |
+| ExceptionHandler delegate | `src/Sage/Core/ExceptionHandler.cs` | `ExceptionHandler(IModel, Exception, out bool)` |
+
+---
+
+**Total testable claims: ~130**
+
+**Priority for Hudson (testing order):**
+1. Event ordering (E-ORD-*) — foundational correctness
+2. Causality checking (E-CAUS-*, EFL-CAUS-*) — safety guarantee
+3. Executive lifecycle (E-LIFE-*) — state correctness
+4. Event cancellation (E-CANCEL-*) — queue integrity
+5. StateMachine two-phase commit (SM-TX-*) — transition safety
+6. Detachable events (DE-*) — threading correctness
+7. Model lifecycle (M-LIFE-*) — integration correctness
+8. Everything else
+
