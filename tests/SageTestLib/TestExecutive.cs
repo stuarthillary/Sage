@@ -24,6 +24,9 @@ namespace Highpoint.Sage.Core
         private ArrayList _validateUnRequest;
 
         private ExecEventType _execEventType = ExecEventType.Synchronous;
+        
+        // Lock object to serialize tests that modify shared ExecFactory state
+        private static readonly object _execFactoryLock = new object();
         #endregion Private Fields
 
         public ExecTester()
@@ -1131,6 +1134,255 @@ namespace Highpoint.Sage.Core
             //Thread.CurrentThread.Suspend();
             //    Thread.Sleep(1000);
             //}
+        }
+
+        /// <summary>
+        /// Test 1: Verifies that exceptions thrown in event handlers propagate out of Start().
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that exceptions thrown in event handlers propagate out of Start().")]
+        public void Executive_EventHandlerException_PropagatesToCaller()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            bool eventFired = false;
+
+            exec.RequestEvent((e, userData) =>
+            {
+                eventFired = true;
+                throw new InvalidOperationException("Test exception from handler");
+            }, DateTime.MinValue + TimeSpan.FromMinutes(10), 0.0, null, ExecEventType.Synchronous);
+
+            RuntimeException ex = Assert.Throws<RuntimeException>(() => exec.Start());
+            Assert.True(eventFired, "Event should have fired before exception was thrown");
+            Assert.NotNull(ex.InnerException);
+            Assert.IsType<InvalidOperationException>(ex.InnerException);
+        }
+
+        /// <summary>
+        /// Test 2 & 3 combined: Verifies causality violation behavior (throw vs ignore).
+        /// NOTE: Due to Executive's static _ignoreCausalityViolations field, these must be tested together.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies causality violation behavior - throw when not ignored, silent when ignored.")]
+        public void Executive_CausalityViolation_BehaviorTest()
+        {
+            lock (_execFactoryLock)
+            {
+                // PART 1: Test that causality violations throw when not ignored
+                ExecFactory.Configure(new ExecFactoryOptions(), new ExecutiveOptions { IgnoreCausalityViolations = false });
+                
+                // Reset the ExecFactory singleton to pick up new configuration
+                ResetExecFactorySingleton();
+
+                try
+                {
+                    IExecutive exec1 = ExecFactory.Instance.CreateExecutive();
+
+                    bool outerEventFired = false;
+
+                    DateTime futureTime = DateTime.MinValue + TimeSpan.FromMinutes(100);
+                    DateTime pastTime = DateTime.MinValue + TimeSpan.FromMinutes(50);
+
+                    exec1.RequestEvent((e, userData) =>
+                    {
+                        outerEventFired = true;
+                        // Try to schedule an event in the past (causality violation)
+                        e.RequestEvent((innerExec, innerData) => { }, pastTime, 0.0, null, ExecEventType.Synchronous);
+                    }, futureTime, 0.0, null, ExecEventType.Synchronous);
+
+                    // The CausalityException will be caught by Executive and re-thrown as RuntimeException
+                    RuntimeException ex = Assert.Throws<RuntimeException>(() => exec1.Start());
+                    Assert.True(outerEventFired, "Outer event should have fired");
+                    Assert.NotNull(ex.InnerException);
+                    Assert.IsType<CausalityException>(ex.InnerException);
+                }
+                finally
+                {
+                    // Restore default setting for subsequent tests
+                    ExecFactory.Configure(new ExecFactoryOptions(), new ExecutiveOptions { IgnoreCausalityViolations = true });
+                    ResetExecFactorySingleton();
+                }
+
+                // PART 2: Test that causality violations are silently ignored when option is set
+                IExecutive exec2 = ExecFactory.Instance.CreateExecutive();
+
+                bool outerEventFired2 = false;
+                bool innerEventFired2 = false;
+
+                DateTime futureTime2 = DateTime.MinValue + TimeSpan.FromMinutes(100);
+                DateTime pastTime2 = DateTime.MinValue + TimeSpan.FromMinutes(50);
+
+                exec2.RequestEvent((e, userData) =>
+                {
+                    outerEventFired2 = true;
+                    // Try to schedule an event in the past - should be silently ignored
+                    e.RequestEvent((innerExec, innerData) =>
+                    {
+                        innerEventFired2 = true;
+                    }, pastTime2, 0.0, null, ExecEventType.Synchronous);
+                }, futureTime2, 0.0, null, ExecEventType.Synchronous);
+
+                exec2.Start();
+
+                Assert.True(outerEventFired2, "Outer event should have fired (part 2)");
+                // Inner event should NOT fire because it was in the past and was ignored
+                Assert.False(innerEventFired2, "Inner event should not have fired (silently ignored)");
+                Assert.Equal(ExecState.Finished, exec2.State);
+            }
+        }
+
+        /// <summary>
+        /// Helper method to reset ExecFactory singleton using reflection.
+        /// Required to force ExecFactory to recreate with new configuration.
+        /// </summary>
+        private void ResetExecFactorySingleton()
+        {
+            var field = typeof(ExecFactory).GetField("_instance", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (field != null)
+            {
+                field.SetValue(null, null);
+            }
+        }
+
+        /// <summary>
+        /// Test 4: Verifies that Reset clears the queue and resets Now to initial state.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that Reset clears the queue and resets Now to initial state.")]
+        public void Executive_Reset_ClearsQueueAndResetsNow()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            
+            int eventCount = 0;
+            DateTime eventTime = DateTime.MinValue + TimeSpan.FromMinutes(100);
+
+            // Schedule some events
+            exec.RequestEvent((e, userData) => { eventCount++; }, eventTime, 0.0, null, ExecEventType.Synchronous);
+            exec.RequestEvent((e, userData) => { eventCount++; }, eventTime + TimeSpan.FromMinutes(10), 0.0, null, ExecEventType.Synchronous);
+
+            exec.Start();
+            Assert.Equal(2, eventCount);
+            Assert.True(exec.Now > DateTime.MinValue, "Executive should have advanced in time");
+
+            // Reset the executive
+            exec.Reset();
+
+            // Verify state after reset
+            Assert.Equal(DateTime.MinValue, exec.Now);
+            Assert.Equal(ExecState.Stopped, exec.State);
+
+            // Schedule a new event after reset and verify it fires
+            eventCount = 0;
+            exec.RequestEvent((e, userData) => { eventCount++; }, DateTime.MinValue + TimeSpan.FromMinutes(50), 0.0, null, ExecEventType.Synchronous);
+            exec.Start();
+            Assert.Equal(1, eventCount);
+        }
+
+        /// <summary>
+        /// Test 5: Verifies that events at the same time and priority are dispatched in submission order (FIFO).
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that events at the same time and priority are dispatched in submission order (FIFO).")]
+        public void Executive_SameTimeEqualPriority_DispatchedBySubmissionOrder()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            
+            List<int> executionOrder = new List<int>();
+            DateTime when = DateTime.MinValue + TimeSpan.FromMinutes(100);
+            double priority = 5.0;
+
+            // Schedule 5 events at the same time with the same priority
+            for (int i = 0; i < 5; i++)
+            {
+                int index = i; // Capture for closure
+                exec.RequestEvent((e, userData) =>
+                {
+                    executionOrder.Add((int)userData);
+                }, when, priority, index, ExecEventType.Synchronous);
+            }
+
+            exec.Start();
+
+            // Verify they executed in submission order (FIFO)
+            Assert.Equal(5, executionOrder.Count);
+            Assert.Equal(new[] { 0, 1, 2, 3, 4 }, executionOrder);
+        }
+
+        /// <summary>
+        /// Test 6: Verifies that an executive with an empty queue starts and finishes gracefully.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that an executive with an empty queue starts and finishes gracefully.")]
+        public void Executive_EmptyQueue_StartsAndFinishesGracefully()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+            
+            // Start with no events scheduled
+            exec.Start();
+
+            // Verify graceful completion
+            Assert.Equal(ExecState.Finished, exec.State);
+            Assert.Equal(DateTime.MinValue, exec.Now);
+        }
+
+        /// <summary>
+        /// Test 7: Verifies that the same seed produces deterministic, identical output.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that the same seed produces deterministic, identical output.")]
+        public void Executive_Determinism_SameSeedProducesSameOutput()
+        {
+            List<(DateTime when, int userData)> run1 = new List<(DateTime, int)>();
+            List<(DateTime when, int userData)> run2 = new List<(DateTime, int)>();
+
+            // Run 1
+            {
+                IExecutive exec = ExecFactory.Instance.CreateExecutive();
+                Random rng = new Random(42);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    int index = i;
+                    DateTime when = DateTime.MinValue + TimeSpan.FromMinutes(rng.Next(1, 1000));
+                    double priority = rng.NextDouble();
+                    
+                    exec.RequestEvent((e, userData) =>
+                    {
+                        run1.Add((e.Now, (int)userData));
+                    }, when, priority, index, ExecEventType.Synchronous);
+                }
+
+                exec.Start();
+            }
+
+            // Run 2 - identical scenario
+            {
+                IExecutive exec = ExecFactory.Instance.CreateExecutive();
+                Random rng = new Random(42);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    int index = i;
+                    DateTime when = DateTime.MinValue + TimeSpan.FromMinutes(rng.Next(1, 1000));
+                    double priority = rng.NextDouble();
+                    
+                    exec.RequestEvent((e, userData) =>
+                    {
+                        run2.Add((e.Now, (int)userData));
+                    }, when, priority, index, ExecEventType.Synchronous);
+                }
+
+                exec.Start();
+            }
+
+            // Verify both runs produced identical sequences
+            Assert.Equal(run1.Count, run2.Count);
+            for (int i = 0; i < run1.Count; i++)
+            {
+                Assert.Equal(run1[i].when, run2[i].when);
+                Assert.Equal(run1[i].userData, run2[i].userData);
+            }
         }
 
         #endregion

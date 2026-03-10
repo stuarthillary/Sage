@@ -1,11 +1,21 @@
-Scribe: Document Parker's TestDriver->Sage.Scratch rename completion
+test: add Priority 1 executive engine tests (330/330 passing)
 
-- Add orchestration log: 2026-03-07T23-35-52Z-parker.md
-- Add session log: 2026-03-07T23-35-52Z-scratch-rename.md
-- Merge decision inbox: parker-scratch-rename.md -> decisions.md
-- Update Parker's history with final rename completion
-- Delete processed inbox file
+- Executive_EventHandlerException_PropagatesToCaller: Verifies exception propagation from handlers
+- Executive_CausalityViolation_BehaviorTest: Tests causality throw/ignore behavior with static field isolation
+- Executive_Reset_ClearsQueueAndResetsNow: Validates Reset() queue clearing and state reset
+- Executive_SameTimeEqualPriority_DispatchedBySubmissionOrder: Confirms FIFO dispatch tiebreaker
+- Executive_EmptyQueue_StartsAndFinishesGracefully: Tests empty queue handling
+- Executive_Determinism_SameSeedProducesSameOutput: Validates deterministic replay with seeded Random
 
-Completes documentation for the final project naming standardization task.
+Key findings:
+- Static field Executive._ignoreCausalityViolations causes cross-test contamination; mitigation via reflection-based ExecFactory singleton reset
+- ExecFactory singleton captures options at creation; Configure() has no effect post-instantiation
+- FIFO dispatch guaranteed by _nextReqHashCode incrementing counter
+- All 330 tests passing, 0 errors, 0 warnings
+
+Orchestration artifacts:
+- .squad/orchestration-log/2026-03-10T00-12-00Z-hudson.md
+- .squad/log/2026-03-10T00-12-00Z-priority1-tests.md
+- Decision merged to .squad/decisions.md
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>

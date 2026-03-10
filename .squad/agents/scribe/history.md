@@ -49,10 +49,30 @@ Agent Scribe initialized and ready for work.
 
 Design spec is implementation-ready. No blocking issues. Parker has detailed checklist and pseudocode for heap operations.
 
+## Test Verification Phase: Priority 1 Executive Coverage (2026-03-10)
+
+### Hudson (QA Engineer)
+
+- **Completion date:** 2026-03-10T00:12:00Z
+- **6 Priority 1 tests added to TestExecutive.cs:**
+  1. Exception handler propagation verification
+  2. Causality violation throw/ignore behavior (combined due to static field)
+  3. Reset() queue clearing and state reset
+  4. FIFO tiebreaker verification (same time, same priority)
+  5. Empty queue graceful handling
+  6. Determinism validation (Random seed repeatability)
+- **Key findings:** Static field `Executive._ignoreCausalityViolations` contaminates cross-test. ExecFactory singleton requires reflection reset after `Configure()`.
+- **Build status:** 0 errors, 0 warnings. **All 330 tests passing** (was 324).
+
+### Orchestration Log
+- Created: `.squad/orchestration-log/2026-03-10T00-12-00Z-hudson.md`
+- Session log: `.squad/log/2026-03-10T00-12-00Z-priority1-tests.md`
+
 ## Learnings
 
 - Composite sort keys require careful attention in heap implementations
 - Reverse lookup (Join) and mid-queue removal complicate heap optimization
 - Scope containment (no pooling changes yet) reduces regression risk
 - Benchmarking must validate priority-heavy workloads separately
+- Static field contamination requires fixture-level reset strategies (reflection-based singleton reset)
 

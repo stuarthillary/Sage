@@ -1,3 +1,24 @@
+### 2026-03-10 — Priority 1 Executive Tests Written ✅
+
+**Status:** COMPLETE — 6 new Priority 1 tests added to TestExecutive.cs
+
+**Test suite:** 330/330 passing (was 324 before)
+
+**Tests added:**
+1. `Executive_EventHandlerException_PropagatesToCaller` — Exception propagation verified
+2. `Executive_CausalityViolation_BehaviorTest` — Causality enforcement tested (throw + ignore modes)
+3. `Executive_Reset_ClearsQueueAndResetsNow` — Reset correctness verified  
+4. `Executive_SameTimeEqualPriority_DispatchedBySubmissionOrder` — FIFO tiebreaker confirmed
+5. `Executive_EmptyQueue_StartsAndFinishesGracefully` — Empty queue handling verified
+6. `Executive_Determinism_SameSeedProducesSameOutput` — Deterministic replay confirmed
+
+**Orchestration artifacts:**
+- Orchestration log: `.squad/orchestration-log/2026-03-10T00-12-00Z-hudson.md`
+- Session log: `.squad/log/2026-03-10T00-12-00Z-priority1-tests.md`
+- Decision merged to `.squad/decisions.md` (inbox deleted)
+
+**Next:** Priority 2 tests (8 tests) for error handling and RequestImmediateEvent
+
 ### 2026-03-09 — Core Engine Test Coverage Audit Complete ✅
 
 **Status:** Analysis complete, findings documented
@@ -37,6 +58,20 @@
 ### 2026-05-30 — Core Engine Test Coverage Audit Complete ✅
 
 ## Learnings
+
+### 2026-03-10 — Priority 1 Tests Implementation
+
+- **ExecFactory singleton constraint:** The ExecFactory singleton captures `ExecutiveOptions` at creation time in `_instanceExecutiveOptions` (line 32-38 of ExecFactory.cs). Calling `Configure()` after the singleton is created does NOT affect existing instances. Tests must use reflection to reset the singleton: `typeof(ExecFactory).GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, null)`.
+
+- **Static field contamination confirmed in practice:** `Executive._ignoreCausalityViolations` is static (line 44) but set by instance constructors (line 66). This means creating ANY executive sets the static field for ALL executives globally, including those created in other tests running in parallel. Tests 2 and 3 had to be combined with explicit locking and singleton reset to prevent race conditions.
+
+- **Exception propagation behavior:** When an event handler throws, the Executive catches it at line 721-728, stores in `_terminationException`, sets `_stopRequested = true`, and after the event loop finishes, re-throws as `RuntimeException` with the original exception as InnerException (line 826). The executive state transitions to Finished or Stopped depending on queue state.
+
+- **Reset() implementation:** `Reset()` (lines 1027-1042) sets `_state = ExecState.Stopped`, `_now = DateTime.MinValue`, allocates a new event heap, clears counters, calls `Resume()` to clear pause state, and fires the ExecutiveReset event. Post-reset, a new simulation can be scheduled and run.
+
+- **FIFO tiebreaker mechanism:** Events submitted at the same time with the same priority are ordered by `_nextReqHashCode` (line 343), an incrementing `long` counter. This guarantees FIFO (submission order) dispatch for ties, which is critical for simulation determinism.
+
+- **Determinism verification:** With a fixed `Random` seed, event submission times and priorities are reproducible. The heap-based event queue then dispatches events in a deterministic order (time, then priority, then submission order). Two runs with `Random(42)` produced identical event sequences.
 
 - **CausalityException has zero test coverage.** `Executive.RequestEvent` throws `CausalityException` when `when < _now` and `IgnoreCausalityViolations = false`, but no test exercises this path. This is the highest-risk gap — a regression here silently breaks DES correctness.
 
