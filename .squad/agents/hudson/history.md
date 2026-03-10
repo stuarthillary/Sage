@@ -59,6 +59,20 @@
 
 ## Learnings
 
+### 2026-03-10 — Priority 2 Tests Implementation
+
+- **Daemon event behavior (confirmed):** Daemon events do NOT fire when they are the only events remaining in the queue. The dispatch loop condition in Executive.cs (line 636) is `_numEventsInQueue > _numDaemonEventsInQueue`. When only daemons remain, the condition is `n > n` (false) and the loop exits without firing the daemon events.
+
+- **Pause/Resume API names:** The methods are `exec.Pause()` and `exec.Resume()` (not `Suspend`/`Resume`). Internally, Pause works by pulsing `_runLock` to wake a PauseManager background thread, which then acquires `_runLock` and holds it, blocking the exec loop's next iteration. When calling `Pause()` from inside a synchronous event handler (on the exec thread), a `Thread.Sleep(50)` is needed after calling Pause() to ensure PauseManager acquires `_runLock` before the handler returns and the exec advances — otherwise there is a race where the exec can fire more events before PauseManager catches up.
+
+- **RequestEvent on a Finished executive throws:** Calling `RequestEvent(...)` on an executive in `ExecState.Finished` throws `ApplicationException("Event service cannot be requested from an Executive that is in the \"Finished\" state.")`. It does NOT silently ignore. This is implemented at Executive.cs line ~359 inside the `RequestEvent` private overload.
+
+- **UnRequestEvent with selector on empty queue:** `UnRequestEvents(IExecEventSelector)` is safe to call even when no events are queued. The removal is pushed to the `_removals` stack; when Start() runs and processes the stack, the selector filter produces an empty "remaining" list — no exception. This is in contrast to `UnRequestEvent(long)` (by key), which would throw `ApplicationException` if the key is not found (via `FilterOnEventId`).
+
+- **ResubmitEventAtTime signature:** `ResubmitEventAtTime(long eventID, DateTime newTime, bool deleteOldOne)`. The `eventID` must refer to an event currently IN the queue (not the event currently being dispatched). It creates a new event with the same properties at `newTime`; `deleteOldOne:false` keeps the original, `true` removes it. Returns the new event's key.
+
+
+
 ### 2026-03-10 — Priority 1 Tests Implementation
 
 - **ExecFactory singleton constraint:** The ExecFactory singleton captures `ExecutiveOptions` at creation time in `_instanceExecutiveOptions` (line 32-38 of ExecFactory.cs). Calling `Configure()` after the singleton is created does NOT affect existing instances. Tests must use reflection to reset the singleton: `typeof(ExecFactory).GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, null)`.

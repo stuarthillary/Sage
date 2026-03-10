@@ -2,6 +2,35 @@
 
 ## Active Decisions
 
+### 2026-03-10: Priority 2 executive tests written (COMPLETE ✅)
+
+**By:** Hudson (QA Engineer)  
+**Date:** 2026-03-10  
+**Status:** Complete  
+**Requested by:** Stuart Hillary
+
+**What:** 8 Priority 2 tests added to `tests/SageTestLib/TestExecutive.cs` covering RequestImmediateEvent, ResubmitEventAtTime, UnRequestEvents with a predicate selector, empty-queue removal, daemon event behavior, Pause/Resume mid-simulation, ExecState lifecycle, and RequestEvent after Finished.
+
+**Status:** All passing. Previous 330 tests still green. Total now 338.
+
+**Tests added:**
+1. `Executive_RequestImmediateEvent_FiresBeforeQueuedFutureEvents` — confirmed immediate events scheduled at `exec.Now` dispatch before future-queued events (FIFO within same time/priority)
+2. `Executive_ResubmitEventAtTime_ReschedulesEvent` — confirmed `ResubmitEventAtTime(id, newTime, deleteOldOne:false)` queues a copy of the event at the new time; original fires at T+100 AND copy fires at T+200
+3. `Executive_UnRequestEvent_WithEventSelector` — confirmed selector-based removal targets only matching events; non-matching events fire normally
+4. `Executive_UnRequestEvent_OnEmptyQueue_DoesNotThrow` — confirmed `UnRequestEvents(selector)` on an empty queue (with Start() completing) raises no exception; selector-based removal is a no-op when nothing matches
+5. `Executive_DaemonEvent_FiresWhenQueueEmptied` — **confirmed daemon events do NOT fire when they are the only remaining events**; the dispatch loop condition `_numEventsInQueue > _numDaemonEventsInQueue` causes the executive to exit without firing the daemon
+6. `Executive_PauseAndResume_ContinuesCorrectly` — confirmed `exec.Pause()` (called from inside a handler on the exec thread) suspends dispatch after the current handler returns; `exec.Resume()` continues dispatch; all events fire and state reaches Finished
+7. `Executive_ExecState_TransitionsThroughLifecycle` — confirmed full lifecycle: Stopped → Running (verified from inside handler) → Finished (after Start() returns) → Stopped (after Reset())
+8. `Executive_RequestEvent_AfterFinished_ThrowsOrIgnores` — confirmed `RequestEvent` on a Finished executive throws `ApplicationException` with "Finished" in the message
+
+**Key findings:**
+- **Daemon behavior:** Daemons do NOT keep the simulation running — they are skipped if they are the only events in queue. Loop condition: `_numEventsInQueue > _numDaemonEventsInQueue`.
+- **Pause/Resume API:** `exec.Pause()` and `exec.Resume()` are the correct method names (not `Suspend`). Pause works via a PauseManager background thread that holds `_runLock`. When Pause() is called from inside a synchronous handler, a `Thread.Sleep(50)` is needed to allow PauseManager to acquire `_runLock` before the handler returns and the exec loop continues.
+- **RequestEvent on Finished:** Throws `ApplicationException("Event service cannot be requested from an Executive that is in the \"Finished\" state.")` — NOT silently ignored. The `_stopRequested`/`_abortRequested` checks return -1, but the `_state == Finished` check throws before that.
+- **Added helper class:** `UserDataPrefixSelector : IExecEventSelector` — simple predicate selector for string-prefix userData matching, used by tests 3 and 4.
+
+---
+
 ### Parker Nullable Migration Complete (COMPLETE ✅)
 
 

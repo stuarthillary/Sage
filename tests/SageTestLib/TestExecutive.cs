@@ -1385,7 +1385,287 @@ namespace Highpoint.Sage.Core
             }
         }
 
+        // ── Priority 2 executive tests ────────────────────────────────────────────
+        // These 8 tests cover RequestImmediateEvent, ResubmitEventAtTime,
+        // UnRequestEvents with a selector, empty-queue removal, daemon event
+        // behavior, Pause/Resume, ExecState lifecycle, and post-Finished RequestEvent.
+
+        /// <summary>
+        /// P2-Test 1: Verifies that RequestImmediateEvent schedules at the current exec time,
+        /// causing it to fire before a previously-queued future event.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that RequestImmediateEvent fires before a future-scheduled event already in queue.")]
+        public void Executive_RequestImmediateEvent_FiresBeforeQueuedFutureEvents()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            List<string> firingOrder = new List<string>();
+            DateTime t50  = DateTime.MinValue + TimeSpan.FromMinutes(50);
+            DateTime t100 = DateTime.MinValue + TimeSpan.FromMinutes(100);
+
+            // Pre-queue an event at T+100.
+            exec.RequestEvent((e, ud) => { firingOrder.Add("future-T100"); },
+                t100, 0.0, null, ExecEventType.Synchronous);
+
+            // At T+50, request an immediate event (effective time == exec.Now == T+50).
+            exec.RequestEvent((e, ud) =>
+            {
+                e.RequestImmediateEvent((ie, iud) => { firingOrder.Add("immediate"); },
+                    null, ExecEventType.Synchronous);
+                firingOrder.Add("trigger-T50");
+            }, t50, 0.0, null, ExecEventType.Synchronous);
+
+            exec.Start();
+
+            Assert.Equal(3, firingOrder.Count);
+            // Order must be: trigger fires at T+50, then immediate (also at T+50, same priority
+            // but submitted right after trigger so next FIFO), then the T+100 future event.
+            Assert.Equal("trigger-T50",  firingOrder[0]);
+            Assert.Equal("immediate",    firingOrder[1]);
+            Assert.Equal("future-T100",  firingOrder[2]);
+        }
+
+        /// <summary>
+        /// P2-Test 2: Verifies that ResubmitEventAtTime moves a queued event to a new time.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that ResubmitEventAtTime reschedules a queued event to the new time.")]
+        public void Executive_ResubmitEventAtTime_ReschedulesEvent()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            DateTime t50  = DateTime.MinValue + TimeSpan.FromMinutes(50);
+            DateTime t100 = DateTime.MinValue + TimeSpan.FromMinutes(100);
+            DateTime t200 = DateTime.MinValue + TimeSpan.FromMinutes(200);
+
+            List<DateTime> firedAt = new List<DateTime>();
+
+            // Event B will be resubmitted to T+200 from event A's handler.
+            long eventBKey = exec.RequestEvent((e, ud) => { firedAt.Add(e.Now); },
+                t100, 0.0, "B", ExecEventType.Synchronous);
+
+            exec.RequestEvent((e, ud) =>
+            {
+                // Resubmit event B (which is still in queue) to T+200, keeping the old one too.
+                e.ResubmitEventAtTime(eventBKey, t200, deleteOldOne: false);
+            }, t50, 0.0, "A", ExecEventType.Synchronous);
+
+            exec.Start();
+
+            // Event B should fire twice: once at T+100 (original) and once at T+200 (resubmitted).
+            Assert.Equal(2, firedAt.Count);
+            Assert.Equal(t100, firedAt[0]);
+            Assert.Equal(t200, firedAt[1]);
+        }
+
+        /// <summary>
+        /// P2-Test 3: Verifies that UnRequestEvents with an IExecEventSelector removes only the
+        /// targeted events, leaving the rest to fire normally.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that UnRequestEvents with a selector removes only events matching the selector's predicate.")]
+        public void Executive_UnRequestEvent_WithEventSelector()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            List<string> firedUserData = new List<string>();
+            DateTime t = DateTime.MinValue + TimeSpan.FromMinutes(10);
+            ExecEventReceiver callback = (e, ud) => { firedUserData.Add((string)ud); };
+
+            exec.RequestEvent(callback, t,                        0.0, "keep-A",  ExecEventType.Synchronous);
+            exec.RequestEvent(callback, t + TimeSpan.FromMinutes(1), 0.0, "remove-1", ExecEventType.Synchronous);
+            exec.RequestEvent(callback, t + TimeSpan.FromMinutes(2), 0.0, "keep-B",  ExecEventType.Synchronous);
+            exec.RequestEvent(callback, t + TimeSpan.FromMinutes(3), 0.0, "remove-2", ExecEventType.Synchronous);
+
+            // Selector: target events whose userData string starts with "remove".
+            IExecEventSelector selector = new UserDataPrefixSelector("remove");
+            exec.UnRequestEvents(selector);
+
+            exec.Start();
+
+            Assert.Equal(2, firedUserData.Count);
+            Assert.Contains("keep-A", firedUserData);
+            Assert.Contains("keep-B", firedUserData);
+            Assert.DoesNotContain("remove-1", firedUserData);
+            Assert.DoesNotContain("remove-2", firedUserData);
+        }
+
+        /// <summary>
+        /// P2-Test 4: Verifies that calling UnRequestEvents on an executive with no events
+        /// (using a selector that matches nothing) does not throw any exception.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that UnRequestEvents with a selector on an empty queue does not throw.")]
+        public void Executive_UnRequestEvent_OnEmptyQueue_DoesNotThrow()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            // No events scheduled — selector matches nothing.
+            IExecEventSelector selector = new UserDataPrefixSelector("anything");
+            exec.UnRequestEvents(selector); // Queues the removal.
+
+            // Start with empty queue — removal processes harmlessly.
+            var ex = Record.Exception(() => exec.Start());
+            Assert.Null(ex);
+            Assert.Equal(ExecState.Finished, exec.State);
+        }
+
+        /// <summary>
+        /// P2-Test 5: Verifies that daemon events do NOT fire when they are the only events
+        /// remaining in the queue — the executive exits the dispatch loop without firing them.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that daemon events are skipped when they are the only remaining events — they do not keep the simulation alive.")]
+        public void Executive_DaemonEvent_FiresWhenQueueEmptied()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            bool regularFired = false;
+            bool daemonFired  = false;
+
+            DateTime t100 = DateTime.MinValue + TimeSpan.FromMinutes(100);
+            DateTime t200 = DateTime.MinValue + TimeSpan.FromMinutes(200);
+
+            exec.RequestEvent((e, ud) => { regularFired = true; },
+                t100, 0.0, null, ExecEventType.Synchronous);
+
+            exec.RequestDaemonEvent((e, ud) => { daemonFired = true; },
+                t200, 0.0, null);
+
+            exec.Start();
+
+            // Regular event fires; daemon event must NOT fire (only daemons remain after T+100).
+            Assert.True(regularFired,  "Regular event should have fired.");
+            Assert.False(daemonFired,  "Daemon event must NOT fire when it is the only event remaining.");
+            Assert.Equal(ExecState.Finished, exec.State);
+        }
+
+        /// <summary>
+        /// P2-Test 6: Verifies that Pause() mid-simulation suspends dispatch and Resume() continues it.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that Pause() halts event dispatch mid-simulation and Resume() allows it to complete.")]
+        public void Executive_PauseAndResume_ContinuesCorrectly()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            int firedCount = 0;
+            var eventOneFired = new System.Threading.ManualResetEventSlim(false);
+            DateTime t = DateTime.MinValue + TimeSpan.FromMinutes(10);
+
+            for (int i = 0; i < 4; i++)
+            {
+                int idx = i;
+                exec.RequestEvent((e, ud) =>
+                {
+                    firedCount++;
+                    // Signal after event 1 fires, then pause immediately.
+                    if (idx == 1)
+                    {
+                        eventOneFired.Set();
+                        e.Pause();
+                        // Brief sleep so PauseManager thread can acquire _runLock
+                        // before this handler returns and the exec loop continues.
+                        Thread.Sleep(50);
+                    }
+                }, t + TimeSpan.FromMinutes(idx * 10), 0.0, null, ExecEventType.Synchronous);
+            }
+
+            Thread execThread = new Thread(() => exec.Start());
+            execThread.IsBackground = true;
+            execThread.Start();
+
+            // Wait for event 1 to fire and the pause to be requested.
+            Assert.True(eventOneFired.Wait(TimeSpan.FromSeconds(5)), "Event 1 should have fired within 5 s");
+
+            // Wait for state to transition to Paused.
+            DateTime deadline = DateTime.UtcNow + TimeSpan.FromSeconds(5);
+            while (exec.State != ExecState.Paused && DateTime.UtcNow < deadline)
+                Thread.Sleep(5);
+
+            Assert.Equal(ExecState.Paused, exec.State);
+
+            // Events 0 and 1 must have fired; events 2 and 3 must not have.
+            Assert.Equal(2, firedCount);
+
+            exec.Resume();
+            execThread.Join(TimeSpan.FromSeconds(5));
+
+            Assert.Equal(4, firedCount);
+            Assert.Equal(ExecState.Finished, exec.State);
+        }
+
+        /// <summary>
+        /// P2-Test 7: Verifies that ExecState transitions correctly through the full lifecycle:
+        /// Stopped → Running → Finished → (after Reset) → Stopped.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies ExecState transitions through Stopped, Running, Finished, and back to Stopped after Reset.")]
+        public void Executive_ExecState_TransitionsThroughLifecycle()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            // Initial state.
+            Assert.Equal(ExecState.Stopped, exec.State);
+
+            ExecState? stateInsideHandler = null;
+
+            exec.RequestEvent((e, ud) =>
+            {
+                stateInsideHandler = e.State;
+            }, DateTime.MinValue + TimeSpan.FromMinutes(10), 0.0, null, ExecEventType.Synchronous);
+
+            exec.Start();
+
+            // During event dispatch the state must have been Running.
+            Assert.Equal(ExecState.Running, stateInsideHandler);
+
+            // After Start() returns the state must be Finished.
+            Assert.Equal(ExecState.Finished, exec.State);
+
+            // After Reset() the state must return to Stopped.
+            exec.Reset();
+            Assert.Equal(ExecState.Stopped, exec.State);
+        }
+
+        /// <summary>
+        /// P2-Test 8: Verifies that calling RequestEvent on a Finished executive throws
+        /// ApplicationException (as documented in Executive.cs line ~359).
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that RequestEvent on a Finished executive throws ApplicationException.")]
+        public void Executive_RequestEvent_AfterFinished_ThrowsOrIgnores()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            // Start with no events — exec immediately reaches Finished.
+            exec.Start();
+            Assert.Equal(ExecState.Finished, exec.State);
+
+            // Attempting to schedule a new event on a Finished executive must throw.
+            ApplicationException ex = Assert.Throws<ApplicationException>(() =>
+                exec.RequestEvent((e, ud) => { },
+                    DateTime.MinValue + TimeSpan.FromMinutes(10), 0.0, null,
+                    ExecEventType.Synchronous));
+
+            Assert.Contains("Finished", ex.Message, StringComparison.Ordinal);
+        }
+
         #endregion
+    }
+
+    /// <summary>
+    /// IExecEventSelector implementation used by Priority 2 tests.
+    /// Selects events whose userData is a string starting with the given prefix.
+    /// </summary>
+    internal class UserDataPrefixSelector : IExecEventSelector
+    {
+        private readonly string _prefix;
+        public UserDataPrefixSelector(string prefix) { _prefix = prefix; }
+
+        public bool SelectThisEvent(ExecEventReceiver eer, DateTime when, double priority, object userData, ExecEventType eet)
+            => userData is string s && s.StartsWith(_prefix, StringComparison.Ordinal);
     }
 
     public class OtherTarget
