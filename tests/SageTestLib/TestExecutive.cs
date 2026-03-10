@@ -1652,6 +1652,195 @@ namespace Highpoint.Sage.Core
             Assert.Contains("Finished", ex.Message, StringComparison.Ordinal);
         }
 
+        #region Priority 3 — Nice-to-have tests
+
+        /// <summary>
+        /// P3-Test 1: Verifies that calling Abort() from inside a synchronous event handler stops all
+        /// subsequent event dispatch. Events scheduled after the aborted point must not execute.
+        /// Start() must return without throwing, and State must be Finished.
+        /// Abort() internally calls Reset(), so Now is DateTime.MinValue after Start() returns.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that Abort() called from inside a handler stops all subsequent event dispatch and leaves the executive in Finished state.")]
+        public void Executive_Abort_FromHandler_StopsSimulation()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            bool t1Fired = false;
+            bool t3Fired = false;
+
+            DateTime t1 = DateTime.MinValue + TimeSpan.FromMinutes(10);
+            DateTime t2 = DateTime.MinValue + TimeSpan.FromMinutes(20);
+            DateTime t3 = DateTime.MinValue + TimeSpan.FromMinutes(30);
+
+            exec.RequestEvent((e, ud) => { t1Fired = true; }, t1, 0.0, null, ExecEventType.Synchronous);
+            exec.RequestEvent((e, ud) => { e.Abort(); },      t2, 0.0, null, ExecEventType.Synchronous);
+            exec.RequestEvent((e, ud) => { t3Fired = true; }, t3, 0.0, null, ExecEventType.Synchronous);
+
+            // Abort() sets _abortRequested; RuntimeException is NOT re-thrown when _abortRequested is true.
+            exec.Start();
+
+            Assert.True(t1Fired,  "Event at T1 (before abort) must have fired.");
+            Assert.False(t3Fired, "Event at T3 (after abort) must NOT fire.");
+            Assert.Equal(ExecState.Finished, exec.State);
+            // Abort() calls Reset() which sets _now = DateTime.MinValue.
+            Assert.Equal(DateTime.MinValue, exec.Now);
+        }
+
+        /// <summary>
+        /// P3-Test 2: Verifies that exec.Now advances precisely to the scheduled dispatch time
+        /// at each event invocation, and that exec.Now returns DateTime.MinValue after Reset().
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that exec.Now equals the scheduled dispatch time inside each handler, and resets to DateTime.MinValue after Reset().")]
+        public void Executive_Now_AdvancesToMatchScheduledEventTime()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            DateTime t1 = DateTime.MinValue + TimeSpan.FromMinutes(100);
+            DateTime t2 = DateTime.MinValue + TimeSpan.FromMinutes(200);
+            DateTime t3 = DateTime.MinValue + TimeSpan.FromMinutes(300);
+
+            DateTime? capturedT1 = null, capturedT2 = null, capturedT3 = null;
+
+            exec.RequestEvent((e, ud) => { capturedT1 = e.Now; }, t1, 0.0, null, ExecEventType.Synchronous);
+            exec.RequestEvent((e, ud) => { capturedT2 = e.Now; }, t2, 0.0, null, ExecEventType.Synchronous);
+            exec.RequestEvent((e, ud) => { capturedT3 = e.Now; }, t3, 0.0, null, ExecEventType.Synchronous);
+
+            exec.Start();
+
+            Assert.Equal(t1, capturedT1);
+            Assert.Equal(t2, capturedT2);
+            Assert.Equal(t3, capturedT3);
+
+            exec.Reset();
+            Assert.Equal(DateTime.MinValue, exec.Now);
+        }
+
+        /// <summary>
+        /// P3-Test 3: Verifies that EventCount accurately tracks the number of events dispatched
+        /// on each run and that it restarts from zero at the beginning of every new run.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that EventCount equals the number of events dispatched on a run, and restarts from zero on each new run after Reset().")]
+        public void Executive_EventCount_TracksAllFiredEvents()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            const int firstRunEvents = 5;
+            for (int i = 0; i < firstRunEvents; i++)
+            {
+                exec.RequestEvent((e, ud) => { },
+                    DateTime.MinValue + TimeSpan.FromMinutes(i + 1), 0.0, null, ExecEventType.Synchronous);
+            }
+
+            exec.Start();
+            Assert.Equal((uint)firstRunEvents, exec.EventCount);
+
+            exec.Reset();
+
+            const int secondRunEvents = 3;
+            for (int i = 0; i < secondRunEvents; i++)
+            {
+                exec.RequestEvent((e, ud) => { },
+                    DateTime.MinValue + TimeSpan.FromMinutes(i + 1), 0.0, null, ExecEventType.Synchronous);
+            }
+
+            exec.Start();
+            Assert.Equal((uint)secondRunEvents, exec.EventCount);
+        }
+
+        /// <summary>
+        /// P3-Test 4: Verifies that RunNumber is -1 before any run and increments by one
+        /// on each Start() call after Reset().
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that RunNumber is -1 before the first run and increments by 1 on each Start() after Reset().")]
+        public void Executive_RunNumber_IncrementsAcrossMultipleRuns()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            Assert.Equal(-1, exec.RunNumber);
+
+            exec.Start(); // First run (empty queue — finishes immediately).
+            Assert.Equal(0, exec.RunNumber);
+
+            exec.Reset();
+            exec.RequestEvent((e, ud) => { },
+                DateTime.MinValue + TimeSpan.FromMinutes(1), 0.0, null, ExecEventType.Synchronous);
+            exec.Start(); // Second run.
+            Assert.Equal(1, exec.RunNumber);
+
+            exec.Reset();
+            exec.RequestEvent((e, ud) => { },
+                DateTime.MinValue + TimeSpan.FromMinutes(1), 0.0, null, ExecEventType.Synchronous);
+            exec.Start(); // Third run.
+            Assert.Equal(2, exec.RunNumber);
+        }
+
+        /// <summary>
+        /// P3-Test 5: Verifies that CurrentEventType is None before dispatch begins, equals
+        /// Synchronous while a synchronous handler is executing, and returns to None afterward.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies that CurrentEventType returns None before/after dispatch and Synchronous while a synchronous handler is executing.")]
+        public void Executive_CurrentEventType_IsSynchronousDuringHandler()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            ExecEventType capturedBefore = exec.CurrentEventType;
+            ExecEventType? capturedDuring = null;
+
+            exec.RequestEvent((e, ud) =>
+            {
+                capturedDuring = e.CurrentEventType;
+            }, DateTime.MinValue + TimeSpan.FromMinutes(1), 0.0, null, ExecEventType.Synchronous);
+
+            exec.Start();
+
+            Assert.Equal(ExecEventType.None,        capturedBefore);
+            Assert.Equal(ExecEventType.Synchronous, capturedDuring);
+            Assert.Equal(ExecEventType.None,        exec.CurrentEventType);
+        }
+
+        /// <summary>
+        /// P3-Test 6: Schedules 1000 events at random times and verifies all fire in
+        /// non-decreasing time order and that EventCount matches the total scheduled.
+        /// This validates the heap-based priority queue under high load.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Schedules 1000 events at random times and verifies all fire in correct non-decreasing time order with correct EventCount.")]
+        public void Executive_LargeVolume_EventsFireInCorrectTimeOrder()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive();
+
+            const int N = 1000;
+            var rng = new Random(42);
+            var firingTimes = new List<DateTime>(N);
+
+            for (int i = 0; i < N; i++)
+            {
+                DateTime t = DateTime.MinValue + TimeSpan.FromMinutes(rng.Next(1, 100_000));
+                exec.RequestEvent((e, ud) =>
+                {
+                    firingTimes.Add(e.Now);
+                }, t, 0.0, null, ExecEventType.Synchronous);
+            }
+
+            exec.Start();
+
+            Assert.Equal(N,      firingTimes.Count);
+            Assert.Equal((uint)N, exec.EventCount);
+
+            for (int i = 1; i < firingTimes.Count; i++)
+            {
+                Assert.True(firingTimes[i] >= firingTimes[i - 1],
+                    $"Event {i} fired at {firingTimes[i]} before event {i - 1} at {firingTimes[i - 1]}");
+            }
+        }
+
+        #endregion Priority 3
+
         #endregion
     }
 

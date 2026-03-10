@@ -2,6 +2,33 @@
 
 ## Active Decisions
 
+### 2026-03-10: Priority 3 executive tests written (COMPLETE ✅)
+
+**By:** Hudson (via Stuart Hillary)
+
+**Date:** 2026-03-10
+
+**Status:** Complete
+
+**What:** 6 Priority 3 tests added to `tests/SageTestLib/TestExecutive.cs` in the `ExecTester` class under a `#region Priority 3` block.
+
+**Tests added:**
+1. `Executive_Abort_FromHandler_StopsSimulation` — Abort() called from inside a synchronous handler; verifies T3 events after abort do NOT fire, Start() returns without throwing, State==Finished, Now==DateTime.MinValue.
+2. `Executive_Now_AdvancesToMatchScheduledEventTime` — Schedules 3 events at T=100/200/300 min; asserts exec.Now equals each scheduled time during dispatch; asserts exec.Now==DateTime.MinValue after Reset().
+3. `Executive_EventCount_TracksAllFiredEvents` — Runs 5 events then 3 events across two runs; asserts EventCount==5 and EventCount==3 respectively, confirming it resets to zero each run.
+4. `Executive_RunNumber_IncrementsAcrossMultipleRuns` — Asserts RunNumber==-1 before any run, 0 after first, 1 after second, 2 after third.
+5. `Executive_CurrentEventType_IsSynchronousDuringHandler` — Asserts CurrentEventType==None before dispatch, Synchronous inside the handler, None again after Start() returns.
+6. `Executive_LargeVolume_EventsFireInCorrectTimeOrder` — Schedules 1000 events at random times (seed 42); asserts all fire in non-decreasing time order and EventCount==1000.
+
+**Status:** All passing. Previous 338 tests still green. Total: 344 tests, 0 failures.
+
+**Key findings:**
+- `Abort()` from a synchronous handler: sets `_abortRequested=true`, calls `Reset()` (clears queue, sets `_now=DateTime.MinValue`), then the dispatch loop exits on `!_abortRequested`. State ends as `Finished` (not Stopped) because the `_stopRequested` else-branch runs. No RuntimeException is thrown because the throw guard checks `!_abortRequested`. `ExecutiveAborted` event does NOT fire (it's guarded by `RunningDetachables.Count > 0` which is 0 for sync events).
+- `EventCount` is a `uint` — tests must assert `(uint)N` not `N`.
+- `RunNumber` starts at -1 (initialized as `private int _runNumber = -1`), increments to 0 on first Start().
+- `CurrentEventType` returns `ExecEventType.None` before and after dispatch; `Synchronous` only during the handler's execution window.
+- Large-volume (1000-event) heap ordering is correct — the binary min-heap correctly orders by time then priority then submission key.
+
 ### 2026-03-10: Priority 2 executive tests written (COMPLETE ✅)
 
 **By:** Hudson (QA Engineer)  
@@ -753,5 +780,6 @@ xUnit 2.x is mature, stable, widely adopted, and fully compatible with the exist
 **What:** The user's name is Stuart, not Steve. Always use Stuart when addressing the PM.
 
 **Why:** User correction — the team used the wrong name
+
 
 

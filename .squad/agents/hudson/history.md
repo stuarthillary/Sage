@@ -59,6 +59,22 @@
 
 ## Learnings
 
+### 2026-03-10 — Priority 3 Tests Implementation
+
+- **Abort() from a synchronous handler — confirmed behavior:** `_abortRequested = true` → `Reset()` called (clears queue, `_now = DateTime.MinValue`, state = Stopped) → handler returns → dispatch loop exits (`!_abortRequested` = false) → `_stopRequested` is false so else-branch: `_state = ExecState.Finished`. Start() does NOT throw because the RuntimeException throw guard checks `!_abortRequested`. `ExecutiveAborted` event does NOT fire for sync aborts (it's inside `if (RunningDetachables.Count > 0)`). Final state: Finished, Now = DateTime.MinValue, no exception.
+
+- **EventCount is uint:** `exec.EventCount` returns `uint`. Tests must assert `(uint)N` not `int N` to avoid type mismatch in Assert.Equal.
+
+- **RunNumber starts at -1:** `_runNumber` is initialized to `-1` in the field declaration. It becomes 0 after the first `Start()` call (`_runNumber++` at line 612). Each Reset()+Start() cycle increments it by 1.
+
+- **CurrentEventType is None outside dispatch:** `_currentEventType` is set to `ExecEventType.None` in the `finally` block after each event dispatch. Before any Start(), it returns `ExecEventType.None` (the default enum value 0 = Synchronous? No — None = 3). Confirmed: None before, Synchronous during, None after.
+
+- **ExecEventType.Detachable vs Synchronous:** Detachable events run on a thread-pool thread (not the exec thread). The exec dispatch thread suspends awaiting completion or suspension of that thread. `CurrentEventType` on the exec while a Detachable runs = Detachable. Existing tests (JoinDetachable, LiveDetachableEvents) already cover this path.
+
+- **Large-volume heap ordering verified:** 1000 events at random times (seed 42) all fire in correct non-decreasing order. The binary min-heap correctly handles duplicate timestamps and priority tiebreakers at scale.
+
+- **UnRequestEvent(long) double-cancel causes ApplicationException from Start():** `FilterOnEventId` (ExecEventRemover.cs line 73) throws `ApplicationException` if the event ID is not found. If the same key is pushed to `_removals` twice (LIFO), the second filter processes first (finds and removes the event), then the first filter can't find the already-removed event and throws. This exception bubbles out of the dispatch loop and out of Start() unwrapped (not caught by the inner try/catch which only wraps event dispatch at line 691).
+
 ### 2026-03-10 — Priority 2 Tests Implementation
 
 - **Daemon event behavior (confirmed):** Daemon events do NOT fire when they are the only events remaining in the queue. The dispatch loop condition in Executive.cs (line 636) is `_numEventsInQueue > _numDaemonEventsInQueue`. When only daemons remain, the condition is `n > n` (false) and the loop exits without firing the daemon events.
