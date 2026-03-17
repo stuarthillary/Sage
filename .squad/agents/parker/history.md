@@ -510,3 +510,23 @@ By contrast, Executive.cs properly throws CausalityException (wrapped in Runtime
 **Build/Test:** 0 errors, **351/351 tests passing**
 
 **Note:** The fix was already partially applied (file timestamp 17/03/2026 19:47:53) before this session confirmed it. This session verified correctness and updated the test + documentation.
+
+## Materials Extraction Commit
+**Commit SHA:** 9f9a4e8
+
+Materials subsystem extraction has been successfully committed to git.
+
+**What was committed:**
+- All Materials source files moved to src/Sage.Materials/
+- New Sage.Materials.csproj class library created
+- 22 Materials unit tests in tests/Sage.Materials.Tests/
+- EmissionsServiceOptions moved to Materials project
+- DiagnosticAids cleaned up (DumpMaterial methods moved)
+- Sage.slnx updated with new projects
+
+**Final Test Results:** 351/351 tests passing
+- 271 Sage tests
+- 58 PFC tests  
+- 22 Materials tests
+
+**Status:** ✅ Materials extraction complete and committed.
