@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Graphs.Tasks;
 using Highpoint.Sage.Core;
 using System;
@@ -9,7 +9,8 @@ namespace Highpoint.Sage.Examples.SequenceControl
 {
     namespace Basic
     {
-        public static class TaskGraphDemo
+        [Order(30)]
+        public class TaskGraphDemo : IExample
         {
             [Description(@"This demo shows the modeling of a hierarchical process, in this case, that of
 making brownies. There are tasks that can happen in parallel, and tasks that 
@@ -33,7 +34,7 @@ prepare the pan, and therefore you can't make the brownies), post-mortem
 analysis (how long did we spend greasing the pan?), and simultaneous 
 multiple instance execution (let's make three batches of brownies.)
 ")]
-            public static void Run()
+            public void Run()
             {
                 Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model("TaskGraph 1", Guid.NewGuid());
                 DateTime startTime = new DateTime(2001, 3, 5, 7, 9, 11);

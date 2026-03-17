@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
@@ -18,11 +18,12 @@ namespace Highpoint.Sage.Examples.Executive
         /// <summary>
         /// Hello world. Single simulation event.
         /// </summary>
-        internal class HelloWorld
+        [Order(1)]
+        internal class HelloWorld : IExample
         {
             [Description(@"This demo simply creates an executive, adds an event to it, to be fired at
  a specific simulation time, and runs the executive, firing the event at the requested time.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -43,13 +44,14 @@ namespace Highpoint.Sage.Examples.Executive
         /// <summary>
         /// Two callbacks, set up ahead of time, called under different times.
         /// </summary>
-        internal class TwoCallbacksOutOfSequence
+        [Order(2)]
+        internal class TwoCallbacksOutOfSequence : IExample
         {
             [Description(@"This demo creates an executive, adds two events to it to be fired at 
 specified simulation times that are in the opposite order to their having been 
 added to the executive, and then runs the executive. It demonstrates the time-
 ordered nature of callback execution.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -77,14 +79,15 @@ ordered nature of callback execution.")]
         /// <summary>
         /// Two callbacks, called at same time, but different priorities. Starting to define callbacks in line.
         /// </summary>
-        internal class CallbacksWithPriorities
+        [Order(3)]
+        internal class CallbacksWithPriorities : IExample
         {
             [Description(@"This demo creates an executive, adds two events to it, to be fired at 
 the same simulation time, but with differnet priorities that are in the
 opposite order to their having been added to the executive, and then runs
 the executive. It demonstrates the priority-ordered nature of callback 
 execution.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -105,7 +108,8 @@ execution.")]
         /// <summary>
         /// Useful data in UserData object, callback requesting follow-on, and self-imposed delay.
         /// </summary>
-        internal class UserData_FollowOn_SelfImposedDelay
+        [Order(4)]
+        internal class UserData_FollowOn_SelfImposedDelay : IExample
         {
             [Description(@"This demo creates an executive and submits an event to it at a specified
 time. User data for that event is a queue of two strings, ""Hello"" and
@@ -117,7 +121,7 @@ at which time the handler does not request another event be served.
 
 This demo shows the use of the UserData parameter to the RequestEvent method,
 and also shows an event handler requesting a further, future, event service.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -143,13 +147,14 @@ and also shows an event handler requesting a further, future, event service.")]
         /// <summary>
         /// Executive catches an exception in a handler.
         /// </summary>
-        internal class ExecCatchesRuntimeExceptionFromSynchronousEvent
+        [Order(5)]
+        internal class ExecCatchesRuntimeExceptionFromSynchronousEvent : IExample
         {
             [Description(@"This demo creates an executive and submits an event to it and runs the 
 executive. In the service of the event, an InvalidCastException is fired.
 The executive runs, and catches and stores the exception for post-execution
 analysis.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -185,14 +190,15 @@ analysis.")]
         /// <summary>
         /// Rescinding an event. Also, different types of objects in userData
         /// </summary>
-        internal class RescindingSynchEvent
+        [Order(6)]
+        internal class RescindingSynchEvent : IExample
         {
             [Description(@"This demo creates an executive and submits an event to it (""WriteIt()"").
 However, it also submits another event, to be serviced five minutes prior
 to the ""WriteIt()"" event (""RescindIt()"") and runs the executive. In the
 service of the earlier event, the later event is rescinded, and therefore is
 never serviced.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -222,7 +228,8 @@ never serviced.")]
         /// <summary>
         /// Rescinding multiple events based on target object. Also, first "Agent Based" simulation.
         /// </summary>
-        internal class MoreRescindingPlusAgentBased
+        [Order(7)]
+        internal class MoreRescindingPlusAgentBased : IExample
         {
             [Description(@"This demo creates an executive and a number of domain agents, rastro,
 (a dog) and fifteen dog agents and fifteen cat agents. Then, for each agent,
@@ -234,7 +241,7 @@ and another, 35 minutes before the end of the 50 minutes, whose effect is
 to rescind all events targeted to objects of type ""Cat"".
 
 This demonstrates some more advanced capabilities of event rescinding.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -313,7 +320,8 @@ This demonstrates some more advanced capabilities of event rescinding.")]
         /// <summary>
         /// Basic detachable events with SuspendFor(...) and SuspendUntil().
         /// </summary>
-        internal class BasicWithSuspends
+        [Order(8)]
+        internal class BasicWithSuspends : IExample
         {
             [Description(@"This demo creates an executive and submits a synchronous event (""WriteIt()"")
 for service at a specified time. It also submits a detachable event 
@@ -323,7 +331,7 @@ Before it resumes, ""WriteIt()"" is called, and runs. Then, the
 ""DoSomething()"" event resumes and completes.
 
 This demonstrates how two things may be in process at the same time.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -358,7 +366,8 @@ This demonstrates how two things may be in process at the same time.")]
         /// <summary>
         /// Detachable events with Suspend()/Resume(), One agent is synchronous, one asynch.
         /// </summary>
-        internal class SuspendsWithMixedModeAgents
+        [Order(9)]
+        internal class SuspendsWithMixedModeAgents : IExample
         {
             [Description(@"This demo creates an executive and defines two agent types, plumber and
 electrician. A detachable event request is submitted for a specified time
@@ -374,7 +383,7 @@ described in one method. For the electrician, rewiring the disposal will take
 
 Besides demonstrating cooperating agents, this demonstrates one agent calling
 a suspension to its activity, and relying on another agent to resume it.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -439,7 +448,8 @@ a suspension to its activity, and relying on another agent to resume it.")]
         /// <summary>
         /// Detachable events with Joining.
         /// </summary>
-        internal class UsesJoining
+        [Order(10)]
+        internal class UsesJoining : IExample
         {
             [Description(@"This demo takes a questionable approach to making dinner. It creates
 an executive, and submits a call to ""CookDinner"" at a specified time,
@@ -448,7 +458,7 @@ events are requested, ""MakeTurkey"", ""MakeGravy"", and ""MakeStuffing""
  - all three to start immediately, and take different amounts of time.
  The call to exec.Join(...) suspends execution on this thread until all
  three activities have completed, and then resumes, announcing dinner.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -499,7 +509,8 @@ events are requested, ""MakeTurkey"", ""MakeGravy"", and ""MakeStuffing""
         /// <summary>
         /// Rescinding multiple events, with detachable events.
         /// </summary>
-        internal class RescindMultipleDetachables
+        [Order(11)]
+        internal class RescindMultipleDetachables : IExample
         {
             [Description(@"This demo creates an executive and a number of domain agents, rastro,
 (a dog) and fifteen dog agents and fifteen cat agents. Then, for each agent,
@@ -513,7 +524,7 @@ to rescind all events targeted to objects of type ""Cat"".
 This demonstrates some more advanced capabilities of event rescinding, and
 is identical to the demo shown before, except in that it is executed on
 detachable events.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -610,13 +621,14 @@ detachable events.")]
         /// <summary>
         /// Using metronomes.
         /// </summary>
-        internal class Metronomes
+        [Order(12)]
+        internal class Metronomes : IExample
         {
             [Description(@"A metronome is useful when one or more elements of a simulation are to be
 called at a fixed periodicity. This demo creates an executive and adds a
 metronome to it with a period of 9000 minutes. Every 9000 minutes, the 
 ""TickEvent"" event fires, until the specified end time.")]
-            public static void Run()
+            public void Run()
             {
 
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
@@ -639,11 +651,12 @@ metronome to it with a period of 9000 minutes. Every 9000 minutes, the
         /// <summary>
         /// Pause and resume the executive in user-time.
         /// </summary>
-        internal class PauseAndResume
+        [Order(13)]
+        internal class PauseAndResume : IExample
         {
             [Description(@"This demo exhibits the pause-and-resume behavior of the executive that could,
 for example, be tied to a button-press in the GUI.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
                 DateTime startAt = DateTime.Parse("Fri, 15 Jul 2016 00:00:00");
@@ -674,7 +687,8 @@ for example, be tied to a button-press in the GUI.")]
         /// Use the ExecController to impact simulation speed. Run 10 minutes' (600 seconds)
         /// simulation in 6 seconds with 60 render events fired.
         /// </summary>
-        internal class UseExecController
+        [Order(14)]
+        internal class UseExecController : IExample
         {
 
             private static string _state = "Uninitiated.";
@@ -688,7 +702,7 @@ ten minutes' simulation time, paced to run at ten times the wall clock rate,
 that is, for one minute of wall clock time. The model updates its internal
 state every five milliseconds of simulation time and firese a ""Render"" event
  ten times per second of wall-clock time.")]
-            public static void Run()
+            public void Run()
             {
 
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
@@ -731,13 +745,14 @@ state every five milliseconds of simulation time and firese a ""Render"" event
         /// Use Executive's ExecutiveStarted event to set up a simulation. Reset and restart the simulation.
         /// Introduction to the executive's state machine.
         /// </summary>
-        internal class ExecEventModelAndStates
+        [Order(15)]
+        internal class ExecEventModelAndStates : IExample
         {
             [Description(@"This demo shows how, if one wants to run the same simulation multiple times,
 with a reset and restart each time, the ""ExecutiveStarted_SingleShot"" event
 can be used to implement initial setup, and the ""ExecutiveStarted"" event
 can be used to perform subsequent runs' initializations.")]
-            public static void Run()
+            public void Run()
             {
                 IExecutive exec = ExecFactory.Instance.CreateExecutive();
 
@@ -777,14 +792,15 @@ can be used to perform subsequent runs' initializations.")]
 
         }
 
-        internal class DaemonEvents
+        [Order(16)]
+        internal class DaemonEvents : IExample
         {
             [Description(@"Normally, the executive runs until all registered events have been served
 or an explicitly-supplied completion time is reached. This demo describes ""Daemon 
 Event registrations, through which an event can be requested for service at a future
 time, but unlike a standard non-daemon event, does not serve to keep the simulation alive
 by virtue of its existence.")]
-            public static void Run()
+            public void Run()
             {
 
                 DateTime when = DateTime.Parse("Fri, 15 Jul 2016 00:00:00");

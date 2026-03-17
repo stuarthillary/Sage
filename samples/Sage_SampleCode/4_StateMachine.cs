@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Randoms;
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
@@ -13,12 +13,13 @@ namespace Highpoint.Sage.Examples.StateMachine
     namespace Basic
     {
 
-        public static class Default
+        [Order(22)]
+        public class Default : IExample
         {
             [Description(@"This demonstration shows the default configuration of
             a model state machine. It's pretty simple - the model is either idle, or running. If it's idle, calling ""Start()""
             transitions it to running, in which state the executive processes all of its events. After running, it returns to idle")]
-            public static void Run()
+            public void Run()
             {
                 Highpoint.Sage.Core.Model m = new Highpoint.Sage.Core.Model("Demo Model");
 
@@ -38,12 +39,13 @@ namespace Highpoint.Sage.Examples.StateMachine
             }
         }
 
-        public static class SimpleCustomWithInitialization
+        [Order(23)]
+        public class SimpleCustomWithInitialization : IExample
         {
             [Description(@"This demonstration shows a simple custom
             configuration of a model state machine. We will add a state, ""Initialize"" that, upon invocation of
             the model's ""Start()"" method, performs setup.")]
-            public static void Run()
+            public void Run()
             {
                 Highpoint.Sage.Core.Model m = new DemoModel("Demo Model");
 
@@ -63,7 +65,8 @@ namespace Highpoint.Sage.Examples.StateMachine
             }
         }
 
-        public static class SimpleEnumStateMachine
+        [Order(24)]
+        public class SimpleEnumStateMachine : IExample
         {
             [Description(
                 @"This demo shows the utility of a different kind of state machine. It
@@ -72,7 +75,7 @@ hopefully avoid confusion as to its use. It manages the state of Model
 Objects (such as agents) and tracks the time each agent spends in each
 state. Again, this conceptually-different state machine is demonstrated
 here to try to avoid confusion.")]
-            public static void Run()
+            public void Run()
             {
                 // Create the model.
                 Highpoint.Sage.Core.Model m = new Highpoint.Sage.Core.Model("Model");

@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 
 namespace Highpoint.Sage.Examples.RandomServer
 {
@@ -7,7 +7,8 @@ namespace Highpoint.Sage.Examples.RandomServer
     using System;
     using System.ComponentModel;
 
-    class SimpleDefaultServer
+    [Order(20)]
+    class SimpleDefaultServer : IExample
     {
 
         [Description(@"This demonstration shows the default use of a RandomServer. It obtains, 
@@ -16,7 +17,7 @@ of IRandomChannel from the GlobalRandomServer, and outputs the first ten
 values from that random channel. The demonstration calls ""NextDouble()"",
 but there are a number of other familiar methods for getting randoms as
 well.")]
-        public static void Run()
+        public void Run()
         {
 
             ulong[][] testValues = new ulong[][] {
@@ -40,7 +41,8 @@ well.")]
         }
     }
 
-    class DecorrellatedActivities
+    [Order(21)]
+    class DecorrellatedActivities : IExample
     {
 
         [Description(@"This demonstration shows the random server's ability to maintain two
@@ -65,7 +67,7 @@ behavior in the second part of the demo, illustrating the decorrellated nature
 of random channels. They can be used to hold one part of a simulation constant
 and allow another to change."
 )]
-        public static void Run()
+        public void Run()
         {
             RandomServer rs = null;
             IExecutive exec = null;

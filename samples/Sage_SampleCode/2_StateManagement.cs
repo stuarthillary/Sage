@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 // ReSharper disable InconsistentNaming
 
 namespace Highpoint.Sage.Examples.StateManagement
@@ -12,7 +12,8 @@ namespace Highpoint.Sage.Examples.StateManagement
     /// Use agents (a tank, in this case) to maintain state. Recalculate
     /// only as necessary. Also note the first use of anonymous delegate.
     /// </summary>
-    class InAgents
+    [Order(17)]
+    class InAgents : IExample
     {
         private static Tank _tank;
 
@@ -28,7 +29,7 @@ is opened, and the tank starts to fill, registering an event for its expected
 time of being full. After a while, we close the fill valve, then a little later
 we reopen it to a lesser fill rate. The tank manages its level and its events
 to keep its state correct from the perspective of external actors.")]
-        public static void Run()
+        public void Run()
         {
 
             IExecutive exec = ExecFactory.Instance.CreateExecutive();
@@ -149,7 +150,8 @@ to keep its state correct from the perspective of external actors.")]
     /// <summary>
     /// Token &amp; server model.
     /// </summary>
-    class InUserData
+    [Order(18)]
+    class InUserData : IExample
     {
 
         [Description(@"This demonstration shows the maintenance of simulation state in the UserData
@@ -161,7 +163,7 @@ of the token. It then requests a future event to signify completion of the
 token's processing, and passes the event registration userData that is the name
 of the token. When that even is serviced, the token's processing is indicated
 to have been completed.")]
-        public static void Run()
+        public void Run()
         {
 
             DateTime now = DateTime.Parse("Fri, 15 Jul 2016 00:00:00");
@@ -205,13 +207,14 @@ to have been completed.")]
 
     }
 
-    class OnTheStackFrame
+    [Order(19)]
+    class OnTheStackFrame : IExample
     {
         [Description(@"This demonstration shows how, by declaring event handlers as local anonymous
 methods, the stack frame (i.e. locally declared variables) of the method that
 requests the events can be used to hold values that will be of interest to all
 of the handlers.")]
-        public static void Run()
+        public void Run()
         {
 
             DateTime when = DateTime.Parse("Fri, 15 Jul 2016 00:00:00");

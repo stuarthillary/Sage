@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
@@ -13,7 +13,8 @@ namespace Highpoint.Sage.Examples.Resources
 {
     namespace Basic
     {
-        public static class ServicePoolExample
+        [Order(27)]
+        public class ServicePoolExample : IExample
         {
             [Description(@"This demo shows how a bank teller simulation might treat tellers as
 a resource. A customer generation method registers events to creates customers
@@ -42,7 +43,7 @@ TellerState   : An enum, Idle and Busy.
 TellerPool    : A plain old Highpoint.Sage.Resources.ResourceManager. That's it.
 TellerRequest : A resource request that asks for one teller, any teller.
 ")]
-            public static void Run()
+            public void Run()
             {
                 int nCustomers = 100;
                 IDoubleDistribution interarrivalTime = new ExponentialDistribution(3, 5);// new PoissonDistribution(6);
@@ -60,7 +61,8 @@ TellerRequest : A resource request that asks for one teller, any teller.
             }
         }
 
-        public static class ServicePoolExampleWithSynchronousEvents
+        [Order(28)]
+        public class ServicePoolExampleWithSynchronousEvents : IExample
         {
             [Description(@"This demo is identical to the ServicePoolExample demo, except that rather
 than using Detachable events, it accomplishes the same scenario with
@@ -70,7 +72,7 @@ expense of possibly maintaining a larger number of threads (one per
 running-or-paused entity.) Note that only one thread actually runs at a time, 
 with each thread explicitly yielding or being resumed, so the typical sort of
 non-deterministic issues of multithreading do not apply here.")]
-            public static void Run()
+            public void Run()
             {
                 int nCustomers = 100;
                 IDoubleDistribution interarrivalTime = new ExponentialDistribution(3, 5);// new PoissonDistribution(6);
@@ -297,7 +299,8 @@ non-deterministic issues of multithreading do not apply here.")]
 
     namespace Advanced
     {
-        public static class OptimalResourceAcquisition
+        [Order(29)]
+        public class OptimalResourceAcquisition : IExample
         {
             [Description(
                 @"This demo shows how a bank teller simulation might treat tellers as
@@ -327,7 +330,7 @@ TellerState   : An enum, Idle and Busy.
 TellerPool    : A plain old Highpoint.Sage.Resources.ResourceManager. That's it.
 TellerRequest : A resource request that asks for one teller, any teller.
 ")]
-            public static void Run()
+            public void Run()
             {
                 Highpoint.Sage.Core.Model model = new Highpoint.Sage.Core.Model();
                 MotorPool mp = new MotorPool(model);

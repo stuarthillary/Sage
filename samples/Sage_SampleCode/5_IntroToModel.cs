@@ -1,4 +1,4 @@
-/* This source code licensed under the GNU Affero General Public License */
+﻿/* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
@@ -10,14 +10,15 @@ namespace Highpoint.Sage.Examples.Model
     namespace Basic
     {
 
-        public static class DefaultModel
+        [Order(25)]
+        public class DefaultModel : IExample
         {
             [Description(
                 @"This demonstration shows the default configuration of a model. It's pretty
 simple - no services are provided, and the model is either idle, or running.
 If it's idle, calling ""Start()"" transitions it to running, in which state
 the executive processes all of its events. After running, it returns to idle.")]
-            public static void Run()
+            public void Run()
             {
                 IModel m = new Highpoint.Sage.Core.Model("Demo Model");
 
@@ -44,12 +45,13 @@ the executive processes all of its events. After running, it returns to idle.")]
             }
         }
 
-        public static class SimpleCustomWithInitialization
+        [Order(26)]
+        public class SimpleCustomWithInitialization : IExample
         {
             [Description(@"This demonstration shows a simple custom
             configuration of a model state machine. We will add a state, ""Initialize"" that, upon invocation of
             the model's ""Start()"" method, performs setup.")]
-            public static void Run()
+            public void Run()
             {
                 Highpoint.Sage.Core.Model m = new DemoModel1("Demo Model");
 
@@ -76,7 +78,8 @@ the executive processes all of its events. After running, it returns to idle.")]
             }
         }
 
-        public static class DefaultModelWithSelfManagingModelObjects
+        [Order(100)]
+        public class DefaultModelWithSelfManagingModelObjects : IExample
         {
             [Description(@"This demo creates three tools as IModelObjects, each of which manages and
 tracks its own state through nine jobs, requesting events from the executive 
@@ -84,9 +87,9 @@ to transition it from idle to running and back. At the end, each tool reports
 its utilization and the times at which it underwent each state transition.
 
 It is the same as the ""StateMachine.Basic.SimpleEnumStateMachine"" demo.")]
-            public static void Run()
+            public void Run()
             {
-                StateMachine.Basic.SimpleEnumStateMachine.Run();
+                new StateMachine.Basic.SimpleEnumStateMachine().Run();
             }
         }
 
