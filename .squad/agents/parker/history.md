@@ -1,5 +1,27 @@
 
 ## Learnings
+### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
+
+- **Scope:** Extracted all 66 files from `src\Sage\Materials\` (and subdirs Chemistry, Emissions, Thermodynamics, VaporPressure) into new `src\Sage.Materials\` class library. Moved 2 test files from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
+- **Partial work inherited:** Project files, slnx entries, file deletions from Sage, and test file moves had all been done in a prior partial attempt. The work completed was: creating `MaterialDiagnosticAids.cs` and verifying the build.
+- **Two blockers were pre-resolved:** `EmissionsServiceOptions` was already moved from `SageOptions.cs` to `src\Sage.Materials\Emissions\EmissionsServiceOptions.cs`. `DumpMaterial` and related helpers were already removed from `DiagnosticAids.cs` (Materials `using` directives also stripped), and `DiagnosticAids.DumpMaterial(...)` calls were already removed from the moved test files.
+- **DiagnosticAids pattern:** `DumpMaterial` was in `DiagnosticAids` (Sage core) but depends on `IMaterial`, `Mixture`, `Substance`. After extraction, it would cause a Sage→Materials circular dep. Solution: remove from core, add `MaterialDiagnosticAids` static class in Materials project with same method. Partial extraction had already stripped test calls entirely rather than redirecting them.
+- **Sage.Scratch:** Already had `Sage.Materials.Tests` project reference — no changes needed.
+- **Results:** Build: 0 errors, 0 warnings. Sage.Tests: 271/271 passing. Sage.PFC.Tests: 58/58 passing. Sage.Materials.Tests: 22/22 passing. Total: 351/351 ✅
+
+---
+
+
+### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
+
+- **Scope:** Extracted 65 files from `src\Sage\Materials\` into a new `src\Sage.Materials\` class library. Moved 2 test files (`TestMaterials.cs`, `TestMaterialService.cs`) from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
+- **CS0436 trap (same as PFC):** Delete `src\Sage\Materials\` BEFORE building Sage.Materials. Order matters — if both projects compile the same types, CS0436 floods.
+- **Inbound dep #1 — EmissionsServiceOptions:** `SageOptions.cs` in Core contained `EmissionsServiceOptions` class in a `namespace Highpoint.Sage.Materials.Chemistry.Emissions` block (no using statements needed — just a namespace declaration). Moved verbatim to `src\Sage.Materials\Emissions\EmissionsServiceOptions.cs` and removed the block from `SageOptions.cs`. SageOptions.cs now has zero Materials dependency.
+- **Inbound dep #2 — DiagnosticAids:** `DumpMaterial`, `Dump(Mixture)`, `Dump(Substance)` methods in `DiagnosticAids.cs` were only called from `TestMaterials.cs` (which moved). Removed them from DiagnosticAids.cs along with `using Highpoint.Sage.Materials` and `using Highpoint.Sage.Materials.Chemistry` directives. Also removed the DumpMaterial call sites from TestMaterials.cs (they were diagnostic print statements, not assertions).
+- **Sage.Scratch dependency:** `Sage.Scratch.csproj` already had a reference to `Sage.csproj`; no additional references needed for Materials since Sage.Scratch doesn't instantiate Materials test classes directly.
+- **Results:** Build: 0 errors, 0 warnings. Sage.Materials.Tests: 22/22 passing. Sage.PFC.Tests: 58/58 passing. Sage.Tests: 271/271 passing. Total: 351/351.
+
+---
 
 ### 2026-07-17 — PFC Extraction into Sage.PFC Standalone Library ✅
 
@@ -169,6 +191,17 @@ amespace Highpoint.Sage.Scratch
 - **Implementation timeline:** Phase 2 lead awaiting assignment
 
 ## Learnings
+### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
+
+- **Scope:** Extracted all 66 files from `src\Sage\Materials\` (and subdirs Chemistry, Emissions, Thermodynamics, VaporPressure) into new `src\Sage.Materials\` class library. Moved 2 test files from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
+- **Partial work inherited:** Project files, slnx entries, file deletions from Sage, and test file moves had all been done in a prior partial attempt. The work completed was: creating `MaterialDiagnosticAids.cs` and verifying the build.
+- **Two blockers were pre-resolved:** `EmissionsServiceOptions` was already moved from `SageOptions.cs` to `src\Sage.Materials\Emissions\EmissionsServiceOptions.cs`. `DumpMaterial` and related helpers were already removed from `DiagnosticAids.cs` (Materials `using` directives also stripped), and `DiagnosticAids.DumpMaterial(...)` calls were already removed from the moved test files.
+- **DiagnosticAids pattern:** `DumpMaterial` was in `DiagnosticAids` (Sage core) but depends on `IMaterial`, `Mixture`, `Substance`. After extraction, it would cause a Sage→Materials circular dep. Solution: remove from core, add `MaterialDiagnosticAids` static class in Materials project with same method. Partial extraction had already stripped test calls entirely rather than redirecting them.
+- **Sage.Scratch:** Already had `Sage.Materials.Tests` project reference — no changes needed.
+- **Results:** Build: 0 errors, 0 warnings. Sage.Tests: 271/271 passing. Sage.PFC.Tests: 58/58 passing. Sage.Materials.Tests: 22/22 passing. Total: 351/351 ✅
+
+---
+
 
 ### 2026-03-07 — Phase 2 Public API Collection Replacements ✅
 
@@ -364,6 +397,17 @@ amespace Highpoint.Sage.Scratch
 - **Final count:** 0 CS8xxx warnings across all 548 source files.
 
 ## Learnings
+### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
+
+- **Scope:** Extracted all 66 files from `src\Sage\Materials\` (and subdirs Chemistry, Emissions, Thermodynamics, VaporPressure) into new `src\Sage.Materials\` class library. Moved 2 test files from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
+- **Partial work inherited:** Project files, slnx entries, file deletions from Sage, and test file moves had all been done in a prior partial attempt. The work completed was: creating `MaterialDiagnosticAids.cs` and verifying the build.
+- **Two blockers were pre-resolved:** `EmissionsServiceOptions` was already moved from `SageOptions.cs` to `src\Sage.Materials\Emissions\EmissionsServiceOptions.cs`. `DumpMaterial` and related helpers were already removed from `DiagnosticAids.cs` (Materials `using` directives also stripped), and `DiagnosticAids.DumpMaterial(...)` calls were already removed from the moved test files.
+- **DiagnosticAids pattern:** `DumpMaterial` was in `DiagnosticAids` (Sage core) but depends on `IMaterial`, `Mixture`, `Substance`. After extraction, it would cause a Sage→Materials circular dep. Solution: remove from core, add `MaterialDiagnosticAids` static class in Materials project with same method. Partial extraction had already stripped test calls entirely rather than redirecting them.
+- **Sage.Scratch:** Already had `Sage.Materials.Tests` project reference — no changes needed.
+- **Results:** Build: 0 errors, 0 warnings. Sage.Tests: 271/271 passing. Sage.PFC.Tests: 58/58 passing. Sage.Materials.Tests: 22/22 passing. Total: 351/351 ✅
+
+---
+
 
 ### 2026-03-08 — Completed Interrupted Naming Refactor ✅
 - **Scope:** Fixed broken build from incomplete naming refactoring (16 errors)
