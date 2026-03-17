@@ -1937,6 +1937,151 @@ namespace Highpoint.Sage.Core
 
         #endregion EFL State Tracking
 
+        #region Causality
+
+        /// <summary>
+        /// EFL with IgnoreCausalityViolations=true (default): a past-scheduled event is clamped to
+        /// Now at RequestEvent time and fires. It is NOT dropped.
+        /// DIVERGES from Executive, which returns long.MinValue and drops the event silently.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("EFL (ignore=true): past-scheduled event is clamped to Now and fires — not dropped like Executive.")]
+        public void ExecutiveFastLight_CausalityViolation_WhenIgnored_ClampsToNow()
+        {
+            // _ignoreCausalityViolations defaults to true — no factory reconfiguration needed
+            IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+
+            bool innerFired = false;
+            DateTime? innerNow = null;
+            DateTime outerTime = DateTime.MinValue + TimeSpan.FromMinutes(100);
+            DateTime pastTime  = DateTime.MinValue + TimeSpan.FromMinutes(50);
+
+            exec.RequestEvent((e, ud) =>
+            {
+                // Schedule inner event at a past time — EFL clamps to e.Now, does NOT drop
+                e.RequestEvent((innerExec, innerUd) =>
+                {
+                    innerFired = true;
+                    innerNow   = innerExec.Now;
+                }, pastTime, 0.0, null);
+            }, outerTime, 0.0, null);
+
+            exec.Start();
+
+            Assert.True(innerFired, "EFL fires the clamped event — it must NOT be dropped");
+            // Event fires at the time the outer handler ran (clamp target), not the requested past time
+            Assert.Equal(outerTime, innerNow);
+        }
+
+        /// <summary>
+        /// EFL with IgnoreCausalityViolations=false (enforce mode): a past-scheduled event is
+        /// logged to Console (commented-out throw in source) and enqueued at the past time.
+        /// StartWcv() detects the violation at dequeue and clamps _currentEvent.When to _now.
+        /// The event still FIRES — EFL never throws CausalityException.
+        /// DIVERGES from Executive, which throws CausalityException (wrapped in RuntimeException).
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("EFL (ignore=false): logs violation, enqueues at past time, dequeue-clamps to Now, fires — never throws.")]
+        public void ExecutiveFastLight_CausalityViolation_WhenNotIgnored_StillFiresAtNow()
+        {
+            lock (_execFactoryLock)
+            {
+                ExecFactory.Configure(new ExecFactoryOptions(), new ExecutiveOptions { IgnoreCausalityViolations = false });
+                ResetExecFactorySingleton();
+
+                try
+                {
+                    IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+
+                    bool innerFired = false;
+                    DateTime? innerNow = null;
+                    DateTime outerTime = DateTime.MinValue + TimeSpan.FromMinutes(100);
+                    DateTime pastTime  = DateTime.MinValue + TimeSpan.FromMinutes(50);
+
+                    exec.RequestEvent((e, ud) =>
+                    {
+                        // EFL does NOT throw here — it logs to Console and falls through to Enqueue
+                        e.RequestEvent((innerExec, innerUd) =>
+                        {
+                            innerFired = true;
+                            innerNow   = innerExec.Now;
+                        }, pastTime, 0.0, null);
+                    }, outerTime, 0.0, null);
+
+                    // EFL must NOT throw — diverges from Executive which throws RuntimeException(CausalityException)
+                    exec.Start();
+
+                    Assert.True(innerFired, "EFL fires the event even in enforce mode (StartWcv clamps at dequeue)");
+                    // StartWcv() clamps _currentEvent.When to _now.Ticks before dispatch
+                    Assert.Equal(outerTime, innerNow);
+                }
+                finally
+                {
+                    ExecFactory.Configure(new ExecFactoryOptions(), new ExecutiveOptions { IgnoreCausalityViolations = true });
+                    ResetExecFactorySingleton();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Cross-implementation divergence: Executive DROPS past events when ignoring violations
+        /// (returns long.MinValue, event never fires). EFL CLAMPS and fires them.
+        /// Both behaviors are by design. Executive: strict DES correctness. EFL: best-effort throughput.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Explicit divergence test: Executive drops past events; EFL clamps and fires them (IgnoreCausalityViolations=true).")]
+        public void CausalityHandling_Executive_Drops_EFL_Clamps_WhenIgnoring()
+        {
+            lock (_execFactoryLock)
+            {
+                ExecFactory.Configure(new ExecFactoryOptions(), new ExecutiveOptions { IgnoreCausalityViolations = true });
+                ResetExecFactorySingleton();
+
+                try
+                {
+                    DateTime outerTime = DateTime.MinValue + TimeSpan.FromMinutes(100);
+                    DateTime pastTime  = DateTime.MinValue + TimeSpan.FromMinutes(50);
+
+                    // --- Executive: drops the past event (returns long.MinValue, event never fires) ---
+                    IExecutive execFull = ExecFactory.Instance.CreateExecutive(ExecType.FullFeatured);
+                    bool execInnerFired = false;
+                    long execKey = long.MaxValue; // will be overwritten by RequestEvent
+
+                    execFull.RequestEvent((e, ud) =>
+                    {
+                        execKey = e.RequestEvent((ie, iud) => { execInnerFired = true; },
+                            pastTime, 0.0, null, ExecEventType.Synchronous);
+                    }, outerTime, 0.0, null, ExecEventType.Synchronous);
+
+                    execFull.Start();
+
+                    Assert.False(execInnerFired, "Executive DROPS past events — inner must NOT fire");
+                    Assert.Equal(long.MinValue, execKey); // long.MinValue is the drop sentinel
+
+                    // --- EFL: clamps and fires the past event ---
+                    ResetExecFactorySingleton(); // recreate so EFL ctor picks up the same options
+                    IExecutive execEfl = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+                    bool eflInnerFired = false;
+
+                    execEfl.RequestEvent((e, ud) =>
+                    {
+                        e.RequestEvent((ie, iud) => { eflInnerFired = true; }, pastTime, 0.0, null);
+                    }, outerTime, 0.0, null);
+
+                    execEfl.Start();
+
+                    Assert.True(eflInnerFired, "EFL CLAMPS past events to Now — inner MUST fire");
+                }
+                finally
+                {
+                    ExecFactory.Configure(new ExecFactoryOptions(), new ExecutiveOptions { IgnoreCausalityViolations = true });
+                    ResetExecFactorySingleton();
+                }
+            }
+        }
+
+        #endregion Causality
+
         #endregion
     }
 

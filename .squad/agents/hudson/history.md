@@ -94,6 +94,33 @@
 
 ## Learnings
 
+### 2026-05-30 — Causality Equivalence Investigation Complete ✅
+
+**Status:** COMPLETE — 3 new tests added to `#region Causality` in TestExecutive.cs
+
+**Test suite:** 351/351 passing (was 348 before)
+
+**Tests added:**
+1. `ExecutiveFastLight_CausalityViolation_WhenIgnored_ClampsToNow` — EFL default behavior
+2. `ExecutiveFastLight_CausalityViolation_WhenNotIgnored_StillFiresAtNow` — EFL enforce mode
+3. `CausalityHandling_Executive_Drops_EFL_Clamps_WhenIgnoring` — explicit divergence doc test
+
+**Exact causality behavior matrix (verified from source):**
+
+| Scenario | Executive (`_ignore=false`) | Executive (`_ignore=true`, DEFAULT) | EFL (`_ignore=false`) | EFL (`_ignore=true`, DEFAULT) |
+|----------|------------------------------|--------------------------------------|------------------------|-------------------------------|
+| `RequestEvent` with `when < _now` | Throws `CausalityException` → wrapped in `RuntimeException` by exec loop | Returns `long.MinValue`; event **DROPPED**, never fires | Logs to Console (throw is commented out!); enqueues at past `when`; `StartWcv()` clamps to `_now` at dequeue → event **fires at `_now`** | Clamps `when = _now` immediately in `RequestEvent`; enqueues at `_now` → event **fires at `_now`** |
+| Key divergence | Strict DES enforcement | Silent drop | Soft enforcement (log only) + dequeue clamp | Best-effort clamp at schedule time |
+
+**Key findings:**
+- **Executive DROPS, EFL FIRES:** When `_ignoreCausalityViolations = true`, Executive returns `long.MinValue` (event gone); EFL clamps to `_now` and fires it. This is the primary behavioral divergence.
+- **EFL never throws `CausalityException`:** Even with `_ignore=false`, EFL only calls `Console.WriteLine()` (the `throw` is commented out in source). The event is still scheduled at the past time; `StartWcv()` silently clamps it at dequeue.
+- **`StartWcv()` is EFL's second-chance clamp:** When `_ignore=false`, EFL uses `StartWcv()` which detects `_now.Ticks > _currentEvent.When` and sets `_currentEvent.When = _now.Ticks` before dispatch. This is a belt-and-suspenders clamp.
+- **Static field `_ignoreCausalityViolations` is STATIC on both impls:** Creating any Executive or EFL instance sets the global static for that class. Tests that change it must save/restore via `ExecFactory.Configure()` + `ResetExecFactorySingleton()` under `_execFactoryLock`.
+- **Default `_ignoreCausalityViolations = true`:** Both Executive (line 44) and EFL (line 170) default to `true`. A new executive with default options silently ignores violations.
+
+---
+
 ### 2026-03-10 — Priority 3 Tests Implementation
 
 - **Abort() from a synchronous handler — confirmed behavior:** `_abortRequested = true` → `Reset()` called (clears queue, `_now = DateTime.MinValue`, state = Stopped) → handler returns → dispatch loop exits (`!_abortRequested` = false) → `_stopRequested` is false so else-branch: `_state = ExecState.Finished`. Start() does NOT throw because the RuntimeException throw guard checks `!_abortRequested`. `ExecutiveAborted` event does NOT fire for sync aborts (it's inside `if (RunningDetachables.Count > 0)`). Final state: Finished, Now = DateTime.MinValue, no exception.

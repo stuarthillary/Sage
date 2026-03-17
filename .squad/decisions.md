@@ -2,13 +2,49 @@
 
 ## Active Decisions
 
+### 2026-03-17: Executive vs ExecutiveFastLight Causality Divergence Investigation (COMPLETE ✅)
+
+**By:** Hudson  
+**Date:** 2026-03-17  
+**Status:** Complete  
+
+**What:** Deep investigation into causality violation behavior across Executive and ExecutiveFastLight implementations. Found significant behavioral divergence — intentional by design, but with code quality issues.
+
+**Causality Behavior Matrix:**
+
+| Scenario | Executive (`_ignore=false`) | Executive (`_ignore=true`, DEFAULT) | EFL (`_ignore=false`) | EFL (`_ignore=true`, DEFAULT) |
+|----------|------------------------------|--------------------------------------|------------------------|-------------------------------|
+| Past event requested | Throws `CausalityException` → `RuntimeException` | Returns `long.MinValue`; **event DROPPED** | Logs to Console (throw **commented out**); still fires | Clamps to `_now`; **event fires at _now** |
+
+**Key Findings:**
+1. **Executive drops; EFL clamps** — With `IgnoreCausalityViolations=true` (default), Executive silently discards past events; EFL fires them at current time. Different observable behavior.
+2. **EFL causality enforcement is broken** — The throw in `RequestEvent()` with `_ignore=false` is commented out. "Enforce mode" doesn't actually enforce — it only logs to Console.WriteLine. Users expecting exceptions will get silent logging.
+3. **Divergence is intentional** — Executive targets strict DES correctness; EFL targets throughput. Neither is wrong by design — but EFL's commented-out throw is a code smell.
+
+**Tests Added:** 3 new tests in `TestExecutive.cs` (#region Causality)
+- `ExecutiveFastLight_CausalityViolation_WhenIgnored_ClampsToNow` — EFL default mode clamps and fires at _now
+- `ExecutiveFastLight_CausalityViolation_WhenNotIgnored_StillFiresAtNow` — EFL enforce mode fires (throw not enforced)
+- `CausalityHandling_Executive_Drops_EFL_Clamps_WhenIgnoring` — Explicit cross-impl divergence
+
+**Result:**
+- Test Suite: 348 → 351 passing (all 3 new tests pass)
+- Build: 0 errors, 0 warnings
+
+**Recommendation:**
+1. Do not unify the behavior without RFC — breaking change for users
+2. Document the divergence in XML doc on `IExecutive.RequestEvent()`
+3. Fix or document EFL's misleading enforce mode (either implement the throw or rename to log-only in docs)
+4. Use existing test isolation pattern via `ExecFactory.Configure()` + `ResetExecFactorySingleton()`
+
+---
+
 ### 2026-03-17: EFL State Tracking Regression Tests (COMPLETE ✅)
 
 **By:** Hudson  
 **Date:** 2026-03-17  
 **Status:** Complete  
 
-**What:** 4 regression tests added to 	ests/SageTestLib/TestExecutive.cs in the ExecTester class under a new #region EFL State Tracking block.
+**What:** 4 regression tests added to tests/SageTestLib/TestExecutive.cs in the ExecTester class under a new #region EFL State Tracking block.
 
 **Tests Added:**
 1. ExecutiveFastLight_State_IsRunningDuringDispatch — Validates State == Running during dispatch via ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded), capturing state inside event handler

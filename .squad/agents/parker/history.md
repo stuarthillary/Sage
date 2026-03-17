@@ -387,3 +387,20 @@ ew T[]{} with Array.Empty<T>() for performance
 - **Build/Test:** 0 CA errors, 0 warnings; **324/324 tests passing**
 - **Impact:** Improved code quality, resource management, and performance; proper disposal patterns enforced throughout
 
+
+---
+
+### 2026-03-17 — Executive vs ExecutiveFastLight Causality Divergence ⚠️
+
+**Note from Hudson's Investigation (2026-03-17T19:55:00Z):**
+
+ExecutiveFastLight's causality enforcement is non-functional. When IgnoreCausalityViolations=false (enforce mode), the throw in RequestEvent() is commented out (line ~350). The event still fires at _now via the dequeue-time clamp in StartWcv()/StartWocv(), and users see only a Console.WriteLine() log message — no exception.
+
+By contrast, Executive.cs properly throws CausalityException (wrapped in RuntimeException) when violations occur with enforce mode disabled.
+
+**Action item:** 
+- Investigate whether EFL's enforce mode should be uncommented (breaking change) or documented as "log-only" mode
+- Consider adding XML doc clarifying this divergence from Executive
+- Tests cover both implementations now (3 new causality tests added to TestExecutive.cs)
+
+**Status:** May need follow-up investigation or design decision (RFC).
