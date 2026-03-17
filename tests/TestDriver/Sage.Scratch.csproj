@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Sage\Sage.csproj" />
+    <ProjectReference Include="..\..\src\Sage.PFC\Sage.PFC.csproj" />
     <ProjectReference Include="..\SageTestLib\Sage.Tests.csproj" />
+    <ProjectReference Include="..\Sage.PFC.Tests\Sage.PFC.Tests.csproj" />
   </ItemGroup>
 </Project>

@@ -3,8 +3,10 @@
     <File Path="_LICENSE.txt" />
   </Folder>
   <Project Path="src\Sage\Sage.csproj" />
+  <Project Path="src\Sage.PFC\Sage.PFC.csproj" />
   <Project Path="benchmarks\SageBenchmarks\Sage.Benchmarks.csproj" />
   <Project Path="tests\TestDriver\Sage.Scratch.csproj" />
   <Project Path="tests\SageTestLib\Sage.Tests.csproj" />
+  <Project Path="tests\Sage.PFC.Tests\Sage.PFC.Tests.csproj" />
   <Project Path="samples\Sage_SampleCode\Sage.Examples.csproj" />
 </Solution>

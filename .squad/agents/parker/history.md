@@ -1,6 +1,19 @@
 
 ## Learnings
 
+### 2026-07-17 — PFC Extraction into Sage.PFC Standalone Library ✅
+
+- **Scope:** Extracted all 53 files from `src\Sage\Graphs\PFC\` into a new `src\Sage.PFC\` class library project. Moved 5 PFC test files + 2 XML test data files from `tests\SageTestLib\` to `tests\Sage.PFC.Tests\`.
+- **Key finding:** Hudson's analysis was accurate — zero inbound refs from the rest of Sage to PFC. Deletion was safe.
+- **CS0436 trap:** New Sage.PFC project initially had 1554 CS0436 errors because PFC types still existed in Sage (referenced assembly). Fix: delete PFC files from Sage first, then build Sage.PFC. Order matters.
+- **Sage.Scratch dependency:** Driver.cs in the Scratch project (tests\TestDriver\) directly instantiated `PfcAnalystTester` and `PFCGraphTester` using their fully qualified names from `Highpoint.Sage.Tests.Graphs.PFC` and `Highpoint.Sage.Graphs.PFC` namespaces. Had to add `Sage.PFC.csproj` and `Sage.PFC.Tests.csproj` project references to `Sage.Scratch.csproj`.
+- **RootNamespace:** Set to `Highpoint.Sage` (same as parent Sage project) — NOT `Highpoint.Sage.Graphs.PFC`. The namespace on each file stays unchanged; RootNamespace just affects the default for new files added via IDE.
+- **xsd file:** `ProcedureFunctionChart.xsd` content is inlined as a string literal in `ProcedureFunctionChart.cs` — not loaded at runtime as an embedded resource. Just copied as-is alongside source files.
+- **Two `#if NYRFPT` test files** compile cleanly because all their content is inside the guard; the `NYRFPT` symbol is never defined.
+- **Results:** Build: 0 errors. SageTestLib: 293/293 passing. Sage.PFC.Tests: 58/58 passing. Full solution clean.
+
+---
+
 ### 2026-07-17 — ExecutiveFastLight `_execState` Never Transitioned ✅
 
 - **Bug:** `_execState` was set to `Stopped` in `Reset()` and never changed — it stayed `Stopped` regardless of whether the executive was running or had finished normally.
