@@ -1,5 +1,16 @@
 
 ## Learnings
+
+### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
+
+- **Scope:** Added `OrderAttribute` to `samples\Sage_SampleCode` to restore the original intentional demo execution order after IExample + reflection-based discovery was introduced.
+- **New file:** `OrderAttribute.cs` — `internal sealed class OrderAttribute : Attribute` with a single `int Value` property, `[AttributeUsage(AttributeTargets.Class, Inherited = false)]`.
+- **31 classes annotated:** 16 Executive (orders 1–16), 3 StateManagement (17–19), 2 RandomServer (20–21), 3 StateMachine (22–24), 2 Model (25–26), 3 Resources (27–29), 1 SequenceControl (30). `DefaultModelWithSelfManagingModelObjects` (auto-discovered extra) assigned order 100.
+- **Program.cs:** Replaced `OrderBy(t => t.FullName)` with `OrderBy(t => t.GetCustomAttribute<OrderAttribute>()?.Value ?? int.MaxValue).ThenBy(t => t.FullName)` for stable secondary sort.
+- **Namespace resolution:** `OrderAttribute` lives in `Highpoint.Sage.Examples`; all example files use sub-namespaces. C# compiler resolves parent namespace types without explicit `using` directives — no import changes needed.
+- **Build:** 0 errors, 0 warnings. ✅
+
+---
 ### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
 
 - **Scope:** Extracted all 66 files from `src\Sage\Materials\` (and subdirs Chemistry, Emissions, Thermodynamics, VaporPressure) into new `src\Sage.Materials\` class library. Moved 2 test files from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
@@ -191,6 +202,17 @@ amespace Highpoint.Sage.Scratch
 - **Implementation timeline:** Phase 2 lead awaiting assignment
 
 ## Learnings
+
+### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
+
+- **Scope:** Added `OrderAttribute` to `samples\Sage_SampleCode` to restore the original intentional demo execution order after IExample + reflection-based discovery was introduced.
+- **New file:** `OrderAttribute.cs` — `internal sealed class OrderAttribute : Attribute` with a single `int Value` property, `[AttributeUsage(AttributeTargets.Class, Inherited = false)]`.
+- **31 classes annotated:** 16 Executive (orders 1–16), 3 StateManagement (17–19), 2 RandomServer (20–21), 3 StateMachine (22–24), 2 Model (25–26), 3 Resources (27–29), 1 SequenceControl (30). `DefaultModelWithSelfManagingModelObjects` (auto-discovered extra) assigned order 100.
+- **Program.cs:** Replaced `OrderBy(t => t.FullName)` with `OrderBy(t => t.GetCustomAttribute<OrderAttribute>()?.Value ?? int.MaxValue).ThenBy(t => t.FullName)` for stable secondary sort.
+- **Namespace resolution:** `OrderAttribute` lives in `Highpoint.Sage.Examples`; all example files use sub-namespaces. C# compiler resolves parent namespace types without explicit `using` directives — no import changes needed.
+- **Build:** 0 errors, 0 warnings. ✅
+
+---
 ### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
 
 - **Scope:** Extracted all 66 files from `src\Sage\Materials\` (and subdirs Chemistry, Emissions, Thermodynamics, VaporPressure) into new `src\Sage.Materials\` class library. Moved 2 test files from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
@@ -397,6 +419,17 @@ amespace Highpoint.Sage.Scratch
 - **Final count:** 0 CS8xxx warnings across all 548 source files.
 
 ## Learnings
+
+### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
+
+- **Scope:** Added `OrderAttribute` to `samples\Sage_SampleCode` to restore the original intentional demo execution order after IExample + reflection-based discovery was introduced.
+- **New file:** `OrderAttribute.cs` — `internal sealed class OrderAttribute : Attribute` with a single `int Value` property, `[AttributeUsage(AttributeTargets.Class, Inherited = false)]`.
+- **31 classes annotated:** 16 Executive (orders 1–16), 3 StateManagement (17–19), 2 RandomServer (20–21), 3 StateMachine (22–24), 2 Model (25–26), 3 Resources (27–29), 1 SequenceControl (30). `DefaultModelWithSelfManagingModelObjects` (auto-discovered extra) assigned order 100.
+- **Program.cs:** Replaced `OrderBy(t => t.FullName)` with `OrderBy(t => t.GetCustomAttribute<OrderAttribute>()?.Value ?? int.MaxValue).ThenBy(t => t.FullName)` for stable secondary sort.
+- **Namespace resolution:** `OrderAttribute` lives in `Highpoint.Sage.Examples`; all example files use sub-namespaces. C# compiler resolves parent namespace types without explicit `using` directives — no import changes needed.
+- **Build:** 0 errors, 0 warnings. ✅
+
+---
 ### 2026-07-17 — Materials Extraction into Sage.Materials Standalone Library ✅
 
 - **Scope:** Extracted all 66 files from `src\Sage\Materials\` (and subdirs Chemistry, Emissions, Thermodynamics, VaporPressure) into new `src\Sage.Materials\` class library. Moved 2 test files from `tests\SageTestLib\` to `tests\Sage.Materials.Tests\`.
@@ -530,3 +563,23 @@ Materials subsystem extraction has been successfully committed to git.
 - 22 Materials tests
 
 **Status:** ✅ Materials extraction complete and committed.
+
+## Learnings
+
+### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
+
+- **Scope:** Added `OrderAttribute` to `samples\Sage_SampleCode` to restore the original intentional demo execution order after IExample + reflection-based discovery was introduced.
+- **New file:** `OrderAttribute.cs` — `internal sealed class OrderAttribute : Attribute` with a single `int Value` property, `[AttributeUsage(AttributeTargets.Class, Inherited = false)]`.
+- **31 classes annotated:** 16 Executive (orders 1–16), 3 StateManagement (17–19), 2 RandomServer (20–21), 3 StateMachine (22–24), 2 Model (25–26), 3 Resources (27–29), 1 SequenceControl (30). `DefaultModelWithSelfManagingModelObjects` (auto-discovered extra) assigned order 100.
+- **Program.cs:** Replaced `OrderBy(t => t.FullName)` with `OrderBy(t => t.GetCustomAttribute<OrderAttribute>()?.Value ?? int.MaxValue).ThenBy(t => t.FullName)` for stable secondary sort.
+- **Namespace resolution:** `OrderAttribute` lives in `Highpoint.Sage.Examples`; all example files use sub-namespaces. C# compiler resolves parent namespace types without explicit `using` directives — no import changes needed.
+- **Build:** 0 errors, 0 warnings. ✅
+
+---
+
+### IExample Interface Refactor (Sage_SampleCode)
+- All 31 example classes in `samples\Sage_SampleCode\` now implement `IExample` with `void Run()`.
+- 10 classes were `public static class` (files 4–7) and needed `static` removed before they could implement the interface: `Default`, `SimpleCustomWithInitialization`, `SimpleEnumStateMachine` (StateMachine), `DefaultModel`, `SimpleCustomWithInitialization`, `DefaultModelWithSelfManagingModelObjects` (Model), `ServicePoolExample`, `ServicePoolExampleWithSynchronousEvents`, `OptimalResourceAcquisition` (Resources), `TaskGraphDemo` (SequenceControl).
+- `DefaultModelWithSelfManagingModelObjects.Run()` called `StateMachine.Basic.SimpleEnumStateMachine.Run()` as a static call — needed updating to `new StateMachine.Basic.SimpleEnumStateMachine().Run()` after the refactor.
+- `Program.cs` now uses reflection (`Assembly.GetExecutingAssembly().GetTypes()`) to discover all `IExample` implementors automatically, ordered by `t.FullName`. Adding a new example class only requires implementing `IExample` — no manual registration needed.
+- The `Demonstrate(IExample)` overload binds the instance `Run()` as `Action runAction = example.Run` so the existing `CreateDocs` helper (`run.Method.DeclaringType?.Namespace`) continues to work correctly.
