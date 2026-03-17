@@ -1,4 +1,20 @@
 
+## Learnings
+
+### 2026-07-17 — ExecutiveFastLight `_execState` Never Transitioned ✅
+
+- **Bug:** `_execState` was set to `Stopped` in `Reset()` and never changed — it stayed `Stopped` regardless of whether the executive was running or had finished normally.
+- **Root cause:** `StartWcv()` and `StartWocv()` had no state transitions. `Start()` had no post-loop state setting.
+- **Fix (4 changes):**
+  1. `StartWcv()`: Added `_execState = ExecState.Running;` after `_runNumber++`
+  2. `StartWocv()`: Added `_execState = ExecState.Running;` after `_runNumber++`
+  3. `Start()`: After the dispatch returns, added `_execState = ExecState.Stopped` inside the `if (_stopRequested)` block; added `else { _execState = ExecState.Finished; }` to cover normal completion
+  4. `RequestEvent()`: Added `ExecState.Finished` guard matching `Executive.cs` behavior — throws `ApplicationException` if called after the executive has finished
+- **Pattern:** EFL is structurally simpler than `Executive` (no lock, no daemon event count in loop guard), but must mirror the same state machine. Always refer to `Executive.cs` as the reference implementation for state semantics.
+- **Build/Test:** 0 errors, **344/344 tests passing**
+
+---
+
 ### 2026-07-16 — Complete Nullable Migration — 0 CS8xxx Warnings ✅
 
 - **Scope:** 1,244 CS8xxx nullable reference type warnings eliminated across all Sage modules

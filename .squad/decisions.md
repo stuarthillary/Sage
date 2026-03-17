@@ -2,6 +2,40 @@
 
 ## Active Decisions
 
+### 2026-03-17: ExecutiveFastLight `_execState` State Tracking Fix (COMPLETE ✅)
+
+**By:** Parker
+
+**Date:** 2026-03-17
+
+**Status:** Complete
+
+**Problem:** `ExecutiveFastLight._execState` was set to `ExecState.Stopped` in `Reset()` and never updated during a run, causing:
+- During dispatch: should be `Running`, was `Stopped` ❌
+- After normal completion: should be `Finished`, was `Stopped` ❌
+- After `Stop()`: should be `Stopped`, was `Stopped` ✅ (correct by accident)
+
+**Reference Implementation:** `Executive.cs` shows the correct pattern:
+- Line 632: `_state = ExecState.Running;` at dispatch entry
+- Line 771: `_state = ExecState.Stopped;` when `_stopRequested` causes exit
+- Line 777: `_state = ExecState.Finished;` when loop ends normally
+
+**Fix:** Four surgical changes to `ExecutiveFastLight.cs`:
+
+1. `StartWcv()`: Added `_execState = ExecState.Running;` after `_runNumber++` (dispatch entry)
+2. `StartWocv()`: Added `_execState = ExecState.Running;` after `_runNumber++` (dispatch entry)
+3. `Start()`: After dispatch returns:
+   - If `_stopRequested`: `_execState = ExecState.Stopped;`
+   - Else: `_execState = ExecState.Finished;`
+4. `RequestEvent()`: Added guard: if `_execState == ExecState.Finished`, throw `ApplicationException` (matching `Executive.cs`)
+
+**Result:**
+- Build: 0 errors, 0 warnings
+- Tests: 344/344 passing
+- `ExecutiveFastLight._execState` now correctly transitions: `Stopped` → `Running` → (`Stopped` | `Finished`)
+
+---
+
 ### 2026-03-10: Priority 3 executive tests written (COMPLETE ✅)
 
 **By:** Hudson (via Stuart Hillary)

@@ -351,6 +351,8 @@ namespace Highpoint.Sage.Core
         /// </returns>
 		public long RequestEvent(ExecEventReceiver eer, DateTime when, double priority, object? userData)
         {
+            if (_execState == ExecState.Finished)
+                throw new ApplicationException("Event service cannot be requested from an Executive that is in the \"Finished\" state.");
             if (when < _now)
             {
                 if (!_ignoreCausalityViolations)
@@ -475,9 +477,14 @@ namespace Highpoint.Sage.Core
                     StartWcv();
                 if (_stopRequested)
                 {
+                    _execState = ExecState.Stopped;
                     if (executiveStopped != null)
                         executiveStopped(this);
                     _stopRequested = false;
+                }
+                else
+                {
+                    _execState = ExecState.Finished;
                 }
 
                 if (executiveFinished != null)
@@ -488,6 +495,7 @@ namespace Highpoint.Sage.Core
         private void StartWcv()
         {
             _runNumber++;
+            _execState = ExecState.Running;
             while (_numNonDaemonEventsPending > 0 && !_stopRequested)
             {
                 _currentEvent = Dequeue()!;
@@ -538,6 +546,7 @@ namespace Highpoint.Sage.Core
         private void StartWocv()
         {
             _runNumber++;
+            _execState = ExecState.Running;
             while (_numNonDaemonEventsPending > 0 && !_stopRequested)
             {
                 _currentEvent = Dequeue()!;
