@@ -1,3 +1,24 @@
+## Core Context
+
+### Executive Test Suite Development
+- **Current:** 348/348 passing tests (was 316 baseline in early March)
+- **Scope:** Comprehensive coverage of Executive and ExecutiveFastLight state management, error paths, API correctness
+- **Key phases:**
+  - Phase 1 (Mar 6): Collection migration test coverage (16 tests); fixed 4 compilation errors
+  - Phase 2 (Mar 9-10): Core engine audit; identified 21 test gaps; Priority 1-3 tests implemented (7+8+6 tests)
+  - Phase 3 (Mar 17): EFL regression tests (4 tests) locking in state-fix
+
+### Known Patterns & Learnings
+- **ExecFactory singleton:** Captures options at creation; reset via reflection if Configure() called post-creation
+- **Static field contamination:** `Executive._ignoreCausalityViolations` is static but set by constructors; parallel tests must lock/reset
+- **Daemon events:** Do NOT fire when only daemons remain; loop condition `_numEventsInQueue > _numDaemonEventsInQueue`
+- **Pause/Resume:** Methods are `Pause()` and `Resume()`; sync handler pause needs `Thread.Sleep(50)` for PauseManager catchup
+- **FIFO tiebreaker:** `_nextReqHashCode` (incrementing counter) ensures deterministic dispatch for same-time, same-priority events
+- **CausalityException (high-risk):** Thrown when `when < _now` and `IgnoreCausalityViolations = false`; zero regression risk historically
+- **ResubmitEventAtTime:** Takes `(eventID, newTime, deleteOldOne)` tuple; eventID must be IN queue (not currently dispatching)
+
+---
+
 ### 2026-03-10 — Priority 1 Executive Tests Written ✅
 
 **Status:** COMPLETE — 6 new Priority 1 tests added to TestExecutive.cs
