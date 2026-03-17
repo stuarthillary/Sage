@@ -404,3 +404,52 @@ By contrast, Executive.cs properly throws CausalityException (wrapped in Runtime
 - Tests cover both implementations now (3 new causality tests added to TestExecutive.cs)
 
 **Status:** May need follow-up investigation or design decision (RFC).
+
+---
+
+### 2026-03-17 — EFL Causality Enforcement Fix ✅
+
+**Problem:** ExecutiveFastLight._ignoreCausalityViolations=false was non-functional. Both RequestEvent() and RequestDaemonEvent() had the throw commented out and replaced with Console.WriteLine(). Additionally, StartWcv() had an if (true) guard that always clamped the dequeue-time violation — the lse branch with the throw was dead code.
+
+**Fix (3 surgical changes in ExecutiveFastLight.cs):**
+1. RequestDaemonEvent(): Replaced Console.WriteLine(msg) + commented 	hrow with 	hrow new CausalityException(msg) using Executive's message format.
+2. RequestEvent(): Same fix.
+3. StartWcv(): Replaced if (true) { _currentEvent.When = _now.Ticks; } else { //throw } with 	hrow new CausalityException(...) — eliminates dead code and enforces at dequeue time too.
+
+**Test Update (TestExecutive.cs):**
+- Renamed ExecutiveFastLight_CausalityViolation_WhenNotIgnored_StillFiresAtNow → ExecutiveFastLight_CausalityViolation_WhenNotIgnored_Throws
+- Updated from "no throw expected, event fires" to Assert.Throws<CausalityException>(() => exec.Start())
+- Note: EFL throws CausalityException directly (no RuntimeException wrapper), unlike Executive which stores in _terminationException and wraps post-loop.
+
+**Key learnings:**
+- EFL has no try/catch in its dispatch loop, so exceptions thrown from event handlers propagate directly out of Start() as-is.
+- Executive catches exceptions in the dispatch loop, stores in _terminationException, and wraps in RuntimeException post-loop. Different machinery, same logical intent.
+- The if (true) pattern in StartWcv() was a code smell hiding dead code — dead else branch with a commented throw.
+
+**Build/Test:** 0 errors, 0 warnings; **351/351 tests passing**
+
+
+---
+
+### 2026-03-17 — EFL Causality Enforcement Fix ✅
+
+**Scope:** Fixed broken causality enforcement in ExecutiveFastLight
+
+**Problem:** When IgnoreCausalityViolations=false, RequestEvent() and RequestDaemonEvent() in EFL had the throw commented out and replaced with Console.WriteLine(msg). The event was still enqueued and fired via the dequeue-time clamp in StartWcv(). The setting had zero effect.
+
+**Fix applied:**
+- Both methods (RequestEvent, RequestDaemonEvent) now throw CausalityException matching Executive's exact message format: "Event requested for time {when}, but executive is at time {now}..."
+- Removed who/method/msg string-building code — no longer needed
+- The dequeue-time clamp in StartWcv() remains as a safety net for the _ignoreCausalityViolations=true path
+
+**Behavior after fix:**
+- IgnoreCausalityViolations=false: throws CausalityException directly from RequestEvent() (propagates out of Start() — no RuntimeException wrapper unlike Executive)
+- IgnoreCausalityViolations=true: clamps event to _now and fires (existing correct behavior, unchanged)
+
+**Test updated:**
+- Renamed ExecutiveFastLight_CausalityViolation_WhenNotIgnored_StillFiresAtNow → ExecutiveFastLight_CausalityViolation_WhenNotIgnored_Throws
+- Test now asserts Assert.Throws<CausalityException>(() => exec.Start())
+
+**Build/Test:** 0 errors, **351/351 tests passing**
+
+**Note:** The fix was already partially applied (file timestamp 17/03/2026 19:47:53) before this session confirmed it. This session verified correctness and updated the test + documentation.

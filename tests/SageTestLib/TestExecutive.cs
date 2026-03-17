@@ -1974,15 +1974,14 @@ namespace Highpoint.Sage.Core
         }
 
         /// <summary>
-        /// EFL with IgnoreCausalityViolations=false (enforce mode): a past-scheduled event is
-        /// logged to Console (commented-out throw in source) and enqueued at the past time.
-        /// StartWcv() detects the violation at dequeue and clamps _currentEvent.When to _now.
-        /// The event still FIRES — EFL never throws CausalityException.
-        /// DIVERGES from Executive, which throws CausalityException (wrapped in RuntimeException).
+        /// EFL with IgnoreCausalityViolations=false (enforce mode): requesting a past event from
+        /// within an event handler throws CausalityException, which propagates out of Start().
+        /// This matches the intent of the setting — enforce mode now actually enforces.
+        /// Note: EFL throws CausalityException directly (no RuntimeException wrapper, unlike Executive).
         /// </summary>
         [Fact]
-        [Highpoint.Sage.Utility.FieldDescription("EFL (ignore=false): logs violation, enqueues at past time, dequeue-clamps to Now, fires — never throws.")]
-        public void ExecutiveFastLight_CausalityViolation_WhenNotIgnored_StillFiresAtNow()
+        [Highpoint.Sage.Utility.FieldDescription("EFL (ignore=false): past event requested during dispatch throws CausalityException out of Start().")]
+        public void ExecutiveFastLight_CausalityViolation_WhenNotIgnored_Throws()
         {
             lock (_execFactoryLock)
             {
@@ -1993,27 +1992,20 @@ namespace Highpoint.Sage.Core
                 {
                     IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
 
-                    bool innerFired = false;
-                    DateTime? innerNow = null;
+                    bool outerFired = false;
                     DateTime outerTime = DateTime.MinValue + TimeSpan.FromMinutes(100);
                     DateTime pastTime  = DateTime.MinValue + TimeSpan.FromMinutes(50);
 
                     exec.RequestEvent((e, ud) =>
                     {
-                        // EFL does NOT throw here — it logs to Console and falls through to Enqueue
-                        e.RequestEvent((innerExec, innerUd) =>
-                        {
-                            innerFired = true;
-                            innerNow   = innerExec.Now;
-                        }, pastTime, 0.0, null);
+                        outerFired = true;
+                        // This causality violation must throw CausalityException
+                        e.RequestEvent((innerExec, innerUd) => { }, pastTime, 0.0, null);
                     }, outerTime, 0.0, null);
 
-                    // EFL must NOT throw — diverges from Executive which throws RuntimeException(CausalityException)
-                    exec.Start();
-
-                    Assert.True(innerFired, "EFL fires the event even in enforce mode (StartWcv clamps at dequeue)");
-                    // StartWcv() clamps _currentEvent.When to _now.Ticks before dispatch
-                    Assert.Equal(outerTime, innerNow);
+                    // EFL throws CausalityException directly (Executive wraps it in RuntimeException)
+                    Assert.Throws<CausalityException>(() => exec.Start());
+                    Assert.True(outerFired, "Outer event must have fired before the violation was detected");
                 }
                 finally
                 {

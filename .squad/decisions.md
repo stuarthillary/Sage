@@ -620,9 +620,41 @@ Branch `feature/dotnet10` has partial changes from investigation:
 
 ---
 
+### 2026-03-17 — EFL Causality Enforcement Fix ✅
+
+**Author:** Parker  
+**Date:** 2026-03-17  
+**Branch:** `feature/dotnet10`  
+**Status:** ✅ Complete — 351/351 passing
+
+**Decision:** ExecutiveFastLight now correctly enforces causality violations when `IgnoreCausalityViolations=false`, throwing `CausalityException` to match Executive's behavior.
+
+**Problem:** EFL silently ignored causality violations due to commented-out throw statements replaced with `Console.WriteLine()`. Additionally, `StartWcv()` had an `if (true)` guard preventing the throw path from ever executing.
+
+**Fix:** Three surgical changes to ExecutiveFastLight.cs:
+
+1. **RequestEvent()** — Replaced `Console.WriteLine()` with `throw new CausalityException()` matching Executive's message format
+2. **RequestDaemonEvent()** — Same as RequestEvent()
+3. **StartWcv()** — Replaced dead-code `if (true) { clamp } else { //throw }` with real `throw new CausalityException()`
+
+**Test Update:** `ExecutiveFastLight_CausalityViolation_WhenNotIgnored_Throws` now correctly asserts `Assert.Throws<CausalityException>()` and verifies outer event fired before violation detection.
+
+**Behavioral Note:** EFL throws `CausalityException` directly; Executive wraps it in `RuntimeException` (implementation detail of Executive's multi-threaded dispatch loop). Both now enforce causality correctly.
+
+**Verification:**
+- Build: 0 errors, 0 warnings
+- Tests: **351/351 passing**
+- IgnoreCausalityViolations=false now enforces on both Executive and ExecutiveFastLight
+
+**Rationale:** EFL behavior diverged from Executive for too long without documented justification. Users expect `IgnoreCausalityViolations=false` to actually enforce causality. Fix aligns implementation with documented intent.
+
+**Impact:** `feature/dotnet10` causality enforcement is now consistent across both Executive implementations. Minor divergence remains (throw wrapper) but is implementation-specific and transparent to API users.
+
+---
+
 ### Configuration Modernization — Remove System.Configuration.ConfigurationManager (PROPOSED)
 
-**Author:** Ripley (Lead / Architect)  
+**Author:** Ripley (Lead / Architect)
 **Date:** 2026-07-15  
 **Status:** Proposed  
 **Requested by:** Stuart Hillary

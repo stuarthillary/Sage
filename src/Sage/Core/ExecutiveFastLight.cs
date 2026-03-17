@@ -275,14 +275,8 @@ namespace Highpoint.Sage.Core
             {
                 if (!_ignoreCausalityViolations)
                 {
-                    var target = eer.Target;
-                    string who = target?.GetType().FullName ?? "<static>";
-                    if (target is IHasName hasName)
-                        who = hasName.Name;
-                    string method = eer.Method.Name + "(...)";
-                    string msg = string.Format("Executive was asked to service an event prior to current time. This is a causality violation. The call was made from {0}.{1}.", who, method);
-                    //throw new ApplicationException(msg);
-                    Console.WriteLine(msg);
+                    throw new CausalityException("Event requested for time " + when + ", but executive is at time " + _now + ". " +
+                        "\r\nSet ExecutiveOptions.IgnoreCausalityViolations to true to prevent these exceptions. (Submitted event requests will be ignored.)");
                 }
                 else
                 {
@@ -357,14 +351,8 @@ namespace Highpoint.Sage.Core
             {
                 if (!_ignoreCausalityViolations)
                 {
-                    var target = eer.Target;
-                    string who = target?.GetType().FullName ?? "<static>";
-                    if (target is IHasName hasName)
-                        who = hasName.Name;
-                    string method = eer.Method.Name + "(...)";
-                    string msg = string.Format("Executive was asked to service an event prior to current time. This is a causality violation. The call was made from {0}.{1}.", who, method);
-                    //throw new ApplicationException(msg);
-                    Console.WriteLine(msg);
+                    throw new CausalityException("Event requested for time " + when + ", but executive is at time " + _now + ". " +
+                        "\r\nSet ExecutiveOptions.IgnoreCausalityViolations to true to prevent these exceptions. (Submitted event requests will be ignored.)");
                 }
                 else
                 {
@@ -503,21 +491,8 @@ namespace Highpoint.Sage.Core
                 var eer = _currentEvent.Eer!;
                 if (_now.Ticks > _currentEvent.When)
                 {
-                    var target = eer.Target;
-                    string who = target?.GetType().FullName ?? "<static>";
-                    if (target is IHasName hasName)
-                    {
-                        who = hasName.Name;
-                    }
-                    string method = eer.Method.Name + "(...)";
-                    if (true)
-                    {
-                        _currentEvent.When = _now.Ticks;// System.Diagnostics.Debugger.Break();
-                    }
-                    else
-                    {
-                        //						throw new ApplicationException(msg);
-                    }
+                    throw new CausalityException("Event dequeued for time " + new DateTime(_currentEvent.When) + ", but executive is at time " + _now + ". " +
+                        "\r\nSet ExecutiveOptions.IgnoreCausalityViolations to true to prevent these exceptions. (Submitted event requests will be ignored.)");
                 }
                 _lastEventServiceTime = _now;
                 _now = new DateTime(_currentEvent.When);
