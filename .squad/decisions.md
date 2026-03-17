@@ -643,6 +643,46 @@ Branch `feature/dotnet10` has partial changes from investigation:
 
 **Verification:**
 - Build: 0 errors, 0 warnings
+
+### 2026-03-17T21-04-50: PFC Extraction Into Sage.PFC Standalone Library
+
+**Date:** 2026-03-17  
+**Author:** Parker  
+**Status:** Complete ✅
+
+**Decision:** Extract PFC (Procedure Function Chart) subsystem into a standalone `Sage.PFC` class library.
+
+**What Was Done**
+
+Moved all 53 PFC source files from `src\Sage\Graphs\PFC\` into a new `src\Sage.PFC\` project. Moved 5 PFC test files + 2 XML test data files from `tests\SageTestLib\` to new `tests\Sage.PFC.Tests\` project.
+
+**Created Projects**
+- `src\Sage.PFC\Sage.PFC.csproj` — new library; RootNamespace=`Highpoint.Sage`, references `Sage.csproj`
+- `tests\Sage.PFC.Tests\Sage.PFC.Tests.csproj` — new xUnit test project; references both `Sage.PFC.csproj` and `Sage.csproj`
+
+**Project Structure Changes**
+- `Sage.slnx` — added both new projects
+- `src\Sage\Sage.csproj` — removed 53 PFC files (entire `Graphs\PFC\` directory)
+- `tests\SageTestLib\Sage.Tests.csproj` — removed 5 PFC test files + 2 XML files
+- `samples\Sage.Scratch\Sage.Scratch.csproj` — added references to new projects (Driver.cs instantiates PfcAnalystTester and PFCGraphTester)
+
+**Key Decisions**
+1. No namespace changes — all types keep `Highpoint.Sage.Graphs.PFC.*` namespaces exactly as before
+2. RootNamespace = `Highpoint.Sage` — matches parent convention; not `Highpoint.Sage.Graphs.PFC`
+3. No explicit `<Compile Include>` glob needed — SDK-style project auto-includes `.cs` files
+4. xsd file not embedded — `ProcedureFunctionChart.xsd` is documentation; content inlined as string literal in `.cs` file
+5. Sage.Scratch updated — required because scratch driver directly instantiates PFC test types
+
+**Verification**
+- `dotnet build Sage.slnx` → **0 errors**
+- `dotnet test Sage.Tests.csproj` → **293/293 passed**
+- `dotnet test Sage.PFC.Tests.csproj` → **58/58 passed**
+- Total: **351/351 tests passing**
+
+**Architectural Impact**
+- Zero inbound dependencies from rest of Sage to PFC — confirmed clean separation
+- PFC now a true subsystem: can be versioned, released, or used independently
+- Test organization cleaner: dedicated test project for extracted domain
 - Tests: **351/351 passing**
 - IgnoreCausalityViolations=false now enforces on both Executive and ExecutiveFastLight
 
