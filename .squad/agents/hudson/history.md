@@ -57,6 +57,20 @@
 
 ### 2026-05-30 — Core Engine Test Coverage Audit Complete ✅
 
+### 2026-05-30 — EFL State Tracking Regression Tests Written ✅
+
+**Status:** COMPLETE — 4 new regression tests added to TestExecutive.cs in `#region EFL State Tracking`
+
+**Test suite:** 348/348 passing (was 344 before)
+
+**Tests added:**
+1. `ExecutiveFastLight_State_IsRunningDuringDispatch` — asserts `State == Running` inside handler, `State == Finished` after Start()
+2. `ExecutiveFastLight_State_IsFinishedAfterNormalCompletion` — 5-event run verifies Finished state
+3. `ExecutiveFastLight_State_IsStoppedAfterStop` — Stop() from handler yields Stopped state
+4. `ExecutiveFastLight_RequestEvent_AfterFinished_Throws` — ApplicationException with "Finished" message verified
+
+**Context:** Locks in Parker's four-part fix to ExecutiveFastLight state tracking (Running/Finished/Stopped transitions and RequestEvent Finished guard).
+
 ## Learnings
 
 ### 2026-03-10 — Priority 3 Tests Implementation

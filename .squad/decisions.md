@@ -2,6 +2,26 @@
 
 ## Active Decisions
 
+### 2026-03-17: EFL State Tracking Regression Tests (COMPLETE ✅)
+
+**By:** Hudson  
+**Date:** 2026-03-17  
+**Status:** Complete  
+
+**What:** 4 regression tests added to 	ests/SageTestLib/TestExecutive.cs in the ExecTester class under a new #region EFL State Tracking block.
+
+**Tests Added:**
+1. ExecutiveFastLight_State_IsRunningDuringDispatch — Validates State == Running during dispatch via ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded), capturing state inside event handler
+2. ExecutiveFastLight_State_IsFinishedAfterNormalCompletion — Schedules 5 events, runs to normal completion, asserts State == Finished after Start() returns
+3. ExecutiveFastLight_State_IsStoppedAfterStop — Calls xec.Stop() from inside event handler, asserts State == Stopped after Start() returns
+4. ExecutiveFastLight_RequestEvent_AfterFinished_Throws — Runs simulation to completion, calls RequestEvent() after, asserts throws ApplicationException with "Finished" in message
+
+**Result:**
+- Test Suite: 344 → 348 passing (all 4 new tests pass)
+- Build: 0 errors, 0 warnings
+- Regression locks in Parker's EFL state-fix (2026-03-17T19-30-00Z-efl-state-fix.md)
+
+---
 ### 2026-03-17: ExecutiveFastLight `_execState` State Tracking Fix (COMPLETE ✅)
 
 **By:** Parker
@@ -814,6 +834,7 @@ xUnit 2.x is mature, stable, widely adopted, and fully compatible with the exist
 **What:** The user's name is Stuart, not Steve. Always use Stuart when addressing the PM.
 
 **Why:** User correction — the team used the wrong name
+
 
 
 

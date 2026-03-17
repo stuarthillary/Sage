@@ -1841,6 +1841,102 @@ namespace Highpoint.Sage.Core
 
         #endregion Priority 3
 
+        #region EFL State Tracking
+
+        /// <summary>
+        /// Regression: EFL _execState is Running during dispatch and Finished after normal completion.
+        /// Locks in Parker's fix for missing Running/Finished state transitions.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies EFL state is Running during event dispatch and Finished after Start() returns normally.")]
+        public void ExecutiveFastLight_State_IsRunningDuringDispatch()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+
+            ExecState? stateInsideHandler = null;
+
+            exec.RequestEvent((e, ud) =>
+            {
+                stateInsideHandler = e.State;
+            }, DateTime.MinValue + TimeSpan.FromMinutes(10), 0.0, null);
+
+            exec.Start();
+
+            Assert.Equal(ExecState.Running,  stateInsideHandler);
+            Assert.Equal(ExecState.Finished, exec.State);
+        }
+
+        /// <summary>
+        /// Regression: EFL _execState is Finished after all events are drained with no Stop().
+        /// Locks in Parker's fix for missing Finished state assignment.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies EFL state is Finished after normal simulation completion with no Stop().")]
+        public void ExecutiveFastLight_State_IsFinishedAfterNormalCompletion()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+
+            DateTime t = DateTime.MinValue + TimeSpan.FromMinutes(1);
+            for (int i = 0; i < 5; i++)
+            {
+                exec.RequestEvent((e, ud) => { }, t + TimeSpan.FromMinutes(i), 0.0, null);
+            }
+
+            exec.Start();
+
+            Assert.Equal(ExecState.Finished, exec.State);
+        }
+
+        /// <summary>
+        /// Regression: EFL _execState is Stopped when Stop() is called from inside a handler.
+        /// Locks in Parker's fix for the Stopped state assignment.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies EFL state is Stopped after Stop() is called from inside an event handler.")]
+        public void ExecutiveFastLight_State_IsStoppedAfterStop()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+
+            DateTime t = DateTime.MinValue + TimeSpan.FromMinutes(1);
+            for (int i = 0; i < 5; i++)
+            {
+                exec.RequestEvent((e, ud) => { }, t + TimeSpan.FromMinutes(i), 0.0, null);
+            }
+
+            // Stop the executive from inside the first event handler.
+            exec.RequestEvent((e, ud) => { e.Stop(); }, t, 0.0, null);
+
+            exec.Start();
+
+            Assert.Equal(ExecState.Stopped, exec.State);
+        }
+
+        /// <summary>
+        /// Regression: EFL RequestEvent throws ApplicationException when called on a Finished executive.
+        /// Locks in Parker's fix for the missing Finished-state guard.
+        /// </summary>
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies EFL RequestEvent throws ApplicationException with 'Finished' in the message after the executive has completed.")]
+        public void ExecutiveFastLight_RequestEvent_AfterFinished_Throws()
+        {
+            IExecutive exec = ExecFactory.Instance.CreateExecutive(ExecType.SingleThreaded);
+
+            exec.RequestEvent((e, ud) => { },
+                DateTime.MinValue + TimeSpan.FromMinutes(10), 0.0, null);
+
+            exec.Start();
+
+            Assert.Equal(ExecState.Finished, exec.State);
+
+            ApplicationException ex = Assert.Throws<ApplicationException>(() =>
+                exec.RequestEvent((e, ud) => { },
+                    DateTime.MinValue + TimeSpan.FromMinutes(20), 0.0, null));
+
+            Assert.Contains("Finished", ex.Message, StringComparison.Ordinal);
+        }
+
+        #endregion EFL State Tracking
+
         #endregion
     }
 
