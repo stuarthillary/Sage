@@ -1,14 +1,14 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Core;
+using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Utility.Mementos;
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
 
     /// <summary>
-    /// Fired after a change in mass, constituents or temperature has taken place in this mixture. 
+    /// Fired after a change in mass, constituents or temperature has taken place in this mixture.
     /// </summary>
     public delegate void MaterialChangeListener(IMaterial material, MaterialChangeType type);
 
@@ -129,7 +129,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// Uses caller-supplied format strings in forming the numbers representing mass and temperature.
         /// </summary>
         /// <param name="tempFmt">The temperature's numerical format string.</param>
@@ -138,19 +138,19 @@ namespace Highpoint.Sage.Materials.Chemistry
         string ToString(string tempFmt, string massFmt);
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </summary>
         /// <returns>
-        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </returns>
         string ToStringWithoutTemperature();
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </summary>
         /// <param name="massFmt">The mass format string. For example, &quot;F2&quot; will display to two decimals.</param>
         /// <returns>
-        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </returns>
         string ToStringWithoutTemperature(string massFmt);
 

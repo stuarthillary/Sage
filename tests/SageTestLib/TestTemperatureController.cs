@@ -1,10 +1,12 @@
 /* This source code licensed under the GNU Affero General Public License */
+
+using Highpoint.Sage.Materials;
 using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Materials.Thermodynamics;
 using Xunit;
 using System;
 using System.Diagnostics;
-using IContainer = Highpoint.Sage.Materials.Chemistry.IContainer;
+using IContainer = Highpoint.Sage.Materials.IContainer;
 
 namespace Highpoint.Sage.Thermodynamics
 {

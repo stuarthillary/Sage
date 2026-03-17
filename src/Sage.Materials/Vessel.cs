@@ -1,9 +1,10 @@
 /* This source code licensed under the GNU Affero General Public License */
+
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
 using System;
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
     public class Vessel : IContainer, IModelObject, IResettable
     {

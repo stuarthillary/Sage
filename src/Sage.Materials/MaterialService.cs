@@ -1,7 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.ItemBased.Ports;
-using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility;
@@ -14,7 +13,7 @@ using _Debug = System.Diagnostics.Debug;
 namespace Highpoint.Sage.Materials
 {
     /// <summary>
-    /// A MaterialService manages a set of connection tokens (a discrete, replenishable resource), 
+    /// A MaterialService manages a set of connection tokens (a discrete, replenishable resource),
     /// an available capacity (a continuous, replenishable resource) and a set of compartments
     /// which are MaterialResourceItems. A Compartment can be thought of as a "bucket" with
     /// material in it, and a specified capacity &amp; overbooking setting.  Overbooking means that
@@ -102,11 +101,11 @@ namespace Highpoint.Sage.Materials
         #endregion
 
         /// <summary>
-        /// Returns true if the rsc is any of the child resources (ServiceTokenDispenser, 
+        /// Returns true if the rsc is any of the child resources (ServiceTokenDispenser,
         /// CapacityDispenser or MaterialResourceItems) of this MaterialService.
         /// </summary>
         /// <param name="rsc">The candidate child resource.</param>
-        /// <returns>true if the rsc is any of the child resources (ServiceTokenDispenser, 
+        /// <returns>true if the rsc is any of the child resources (ServiceTokenDispenser,
         /// CapacityDispenser or MaterialResourceItems) of this MaterialService.</returns>
         public bool IsSubResource(IResource rsc)
         {
@@ -344,7 +343,7 @@ namespace Highpoint.Sage.Materials
         /// Will return null if there is no compartment with the given material type.
         /// </summary>
         /// <param name="mt">The material type whose compartment we desire.</param>
-        /// <param name="materialSpecifications">A collection of the material specifications 
+        /// <param name="materialSpecifications">A collection of the material specifications
         /// that are to be applied to this compartment.</param>
         /// <returns>The MaterialResourceItem that is acting as the compartment for the
         /// specified material type.</returns>
@@ -670,12 +669,12 @@ namespace Highpoint.Sage.Materials
         /// A current limitation of this class is that its use must be entirely contained within
         /// the scope of one SOMTask.
         /// </summary>
-        /// <param name="material">The material we will be transferring. Null if no material will 
+        /// <param name="material">The material we will be transferring. Null if no material will
         /// be transferred.</param>
-        /// <param name="deliveryRate">The amount of capacity this request will use. Units are 
+        /// <param name="deliveryRate">The amount of capacity this request will use. Units are
         /// kilograms per minute, by default.</param>
         /// <param name="otherGuysPort">The resource-user's desired source or sink port.</param>
-        /// <param name="createConnection">if set to <c>true</c> this setup will create a connection 
+        /// <param name="createConnection">if set to <c>true</c> this setup will create a connection
         /// for the transfer, and destroy the connection after the transfer is completed.</param>
         /// <returns>
         /// An opaque object that must be fed back to this MaterialService during subsequent stages
@@ -885,7 +884,7 @@ namespace Highpoint.Sage.Materials
         }
 
         /// <summary>
-        /// Performs the actual transfers in or out of this MaterialService. Setup must have been 
+        /// Performs the actual transfers in or out of this MaterialService. Setup must have been
         /// completed beforehand, and teardown must follow completion of this call.
         /// </summary>
         /// <param name="graphContext">The graphContext of the current batch.</param>
@@ -949,7 +948,7 @@ namespace Highpoint.Sage.Materials
                 #region >>> Algorithm description. <<<
                 // This involves taking the MaterialTransfer object out of the transferTable, cycling through
                 // the substances in the MaterialTransfer's mixture, and adding each one to the appropriate
-                // MaterialResourceItem. Adding the material to the MRI will involve creating and executing 
+                // MaterialResourceItem. Adding the material to the MRI will involve creating and executing
                 // an augmentation request.
                 #endregion
 
@@ -987,7 +986,7 @@ namespace Highpoint.Sage.Materials
 
         /// <summary>
         /// Releases all ports, capacity and connector tokens, and removes the MaterialTransfer
-        /// object from the transferTable. This call must correspond 1-to-1 with any setup and 
+        /// object from the transferTable. This call must correspond 1-to-1 with any setup and
         /// execute calls, and must follow the Execute(...) call.
         /// </summary>
         /// <param name="key">The object that was returned as the key from the original Setup call.</param>
@@ -1046,7 +1045,7 @@ namespace Highpoint.Sage.Materials
         }
 
         /// <summary>
-        /// A pair of request/target objects, used in a queue to successfully reserve all resources before 
+        /// A pair of request/target objects, used in a queue to successfully reserve all resources before
         /// acquiring any of them. All-or-none.
         /// </summary>
         protected class ReservationPair

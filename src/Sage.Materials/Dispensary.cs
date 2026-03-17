@@ -1,5 +1,4 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Core;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace Highpoint.Sage.Materials
     /// A Dispensary holds a Mixture that supports infusion of materials (i.e. mixtures or substances) and
     /// getters that specify the quantity they want. If there is not enough, then the getter is suspended,
     /// and resumed when there is enough material there to satisfy the getter's request. The purpose is to
-    /// allow suppliers to dump various quantities at varying times, of materials into it, and to support 
+    /// allow suppliers to dump various quantities at varying times, of materials into it, and to support
     /// consumers that say, "Give me 100 kg of substance X." If there are 100 kg of X already, then it is
     /// dispensed to the consumer. If there are not, then the consumer is blocked, and then (potentially)
     /// unblocked later when there *are* 100 kg. If there are never 100 kg, though, the consumer will never
@@ -22,7 +21,7 @@ namespace Highpoint.Sage.Materials
 
 
         /// <summary>
-        /// This class exists solely so that the Dispensary can assume there is always a getter or a putter waiting. 
+        /// This class exists solely so that the Dispensary can assume there is always a getter or a putter waiting.
         /// The dummy idec, though, acts as though (if there isn't actually a real one) the waiting getter or putter
         /// has, or needs, zero kilograms.
         /// </summary>

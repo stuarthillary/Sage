@@ -1,5 +1,4 @@
 /* This source code licensed under the GNU Affero General Public License */
-using Highpoint.Sage.Diagnostics;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using Highpoint.Sage.Core;
 using Xunit;
@@ -45,15 +44,12 @@ namespace Highpoint.Sage.Materials.Chemistry
             mixture.AddMaterial(cat["Potassium Sulfate"].CreateMass(100, 20));
             mixture.AddMaterial(cat["Ammonia"].CreateMass(100, 20));
             Debug.WriteLine("Mixture has the following stuff...");
-            DiagnosticAids.DumpMaterial(mixture);
             Assert.True(mixture.Mass.Equals(300D), "Mixture is not 300 kg");
 
             Debug.WriteLine("Removing 100 kg of Acetone.");
             IMaterial matl = mixture.RemoveMaterial(cat["Acetone"], 100);
-            DiagnosticAids.DumpMaterial(matl);
             Assert.True(mixture.Mass.Equals(200D), "Mixture is not 200 kg");
             Debug.WriteLine("Remaining is the following mixture:");
-            DiagnosticAids.DumpMaterial(mixture);
         }
 
         [Fact]
@@ -69,15 +65,12 @@ namespace Highpoint.Sage.Materials.Chemistry
                 cat["Ammonia"].CreateMass(100, 20));
 
             Debug.WriteLine("Mixture has the following stuff...");
-            DiagnosticAids.DumpMaterial(mixture);
             Assert.True(mixture.Mass.Equals(300D), "Mixture is not 300 kg");
 
             Debug.WriteLine("Removing 100 kg of Acetone.");
             IMaterial matl = mixture.RemoveMaterial(cat["Acetone"], 100);
-            DiagnosticAids.DumpMaterial(matl);
             Assert.True(mixture.Mass.Equals(200D), "Mixture is not 200 kg");
             Debug.WriteLine("Remaining is the following mixture:");
-            DiagnosticAids.DumpMaterial(mixture);
         }
 
         [Fact]
@@ -99,17 +92,14 @@ namespace Highpoint.Sage.Materials.Chemistry
 
             IMaterial matl = mixture.RemoveMaterial(cat["Nitrous Acid"]);
             Debug.WriteLine("Removing all avaliable " + matl.MaterialType.Name);
-            DiagnosticAids.DumpMaterial(mixture);
             Assert.True(mixture.Mass.Equals(250D), "Mass is not 250 kg");
 
             Debug.WriteLine("Adding " + matl.MaterialType.Name + " back in.");
             mixture.AddMaterial(matl);
-            DiagnosticAids.DumpMaterial(mixture);
             Assert.True(mixture.Mass.Equals(350D), "Mass is not 350 kg");
 
             Debug.WriteLine("Removing 50 kg of the " + matl.MaterialType.Name);
             matl = mixture.RemoveMaterial(matl.MaterialType, 50.0);
-            DiagnosticAids.DumpMaterial(mixture);
             Assert.True(mixture.Mass.Equals(300D), "Mass is not 300 kg");
 
         }
@@ -938,7 +928,6 @@ namespace Highpoint.Sage.Materials.Chemistry
             mixture.AddMaterial(matl);
 
             Debug.WriteLine("Mixture is now:");
-            DiagnosticAids.DumpMaterial(mixture);
         }
 
         private void RemoveSubstance(ref Mixture mixture, MaterialType matType, double mass)
@@ -948,7 +937,6 @@ namespace Highpoint.Sage.Materials.Chemistry
             IMaterial whatIGot = mixture.RemoveMaterial(matl.MaterialType, mass);
             Debug.WriteLine(String.Format("I got {0} - {1} kg, {2} C, and {3} liters.", whatIGot.MaterialType.Name, whatIGot.Mass, whatIGot.Temperature, whatIGot.Volume));
             Debug.WriteLine("Mixture is now:");
-            DiagnosticAids.DumpMaterial(mixture);
         }
 
 

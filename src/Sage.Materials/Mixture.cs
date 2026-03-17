@@ -1,8 +1,9 @@
 /* This source code licensed under the GNU Affero General Public License */
 
+using Highpoint.Sage.Core;
+using Highpoint.Sage.Materials.Chemistry;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.Core;
 using Highpoint.Sage.Utility.Mementos;
 using System;
 using System.Collections;
@@ -16,7 +17,7 @@ using K = Highpoint.Sage.Materials.Chemistry.Constants;
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable RedundantAssignment
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
 
     /// <summary>
@@ -28,7 +29,7 @@ namespace Highpoint.Sage.Materials.Chemistry
     {
 
         /// <summary>
-        /// Fired after a change in mass, constituents or temperature has taken place in this mixture. 
+        /// Fired after a change in mass, constituents or temperature has taken place in this mixture.
         /// </summary>
         public event MaterialChangeListener? MaterialChanged;
         /// <summary>
@@ -89,7 +90,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             _ssh = new MementoHelper(this, true);
             RecomputeTemperature(0.0);
         }
-        #endregion 
+        #endregion
 
         /// <summary>
         /// Creates a mixture from the specified constituents.
@@ -213,9 +214,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Returns the containeds mass of the specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/>.
+        /// Returns the containeds mass of the specified <see cref="Materials.MaterialType"/>.
         /// </summary>
-        /// <param name="type">The specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/>.</param>
+        /// <param name="type">The specified <see cref="Materials.MaterialType"/>.</param>
         /// <returns></returns>
         public double ContainedMassOf(MaterialType type)
         {
@@ -226,11 +227,11 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Gets the mole fraction of the specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/> in this mixture,
-        /// with the calculations counting only the materials that pass the <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType.Filter"/>.
+        /// Gets the mole fraction of the specified <see cref="Materials.MaterialType"/> in this mixture,
+        /// with the calculations counting only the materials that pass the <see cref="Materials.MaterialType.Filter"/>.
         /// </summary>
-        /// <param name="mt">The specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/>.</param>
-        /// <param name="tf">The specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType.Filter"/>.</param>
+        /// <param name="mt">The specified <see cref="Materials.MaterialType"/>.</param>
+        /// <param name="tf">The specified <see cref="Materials.MaterialType.Filter"/>.</param>
         /// <returns></returns>
 		public double GetMoleFraction(MaterialType mt, MaterialType.Filter tf)
         {
@@ -251,11 +252,11 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Gets the mole fraction of the specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/> in this mixture,
+        /// Gets the mole fraction of the specified <see cref="Materials.MaterialType"/> in this mixture,
         /// with the calculations counting all present material types.
         /// </summary>
-        /// <param name="mt">The specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/>.</param>
-        /// <returns>The mole fraction of the specified <see cref="Highpoint.Sage.Materials.Chemistry.MaterialType"/> in this mixture</returns>
+        /// <param name="mt">The specified <see cref="Materials.MaterialType"/>.</param>
+        /// <returns>The mole fraction of the specified <see cref="Materials.MaterialType"/> in this mixture</returns>
         public double GetMoleFraction(MaterialType mt)
         {
             return GetMoleFraction(mt, MaterialType.FilterAcceptAll);
@@ -440,15 +441,15 @@ namespace Highpoint.Sage.Materials.Chemistry
             // Perform boiling point elevation. We calculate the mole-fraction-weighted kb (ebullioscopic constant)
             // for solvents and van 't Hoff factor for solutes, and then use them in the following relationship:
             // From http://en.wikipedia.org/wiki/Colligative and several other sites,
-            // 
+            //
             // Boiling point elevation
             // Boiling Point of Total = Boiling Point of solvent + deltaTb
-            // 
+            //
             // where
-            // 
+            //
             // deltaTb = (molality * i) * Kb ,
             // (Kb = ebullioscopic constant, which is 0.51�C kg/mol for the boiling point of water; i = Van 't Hoff factor)
-            // 
+            //
             double totalMassOfLiquid = 0.0;
             double totalMolesOfLiquid = 0.0;
             double ebullioscopicConstant = 0.0;
@@ -951,7 +952,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             private readonly double _tempAtRecordedTime;
             private readonly IDictionary _substanceMementos = new Hashtable();
 
-            #endregion 
+            #endregion
 
             /// <summary>
             /// Creates a new instance of the <see cref="T:MixtureMemento"/> class.
@@ -1124,10 +1125,10 @@ namespace Highpoint.Sage.Materials.Chemistry
         public bool ReportsOwnChanges => _ssh.ReportsOwnChanges;
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.Mixture"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Mixture"></see>.
         /// </summary>
         /// <returns>
-        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.Mixture"></see>.
+        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:Mixture"></see>.
         /// </returns>
         public override string ToString()
         {
@@ -1136,10 +1137,10 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </summary>
         /// <returns>
-        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </returns>
         public string ToStringWithoutTemperature()
         {
@@ -1148,11 +1149,11 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </summary>
         /// <param name="massFmt">The mass format string. For example, &quot;F2&quot; will display to two decimals.</param>
         /// <returns>
-        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// A <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// </returns>
         public string ToStringWithoutTemperature(string massFmt)
         {
@@ -1180,7 +1181,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:Highpoint.Sage.Materials.Chemistry.IMaterial"></see>.
+        /// Returns a <see cref="T:System.String"></see> that represents the current <see cref="T:IMaterial"></see>.
         /// Uses caller-supplied format strings in forming the numbers representing mass and temperature.
         /// </summary>
         /// <param name="tempFmt">The temperature's numerical format string.</param>
@@ -1262,9 +1263,9 @@ namespace Highpoint.Sage.Materials.Chemistry
         #endregion
 
         /// <summary>
-        /// Class MaterialChangeDistiller is an intermediary between a mixture and its change event listeners. 
-        /// When Hold() is called, it captures and stores all change events. When release is called, if 
-        /// issueSummaryEvents is set to true, it creates a set of summary events that summarize each of the 
+        /// Class MaterialChangeDistiller is an intermediary between a mixture and its change event listeners.
+        /// When Hold() is called, it captures and stores all change events. When release is called, if
+        /// issueSummaryEvents is set to true, it creates a set of summary events that summarize each of the
         /// change types (mass, temperature and constituents) into the minimum number of events necessary to
         /// represent those changes. This is useful for ongoing processes when you only want to log material
         /// changes at the start and end of a complex series of steps.

@@ -4,7 +4,7 @@
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable RedundantDefaultMemberInitializer
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
     /// <summary>
     /// Enum MaterialState represents the current (or initial) state of a material. It is used if the modeler wishes to

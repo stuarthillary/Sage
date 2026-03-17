@@ -3,14 +3,14 @@
 using Highpoint.Sage.Resources;
 using System.Collections.Generic;
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
 
     /// <summary>
-    /// A MaterialConduitManager handles replenishment and drawdown from a primary 
-    /// resource manager (i.e. pool) to one or more secondary managers in the case 
-    /// that the primary resource manager either cannot satisfy a request from, or 
-    /// cannot accept a release to, the pool it manages. One might think of it as an 
+    /// A MaterialConduitManager handles replenishment and drawdown from a primary
+    /// resource manager (i.e. pool) to one or more secondary managers in the case
+    /// that the primary resource manager either cannot satisfy a request from, or
+    /// cannot accept a release to, the pool it manages. One might think of it as an
     /// intermediary between a ready tank and an inventory tank, or a waste tank and
     /// a reclamation plant.
     /// </summary>

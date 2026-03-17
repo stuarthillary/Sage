@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
+using Highpoint.Sage.Resources;
 using System;
 using System.Collections;
 using System.Diagnostics;
@@ -9,12 +9,12 @@ using GuidOps = Highpoint.Sage.Utility.GuidOps;
 // ReSharper disable RedundantDefaultMemberInitializer
 // ReSharper disable EventNeverSubscribedTo.Global
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
     // TODO: Either convert Material to a substance, or allow this to handle mixtures.
 
     /// <summary>
-    /// Class MaterialResourceItem is a resource pool that contains a quantity of a substance, and 
+    /// Class MaterialResourceItem is a resource pool that contains a quantity of a substance, and
     /// acts as a resource manager for that substance, processing Material Resource Requests.
     /// </summary>
     /// <seealso cref="Highpoint.Sage.Resources.IResource" />
@@ -188,7 +188,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// <summary>
         /// Function to check if a guid is contained in this MRI. See 'g' below for possiblitites
         /// </summary>
-        /// <param name="g">Can be a MRI guid, material type guid, a material specification, 
+        /// <param name="g">Can be a MRI guid, material type guid, a material specification,
         /// or an XOR of material type and specification guids</param>
         /// <returns>True if found</returns>
         public bool ContainsGuid(Guid g)
@@ -471,7 +471,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         /// <summary>
         /// Reserves a resource according to the specified resource request, either blocking until successful, or
-        /// returning &lt;null&gt; if the resource is not immediately available. 
+        /// returning &lt;null&gt; if the resource is not immediately available.
         /// </summary>
         /// <param name="resourceRequest">The IResourceRequest that specifies the criteria by which to select the resource.</param>
         /// <param name="blockAwaitingAcquisition">If true, request will suspend until granted. If false, will return false if unable to fulfill.</param>
@@ -506,7 +506,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         /// <summary>
         /// Acquires a resource according to the specified resource request, either blocking until successful, or
-        /// returning &lt;null&gt; if the resource is not immediately available. 
+        /// returning &lt;null&gt; if the resource is not immediately available.
         /// </summary>
         /// <param name="resourceRequest">The IResourceRequest that specifies the criteria by which to select the resource.</param>
         /// <param name="blockAwaitingAcquisition">If true, request will suspend until granted. If false, will return false if unable to fulfill.</param>

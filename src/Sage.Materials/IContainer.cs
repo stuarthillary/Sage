@@ -5,7 +5,7 @@
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable RedundantAssignment
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
     /// <summary>
     /// Implemented by anything that can hold a mixture, and has a capacity.

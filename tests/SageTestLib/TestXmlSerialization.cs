@@ -1,5 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
+using Highpoint.Sage.Materials;
 using Highpoint.Sage.Materials.Chemistry;
 using Xunit;
 using System;

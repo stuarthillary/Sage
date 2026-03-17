@@ -1,15 +1,15 @@
 /* This source code licensed under the GNU Affero General Public License */
 
+using Highpoint.Sage.Core;
 using Highpoint.Sage.Materials.Chemistry.Emissions;
 using Highpoint.Sage.Materials.Chemistry.VaporPressure;
 using Highpoint.Sage.Materials.Emissions;
 using Highpoint.Sage.Persistence;
-using Highpoint.Sage.Core;
 using System;
 using System.Collections;
 using System.Collections.Specialized;
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
 
     public class MaterialType : SmartPropertyBag, IModelObject
@@ -247,7 +247,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         /// <summary>
         /// Tags this material type as having zero or more Emissions Classifications. Any class that
-        /// derives from EmissionsClassification may be included in this collection. 
+        /// derives from EmissionsClassification may be included in this collection.
         /// </summary>
         /// <param name="classifications">An array of EmissionsClassification objects.</param>
         public void AddEmissionsClassifications(EmissionsClassification[] classifications)
@@ -331,7 +331,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-		/// Contains the nine coefficients for the extended form of antoine's law. These are expressed in 
+		/// Contains the nine coefficients for the extended form of antoine's law. These are expressed in
 		/// </summary>
 		public IAntoinesCoefficientsExt AntoinesLawCoefficientsExt
         {
@@ -343,7 +343,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         #endregion
         #endregion
 
-        // We do not use the Vapor Pressure curve capability, and will not, until we see a stronger need. 
+        // We do not use the Vapor Pressure curve capability, and will not, until we see a stronger need.
         //		/// <summary>
         //		/// Sets the X and Y data points associated with a vapor pressure versus temperature curve.
         //		/// </summary>
@@ -411,7 +411,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Gets or sets the ebullioscopy constant. Ebullioscopic constant (Eb) is the constant that expresses the 
+        /// Gets or sets the ebullioscopy constant. Ebullioscopic constant (Eb) is the constant that expresses the
         /// amount by which the boiling point Tb of a solvent is raised by a solute, through the relation delta_Tb = i x Eb x b
         /// where i is the van ' Hoff factor, and b is the molality of the solute.
         /// </summary>
@@ -725,23 +725,23 @@ namespace Highpoint.Sage.Materials.Chemistry
 /* from http://www.rwc.uc.edu/koehler/biophys/8c.html
 Heat is most often measured in "calories" (cal). A calorie is 4.186 J; it is the amount of heat
 needed to raise one gram of water 1K. A dietary "Calorie" (Cal) is 1000 calories, and we
-distinguish between the two by the capitalization. 
+distinguish between the two by the capitalization.
 
 The temperature of a substance changes as heat energy is added to it. The "heat capacity" (C)
 of an object is the ratio of change in heat to change in temperature, and the "specific heat" (c)
-of a substance is the heat capacity per unit mass. We therefore have 
+of a substance is the heat capacity per unit mass. We therefore have
 
 deltaQ = m c deltaT.
 
 The specific heat of water is 1 cal / g K by definition. That of ice is .51 and of water vapor
 is .48 (at constant pressure). Ice and water vapor (steam) are alternate "phases" of water. The
-specific heat of human tissue is .85. That of air is .23. 
+specific heat of human tissue is .85. That of air is .23.
 
 For a given substance at a given pressure, phase changes occur at well-defined temperatures. For
 water at standard atmospheric pressure (at the surface of the earth), those are 273.15K and 373.15K
 (0 C and 100C, the freezing and boiling points, which define the Celsius degree, and therefore the
 Kelvin). For a given substance, the heat change per unit mass required for a phase transition is
-called the "latent heat" (of either "fusion" or vaporization) L. This means that 
+called the "latent heat" (of either "fusion" or vaporization) L. This means that
 
 deltaQ = m L.
 
@@ -750,6 +750,6 @@ of water is 540 cal / g at 100 C. Note that the heat added or lost during a phas
 affect the temperature during the phase change. Icewater is at 0 C until all of the water has frozen;
 when melting, it is at 0 C until all of the ice has melted. Likewise, water is at 100 C until all the
 water has boiled away; if the water / steam system is in a closed environment, the steam is at 100 C
-until the water has all evaporated. Hence we can graph the temperature vs heat of a substance: 
+until the water has all evaporated. Hence we can graph the temperature vs heat of a substance:
 
 */

@@ -5,13 +5,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
 
     /// <summary>
-    /// Class MaterialCatalog stands alone, or serves as a base class for any object that manages instances of <see cref="MaterialType"/>. 
+    /// Class MaterialCatalog stands alone, or serves as a base class for any object that manages instances of <see cref="MaterialType"/>.
     /// In this case, to &quot;manage&quot; means to be a point of focus to supply a requester with a material type
-    /// that is specified by name ur unique ID (Guid). This is often kept at the model level in a model that 
+    /// that is specified by name ur unique ID (Guid). This is often kept at the model level in a model that
     /// represents or contains chemical reactions.
     /// </summary>
     /// <seealso cref="Highpoint.Sage.Persistence.IXmlPersistable" />
@@ -62,7 +62,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         }
 
         /// <summary>
-        /// Determines whether this MaterialCatalog contains the specified MaterialType. 
+        /// Determines whether this MaterialCatalog contains the specified MaterialType.
         /// Different instances of Material Types are considered equal if they have the same name and guid.
         /// </summary>
         /// <param name="mt">The MaterialType instance.</param>
@@ -143,7 +143,7 @@ namespace Highpoint.Sage.Materials.Chemistry
             _materialTypesByName.Remove(name);
         }
 
-        #region >>> Serialization Support <<< 
+        #region >>> Serialization Support <<<
 
         /// <summary>
         /// Stores this object to the specified XmlSerializationContext.

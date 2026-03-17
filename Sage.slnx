@@ -9,4 +9,6 @@
   <Project Path="tests\SageTestLib\Sage.Tests.csproj" />
   <Project Path="tests\Sage.PFC.Tests\Sage.PFC.Tests.csproj" />
   <Project Path="samples\Sage_SampleCode\Sage.Examples.csproj" />
+  <Project Path="src\Sage.Materials\Sage.Materials.csproj" />
+  <Project Path="tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj" />
 </Solution>

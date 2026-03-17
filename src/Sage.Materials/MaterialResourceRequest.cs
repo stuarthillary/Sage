@@ -1,13 +1,14 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
+using Highpoint.Sage.Resources;
 using System;
 using System.Collections;
+
 // ReSharper disable RedundantDefaultMemberInitializer
 // ReSharper disable ConvertToAutoProperty
 
-namespace Highpoint.Sage.Materials.Chemistry
+namespace Highpoint.Sage.Materials
 {
 
 
@@ -18,8 +19,8 @@ namespace Highpoint.Sage.Materials.Chemistry
     public class MaterialResourceRequest : IResourceRequest
     {
         /// <summary>
-        /// Enum Direction specified whether a resource request aimed at a MaterialResourceItem 
-        /// intends to take from (deplete) or add to (augment) the quantity of substance in 
+        /// Enum Direction specified whether a resource request aimed at a MaterialResourceItem
+        /// intends to take from (deplete) or add to (augment) the quantity of substance in
         /// that MaterialResourceItem.
         /// </summary>
         public enum Direction
@@ -39,7 +40,7 @@ namespace Highpoint.Sage.Materials.Chemistry
         private readonly double _quantityDesired;
         private readonly ICollection _materialSpecs;
 
-        #endregion 
+        #endregion
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MaterialResourceRequest"/> class.
@@ -206,7 +207,7 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         /// <summary>
         /// This callback is called when a request, made with a do-not-block specification, that was initially
-        /// refused, is finally deemed grantable, and provides the callee (presumably the original requester) 
+        /// refused, is finally deemed grantable, and provides the callee (presumably the original requester)
         /// with an opportunity to say, "No, I don't want that any more", or perhaps to get ready for receipt
         /// of the resource in question.
         /// </summary>
