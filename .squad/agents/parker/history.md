@@ -1,3 +1,24 @@
+## Core Context
+
+**Q1 2026 — Foundation & Framework Refactor**
+
+Throughout Q1 2026, Parker led the infrastructure modernization foundation work:
+- Project renaming series (TestDriver→Sage.Scratch, SageBenchmarks→Sage.Benchmarks, Examples namespace standardization) establishing team naming conventions
+- Comprehensive solution restructure to src/tests/benchmarks/samples directory layout  
+- Namespace migration: Highpoint.Sage.SimCore → Highpoint.Sage.Core across all modules
+- Phase 1 collection-type conversions in Core, Utility, Scheduling, SmartPropertyBag
+- Nullable reference type (CS8xxx) analysis and multi-phase migration planning
+
+**Q2 2026 — Framework Modernization Complete**
+
+From mid-Q2 onward, Parker completed major framework upgrades:
+- MSTest → xUnit 2.x full migration (60 test files)
+- All CS8xxx nullable warnings eliminated (1,244 total, all modules)
+- Thread-safety bug fix in ParticipantDirectory._knownMacros (static dictionary race condition)
+- PFC extraction to Sage.PFC standalone library (53 files + tests)
+- Materials extraction to Sage.Materials standalone library (66 files + tests)
+
+---
 
 ## Learnings
 
@@ -583,3 +604,4 @@ Materials subsystem extraction has been successfully committed to git.
 - `DefaultModelWithSelfManagingModelObjects.Run()` called `StateMachine.Basic.SimpleEnumStateMachine.Run()` as a static call — needed updating to `new StateMachine.Basic.SimpleEnumStateMachine().Run()` after the refactor.
 - `Program.cs` now uses reflection (`Assembly.GetExecutingAssembly().GetTypes()`) to discover all `IExample` implementors automatically, ordered by `t.FullName`. Adding a new example class only requires implementing `IExample` — no manual registration needed.
 - The `Demonstrate(IExample)` overload binds the instance `Run()` as `Action runAction = example.Run` so the existing `CreateDocs` helper (`run.Method.DeclaringType?.Namespace`) continues to work correctly.
+

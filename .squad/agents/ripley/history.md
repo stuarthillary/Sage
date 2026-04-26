@@ -8,6 +8,14 @@
 - **PM:** Stuart Hillary (human — sets priorities and direction)
 - **Created:** 2026-03-05
 
+## Core Context
+
+**March 2026 — CA Rules Enablement Analysis**
+- Analyzed 20 suppressed Roslyn analyzer rules
+- Tier 1: 7 rules, 88 violations, 4-6 hours effort ready to enable immediately
+- Tier 2: 5 rules, 332 violations deferred for future pass
+- Tier 3: 4 rules, 2106 violations kept suppressed (breaking changes)
+
 ## Learnings
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
