@@ -18,6 +18,8 @@
 
 ---
 
+---
+
 ### 2026-04-26 — Collections Recovery Scope Audit Complete ✅
 
 **Status:** Complete
@@ -38,7 +40,40 @@
 
 ---
 
-### 2026-03-17 — Causality Divergence Investigation Complete ✅
+### 2026-04-26 — PortSet/Resources Phase 2 Regression Map ✅
+
+**Status:** Complete
+
+**Mandate:** Add behavior-safe regression coverage for Parker's Phase 2 PortSet/resources modernization batch without choosing among conflicting higher-level interpretations.
+
+**Tests Added (5):**
+1. `PortSet_AddRemoveAndClear_UpdateLookupsAndTypedViews`
+2. `PortSet_DuplicateInstanceIsIgnored_ButDuplicateNameThrows`
+3. `PortSet_PortAddedAndRemovedEventsFireOncePerMutation`
+4. `TestResourceManagerManagerLinksAndLifecycleEvents`
+5. `TestMultiKeyAccessRegulatorMatchesOnKeyAndSymmetricSubjectEquality`
+
+**Why These Were Safe:** Assertions match explicit, local behavior in `PortSet`, `ResourceManager`, and `MultiKeyAccessRegulator` without choosing among conflicting higher-level interpretations. Give Parker a regression tripwire for collection-migration work while staying out of product-contract fights.
+
+**Validation:**
+- Targeted port/resource regression slice: 33 tests passed ✅
+- Full `Sage.Tests`: all tests passed ✅
+
+**Coverage Still Needed (Out-of-Scope, Noted for Future):**
+1. PortSet case-sensitivity contract
+2. PortSet ordering contract
+3. Port event fan-out semantics
+4. ResourceManager explicit-selection semantics
+5. ResourceManager absent-remove semantics
+
+**Documentation:**
+- Decision merged to `.squad/decisions.md`
+- Orchestration log: `.squad/orchestration-log/2026-04-26T13-43-08Z-hudson.md`
+- Session log: `.squad/log/2026-04-26T13-43-08Z-phase2-final-batch.md`
+
+**Outcome:** Regression net in place. Phase 2 implementation ready to proceed with high confidence.
+
+---
 
 **Status:** COMPLETE — 3 tests added, 351/351 passing
 
@@ -294,3 +329,17 @@ When `IgnoreCausalityViolations=false`:
 - Full `Sage.Tests`: 285/285 passing ✅
 
 **Coordination:** Ready for Phase 3 planning or additional collection-type migration work.
+### 2026-04-26 — Phase 2 PortSet/Resources Regression Map Complete ✅
+
+**Status:** COMPLETE — 5 focused regression tests added; targeted port/resource slice passing and full `Sage.Tests` suite passed after changes.
+
+**Coverage locked in:**
+- `PortSet` now has direct regression coverage for add/remove/clear behavior, Guid/name lookups, input/output typed views, duplicate-instance no-op behavior, duplicate-name rejection, and single-fire add/remove events.
+- `ResourceManager` now has direct regression coverage that `Add`, `Remove`, and `Clear` maintain `IResource.Manager` links and raise lifecycle events through normal pool mutations.
+- `MultiKeyAccessRegulator` now has direct regression coverage for key matching and the fallback subject-equality branch where the presented subject recognizes the stored subject.
+
+**Behavior-sensitive edges still not locked down:**
+- `PortSet(bool useCaseInsensitiveKeys)` is ambiguous: constructor docs/parameter name, hashtable comparer setup, and `this[string]`'s `StringComparison.Ordinal` lookup do not currently agree. Parker should not "fix" case-sensitivity semantics without guidance.
+- `PortSet` enumeration/index order is still implementation-sensitive because backing storage is a `Hashtable` and `SortedPorts` only becomes deterministic when an explicit sort order is configured.
+- `PortSet` listener wiring for rejected data currently uses `_presentedListeners` during add/remove. That smells wrong, but it is production-behavior territory and needs explicit direction before anyone rewires it.
+- `ResourceManager` has legacy edge behavior I did not freeze here: the `ResourceSelectionStrategy` branch only checks for a non-null selection result, and `Remove` can still null a resource's manager / raise events even if the resource was not actually present. Both need product intent before tests should pin them.

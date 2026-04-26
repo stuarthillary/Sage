@@ -20,6 +20,21 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-04-26 — Phase 2 Scope Gate for PortSet and Resources ✅
+
+**Status:** Complete
+
+**Learning:** `PortSet` is not just a collection wrapper: its GUID-backed `Hashtable` is part of the XML persistence contract, while the public constructor/docs imply key semantics that the runtime no longer cleanly honors. Treat `_ports`, `PortKeys`, constructor behavior, and `SerializeTo`/`DeserializeFrom` as persistence-sensitive/public-contract territory, not routine collection modernization.
+
+**Why it matters:** `XmlSerializationContext` always round-trips `Hashtable` as a plain `Hashtable`, so comparer/key-semantics changes can silently alter deserialized behavior. In the resources area, `ResourceManager.Resources` is an explicit public `IList` contract and waiter ordering is simulation-behavior-critical, so Phase 2 work must stay limited to signature-preserving internals unless Hudson first characterizes persistence and wake-order behavior.
+
+**Approval:** ✅ Scope gate approved with hard exclusions. Parker proceeded with implementation. Hudson added regression coverage. All tests passed.
+
+**Documentation:** 
+- Decision merged to `.squad/decisions.md`
+- Orchestration log: `.squad/orchestration-log/2026-04-26T13-43-08Z-ripley.md`
+- Session log: `.squad/log/2026-04-26T13-43-08Z-phase2-final-batch.md`
+
 ### 2026-07-16 — Collections Recovery Needs Hard Phase Boundaries
 
 **Status:** Recovery pass stabilized

@@ -22,6 +22,48 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 
 ## Learnings
 
+### 2026-04-26 — Phase 2 PortSet/Resources Batch: Signature-Preserving Internal Cleanup ✅
+
+**Status:** Complete
+
+**Mandate:** Implement final Phase 2 batch within Ripley's scope boundary. Signature-preserving internal collection cleanup only.
+
+**Changes Applied:**
+
+**PortSet (`src\Sage\ItemBased\PortSet.cs`)**
+- Private listener lists: `ArrayList` → `List<EventHandler<PortEventArgs>>`
+- Typed clear snapshots for safe event iteration
+- Preserved: GUID-backed storage, public constructors, `ICollection PortKeys`, indexer/event behavior, XML payload
+
+**MultiKeyAccessRegulator (`src\Sage\Resources\MultiKeyAccessRegulator.cs`)**
+- Constructor keys: now copied into private `List<object>`
+- Internal key storage: strongly typed
+- Preserved: public `ArrayList` constructor signature, `.Equals()`-based membership semantics
+
+**ResourceManager (`src\Sage\Resources\ResourceManager.cs`)**
+- Internal snapshots: typed `List<IResource>` with pre-sized allocation
+- Deserialization list handling: modernized
+- Preserved: `public IList Resources`, waiter ordering, priority semantics
+
+**Deferrals Honored:**
+- ❌ PortSet `Hashtable` persistence format: unchanged
+- ❌ ResourceManager waiter ordering: unchanged
+- ❌ Public API shapes: unchanged
+
+**Validation:**
+- Build: 0 errors, 0 warnings ✅
+- Targeted PortSet/resources regression tests: 7/7 passed ✅
+- Full test suite: all tests passed ✅
+
+**Documentation:**
+- Decision merged to `.squad/decisions.md`
+- Orchestration log: `.squad/orchestration-log/2026-04-26T13-43-08Z-parker.md`
+- Session log: `.squad/log/2026-04-26T13-43-08Z-phase2-final-batch.md`
+
+**Outcome:** Phase 2 implementation complete and verified. Scope boundaries honored. Shippable without persistence or scheduling behavior changes.
+
+---
+
 ### 2026-07-17 — Phase 2 Graph Algorithms Slice: Internal Collections Only ✅
 
 - **Scope:** Started the graph-algorithms Phase 2 pass in `PertAnalyst`, `CPMAnalyst`, and `DagDeadlockChecker` with collection modernization limited to private/internal implementation details.
@@ -30,8 +72,6 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 - **DagDeadlockChecker:** Replaced internal dedupe/lookup work with `HashSet<Node>` and replaced predecessor construction `Hashtable`/`ArrayList` plumbing with `Dictionary<Node, HashSet<Node>>`, preserving `GetSuccessors`/`Errors` legacy surface.
 - **CPMAnalyst:** Updated the private contemporaneous-vertex traversal helper to use `List<Vertex>` + `HashSet<Vertex>` instead of `ArrayList`.
 - **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted graph tests `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~GraphValidityTester|FullyQualifiedName~DAGCycleCheckerTester"` ✅ (12/12).
-
----
 
 ### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
 
@@ -635,3 +675,14 @@ Materials subsystem extraction has been successfully committed to git.
 - **DagDeadlockChecker:** Replaced internal dedupe/lookup work with `HashSet<Node>` and replaced predecessor construction `Hashtable`/`ArrayList` plumbing with `Dictionary<Node, HashSet<Node>>`, preserving `GetSuccessors`/`Errors` legacy surface.
 - **CPMAnalyst:** Updated the private contemporaneous-vertex traversal helper to use `List<Vertex>` + `HashSet<Vertex>` instead of `ArrayList`.
 - **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted graph tests `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~GraphValidityTester|FullyQualifiedName~DAGCycleCheckerTester"` ✅ (12/12).
+
+---
+
+### 2026-07-17 — Phase 2 PortSet/Resources Internal Collection Cleanup ✅
+
+- **Scope:** Finished the Ripley-approved PortSet/resources slice without changing public constructors, collection shapes, key semantics, XML payloads, or waiter ordering.
+- **PortSet:** Swapped the private listener buckets (`PortData*` + connection listeners) from `ArrayList` to typed `List<>` storage and replaced `ClearPorts()`'s legacy snapshot copy with a typed `List<IPort>` snapshot before mutation.
+- **MultiKeyAccessRegulator:** Kept the public `ArrayList` constructor contract, but copied keys into a private `List<object?>` because the regulator only needs membership checks internally.
+- **ResourceManager:** Kept `Resources`, XML persistence, and waiter machinery intact; only changed `Clear()` to iterate over a typed snapshot and pre-sized the deserialization list from the legacy `ArrayList` payload.
+- **Deferred on purpose:** `PortSet` still uses `Hashtable` storage because key semantics and XML shape are scope-locked, and `ResourceManager` waiter internals remain untouched because ordering changes are out of bounds for this phase.
+- **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted resource/port regressions in `tests\SageTestLib\Sage.Tests.csproj` ✅ (7/7).

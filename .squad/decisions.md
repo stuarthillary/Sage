@@ -2,6 +2,111 @@
 
 ## Active Decisions
 
+### 2026-04-26: Phase 2 PortSet/Resources Scope Gate (COMPLETE ✅)
+
+**By:** Ripley
+
+**Date:** 2026-04-26
+
+**Status:** Complete — Scope gate approved with hard exclusions
+
+**Decision:** Parker may proceed with a **narrow Phase 2 batch** limited to signature-preserving internal modernization in `ResourceManager`, `PortSet`, and `MultiKeyAccessRegulator` **only where behavior, serialized shape, and public collection types remain unchanged**.
+
+**Approved Changes:**
+- Private-field/internal helper cleanups that do **not** change any public/member signatures
+- `PortSet` private non-persisted helper/listener cleanups preserving GUID-backed storage, public constructors, `ICollection PortKeys`, indexer/event behavior, and XML payload under `"Ports"`
+- `ResourceManager` internal maintenance excluding changes to `public IList Resources`, constructors, XML field names, or waiter wake order / priority semantics
+- `MultiKeyAccessRegulator` internal cleanup keeping constructor signature `MultiKeyAccessRegulator(object subject, ArrayList keys)` and `.Equals(...)`-based membership semantics
+
+**Explicitly Rejected:**
+- ❌ `PortSet` key-semantics work: No constructor semantic correction, no switch from `Hashtable` to `Dictionary<,>`, no change to name lookup semantics or XML persistence format
+- ❌ Public collection/API shape changes: No `ArrayList`→`IList<T>` constructor/property changes, no change to `IResourceManager.Resources : IList`
+- ❌ `ResourceManager` persistence/waiter behavior changes: No change to serialized `"Resources"` payload, no change to deserialization assumptions, no change to waiter ordering/resumption policy
+
+**Rationale:** `PortSet` persists the raw `Hashtable`, and the serializer recreates it as a plain `Hashtable`; comparer/key-semantics changes can silently alter deserialized behavior. `ResourceManager.Resources` is an explicit public `IList` contract and waiter ordering is simulation-behavior-critical. These areas require dedicated characterization before broader refactors.
+
+**Result:**
+- Scope gate approved
+- Parker proceeded with implementation within boundary
+- Hudson added regression coverage
+- Build: 0 errors, 0 warnings ✅
+- All targeted tests passed ✅
+
+---
+
+### 2026-04-26: PortSet/Resources Phase 2 Regression Map (COMPLETE ✅)
+
+**By:** Hudson
+
+**Date:** 2026-04-26
+
+**Status:** Complete
+
+**Decision:** Add only behavior-safe regression nets now, and leave ambiguous PortSet/resource semantics unpinned until Parker gets guidance.
+
+**Tests Added (5):**
+1. `PortSet_AddRemoveAndClear_UpdateLookupsAndTypedViews`
+2. `PortSet_DuplicateInstanceIsIgnored_ButDuplicateNameThrows`
+3. `PortSet_PortAddedAndRemovedEventsFireOncePerMutation`
+4. `TestResourceManagerManagerLinksAndLifecycleEvents`
+5. `TestMultiKeyAccessRegulatorMatchesOnKeyAndSymmetricSubjectEquality`
+
+**Why these were safe:** These assertions match explicit, local behavior in `PortSet`, `ResourceManager`, and `MultiKeyAccessRegulator` without choosing among conflicting higher-level interpretations. They give Parker a regression tripwire for collection-migration work while staying out of product-contract fights.
+
+**Coverage still needed before broader PortSet/resources refactors:**
+1. **PortSet case-sensitivity contract** — decide whether name lookup is supposed to be case-sensitive or case-insensitive; current constructor flag/docs and implementation disagree
+2. **PortSet ordering contract** — decide whether enumeration and integer indexing are allowed to be hashtable-order dependent or must be stable by insertion/index/sort key
+3. **Port event fan-out semantics** — clarify whether rejected-data listeners should be distinct from presented-data listeners before changing wiring
+4. **ResourceManager explicit-selection semantics** — decide what `ResourceSelectionStrategy` must do beyond returning a non-null choice
+5. **ResourceManager absent-remove semantics** — decide whether removing a resource not in the pool should be a no-op, warning, or lifecycle event
+
+**Validation:**
+- Targeted port/resource regression slice: 33 tests passed ✅
+- Full `tests\SageTestLib\Sage.Tests.csproj`: all tests passed ✅
+
+---
+
+### 2026-04-26: Phase 2 PortSet/Resources Implementation — Signature-Preserving Internal Cleanup (COMPLETE ✅)
+
+**By:** Parker
+
+**Date:** 2026-04-26
+
+**Status:** Complete
+
+**Decision:** Treat this batch as internal collection cleanup only, honoring Ripley's scope boundary.
+
+**Applied Changes:**
+
+**PortSet (`src\Sage\ItemBased\PortSet.cs`)**
+- Private listener lists moved from `ArrayList` to typed `List<EventHandler<PortEventArgs>>`
+- Typed clear snapshots for safe event iteration
+- Preserved: GUID-backed storage behavior, current public constructor set, `ICollection PortKeys`, indexer/event behavior, XML payload under `"Ports"`
+
+**MultiKeyAccessRegulator (`src\Sage\Resources\MultiKeyAccessRegulator.cs`)**
+- Constructor keys copied into private generic `List<object>`
+- Internal key storage now strongly typed
+- Preserved: public `ArrayList` constructor signature, `.Equals(...)`-based membership semantics, null/subject behavior
+
+**ResourceManager (`src\Sage\Resources\ResourceManager.cs`)**
+- Internal snapshots use typed `List<IResource>` with pre-sized allocation
+- Deserialization list handling modernized
+- Preserved: `public IList Resources`, waiter ordering, priority semantics, serialized shape
+
+**Explicit Deferrals Honored:**
+- ❌ `PortSet` `Hashtable` storage: untouched (preserves key semantics and XML payload)
+- ❌ `ResourceManager.RscWaiterList` and `Resources`: untouched (preserves waiter ordering and public collection shape)
+- ❌ Public API shapes: unchanged
+
+**Validation:**
+- Build: 0 errors, 0 warnings ✅
+- Targeted PortSet/resources regression tests: 7/7 passed ✅
+- Full test suite: all tests passed ✅
+
+**Result:** Implementation complete and verified. Phase 2 batch shippable without persistence or scheduling behavior changes.
+
+---
+
 ### 2026-07-17: Collections Recovery Scope Reset (COMPLETE ✅)
 
 **By:** Ripley
