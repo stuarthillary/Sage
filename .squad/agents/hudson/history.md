@@ -137,6 +137,29 @@ When `IgnoreCausalityViolations=false`:
 
 ## Learnings
 
+### 2026-04-26 — Phase 2 Utility Wrapper Regression Coverage Complete ✅
+
+**Status:** COMPLETE — 10 wrapper-focused regression tests added/updated; targeted wrapper tests and full `Sage.Tests` suite passing
+
+**Test results:**
+- Targeted Phase 2 wrapper tests: **14/14 passing**
+- Full `tests\SageTestLib\Sage.Tests.csproj`: **281/281 passing**
+
+**Coverage locked in:**
+- `HashtableOfLists` non-generic still de-duplicates identical values for the same key and only prunes empty wrapped keys on enumeration/prune.
+- `HashtableOfLists<TKey, TValue>` preserves duplicate values, sorts per-key when a comparer is supplied, and requires explicit prune after the last removal.
+- `WeakHashtable` removes dead entries on indexer/`Values` access and enumerates only live entries when driven via `IDictionaryEnumerator`.
+- `WeakList` list operations are target-based (`Contains`/`IndexOf`/`Remove`), `CopyTo` honors the destination offset, and `Collapse()` removes dead targets.
+
+**Tiny behavior-safe production adjustments needed to keep Phase 2 wrappers testable:**
+- `WeakList.Insert(...)` must wrap with `MyWeakReference`, not plain `WeakReference`, or indexer/enumerator/collapse semantics break for inserted items.
+- `WeakList.Add(...)` must still return the inserted index after the internal storage migrates from `ArrayList` to `List<MyWeakReference>`.
+- `HashtableOfLists.Add(...)` needed a null-safe equality check after the `Hashtable` → `Dictionary<object, object?>` migration to satisfy nullable analysis without changing semantics.
+
+**Remaining gaps:**
+- No direct regression coverage yet for `WeakHashtable.CopyTo`, `Keys` ordering assumptions, or `WeakList` indexer-set behavior after GC.
+- I kept scope tight to the Phase 2 utility-wrapper batch; no broader collection-migration coverage added here.
+
 ### 2026-05-30 — Causality Equivalence Investigation Complete ✅
 
 **Status:** COMPLETE — 3 new tests added to `#region Causality` in TestExecutive.cs

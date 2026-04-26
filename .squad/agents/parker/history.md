@@ -605,3 +605,11 @@ Materials subsystem extraction has been successfully committed to git.
 - `Program.cs` now uses reflection (`Assembly.GetExecutingAssembly().GetTypes()`) to discover all `IExample` implementors automatically, ordered by `t.FullName`. Adding a new example class only requires implementing `IExample` — no manual registration needed.
 - The `Demonstrate(IExample)` overload binds the instance `Run()` as `Action runAction = example.Run` so the existing `CreateDocs` helper (`run.Method.DeclaringType?.Namespace`) continues to work correctly.
 
+
+### 2026-07-17 — Phase 2 Wrapper Internals Use Generic Collections ✅
+
+- **Scope:** Modernized `HashtableOfLists`, `WeakHashtable`, and `WeakList` internals without changing their public wrapper surfaces.
+- **HashtableOfLists (non-generic):** Replaced `Hashtable`/`ArrayList` storage with `Dictionary<object, object?>` plus `List<object>`-backed wrapper buckets, while preserving the scalar-vs-wrapper shape that drives duplicate suppression and prune-on-empty behavior.
+- **HashtableOfLists (generic):** Kept duplicate-preserving list semantics, but filled in missing `ICollection<KeyValuePair<TKey, List<TValue>>>` members and made `Remove(key, item)` return `false` instead of throwing for missing keys.
+- **Weak collections:** `WeakHashtable` now uses `Dictionary<object, WeakReference>` internally, and `WeakList` now uses `List<MyWeakReference>` so `Contains`, `IndexOf`, `Remove`, enumeration, and `CopyTo` all operate on target values instead of wrapper objects.
+- **Validation:** `dotnet build src\Sage\Sage.csproj --no-restore` succeeded; targeted wrapper tests in `tests\SageTestLib\Sage.Tests.csproj` passed 14/14.
