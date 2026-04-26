@@ -1,14 +1,15 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
     internal class WeakListEnumerator : IEnumerator
     {
-        private readonly IList _list;
+        private readonly IList<MyWeakReference> _list;
         private int _cursor;
-        public WeakListEnumerator(IList list)
+        public WeakListEnumerator(IList<MyWeakReference> list)
         {
             _list = list;
             _cursor = -1;
@@ -26,7 +27,7 @@ namespace Highpoint.Sage.Utility
             {
                 if (_cursor == -1)
                     throw new ApplicationException("Called Current on an enumerator without first having called MoveNext.");
-                return (_list[_cursor] as MyWeakReference)?.Target;
+                return _list[_cursor].Target;
             }
         }
 

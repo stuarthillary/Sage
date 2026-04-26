@@ -58,9 +58,9 @@ namespace Highpoint.Sage.ItemBased.Ports
         private List<IPort>? _sortedPorts = null;
 
         private Hashtable _ports;
-        private readonly ArrayList _presentedListeners;
-        private readonly ArrayList _acceptedListeners;
-        private readonly ArrayList _rejectedListeners;
+        private readonly List<PortDataEvent> _presentedListeners;
+        private readonly List<PortDataEvent> _acceptedListeners;
+        private readonly List<PortDataEvent> _rejectedListeners;
         #endregion
 
         /// <summary>
@@ -77,9 +77,9 @@ namespace Highpoint.Sage.ItemBased.Ports
             {
                 _ports = new Hashtable(StringComparer.CurrentCultureIgnoreCase);
             }
-            _presentedListeners = new ArrayList();
-            _acceptedListeners = new ArrayList();
-            _rejectedListeners = new ArrayList();
+            _presentedListeners = [];
+            _acceptedListeners = [];
+            _rejectedListeners = [];
         }
 
         /// <summary>
@@ -194,7 +194,11 @@ namespace Highpoint.Sage.ItemBased.Ports
         /// </summary>
         public void ClearPorts()
         {
-            ArrayList ports = new ArrayList(_ports.Values);
+            List<IPort> ports = [];
+            foreach (IPort port in _ports.Values)
+            {
+                ports.Add(port);
+            }
             foreach (IPort port in ports)
             {
                 RemovePort(port);
@@ -219,6 +223,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _presentedListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.PortDataPresented -= value;
@@ -243,6 +251,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _acceptedListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.PortDataAccepted -= value;
@@ -268,6 +280,10 @@ namespace Highpoint.Sage.ItemBased.Ports
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 _rejectedListeners.Remove(value);
                 foreach (IPort port in _ports)
                     port.PortDataRejected -= value;
@@ -275,7 +291,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         }
 
         #region Port Made/Broken Event Management
-        private ArrayList? _bcmListeners, _acmListeners, _bcbListeners, _acbListeners;
+        private List<PortEvent>? _bcmListeners, _acmListeners, _bcbListeners, _acbListeners;
         /// <summary>
         /// This event fires immediately before the port's connector property becomes non-null.
         /// </summary>
@@ -288,13 +304,17 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 if (_bcmListeners == null)
-                    _bcmListeners = new ArrayList();
+                    _bcmListeners = [];
                 _bcmListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.ConnectionMadePending += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_bcmListeners == null)
                 {
                     return;
@@ -317,13 +337,17 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 if (_acmListeners == null)
-                    _acmListeners = new ArrayList();
+                    _acmListeners = [];
                 _acmListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.ConnectionMadeOccurred += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_acmListeners == null)
                 {
                     return;
@@ -347,13 +371,17 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 if (_bcbListeners == null)
-                    _bcbListeners = new ArrayList();
+                    _bcbListeners = [];
                 _bcbListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.ConnectionBrokenPending += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_bcbListeners == null)
                 {
                     return;
@@ -376,13 +404,17 @@ namespace Highpoint.Sage.ItemBased.Ports
                     return;
                 }
                 if (_acbListeners == null)
-                    _acbListeners = new ArrayList();
+                    _acbListeners = [];
                 _acbListeners.Add(value);
                 foreach (IPort port in _ports)
                     port.ConnectionBrokenOccurred += value;
             }
             remove
             {
+                if (value == null)
+                {
+                    return;
+                }
                 if (_acbListeners == null)
                 {
                     return;

@@ -59,19 +59,17 @@ namespace Highpoint.Sage.Graphs
 
             if (_frontier.Count > 0)
             {
-                List<Node> removees = new List<Node>();
+                HashSet<Node> frontierNodes = new HashSet<Node>(_frontier);
+                HashSet<Node> removees = new HashSet<Node>();
                 foreach (Node n in _frontier)
                 {
                     foreach (Node pred in AnyPredecessorsOf(n))
                     {
-                        if (_frontier.Contains(pred))
+                        if (frontierNodes.Contains(pred))
                         {
-                            if (!removees.Contains(n))
-                            {
-                                //Console.WriteLine("Removing " + n.Name + " because " + pred.Name + " is also on the frontier.");
-                                removees.Add(n);
-                                break;
-                            }
+                            //Console.WriteLine("Removing " + n.Name + " because " + pred.Name + " is also on the frontier.");
+                            removees.Add(n);
+                            break;
                         }
                     }
                 }
@@ -92,25 +90,23 @@ namespace Highpoint.Sage.Graphs
 
         private IEnumerable<Node> AnyPredecessorsOf(Node n)
         {
-            return AnyPredecessorsOf(n, new List<Node>());
+            return AnyPredecessorsOf(n, new HashSet<Node>());
         }
 
-        private IEnumerable<Node> AnyPredecessorsOf(Node n, List<Node> beenThere)
+        private IEnumerable<Node> AnyPredecessorsOf(Node n, HashSet<Node> beenThere)
         {
             foreach (Node pred in n.Predecessors)
             {
-                if (beenThere.Contains(pred) || !pred.Visited)
+                if (!beenThere.Add(pred) || !pred.Visited)
                 {
                     break;
                 }
-                beenThere.Add(pred);
                 yield return pred;
                 if (pred.Visited)
                 {
-                    IEnumerator<Node> ienumerator = AnyPredecessorsOf(pred, beenThere).GetEnumerator();
-                    while (ienumerator.MoveNext())
+                    foreach (Node predecessor in AnyPredecessorsOf(pred, beenThere))
                     {
-                        yield return ienumerator.Current;
+                        yield return predecessor;
                     }
                 }
             }
@@ -121,6 +117,7 @@ namespace Highpoint.Sage.Graphs
             bool success = false;
             if (_frontier.Count > 0)
             {
+                HashSet<Node> queuedNodes = new HashSet<Node>(_frontier);
                 List<Node> tmpFrontier = new List<Node>();
                 Node node;
                 for (int i = _frontier.Count - 1; i >= 0; i--)
@@ -135,7 +132,7 @@ namespace Highpoint.Sage.Graphs
                         _frontier.RemoveAt(i);
                         foreach (Node s in node.Successors)
                         {
-                            if (!tmpFrontier.Contains(s) && !_frontier.Contains(s))
+                            if (queuedNodes.Add(s))
                             {
                                 tmpFrontier.Add(s);
                             }
@@ -181,50 +178,39 @@ namespace Highpoint.Sage.Graphs
             {
                 node = new Node(element);
                 _nodes.Add(element, node);
-                object[] successors = (object[])GetSuccessors(element).ToArray(typeof(object));
-                List<Node> naSuccessors = new List<Node>();
-                for (int i = 0; i < successors.Length; i++)
+                HashSet<Node> successors = new HashSet<Node>();
+                foreach (object successor in GetSuccessors(element))
                 {
-                    Node s = _Build(successors[i]);
-                    if (!naSuccessors.Contains(s))
-                    {
-                        naSuccessors.Add(s);
-                    }
+                    successors.Add(_Build(successor));
                 }
-                node.Successors = naSuccessors.ToArray();
+                node.Successors = new List<Node>(successors).ToArray();
             }
             return node;
         }
 
         private void EstablishPredecessors()
         {
-            Hashtable ht = new Hashtable();
+            Dictionary<Node, HashSet<Node>> predecessorsByNode = new Dictionary<Node, HashSet<Node>>();
             //Console.WriteLine("There are " + m_nodes.Count + " nodes in the nodelist.");
             foreach (Node n in _nodes.Values)
             {
                 foreach (Node s in n.Successors)
                 {
                     //Console.WriteLine("\r\n" + n.Name + " has successor " + s.Name);
-                    ArrayList? preds = (ArrayList?)ht[s];
-                    if (preds == null)
+                    if (!predecessorsByNode.TryGetValue(s, out HashSet<Node>? predecessors))
                     {
                         //Console.WriteLine("\tCreated a new record for " + s.Name);
-                        preds = new ArrayList();
-                        ht.Add(s, preds);
+                        predecessors = new HashSet<Node>();
+                        predecessorsByNode.Add(s, predecessors);
                     }
-                    else
-                    {
-                        //Console.WriteLine("\tFound an existing record for " + s.Name);
-                    }
-                    if (!preds.Contains(n))
-                        preds.Add(n);
-                    //Console.WriteLine("\tAdding " + n.Name + " as predecessor #" + preds.Count + " to " + n.Name);
+                    predecessors.Add(n);
+                    //Console.WriteLine("\tAdding " + n.Name + " as predecessor #" + predecessors.Count + " to " + n.Name);
                 }
             }
 
-            foreach (DictionaryEntry de in ht)
+            foreach ((Node node, HashSet<Node> predecessors) in predecessorsByNode)
             {
-                ((Node)de.Key!).Predecessors = (Node[])((ArrayList)de.Value!).ToArray(typeof(Node));
+                node.Predecessors = new List<Node>(predecessors).ToArray();
             }
         }
 

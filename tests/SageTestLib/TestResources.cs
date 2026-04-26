@@ -467,6 +467,55 @@ namespace Highpoint.Sage.Resources
             Assert.NotNull(rm[guid2]);
         }
 
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies ResourceManager add/remove/clear keep Manager links and events consistent — guards resource-pool regression work.")]
+        public void TestResourceManagerManagerLinksAndLifecycleEvents()
+        {
+            Model model = new Model("RM Lifecycle Test Model");
+            ResourceManager rm = new ResourceManager(model, "LifecyclePool", Guid.NewGuid());
+            Resource rsc1 = new Resource(model, "Resource A", Guid.NewGuid(), 1.0, 1.0, true, true, true);
+            Resource rsc2 = new Resource(model, "Resource B", Guid.NewGuid(), 1.0, 1.0, true, true, true);
+            int addedCount = 0;
+            int removedCount = 0;
+
+            rm.ResourceAdded += delegate (IResourceManager _, IResource __) { addedCount++; };
+            rm.ResourceRemoved += delegate (IResourceManager _, IResource __) { removedCount++; };
+
+            rm.Add(rsc1);
+            rm.Add(rsc2);
+
+            Assert.Same(rm, rsc1.Manager);
+            Assert.Same(rm, rsc2.Manager);
+            Assert.Equal(2, addedCount);
+
+            rm.Remove(rsc1);
+
+            Assert.Null(rsc1.Manager);
+            Assert.Same(rm, rsc2.Manager);
+            Assert.Equal(1, removedCount);
+            Assert.Single(rm.Resources);
+
+            rm.Clear();
+
+            Assert.Empty(rm.Resources);
+            Assert.Null(rsc2.Manager);
+            Assert.Equal(2, removedCount);
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies MultiKeyAccessRegulator honors matching keys and either-side subject equality — guards earmarking behavior.")]
+        public void TestMultiKeyAccessRegulatorMatchesOnKeyAndSymmetricSubjectEquality()
+        {
+            object key = "Authorized";
+            MultiKeyAccessRegulator regulator = new MultiKeyAccessRegulator("SharedSubject", new ArrayList(new object[] { key }));
+
+            Assert.True(regulator.CanAcquire("SharedSubject", key));
+            Assert.True(regulator.CanAcquire(new SubjectAlias("SharedSubject"), key));
+            Assert.False(regulator.CanAcquire("SharedSubject", "Denied"));
+            Assert.False(regulator.CanAcquire("OtherSubject", key));
+            Assert.False(regulator.CanAcquire(null, key));
+        }
+
         sealed class ResourceRequest : Highpoint.Sage.Resources.ResourceRequest
         {
 
@@ -491,6 +540,26 @@ namespace Highpoint.Sage.Resources
                 return irr;
             }
 
+        }
+
+        sealed class SubjectAlias
+        {
+            private readonly string _subjectName;
+
+            public SubjectAlias(string subjectName)
+            {
+                _subjectName = subjectName;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is string candidate && candidate.Equals(_subjectName, StringComparison.Ordinal);
+            }
+
+            public override int GetHashCode()
+            {
+                return _subjectName.GetHashCode(StringComparison.Ordinal);
+            }
         }
 
     }

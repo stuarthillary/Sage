@@ -14,7 +14,7 @@ namespace Highpoint.Sage.Utility
     /// </summary>
     public class HashtableOfLists : IEnumerable
     {
-        private readonly Hashtable _ht;
+        private readonly Dictionary<object, object?> _ht;
         private static readonly ArrayList _empty_List = ArrayList.ReadOnly(new ArrayList());
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         public HashtableOfLists()
         {
-            _ht = new Hashtable();
+            _ht = new Dictionary<object, object?>();
         }
 
         /// <summary>
@@ -32,8 +32,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="item">The value of the element to add.</param>
         public void Add(object key, object item)
         {
-            object? obj = _ht[key];
-            if (obj == null)
+            if (!_ht.TryGetValue(key, out object? obj))
             {
                 _ht.Add(key, item);
             }
@@ -45,13 +44,9 @@ namespace Highpoint.Sage.Utility
             }
             else
             {
-                if (!obj.Equals(item))
+                if (!object.Equals(obj, item))
                 { // If we're re-adding the same thing, skip it.
-                    _ht.Remove(key);
-                    ListWrapper lw = new ListWrapper();
-                    lw.List.Add(obj);
-                    lw.List.Add(item);
-                    _ht.Add(key, lw);
+                    _ht[key] = new ListWrapper(obj!, item);
                 }
             }
         }
@@ -63,8 +58,7 @@ namespace Highpoint.Sage.Utility
         /// <param name="item">The value of the element to remove.</param>
         public void Remove(object key, object item)
         {
-            object? obj = _ht[key];
-            if (obj != null)
+            if (_ht.TryGetValue(key, out object? obj) && obj != null)
             {
                 ListWrapper? wrapper = obj as ListWrapper;
                 if (wrapper != null)
@@ -101,7 +95,9 @@ namespace Highpoint.Sage.Utility
         {
             get
             {
-                object? obj = _ht[key];
+                if (!_ht.TryGetValue(key, out object? obj))
+                    return _empty_List;
+
                 ListWrapper? wrapper = obj as ListWrapper;
                 if (wrapper != null)
                     return wrapper.List;
@@ -125,9 +121,12 @@ namespace Highpoint.Sage.Utility
             get
             {
                 ArrayList retval = new ArrayList();
-                foreach (object key in _ht.Keys)
+                foreach (object? value in _ht.Values)
                 {
-                    retval.AddRange(this[key]);
+                    if (value is ListWrapper wrapper)
+                        retval.AddRange(wrapper.List);
+                    else if (value != null)
+                        retval.Add(value);
                 }
                 return retval;
             }
@@ -163,7 +162,7 @@ namespace Highpoint.Sage.Utility
         public void PruneEmptyLists()
         {
             ArrayList removees = new ArrayList();
-            foreach (DictionaryEntry de in _ht)
+            foreach (KeyValuePair<object, object?> de in _ht)
             {
                 ListWrapper? value = de.Value as ListWrapper;
                 if (value != null && value.List.Count == 0)
@@ -181,7 +180,7 @@ namespace Highpoint.Sage.Utility
             get
             {
                 int count = 0;
-                foreach (DictionaryEntry de in _ht)
+                foreach (KeyValuePair<object, object?> de in _ht)
                 {
                     ListWrapper? value = de.Value as ListWrapper;
                     if (value != null)
@@ -195,11 +194,11 @@ namespace Highpoint.Sage.Utility
 
         private class ListWrapper
         {
-            public ListWrapper()
+            public ListWrapper(object firstItem, object secondItem)
             {
-                List = new ArrayList();
+                List = new List<object> { firstItem, secondItem };
             }
-            public ArrayList List
+            public List<object> List
             {
                 get;
             }
@@ -234,16 +233,15 @@ namespace Highpoint.Sage.Utility
 
                 while (_htEnum.MoveNext())
                 {
-                    object? obj = ((DictionaryEntry)_htEnum.Current).Value;
+                    KeyValuePair<object, object?> current = (KeyValuePair<object, object?>)_htEnum.Current;
+                    object? obj = current.Value;
 
-                    // Find the first non-listWrapper object, or non-empty listWrapper.
                     ListWrapper? wrapper = obj as ListWrapper;
                     if (wrapper == null)
-                        continue;
+                        return true;
                     if (wrapper.List.Count == 0)
                         continue;
 
-                    // Now that we've found it,  handle it.
                     _lstEnum = wrapper.List.GetEnumerator();
                     _lstEnum.MoveNext(); // We know it's non-empty, so this must succeed.
                     return true;
@@ -252,7 +250,19 @@ namespace Highpoint.Sage.Utility
                 _htEnum = null;
                 return false;
             }
-            public object? Current => _lstEnum != null ? _lstEnum.Current : ((DictionaryEntry?)_htEnum?.Current)?.Value;
+            public object? Current
+            {
+                get
+                {
+                    if (_lstEnum != null)
+                        return _lstEnum.Current;
+                    if (_htEnum == null)
+                        return null;
+
+                    KeyValuePair<object, object?> current = (KeyValuePair<object, object?>)_htEnum.Current;
+                    return current.Value;
+                }
+            }
 
             #endregion
         }
@@ -327,7 +337,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         public bool Remove(TKey key, TValue item)
         {
-            return _dictOfLists[key].Remove(item);
+            return _dictOfLists.TryGetValue(key, out List<TValue>? items) && items.Remove(item);
         }
 
         /// <summary>
@@ -606,7 +616,11 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="NotImplementedException"></exception>
         public void CopyTo(KeyValuePair<TKey, List<TValue>>[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(array);
+            foreach (KeyValuePair<TKey, List<TValue>> item in _dictOfLists)
+            {
+                array[arrayIndex++] = item;
+            }
         }
 
         /// <summary>
@@ -629,7 +643,9 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="NotImplementedException"></exception>
         public bool Remove(KeyValuePair<TKey, List<TValue>> item)
         {
-            throw new NotImplementedException();
+            return _dictOfLists.TryGetValue(item.Key, out List<TValue>? value) &&
+                   EqualityComparer<List<TValue>>.Default.Equals(value, item.Value) &&
+                   _dictOfLists.Remove(item.Key);
         }
 
         #endregion

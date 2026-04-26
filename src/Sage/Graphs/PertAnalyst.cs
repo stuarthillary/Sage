@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs.Analysis
 {
@@ -16,7 +17,7 @@ namespace Highpoint.Sage.Graphs.Analysis
 
         double _criticalPathMean;
         double _criticalPathVariance;
-        ArrayList _criticalPath = null!; // assigned in Analyze()
+        List<Edge> _criticalPath = null!; // assigned in Analyze()
 
         //public PERTAnalyst(Vertex start, Vertex finish):base(start,finish){}
         public PertAnalyst(Edge edge) : base(edge) { }
@@ -24,7 +25,7 @@ namespace Highpoint.Sage.Graphs.Analysis
         public override void Analyze()
         {
             base.Analyze();
-            _criticalPath = new ArrayList();
+            _criticalPath = new List<Edge>();
             DetermineMeanAndVarianceOfCriticalPath();
         }
 
@@ -62,7 +63,7 @@ namespace Highpoint.Sage.Graphs.Analysis
                     continue;
                 if (IsCriticalPath(targetEdge!))
                 {
-                    _criticalPath.Add(targetEdge);
+                    _criticalPath.Add(targetEdge!);
                     mean += ed.MeanDuration;
                     variance += ed.Variance2;
                     return targetEdge!.PostVertex!;
@@ -75,7 +76,7 @@ namespace Highpoint.Sage.Graphs.Analysis
             throw new ApplicationException("The vertex " + vertex.Name + " is not on the critical path.");
         }
 
-        public ArrayList CriticalPath => ArrayList.ReadOnly(_criticalPath);
+        public ArrayList CriticalPath => ArrayList.ReadOnly(ArrayList.Adapter(_criticalPath));
         public TimeSpan CriticalPathMean => TimeSpan.FromTicks((long)_criticalPathMean);
 
         public TimeSpan CriticalPathVariance

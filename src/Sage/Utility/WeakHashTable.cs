@@ -2,6 +2,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
@@ -11,15 +12,16 @@ namespace Highpoint.Sage.Utility
     /// </summary>
     public class WeakHashtable : IDictionary
     {
-
-        private readonly Hashtable _ht;
+        private readonly Dictionary<object, WeakReference> _ht;
+        private readonly object _syncRoot;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WeakHashtable"/> class.
         /// </summary>
         public WeakHashtable()
         {
-            _ht = new Hashtable();
+            _ht = new Dictionary<object, WeakReference>();
+            _syncRoot = new object();
         }
 
         #region IDictionary Members
@@ -29,7 +31,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <value></value>
         /// <returns>true if the <see cref="T:System.Collections.IDictionary"></see> object is read-only; otherwise, false.</returns>
-        public bool IsReadOnly => _ht.IsReadOnly;
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// Returns an <see cref="T:System.Collections.IDictionaryEnumerator"></see> object for the <see cref="T:System.Collections.IDictionary"></see> object.
@@ -50,13 +52,15 @@ namespace Highpoint.Sage.Utility
         {
             get
             {
-                if (!_ht.Contains(key))
+                if (!_ht.TryGetValue(key, out WeakReference wr))
                     return null;
-                WeakReference wr = (WeakReference)_ht[key];
                 if (wr == null)
                     return null;
                 if (!wr.IsAlive)
+                {
                     _ht.Remove(key);
+                    return null;
+                }
                 return wr.Target;
             }
             set
@@ -86,7 +90,7 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.ArgumentNullException">key is null. </exception>
         public bool Contains(object key)
         {
-            return _ht.Contains(key);
+            return _ht.ContainsKey(key);
         }
 
         /// <summary>
@@ -108,7 +112,7 @@ namespace Highpoint.Sage.Utility
             get
             {
                 int i = 0;
-                ArrayList al = new ArrayList(_ht.Values.Count);
+                ArrayList al = new ArrayList(_ht.Count);
                 foreach (WeakReference wr in _ht.Values)
                 {
                     if (wr.IsAlive)
@@ -132,10 +136,10 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         public void Clean()
         {
-            ArrayList deadKeys = new ArrayList();
-            foreach (DictionaryEntry de in _ht)
+            List<object> deadKeys = new List<object>();
+            foreach (KeyValuePair<object, WeakReference> de in _ht)
             {
-                if (!((WeakReference)de.Value).IsAlive)
+                if (!de.Value.IsAlive)
                     deadKeys.Add(de.Key);
             }
             foreach (object deadKey in deadKeys)
@@ -167,7 +171,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <value></value>
         /// <returns>true if the <see cref="T:System.Collections.IDictionary"></see> object has a fixed size; otherwise, false.</returns>
-        public bool IsFixedSize => _ht.IsFixedSize;
+        public bool IsFixedSize => false;
 
         #endregion
 
@@ -178,7 +182,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <value></value>
         /// <returns>true if access to the <see cref="T:System.Collections.ICollection"></see> is synchronized (thread safe); otherwise, false.</returns>
-        public bool IsSynchronized => _ht.IsSynchronized;
+        public bool IsSynchronized => false;
 
         /// <summary>
         /// Gets the number of elements contained in the <see cref="T:System.Collections.ICollection"></see>.
@@ -198,7 +202,10 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.InvalidCastException">The type of the source <see cref="T:System.Collections.ICollection"></see> cannot be cast automatically to the type of the destination array. </exception>
         public void CopyTo(Array array, int index)
         {
-            _ht.CopyTo(array, index);
+            foreach (DictionaryEntry entry in this)
+            {
+                array.SetValue(entry, index++);
+            }
         }
 
         /// <summary>
@@ -206,7 +213,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <value></value>
         /// <returns>An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"></see>.</returns>
-        public object SyncRoot => _ht.SyncRoot;
+        public object SyncRoot => _syncRoot;
 
         #endregion
 
@@ -227,9 +234,9 @@ namespace Highpoint.Sage.Utility
 
         private class WeakHashtableEnumerator : IDictionaryEnumerator
         {
-            private readonly IEnumerator _enum;
+            private readonly IEnumerator<KeyValuePair<object, WeakReference>> _enum;
 
-            public WeakHashtableEnumerator(IEnumerator weakHashtableEnum)
+            public WeakHashtableEnumerator(IEnumerator<KeyValuePair<object, WeakReference>> weakHashtableEnum)
             {
                 _enum = weakHashtableEnum;
             }
@@ -247,15 +254,15 @@ namespace Highpoint.Sage.Utility
                 {
                     while (true)
                     {
-                        DictionaryEntry de = (DictionaryEntry)_enum.Current;
-                        if (!((WeakReference)de.Value).IsAlive)
+                        KeyValuePair<object, WeakReference> de = _enum.Current;
+                        if (!de.Value.IsAlive)
                         {
                             if (!MoveNext())
                                 return null;
                         }
                         else
                         {
-                            return new DictionaryEntry(de.Key, ((WeakReference)de.Value).Target);
+                            return new DictionaryEntry(de.Key, de.Value.Target);
                         }
                     }
                 }
@@ -267,7 +274,7 @@ namespace Highpoint.Sage.Utility
                 {
                     if (!_enum.MoveNext())
                         return false;
-                } while (!((WeakReference)((DictionaryEntry)_enum.Current).Value).IsAlive);
+                } while (!_enum.Current.Value.IsAlive);
                 return true;
             }
 

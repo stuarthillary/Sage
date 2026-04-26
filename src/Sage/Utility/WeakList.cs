@@ -1,6 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
@@ -13,7 +14,8 @@ namespace Highpoint.Sage.Utility
 
         #region Private Fields
 
-        private ArrayList _list;
+        private readonly object _syncRoot;
+        private List<MyWeakReference> _list;
 
         #endregion 
 
@@ -22,7 +24,8 @@ namespace Highpoint.Sage.Utility
         /// </summary>
 		public WeakList()
         {
-            _list = new ArrayList();
+            _list = new List<MyWeakReference>();
+            _syncRoot = new object();
         }
 
         /// <summary>
@@ -30,7 +33,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
 		public void Collapse()
         {
-            ArrayList tmp = new ArrayList();
+            List<MyWeakReference> tmp = new List<MyWeakReference>(_list.Count);
             foreach (MyWeakReference wr in _list)
                 if (wr.Target != null)
                     tmp.Add(wr);
@@ -53,8 +56,7 @@ namespace Highpoint.Sage.Utility
         {
             get
             {
-                MyWeakReference? wr = _list[index] as MyWeakReference;
-                return wr?.Target;
+                return _list[index].Target;
             }
             set
             {
@@ -84,7 +86,7 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.NullReferenceException">value is null reference in the <see cref="T:System.Collections.IList"></see>.</exception>
         public void Insert(int index, object? value)
         {
-            _list.Insert(index, new WeakReference(value));
+            _list.Insert(index, new MyWeakReference(value));
         }
 
         /// <summary>
@@ -94,7 +96,9 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.IList"></see> is read-only.-or- The <see cref="T:System.Collections.IList"></see> has a fixed size. </exception>
         public void Remove(object? value)
         {
-            _list.Remove(value);
+            int index = IndexOf(value);
+            if (index >= 0)
+                _list.RemoveAt(index);
         }
 
         /// <summary>
@@ -106,7 +110,7 @@ namespace Highpoint.Sage.Utility
         /// </returns>
         public bool Contains(object? value)
         {
-            return _list.Contains(value);
+            return IndexOf(value) >= 0;
         }
 
         /// <summary>
@@ -127,7 +131,13 @@ namespace Highpoint.Sage.Utility
         /// </returns>
         public int IndexOf(object? value)
         {
-            return _list.IndexOf(value);
+            for (int i = 0; i < _list.Count; i++)
+            {
+                if (_list[i].Equals(value))
+                    return i;
+            }
+
+            return -1;
         }
 
         /// <summary>
@@ -140,7 +150,8 @@ namespace Highpoint.Sage.Utility
         /// <exception cref="T:System.NotSupportedException">The <see cref="T:System.Collections.IList"></see> is read-only.-or- The <see cref="T:System.Collections.IList"></see> has a fixed size. </exception>
         public int Add(object? value)
         {
-            return _list.Add(new MyWeakReference(value));
+            _list.Add(new MyWeakReference(value));
+            return _list.Count - 1;
         }
 
         /// <summary>
@@ -159,7 +170,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <value></value>
         /// <returns>true if access to the <see cref="T:System.Collections.ICollection"></see> is synchronized (thread safe); otherwise, false.</returns>
-        public bool IsSynchronized => _list.IsSynchronized;
+        public bool IsSynchronized => false;
 
         /// <summary>
         /// Gets the number of elements contained in the <see cref="T:System.Collections.ICollection"></see>.
@@ -181,8 +192,7 @@ namespace Highpoint.Sage.Utility
         {
             for (int i = 0; i < _list.Count; i++)
             {
-                object? target = (_list[i] as MyWeakReference)?.Target;
-                array.SetValue(target, new long[] { i });
+                array.SetValue(_list[i].Target, index + i);
             }
         }
 
@@ -191,7 +201,7 @@ namespace Highpoint.Sage.Utility
         /// </summary>
         /// <value></value>
         /// <returns>An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"></see>.</returns>
-		public object SyncRoot => _list.SyncRoot;
+		public object SyncRoot => _syncRoot;
 
         #endregion
 

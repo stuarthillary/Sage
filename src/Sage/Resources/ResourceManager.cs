@@ -149,9 +149,9 @@ namespace Highpoint.Sage.Resources
         {
             if (diagnostics)
                 _Debug.WriteLine(Name + " clearing its resource pool.");
-            while (_resources.Count > 0)
+            foreach (IResource resource in _resources.ToArray())
             {
-                Remove(_resources[0]);
+                Remove(resource);
             }
         }
 
@@ -522,8 +522,8 @@ namespace Highpoint.Sage.Resources
             _model = (Model)xmlsc.ContextEntities["Model"]!;
             _name = (string)xmlsc.LoadObject("Name");
             _guid = (Guid)xmlsc.LoadObject("Guid");
-            ArrayList resources = (ArrayList)xmlsc.LoadObject("Resources");
-            _resources = new List<IResource>();
+            ArrayList? resources = (ArrayList?)xmlsc.LoadObject("Resources");
+            _resources = new List<IResource>(resources?.Count ?? 0);
             if (resources != null)
             {
                 foreach (IResource resource in resources)

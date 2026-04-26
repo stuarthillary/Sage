@@ -1,6 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Resources
 {
@@ -15,7 +16,7 @@ namespace Highpoint.Sage.Resources
 
         #region Private Fields
 
-        private readonly ArrayList _keys;
+        private readonly List<object?> _keys;
         private readonly object _subject;
 
         #endregion
@@ -28,7 +29,11 @@ namespace Highpoint.Sage.Resources
         public MultiKeyAccessRegulator(object subject, ArrayList keys)
         {
             _subject = subject;
-            _keys = keys;
+            _keys = new List<object?>(keys.Count);
+            foreach (object? key in keys)
+            {
+                _keys.Add(key);
+            }
         }
 
         /// <summary>

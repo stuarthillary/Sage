@@ -72,6 +72,85 @@ namespace Highpoint.Sage.ItemBased.Blocks
         }
     }
 
+    public class PortSetRegressionTests
+    {
+        [Fact]
+        public void PortSet_AddRemoveAndClear_UpdateLookupsAndTypedViews()
+        {
+            PortSet portSet = new PortSet();
+            ManagementFacadeBlock owner = new ManagementFacadeBlock();
+            SimpleInputPort input = new SimpleInputPort(null, "Input", Guid.NewGuid(), owner, null);
+            SimpleOutputPort output = new SimpleOutputPort(null, "Output", Guid.NewGuid(), owner, null, null);
+
+            portSet.AddPort(input);
+            portSet.AddPort(output);
+
+            Assert.Equal(2, portSet.Count);
+            Assert.Same(input, portSet[input.Guid]);
+            Assert.Same(output, portSet[output.Guid]);
+            Assert.Same(input, portSet["Input"]);
+            Assert.Same(output, portSet["Output"]);
+            Assert.Null(portSet["Missing"]);
+            Assert.Single(portSet.Inputs);
+            Assert.Single(portSet.Outputs);
+            Assert.Same(input, portSet.Inputs[0]);
+            Assert.Same(output, portSet.Outputs[0]);
+
+            portSet.RemovePort(input);
+
+            Assert.Equal(1, portSet.Count);
+            Assert.Null(portSet[input.Guid]);
+            Assert.Empty(portSet.Inputs);
+            Assert.Single(portSet.Outputs);
+
+            portSet.ClearPorts();
+
+            Assert.Equal(0, portSet.Count);
+            Assert.Empty(portSet.Inputs);
+            Assert.Empty(portSet.Outputs);
+            Assert.Null(portSet[output.Guid]);
+        }
+
+        [Fact]
+        public void PortSet_DuplicateInstanceIsIgnored_ButDuplicateNameThrows()
+        {
+            PortSet portSet = new PortSet();
+            ManagementFacadeBlock owner = new ManagementFacadeBlock();
+            SimpleInputPort input = new SimpleInputPort(null, "Input", Guid.NewGuid(), owner, null);
+
+            portSet.AddPort(input);
+            portSet.AddPort(input);
+
+            Assert.Equal(1, portSet.Count);
+
+            SimpleOutputPort duplicateName = new SimpleOutputPort(null, "Input", Guid.NewGuid(), null, null, null);
+
+            Assert.Throws<ApplicationException>(() => portSet.AddPort(duplicateName));
+            Assert.Equal(1, portSet.Count);
+        }
+
+        [Fact]
+        public void PortSet_PortAddedAndRemovedEventsFireOncePerMutation()
+        {
+            PortSet portSet = new PortSet();
+            ManagementFacadeBlock owner = new ManagementFacadeBlock();
+            SimpleInputPort input = new SimpleInputPort(null, "Input", Guid.NewGuid(), owner, null);
+            int addedCount = 0;
+            int removedCount = 0;
+
+            portSet.PortAdded += delegate (IPort _) { addedCount++; };
+            portSet.PortRemoved += delegate (IPort _) { removedCount++; };
+
+            portSet.AddPort(input);
+            portSet.AddPort(input);
+            portSet.RemovePort(input);
+            portSet.RemovePort(input);
+
+            Assert.Equal(1, addedCount);
+            Assert.Equal(1, removedCount);
+        }
+    }
+
 
     public class ManagementFacadeTester
     {

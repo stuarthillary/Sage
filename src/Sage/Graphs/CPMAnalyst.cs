@@ -564,19 +564,20 @@ if ( edgeData == null ) {
 		}
 
 		#region Contemporaneous Vertices
-		private ArrayList GetContemporaneousVertices(Vertex vertex){
-			ArrayList vertices = new ArrayList();
-			_GetContemporaneousVertices(vertex,ref vertices);
+		private List<Vertex> GetContemporaneousVertices(Vertex vertex){
+			List<Vertex> vertices = new List<Vertex>();
+			HashSet<Vertex> seenVertices = new HashSet<Vertex>();
+			_GetContemporaneousVertices(vertex, vertices, seenVertices);
 			return vertices;
 		}
-		private void _GetContemporaneousVertices(Vertex vertex, ref ArrayList vertices){
-			if ( vertices.Contains(vertex) ) return;
+		private void _GetContemporaneousVertices(Vertex vertex, List<Vertex> vertices, HashSet<Vertex> seenVertices){
+			if ( !seenVertices.Add(vertex) ) return;
 			vertices.Add(vertex);
 			foreach ( Edge pre in vertex.PredecessorEdges ) {
-				if ( pre is Ligature ) _GetContemporaneousVertices(pre.PreVertex!, ref vertices);
+				if ( pre is Ligature ) _GetContemporaneousVertices(pre.PreVertex!, vertices, seenVertices);
 			}
 			foreach ( Edge post in vertex.SuccessorEdges ) {
-				if ( post is Ligature ) _GetContemporaneousVertices(post.PostVertex!, ref vertices);
+				if ( post is Ligature ) _GetContemporaneousVertices(post.PostVertex!, vertices, seenVertices);
 			}
 		}
 		#endregion
