@@ -137,6 +137,24 @@ When `IgnoreCausalityViolations=false`:
 
 ## Learnings
 
+### 2026-04-26 — Phase 2 Graph Algorithm Regression Coverage Complete ✅
+
+**Status:** COMPLETE — 4 graph-algorithm regression tests added; targeted graph slice and full `Sage.Tests` suite passing
+
+**Test results:**
+- New graph regression tests: **4/4 passing**
+- Targeted graph slice (`GraphAlgorithmRegressionTests`, `GraphLoopingTester`, `DAGCycleCheckerTester`): **13/13 passing**
+- Full `tests\SageTestLib\Sage.Tests.csproj`: **285/285 passing**
+
+**Coverage locked in:**
+- `CpmAnalyst` still computes earliest/latest times, acceptable slip, and critical-path membership correctly across a branching graph after the internal stack/list updates.
+- `PertAnalyst` still walks ligature-linked successors to the real critical edges, preserves `ArrayList`/read-only `CriticalPath` behavior, and aggregates mean/variance from only the critical path.
+- `DagDeadlockChecker` still suppresses duplicate successor/frontier entries and reports a single residual deadlock target for a simple reachable cycle instead of duplicating entries after the internal `Dictionary`/`List<Node>` migration.
+
+**Remaining gaps:**
+- I did not add synchronizer-specific `DagDeadlockChecker` coverage in this pass; deadlock target selection for more complex cycles/synchronizer meshes is still implementation-sensitive and needs explicit product guidance before I widen assertions.
+- No new regression coverage yet for CPM/PERT behavior on synchronized vertices or pegged vertices in this Phase 2 slice.
+
 ### 2026-04-26 — Phase 2 Utility Wrapper Regression Coverage Complete ✅
 
 **Status:** COMPLETE — 10 wrapper-focused regression tests added/updated; targeted wrapper tests and full `Sage.Tests` suite passing
@@ -254,3 +272,25 @@ When `IgnoreCausalityViolations=false`:
 - **ResourceManager:** Resources return type (IReadOnlyList<IResource>)
 - **Test readiness:** 3 prep tests ready to validate Phase 2 types (currently [Ignore]'d)
 - **Next:** Phase 2 lead to implement API changes and enable prep tests
+
+---
+
+### 2026-04-26 — Graph Algorithm Regression Coverage ✅
+
+**Status:** Complete
+
+**Batch Summary:**
+- Added Phase 2 regression tests for `CpmAnalyst`, `PertAnalyst`, and `DagDeadlockChecker` in `tests\SageTestLib\TestGraphAlgorithmRegressions.cs`.
+- Locked in Parker's guardrail that legacy public surfaces stay put: `PertAnalyst.CriticalPath` remains read-only `ArrayList`, and `DagDeadlockChecker.Errors` stays read-only/non-generic at the boundary.
+
+**Test Semantics Locked:**
+- Duplicate successor references must not create duplicate frontier/error targets
+- Simple reachable cycle must report one residual frontier target
+- Intentionally did **not** over-assert full target ordering/exhaustiveness for complex deadlock sets because that remains implementation-sensitive
+
+**Result:**
+- New regression tests: 4/4 passing ✅
+- Targeted graph algorithm suite: 13/13 passing ✅
+- Full `Sage.Tests`: 285/285 passing ✅
+
+**Coordination:** Ready for Phase 3 planning or additional collection-type migration work.

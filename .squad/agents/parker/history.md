@@ -22,6 +22,17 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 
 ## Learnings
 
+### 2026-07-17 — Phase 2 Graph Algorithms Slice: Internal Collections Only ✅
+
+- **Scope:** Started the graph-algorithms Phase 2 pass in `PertAnalyst`, `CPMAnalyst`, and `DagDeadlockChecker` with collection modernization limited to private/internal implementation details.
+- **Public API guardrails honored:** Kept `PertAnalyst.CriticalPath` as `ArrayList`, left intentional non-generic public/protected surface shapes alone, and avoided touching `IDictionary graphContext` patterns.
+- **PertAnalyst:** Swapped the internal critical-path accumulator from `ArrayList` to `List<Edge>` and wrapped it back to a read-only `ArrayList` at the property boundary.
+- **DagDeadlockChecker:** Replaced internal dedupe/lookup work with `HashSet<Node>` and replaced predecessor construction `Hashtable`/`ArrayList` plumbing with `Dictionary<Node, HashSet<Node>>`, preserving `GetSuccessors`/`Errors` legacy surface.
+- **CPMAnalyst:** Updated the private contemporaneous-vertex traversal helper to use `List<Vertex>` + `HashSet<Vertex>` instead of `ArrayList`.
+- **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted graph tests `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~GraphValidityTester|FullyQualifiedName~DAGCycleCheckerTester"` ✅ (12/12).
+
+---
+
 ### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
 
 - **Scope:** Added `OrderAttribute` to `samples\Sage_SampleCode` to restore the original intentional demo execution order after IExample + reflection-based discovery was introduced.
@@ -613,3 +624,14 @@ Materials subsystem extraction has been successfully committed to git.
 - **HashtableOfLists (generic):** Kept duplicate-preserving list semantics, but filled in missing `ICollection<KeyValuePair<TKey, List<TValue>>>` members and made `Remove(key, item)` return `false` instead of throwing for missing keys.
 - **Weak collections:** `WeakHashtable` now uses `Dictionary<object, WeakReference>` internally, and `WeakList` now uses `List<MyWeakReference>` so `Contains`, `IndexOf`, `Remove`, enumeration, and `CopyTo` all operate on target values instead of wrapper objects.
 - **Validation:** `dotnet build src\Sage\Sage.csproj --no-restore` succeeded; targeted wrapper tests in `tests\SageTestLib\Sage.Tests.csproj` passed 14/14.
+
+---
+
+### 2026-04-26 — Phase 2 Graph Algorithms: Internal Modernization, Public Surface Preservation ✅
+
+- **Scope:** Phase 2 graph-algorithms batch targeting `src\Sage\Graphs\PertAnalyst.cs`, `CPMAnalyst.cs`, and `DagDeadlockChecker.cs` with collection modernization limited to private/internal implementation details.
+- **Guardrails honored:** Kept `PertAnalyst.CriticalPath` as `ArrayList`, left intentional non-generic public/protected surface shapes alone, and avoided touching `IDictionary graphContext` patterns.
+- **PertAnalyst:** Swapped the internal critical-path accumulator from `ArrayList` to `List<Edge>` and wrapped it back to a read-only `ArrayList` at the property boundary.
+- **DagDeadlockChecker:** Replaced internal dedupe/lookup work with `HashSet<Node>` and replaced predecessor construction `Hashtable`/`ArrayList` plumbing with `Dictionary<Node, HashSet<Node>>`, preserving `GetSuccessors`/`Errors` legacy surface.
+- **CPMAnalyst:** Updated the private contemporaneous-vertex traversal helper to use `List<Vertex>` + `HashSet<Vertex>` instead of `ArrayList`.
+- **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted graph tests `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~GraphValidityTester|FullyQualifiedName~DAGCycleCheckerTester"` ✅ (12/12).

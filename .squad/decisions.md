@@ -134,6 +134,60 @@ No circular references.
 
 ---
 
+### 2026-04-26: Phase 2 Graph Algorithms — Internal Modernization, Public Surface Preservation (COMPLETE ✅)
+
+**By:** Parker
+
+**Date:** 2026-04-26
+
+**Status:** Complete
+
+**Context:** Phase 2 graph-algorithms slice targeting `src\Sage\Graphs\PertAnalyst.cs`, `CPMAnalyst.cs`, and `DagDeadlockChecker.cs`.
+
+**Decision:** Treat this batch as **internal collection modernization only**. Preserve public/protected legacy collection shapes where they are part of the contract or likely subclass touchpoints.
+
+**Applied Guardrails:**
+- Kept `PertAnalyst.CriticalPath` returning `ArrayList`
+- Did not change `DagDeadlockChecker.GetSuccessors(object)` or `Errors`
+- Did not convert `CPMAnalyst` protected `Hashtable` fields in this batch
+- Continued honoring intentional public `IDictionary graphContext` signatures elsewhere
+
+**Implementation Pattern:** Prefer `List<T>`, `HashSet<T>`, and `Dictionary<TKey,TValue>` behind existing boundaries, adapting back to legacy collection types only at the API edge when needed.
+
+**Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` and targeted graph tests for `GraphValidityTester` + `DAGCycleCheckerTester` passed.
+
+**Result:**
+- Build: 0 errors, 0 warnings ✅
+- Graph algorithm tests: 12/12 passing ✅
+
+---
+
+### 2026-04-26: Hudson Graph Algorithm Regression Coverage (COMPLETE ✅)
+
+**By:** Hudson
+
+**Date:** 2026-04-26
+
+**Status:** Complete
+
+**Context:** Adding regression test coverage for Phase 2 graph-algorithms batch to lock legacy public surfaces during internal modernization.
+
+**Decision:** Add comprehensive regression tests for `CpmAnalyst`, `PertAnalyst`, and `DagDeadlockChecker` in `tests\SageTestLib\TestGraphAlgorithmRegressions.cs`.
+
+**Test Semantics Locked:**
+- `PertAnalyst.CriticalPath` remains read-only `ArrayList`
+- `DagDeadlockChecker.Errors` stays read-only/non-generic at the boundary
+- Duplicate successor references must not create duplicate frontier/error targets
+- Simple reachable cycle must report one residual frontier target
+- Implementation-sensitive ordering/exhaustiveness for complex deadlock sets left intentionally flexible
+
+**Result:**
+- New regression tests: 4/4 passing ✅
+- Targeted graph algorithm suite: 13/13 passing ✅
+- Full `Sage.Tests`: 285/285 passing ✅
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
