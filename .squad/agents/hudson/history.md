@@ -18,6 +18,26 @@
 
 ---
 
+### 2026-04-26 — Collections Recovery Scope Audit Complete ✅
+
+**Status:** Complete
+
+**Batch Summary:**
+- Classified all touched files into valid Phase 1, Phase 2+ creep, and ambiguous items
+- Provided technical foundation for Phase 1 boundary enforcement
+- Identified graph-analysis changes as root cause of build breaks
+
+**Scope Classification:**
+- **Phase 1 (Safe):** Signature-preserving private/internal collection swaps in core/supporting internals
+- **Phase 2+ (Out-of-Scope):** Graph algorithms, PFC, Materials, public-contract-adjacent changes (PortSet, WeakHashtable, WeakList, HashtableOfLists)
+- **Ambiguous:** Items deferred for separate coordination
+
+**Coordination:** Results provided to Ripley for scope-reset decision and implementation.
+
+**Outcome:** Scope audit complete; Phase 1 boundaries established for collections recovery batch.
+
+---
+
 ### 2026-03-17 — Causality Divergence Investigation Complete ✅
 
 **Status:** COMPLETE — 3 tests added, 351/351 passing

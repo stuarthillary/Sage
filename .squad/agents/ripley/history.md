@@ -12,6 +12,32 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-07-16 — Collections Recovery Needs Hard Phase Boundaries
+
+**Status:** Recovery pass stabilized
+
+**Learning:** The rejected collections migration had mixed low-risk Phase 1 work with Phase 2/public-contract work. For recovery, keep Phase 1 limited to signature-preserving private/internal collection swaps in core/supporting internals, and explicitly leave Graph algorithms, PFC, Materials, `PortSet`, `WeakHashtable`, `WeakList`, and `HashtableOfLists` out unless separately approved.
+
+**Why it matters:** The immediate build failures came from graph-analysis files that should never have been part of the recovery pass. Restoring the branch to Phase 1 scope and validating with `dotnet build Sage.slnx`, `dotnet test tests\SageTestLib\Sage.Tests.csproj`, and `dotnet test tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj` returned the branch to a trustworthy state without expanding public-surface risk.
+
+### 2026-04-26 — Collections Recovery Batch Complete ✅
+
+**Status:** Complete
+
+**Batch Summary:**
+- Completed scope-creep reversion: removed Phase 2+ changes from working tree
+- Retained Phase 1-safe internal collection conversions (StringOperations adapter cleanup, GenericPort private store migration)
+- Fixed all active build breaks by reverting problematic scope-creep edits
+- Coordinated with Hudson on scope classification (Phase 1, Phase 2+ creep, ambiguous)
+
+**Verification:**
+- `dotnet build Sage.slnx`: 0 errors, 0 warnings ✅
+- `dotnet test tests\SageTestLib\Sage.Tests.csproj`: 271/271 passing ✅
+- `dotnet test tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj`: 22/22 passing ✅
+- Total: 351/351 tests passing ✅
+
+**Outcome:** Branch restored to trustworthy state with explicit Phase 1 boundaries. Ready for next phase of work.
+
 ### 2026-03-09 — CA Rules Enablement Analysis Complete ✅
 
 **Status:** Tier 1 analysis complete, decision pending
