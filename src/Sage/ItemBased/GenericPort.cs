@@ -4,6 +4,7 @@ using Highpoint.Sage.ItemBased.Connectors;
 using Highpoint.Sage.Core;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.ItemBased.Ports
@@ -20,7 +21,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         private int _makeBreakListeners = 0;
         private bool _intrinsic = false;
         private object? _defaultOutOfBandData;
-        private Hashtable? _outOfBandData;
+        private Dictionary<object, object?>? _outOfBandData;
         private int _portIndex = UnassignedIndex;
         #endregion
 
@@ -399,11 +400,7 @@ namespace Highpoint.Sage.ItemBased.Ports
         {
             if (_outOfBandData == null)
                 return null;
-            if (!_outOfBandData.ContainsKey(key))
-            {
-                return null;
-            }
-            return _outOfBandData[key];
+            return _outOfBandData.TryGetValue(key, out object? value) ? value : null;
         }
 
         /// <summary>
@@ -423,15 +420,8 @@ namespace Highpoint.Sage.ItemBased.Ports
         public void SetOutOfBandData(object key, object? outOfBandData)
         {
             if (_outOfBandData == null)
-                _outOfBandData = new Hashtable();
-            if (_outOfBandData.Contains(key))
-            {
-                _outOfBandData[key] = outOfBandData;
-            }
-            else
-            {
-                _outOfBandData.Add(key, outOfBandData);
-            }
+                _outOfBandData = new Dictionary<object, object?>();
+            _outOfBandData[key] = outOfBandData;
         }
 
         /// <summary>

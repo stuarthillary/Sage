@@ -1,6 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Resources
 {
@@ -13,7 +14,7 @@ namespace Highpoint.Sage.Resources
     public class ResourceManagerCollection : IResourceManagerCollection
     {
 
-        private readonly Hashtable _resourceMgrs;
+        private readonly Dictionary<Guid, IResourceManager> _resourceMgrs;
         private readonly IResourceManagerCollection _wrappedByWhom;
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace Highpoint.Sage.Resources
         /// </summary>
         public ResourceManagerCollection()
         {
-            _resourceMgrs = new Hashtable();
+            _resourceMgrs = new Dictionary<Guid, IResourceManager>();
             _wrappedByWhom = this;
         }
 
@@ -31,7 +32,7 @@ namespace Highpoint.Sage.Resources
         /// <param name="whoDelegatesToMe">The who delegates to me.</param>
         public ResourceManagerCollection(IResourceManagerCollection whoDelegatesToMe)
         {
-            _resourceMgrs = new Hashtable();
+            _resourceMgrs = new Dictionary<Guid, IResourceManager>();
             _wrappedByWhom = whoDelegatesToMe;
         }
 
@@ -63,7 +64,7 @@ namespace Highpoint.Sage.Resources
         /// <returns>The resource manager for the quid that was requested.</returns>
         public IResourceManager? GetResourceManager(Guid guid)
         {
-            return _resourceMgrs[guid] as IResourceManager;
+            return _resourceMgrs.TryGetValue(guid, out IResourceManager? mgr) ? mgr : null;
         }
 
         /// <summary>

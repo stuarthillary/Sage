@@ -1,7 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Utility;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -38,7 +37,7 @@ namespace Highpoint.Sage.Scheduling
         private bool _hasDuration;
         private TimeAdjustmentMode _adjustmentMode;
         private Stack<TimeAdjustmentMode>? _adjustmentModeStack;
-        private ArrayList? _adjustmentModeRelationships;
+        private List<MilestoneRelationship>? _adjustmentModeRelationships;
         private readonly string _name;
         private Guid _guid;
         private readonly string _description = "";
@@ -124,7 +123,7 @@ namespace Highpoint.Sage.Scheduling
             if (_supportsReactiveAdjustment)
             {
                 _adjustmentModeStack = new Stack<TimeAdjustmentMode>();
-                _adjustmentModeRelationships = new ArrayList();
+                _adjustmentModeRelationships = new List<MilestoneRelationship>();
 
                 // These two are always present, and always active, therefore we do not put them in the
                 // arraylist of internal (i.e. clearable) relationships. A TimePeriod can NEVER end before it starts.
@@ -151,7 +150,7 @@ namespace Highpoint.Sage.Scheduling
             {
                 if (_supportsReactiveAdjustment)
                 {
-                    _adjustmentModeRelationships ??= new ArrayList();
+                    _adjustmentModeRelationships ??= new List<MilestoneRelationship>();
                     // Clear existing relationships.
                     foreach (MilestoneRelationship mr in _adjustmentModeRelationships)
                     {

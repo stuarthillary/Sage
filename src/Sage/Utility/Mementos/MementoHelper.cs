@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using System.Collections;
+using System.Collections.Generic;
 
 #pragma warning disable 1587
 /// <summary>
@@ -24,8 +24,8 @@ namespace Highpoint.Sage.Utility.Mementos
         private readonly ISupportsMementos _iss;
         private readonly MementoChangeEvent _childChangeHandler;
         private readonly bool _wrappeeReportsOwnChanges;
-        private ArrayList? _children;        // children who report their own changes.
-        private ArrayList? _problemChildren; // children who can't report their own changes.
+        private List<ISupportsMementos>? _children;        // children who report their own changes.
+        private List<ISupportsMementos>? _problemChildren; // children who can't report their own changes.
         private bool _hasChanged = true;
         #endregion
 
@@ -68,7 +68,7 @@ namespace Highpoint.Sage.Utility.Mementos
             if (child.ReportsOwnChanges)
             {
                 if (_children == null)
-                    _children = new ArrayList();
+                    _children = new List<ISupportsMementos>();
                 if (!_children.Contains(child))
                 {
                     _children.Add(child);
@@ -78,7 +78,7 @@ namespace Highpoint.Sage.Utility.Mementos
             else
             {
                 if (_problemChildren == null)
-                    _problemChildren = new ArrayList();
+                    _problemChildren = new List<ISupportsMementos>();
                 if (!_problemChildren.Contains(child))
                 {
                     _problemChildren.Add(child);

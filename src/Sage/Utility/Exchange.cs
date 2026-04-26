@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Highpoint.Sage.Core;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 // ReSharper disable InconsistentlySynchronizedField
 
 namespace Highpoint.Sage.Utility
@@ -18,10 +18,10 @@ namespace Highpoint.Sage.Utility
         private static readonly double _takePriority = _readPriority - double.Epsilon;
         private static readonly double _postPriority = _takePriority - double.Epsilon;
         private readonly IExecutive _exec;
-        private readonly Hashtable _ts;
+        private readonly Dictionary<object, ITuple> _ts;
         private readonly HashtableOfLists<object, IDetachableEventController> _waitersToRead;
         private readonly HashtableOfLists<object, IDetachableEventController> _waitersToTake;
-        private readonly Hashtable _blockedPosters;
+        private readonly Dictionary<object, IDetachableEventController> _blockedPosters;
         #endregion
 
         /// <summary>
@@ -33,10 +33,10 @@ namespace Highpoint.Sage.Utility
             _exec = exec;
             // TODO: Add a GracefulAbort(...) to IDetachableEventController. 
             // exec.ExecutiveFinished +=new ExecutiveEvent(exec_ExecutiveFinished);
-            _ts = Hashtable.Synchronized(new Hashtable());
+            _ts = new Dictionary<object, ITuple>();
             _waitersToRead = new HashtableOfLists<object, IDetachableEventController>();
             _waitersToTake = new HashtableOfLists<object, IDetachableEventController>();
-            _blockedPosters = new Hashtable();
+            _blockedPosters = new Dictionary<object, IDetachableEventController>();
         }
 
         #region ITupleSpace Members
@@ -119,7 +119,7 @@ namespace Highpoint.Sage.Utility
             ITuple? tuple;
             lock (_ts)
             {
-                tuple = _ts[key] as ITuple;
+                _ts.TryGetValue(key, out tuple);
             }
             if (tuple != null)
             {
@@ -196,7 +196,7 @@ namespace Highpoint.Sage.Utility
         }
         private ITuple? NonBlockingRead(object key)
         {
-            ITuple? tuple = _ts[key] as ITuple;
+            ITuple? tuple = _ts.GetValueOrDefault(key);
             if (tuple != null)
             {
                 tuple.OnRead(this);
@@ -234,7 +234,7 @@ namespace Highpoint.Sage.Utility
             ITuple? tuple;
             lock (_ts)
             {
-                tuple = _ts[key] as ITuple;
+                _ts.TryGetValue(key, out tuple);
                 if (tuple != null)
                 {
 
@@ -242,7 +242,7 @@ namespace Highpoint.Sage.Utility
                     tuple.OnTaken(this);
                     TupleTaken?.Invoke(this, tuple);
 
-                    IDetachableEventController? blockedPoster = _blockedPosters[tuple.Key] as IDetachableEventController;
+                    _blockedPosters.TryGetValue(tuple.Key, out IDetachableEventController? blockedPoster);
                     if (blockedPoster != null)
                     {
                         _blockedPosters.Remove(tuple.Key);

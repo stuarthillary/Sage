@@ -387,7 +387,7 @@ namespace Highpoint.Sage.Core
         }
 
         protected HashtableOfLists<object, IModelError> errors = new HashtableOfLists<object, IModelError>();
-        protected ArrayList ErrorHandlers = new ArrayList();
+        protected List<IErrorHandler> ErrorHandlers = new List<IErrorHandler>();
 
         /// <summary>
         /// Fired when an error happens in (is added to) a model.
@@ -508,7 +508,7 @@ namespace Highpoint.Sage.Core
         /// </summary>
         public void RemoveAutoclearedErrors()
         {
-            ArrayList keysToClear = new ArrayList();
+            List<object> keysToClear = new List<object>();
             foreach (IModelError err in errors)
             {
                 if (err.Target is Task)

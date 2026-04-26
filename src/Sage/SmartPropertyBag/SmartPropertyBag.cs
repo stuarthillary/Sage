@@ -3,6 +3,7 @@ using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Utility.Mementos;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using _Debug = System.Diagnostics.Debug;
 // ReSharper disable UnusedMember.Local
@@ -58,7 +59,7 @@ namespace Highpoint.Sage.Core
         private readonly MementoHelper _ssh;
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("SmartPropertyBag");
         private readonly WriteLock _writeLock = new WriteLock(true);
-        private readonly IDictionary _dictionary = new Hashtable();
+        private readonly IDictionary _dictionary = new Dictionary<string, object?>();
         private IMemento? _memento;
 
         #endregion Private Fields
@@ -939,7 +940,7 @@ namespace Highpoint.Sage.Core
         /// <returns>An enumerator that cycles through all of the entries in this SPB.</returns>
         public IEnumerator GetEnumerator()
         {
-            ArrayList al = new ArrayList();
+            var al = new List<HierarchicalDictionaryEntry>();
             foreach (DictionaryEntry de in _dictionary)
             {
                 IHasValue? value = de.Value as IHasValue;
@@ -1104,9 +1105,9 @@ namespace Highpoint.Sage.Core
         {
             if (!_writeLock.IsWritable)
                 throw new WriteProtectionViolationException(this, _writeLock);
-            ArrayList keys = new ArrayList();
+            var keys = new List<string>();
             foreach (DictionaryEntry de in _dictionary)
-                keys.Add(de.Key);
+                keys.Add((string)de.Key);
             foreach (string key in keys)
             {
                 WriteLock? cwl = _dictionary[key] as WriteLock;
@@ -1410,7 +1411,7 @@ namespace Highpoint.Sage.Core
         {
 
             #region Private Fields
-            private readonly IDictionary _mementoDict;
+            private readonly Dictionary<string, IMemento> _mementoDict;
             private readonly SmartPropertyBag _spb;
 
             #endregion
@@ -1418,14 +1419,7 @@ namespace Highpoint.Sage.Core
             public SmartPropertyBagMemento(SmartPropertyBag spb)
             {
                 _spb = spb;
-                if (spb._dictionary.Count <= 10)
-                {
-                    _mementoDict = new ListDictionary();
-                }
-                else
-                {
-                    _mementoDict = new Hashtable();
-                }
+                _mementoDict = new Dictionary<string, IMemento>();
                 foreach (DictionaryEntry de in spb._dictionary)
                 {
                     ISupportsMementos? value = de.Value as ISupportsMementos;
@@ -1434,7 +1428,7 @@ namespace Highpoint.Sage.Core
                         ISupportsMementos val = value;
                         IMemento memento = val.Memento;
                         memento.Parent = this;
-                        _mementoDict.Add(de.Key, memento);
+                        _mementoDict.Add((string)de.Key, memento);
                     }
                     else
                     {
@@ -1476,20 +1470,16 @@ namespace Highpoint.Sage.Core
                 // register for a callback after deserialization completes.
                 // 
 
-                ArrayList dictEntries = new ArrayList();
-                foreach (DictionaryEntry de in _mementoDict)
-                {
-                    dictEntries.Add(de);
-                }
+                var dictEntries = new List<KeyValuePair<string, IMemento>>(_mementoDict);
 
-                foreach (DictionaryEntry de in dictEntries)
+                foreach (var de in dictEntries)
                 {
 
                     if (_diagnostics)
                         _Debug.WriteLine("Reloading " + spb + " with " + de.Key + " = " + de.Value);
-                    string key = (string)de.Key;
-                    ISupportsMementos child = ((IMemento)de.Value!).CreateTarget();
-                    ((IMemento)de.Value!).Load(child);
+                    string key = de.Key;
+                    ISupportsMementos child = de.Value.CreateTarget();
+                    de.Value.Load(child);
 
                     spb.AddSnapshottable(key, child);
                 }
@@ -1502,10 +1492,10 @@ namespace Highpoint.Sage.Core
             public ISupportsMementos CreateTarget()
             {
                 _spb._dictionary.Clear();
-                foreach (DictionaryEntry de in _mementoDict)
+                foreach (var de in _mementoDict)
                 {
-                    string key = (string)de.Key;
-                    object val = ((IMemento)de.Value!).CreateTarget();
+                    string key = de.Key;
+                    object val = de.Value.CreateTarget();
                     _spb.AddSPBEntry(key, val);
                 }
                 return _spb;
@@ -1513,10 +1503,10 @@ namespace Highpoint.Sage.Core
 
             public IDictionary GetDictionary()
             {
-                Hashtable retval = new Hashtable();
-                foreach (DictionaryEntry de in _mementoDict)
+                var retval = new Dictionary<string, IDictionary>();
+                foreach (var de in _mementoDict)
                 {
-                    retval.Add(de.Key, ((IMemento)de.Value!).GetDictionary());
+                    retval.Add(de.Key, de.Value.GetDictionary());
                 }
                 return retval;
             }

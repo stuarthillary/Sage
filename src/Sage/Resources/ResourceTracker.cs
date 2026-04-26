@@ -2,6 +2,7 @@
 
 using _Debug = System.Diagnostics.Debug;
 using System.Collections;
+using System.Collections.Generic;
 using Highpoint.Sage.Core;
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -23,7 +24,7 @@ namespace Highpoint.Sage.Resources
 
         #region Private Fields
         private static readonly bool _diagnostics = Diagnostics.DiagnosticAids.Diagnostics("ResourceTracker");
-        private readonly ArrayList _record;
+        private readonly List<ResourceEventRecord> _record;
         private readonly IResource _target;
         private readonly IModel _model;
         private ResourceEventRecordFilter? _rerFilter;
@@ -44,7 +45,7 @@ namespace Highpoint.Sage.Resources
 			_target.UnreservedEvent+= target_UnreservedEvent;
 			_target.AcquiredEvent  += target_AcquiredEvent;
 			_target.ReleasedEvent  += target_ReleasedEvent;
-			_record = new ArrayList();
+			_record = new List<ResourceEventRecord>();
 			if ( _diagnostics ) _Debug.WriteLine(_model.Executive.Now + " : Created a Resource Tracker focused on " + _target.Name + " (" + _target.Guid + ").");
 		}
 
@@ -62,7 +63,7 @@ namespace Highpoint.Sage.Resources
 		/// <summary>
 		/// Returns all event records that have been collected
 		/// </summary>
-		public ICollection EventRecords => ArrayList.ReadOnly(_record);
+		public ICollection EventRecords => _record.AsReadOnly();
 
         /// <summary>
 		/// The InitialAvailable(s) of all resources that are being tracked

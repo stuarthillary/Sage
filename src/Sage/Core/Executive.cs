@@ -1291,7 +1291,7 @@ namespace Highpoint.Sage.Core
         {
             if (_dumpVolatileClearing)
                 _Debug.WriteLine("---------------------- C L E A R I N G   V O L A T I L E S --------------------------------");
-            ArrayList entriesToRemove = new ArrayList();
+            List<object> entriesToRemove = new List<object>();
             foreach (DictionaryEntry de in dictionary)
             {
 

@@ -3,7 +3,6 @@ using Highpoint.Sage.ItemBased.Ports;
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Highpoint.Sage.ItemBased.Servers
@@ -16,7 +15,7 @@ namespace Highpoint.Sage.ItemBased.Servers
         private readonly SimpleInputPort _entryPort;
         private readonly SimpleOutputPort _exitPort;
         TimeSpanDistribution _timeSpanDistribution = null!; // Set in ctor.
-        private readonly ArrayList _inService;
+        private readonly List<object> _inService;
         private readonly int _capacity;
         private int _pending;
         private readonly ExecEventReceiver _releaseObject;
@@ -53,7 +52,7 @@ namespace Highpoint.Sage.ItemBased.Servers
 
             _releaseObject = new ExecEventReceiver(ReleaseObject);
 
-            _inService = new ArrayList();
+            _inService = new List<object>();
             _pending = 0;
 
             IMOHelper.RegisterWithModel(this);

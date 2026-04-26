@@ -3,6 +3,7 @@
 using Highpoint.Sage.Core;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -16,8 +17,8 @@ namespace Highpoint.Sage.Resources
     {
 
         #region Private Members
-        private readonly ArrayList _record;
-        private readonly ArrayList _targets;
+        private readonly List<ResourceEventRecord> _record;
+        private readonly List<object> _targets;
         private readonly IModel? _model;
         private bool _enabled = true;
         private static bool _allEnabled = true;
@@ -32,8 +33,8 @@ namespace Highpoint.Sage.Resources
         public MultiResourceTracker(IModel model)
         {
             _model = model;
-            _record = new ArrayList();
-            _targets = new ArrayList();
+            _record = new List<ResourceEventRecord>();
+            _targets = new List<object>();
             _rerFilter = ResourceEventRecordFilters.AllEvents;
         }
 
@@ -43,9 +44,9 @@ namespace Highpoint.Sage.Resources
         /// <param name="trackers">The trackers that are aggregated by this <see cref="T:MultiResourceTracker"/>.</param>
 		public MultiResourceTracker(IResourceTracker[] trackers)
         {
-            _record = new ArrayList();
+            _record = new List<ResourceEventRecord>();
             _model = null;
-            _targets = new ArrayList(trackers);
+            _targets = new List<object>(trackers);
             _rerFilter = ResourceEventRecordFilters.AllEvents;
         }
 
@@ -88,7 +89,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Returns all event records that have been collected
         /// </summary>
-        public ICollection EventRecords => ArrayList.ReadOnly(_record);
+        public ICollection EventRecords => _record.AsReadOnly();
 
         /// <summary>
         /// The sum of the InitialAvailable(s) of all resources that are being tracked
@@ -163,9 +164,11 @@ namespace Highpoint.Sage.Resources
         {
             if (clearAllFirst)
                 _record.Clear();
-            _record.AddRange(bulkRecords);
+            _record.AddRange(bulkRecords.Cast<ResourceEventRecord>());
             if (sortCriteria != null)
-                _record.Sort(sortCriteria);
+            {
+                _record.Sort((a, b) => sortCriteria.Compare(a, b));
+            }
         }
 
         /// <summary>

@@ -276,7 +276,7 @@ namespace Highpoint.Sage.Scheduling
 
             #region Private Fields
             private static readonly object _lock = new object();
-            private static Hashtable _oldValues = new Hashtable();
+            private static Dictionary<Milestone, DateTime> _oldValues = new Dictionary<Milestone, DateTime>();
             private static Stack<MilestoneRelationship> _pushedDisablings = new Stack<MilestoneRelationship>();
             private static Queue<Milestone> _changedMilestones = new Queue<Milestone>();
             #endregion
@@ -304,8 +304,7 @@ namespace Highpoint.Sage.Scheduling
                     // Finally, tell each changed milestone to fire it's change event.
                     foreach (Milestone changed in _oldValues.Keys)
                     {
-                        if (_oldValues[changed] is DateTime oldValue)
-                            changed.NotifyValueChanged(oldValue);
+                        changed.NotifyValueChanged(_oldValues[changed]);
                     }
 
                     // And reset the data structures for the next use.
@@ -324,8 +323,8 @@ namespace Highpoint.Sage.Scheduling
                     if (_debug)
                         _Debug.WriteLine("\tPerforming propagation of change to " + ms.Name);
 
-                    #region Create a Hashtable of Lists - key is target Milestone, list contains relationships to that ms.
-                    Hashtable htol = new Hashtable();
+                    #region Create a Dictionary of Lists - key is target Milestone, list contains relationships to that ms.
+                    var htol = new Dictionary<Milestone, List<MilestoneRelationship>>();
                     foreach (MilestoneRelationship mr in ms.Relationships)
                     {
                         if (!mr.Enabled)
@@ -336,10 +335,10 @@ namespace Highpoint.Sage.Scheduling
                         if (dependent.Equals(ms))
                             continue;  // Only relationships where we are the independent can effect change.
                                         //if ( m_debug ) _Debug.WriteLine("\tConsidering " + mr.ToString());
-                        if (!htol.Contains(dependent))
-                            htol.Add(dependent, new ArrayList());
-                        if (htol[dependent] is ArrayList list)
-                            list.Add(mr);  // We now have outbounds, grouped by destination milestone.
+                        Milestone depMs = (Milestone)dependent;
+                        if (!htol.ContainsKey(depMs))
+                            htol.Add(depMs, new List<MilestoneRelationship>());
+                        htol[depMs].Add(mr);  // We now have outbounds, grouped by destination milestone.
                     }
                     #endregion
 
@@ -356,7 +355,7 @@ namespace Highpoint.Sage.Scheduling
                             // E : RCV Liquid1.Xfer-In.Start and E : RCV Liquid1.Xfer-In.End
 
                         }
-                        if (htol[target] is not ArrayList relationships)
+                        if (htol[target] is not List<MilestoneRelationship> relationships)
                             continue;
 
                         //						if ( ms.Name.Equals("B : RCV Liquid1.Xfer-In.Start") && target.Name.Equals("B : RCV Liquid1.Temp-Set.End") ) {
@@ -399,7 +398,7 @@ namespace Highpoint.Sage.Scheduling
                                     _Debug.WriteLine("\t\t\tWe will move " + target.Name + " from " + target.DateTime + " to " + newDateTime);
                                 if (!_changedMilestones.Contains(target))
                                     _changedMilestones.Enqueue(target);
-                                if (!_oldValues.Contains(target))
+                                if (!_oldValues.ContainsKey(target))
                                     _oldValues.Add(target, target._dateTime);
                                 if (fullData)
                                     if (_debug)

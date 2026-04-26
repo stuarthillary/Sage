@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -22,7 +22,7 @@ namespace Highpoint.Sage.Core
         #region Private Fields
 
         private bool _writable;
-        private readonly ArrayList _children;
+        private readonly List<WriteLock> _children;
         private string? _whereApplied;
         private static readonly bool _locationTracingEnabled = Diagnostics.DiagnosticAids.Diagnostics("WriteLockTracing");
 
@@ -35,7 +35,7 @@ namespace Highpoint.Sage.Core
         public WriteLock(bool initiallyWritable)
         {
             _writable = initiallyWritable;
-            _children = new ArrayList();
+            _children = new List<WriteLock>();
             if (!_locationTracingEnabled)
                 _whereApplied = _tracing_Off_Msg;
         }
@@ -79,9 +79,9 @@ namespace Highpoint.Sage.Core
             }
             _writable = writable;
             WritabilityChanged?.Invoke(_writable);
-            foreach (var obj in _children)
+            foreach (WriteLock child in _children)
             {
-                ((WriteLock)obj).SetWritable(writable);
+                child.SetWritable(writable);
             }
         }
         /// <summary>

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Core
@@ -16,7 +17,7 @@ namespace Highpoint.Sage.Core
     {
         private readonly IModel _model;
         private readonly IExecutive _exec;
-        private readonly ArrayList _synchChannels;
+        private readonly List<ISynchChannel> _synchChannels;
         private readonly SortedList _waiters;
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace Highpoint.Sage.Core
         {
             _model = model;
             _exec = _model.Executive;
-            _synchChannels = new ArrayList();
+            _synchChannels = new List<ISynchChannel>();
             _waiters = new SortedList();
         }
 

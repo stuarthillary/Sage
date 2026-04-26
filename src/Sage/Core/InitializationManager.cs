@@ -233,7 +233,7 @@ namespace Highpoint.Sage.Core
                 catch (GraphCycleException gce)
                 {
 
-                    IList cycleMembers = (ArrayList)gce.Members;
+                    IList cycleMembers = gce.Members;
                     System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
                     for (int i = 0; i < cycleMembers.Count; i++)
@@ -316,7 +316,7 @@ namespace Highpoint.Sage.Core
             private string? _name;
             private Initializer? _initializer;
             private Guid _myGuid;
-            private readonly ArrayList _predecessors;
+            private readonly List<Dv> _predecessors;
             private object?[]? _parameters;
 
             public Dv(Guid myGuid)
@@ -324,7 +324,7 @@ namespace Highpoint.Sage.Core
                 _myGuid = myGuid;
                 _name = null;
                 _initializer = null;
-                _predecessors = new ArrayList();
+                _predecessors = new List<Dv>();
                 _parameters = null;
             }
 

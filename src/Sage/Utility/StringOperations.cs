@@ -109,8 +109,7 @@ namespace Highpoint.Sage.Utility
         /// <returns>the string representation.</returns>
         public static string ToCommasAndAndedList(System.Collections.ArrayList alist)
         {
-            // Uses an adapter class built solely for this purpose. See below.
-            return ToCommasAndAndedList(new ArrayListToIEnumOfStr(alist));
+            return ToCommasAndAndedList(alist.Cast<object?>().Select(item => item?.ToString() ?? string.Empty));
         }
 
         /// <summary>
@@ -135,52 +134,6 @@ namespace Highpoint.Sage.Utility
         {
             return ToCommasAndAndedList(list.ConvertAll(n => n.Name));
         }
-
-        #region Private Support Class
-        /// <summary>
-        /// A wrapper, used only in this class, to morph an arraylist that I know is going to be converted
-        /// to strings, into an IEnumerable of strings - this way the same algo code as others can be used.
-        /// </summary>
-        private class ArrayListToIEnumOfStr : IEnumerable<string>
-        {
-            private readonly System.Collections.ArrayList _alist;
-            public ArrayListToIEnumOfStr(System.Collections.ArrayList alist)
-            {
-                _alist = alist;
-            }
-            public IEnumerator<string> GetEnumerator()
-            {
-                return new EnumOfStr(_alist);
-            }
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return _alist.GetEnumerator();
-            }
-
-            private class EnumOfStr : IEnumerator<string>
-            {
-                private readonly System.Collections.IEnumerator m_ienum;
-                public EnumOfStr(System.Collections.ArrayList alist)
-                {
-                    m_ienum = alist.GetEnumerator();
-                }
-                public string Current => m_ienum.Current?.ToString() ?? string.Empty;
-                object System.Collections.IEnumerator.Current => m_ienum.Current?.ToString() ?? string.Empty;
-                void IDisposable.Dispose()
-                {
-                }
-                public bool MoveNext()
-                {
-                    return m_ienum.MoveNext();
-                }
-                public void Reset()
-                {
-                    m_ienum.Reset();
-                }
-            }
-        }
-
-        #endregion 
 
         /// <summary>
         /// Returns a unique string in the context of the strings already in the collection. By default, if Dog exists in the list,

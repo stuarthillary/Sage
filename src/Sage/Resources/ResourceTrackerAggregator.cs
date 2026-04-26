@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -62,8 +63,8 @@ namespace Highpoint.Sage.Resources
 
 #region Private Fields
 
-        private readonly ArrayList _records;
-        private readonly ArrayList _targets;
+        private readonly List<ResourceEventRecord> _records;
+        private readonly List<IResource> _targets;
 
 #endregion
 
@@ -72,18 +73,19 @@ namespace Highpoint.Sage.Resources
 		/// </summary>
 		/// <param name="trackers">The trackers to consolidate</param>
 		public ResourceTrackerAggregator(IEnumerable trackers){
-			_records = new ArrayList();
-			_targets = new ArrayList();
+			_records = new List<ResourceEventRecord>();
+			_targets = new List<IResource>();
 
 		    // ReSharper disable once LoopCanBePartlyConvertedToQuery (Much clearer this way.)
 			foreach(IResourceTracker rt in trackers) {
 				foreach(ResourceEventRecord rer in rt.EventRecords) {
-					if(!_targets.Contains(rer.Resource)) _targets.Add(rer.Resource);
+					if(rer.Resource != null && !_targets.Contains(rer.Resource)) _targets.Add(rer.Resource);
 					_records.Add(rer);
 				} // end foreach rer
 			} // end foreach rt
 
-			_records.Sort(ResourceEventRecord.BySerialNumber(false));
+			var comparer = ResourceEventRecord.BySerialNumber(false);
+			_records.Sort((a, b) => comparer.Compare(a, b));
 		} // end ResourceTrackerAggregator
 
 #region IResourceTracker Members
@@ -111,7 +113,7 @@ namespace Highpoint.Sage.Resources
 		/// <summary>
 		/// Returns all event records that have been collected
 		/// </summary>
-		public ICollection EventRecords => ArrayList.ReadOnly(_records);
+		public ICollection EventRecords => _records.AsReadOnly();
 
 	    /// <summary>
 		/// The InitialAvailable(s) of all resources that are being tracked
@@ -135,7 +137,7 @@ namespace Highpoint.Sage.Resources
         /// </returns>
 		[Obsolete("Use EventRecords getter instead")]
 		public IEnumerator GetEnumerator() {
-			return _records.GetEnumerator();
+			return ((IEnumerable<ResourceEventRecord>)_records).GetEnumerator();
 		}
 
 

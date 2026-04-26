@@ -2,7 +2,7 @@
 using Highpoint.Sage.Resources;
 using Highpoint.Sage.Core;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.ItemBased.Servers
 {
@@ -18,7 +18,7 @@ namespace Highpoint.Sage.ItemBased.Servers
     {
 
         private IResourceRequest[] _requestTemplates;
-        private readonly Hashtable _resourcesInUse;
+        private readonly Dictionary<object, IResourceRequest[]> _resourcesInUse;
         private readonly bool _useBlockingCalls = false;
 
         public ResourceServer(IModel model, string name, Guid guid, IPeriodicity periodicity, IResourceRequest[] requestTemplates)
@@ -29,7 +29,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             if (_requestTemplates == null)
                 _requestTemplates = Array.Empty<IResourceRequest>();
 
-            _resourcesInUse = new Hashtable();
+            _resourcesInUse = new Dictionary<object, IResourceRequest[]>();
 
             foreach (IResourceRequest irr in _requestTemplates)
                 if (irr.DefaultResourceManager == null)
@@ -74,7 +74,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             {
                 return;
             }
-            if (_resourcesInUse[obj] is not IResourceRequest[] replicates)
+            if (!_resourcesInUse.TryGetValue(obj, out IResourceRequest[]? replicates))
             {
                 return;
             }
@@ -87,7 +87,7 @@ namespace Highpoint.Sage.ItemBased.Servers
             {
                 return;
             }
-            if (_resourcesInUse[obj] is not IResourceRequest[] replicates)
+            if (!_resourcesInUse.TryGetValue(obj, out IResourceRequest[]? replicates))
             {
                 return;
             }

@@ -1,6 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using System.Collections;
 using System.Collections.Generic;
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable ClassNeverInstantiated.Global
@@ -89,7 +88,7 @@ namespace Highpoint.Sage.Resources
                 return ReserveAllWithWait(ref requests);
 
             bool successful = true;
-            ArrayList successes = new ArrayList(requests.Length);
+            List<IResourceRequest> successes = new List<IResourceRequest>(requests.Length);
             int i = 0;
             for (; i < requests.GetLength(0); i++)
             {
@@ -143,7 +142,7 @@ namespace Highpoint.Sage.Resources
             // recently failed is still at the head of the queue, and is the one that
             // is reserved with a wait-lock.
 
-            Hashtable successes = new Hashtable();
+            HashSet<IResourceRequest> successes = new HashSet<IResourceRequest>();
             Queue<IResourceRequest> rscQueue = new Queue<IResourceRequest>();
 
             #region >>> Load the queue with the resource requests. <<< 
@@ -172,7 +171,7 @@ namespace Highpoint.Sage.Resources
                 else
                 {
                     rscQueue.Enqueue(rscQueue.Dequeue()); // Send the successful request to the back of the queue.
-                    successes.Add(rp, rp);
+                    successes.Add(rp);
                 }
             }
             //			if ( rscQueue.Count == 0 ) {

@@ -2,15 +2,16 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.ItemBased.Queues
 {
     public class OldestShortestQueueStrategy : ISelectionStrategy
     {
 
-        ICollection _queues = new ArrayList();
+        ICollection _queues = new List<IQueue>();
         readonly QueueLevelChangeEvent _qlce;
-        readonly ArrayList _queueList = new ArrayList();
+        private readonly List<Queue> _queueList = new List<Queue>();
 
         public OldestShortestQueueStrategy()
         {
@@ -44,7 +45,7 @@ namespace Highpoint.Sage.ItemBased.Queues
             Queue nextQueue;
             lock (_queues)
             {
-                nextQueue = _queueList[0] as Queue ?? throw new ApplicationException("Queue selector has no queues to select from.");
+                nextQueue = _queueList[0];
                 _queueList.RemoveAt(0);
             }
             return nextQueue;
@@ -52,19 +53,18 @@ namespace Highpoint.Sage.ItemBased.Queues
 
         private void OnQueueLevelChanged(int previous, int current, IQueue queue)
         {
-            if (_queueList.Contains(queue))
-                _queueList.Remove(queue); // Should already be gone, from the GetNext.
+            _queueList.Remove((Queue)queue); // Removes if present; already gone from GetNext.
             int i = 0;
             while (i < _queueList.Count)
             {
-                if (_queueList[i] is Queue queued && queued.Count <= queue.Count)
+                if (_queueList[i].Count <= queue.Count)
                 {
                     i++;
                     continue;
                 }
                 break;
             }
-            _queueList.Insert(i, queue);
+            _queueList.Insert(i, (Queue)queue);
         }
     }
 }

@@ -3,6 +3,7 @@
 using Highpoint.Sage.Core;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Utility
 {
@@ -21,7 +22,7 @@ namespace Highpoint.Sage.Utility
     {
 
         #region Private Fields
-        private readonly Hashtable _dictionary;
+        private readonly IDictionary _dictionary;
         #endregion Private Fields
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace Highpoint.Sage.Utility
         public ExecutionContext(IModel model, string name, string description, Guid guid, ExecutionContext parent)
         {
             IsSelfReferential = true;
-            _dictionary = new Hashtable();
+            _dictionary = new Dictionary<object, object?>();
             InitializeIdentity(model, name, description, guid);
             // We skip structural checking, since we just created this node, so it cannot be a child or other
             // descendant of the parent.

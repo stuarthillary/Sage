@@ -31,8 +31,8 @@ namespace Highpoint.Sage.Scheduling
         /// <summary>
         /// A list of the reciprocal relationships to this relationship.
         /// </summary>
-        protected ArrayList reciprocals = empty_List;
-        private static readonly ArrayList empty_List = ArrayList.ReadOnly(new ArrayList());
+        protected List<MilestoneRelationship> reciprocals = empty_List;
+        private static readonly List<MilestoneRelationship> empty_List = new List<MilestoneRelationship>();
         #endregion
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Highpoint.Sage.Scheduling
         {
             if (reciprocals == empty_List)
             {
-                reciprocals = new ArrayList();
+                reciprocals = new List<MilestoneRelationship>();
             }
             reciprocals.Add(reciprocal);
         }
@@ -162,8 +162,7 @@ namespace Highpoint.Sage.Scheduling
         /// <param name="reciprocal">The reciprocal.</param>
         public void RemoveReciprocal(MilestoneRelationship reciprocal)
         {
-            if (reciprocals.Contains(reciprocal))
-                reciprocals.Remove(reciprocal);
+            reciprocals.Remove(reciprocal);
         }
 
         /// <summary>
@@ -183,7 +182,7 @@ namespace Highpoint.Sage.Scheduling
         {
             get
             {
-                return ArrayList.ReadOnly(reciprocals);
+                return reciprocals.AsReadOnly();
             }
         }
         #endregion

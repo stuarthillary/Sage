@@ -61,7 +61,7 @@ namespace Highpoint.Sage.Core
         {
             if (retainHardReference)
             {
-                _dictionary = new Hashtable();
+                _dictionary = new Dictionary<Guid, IModelObject>();
             }
             else
             {

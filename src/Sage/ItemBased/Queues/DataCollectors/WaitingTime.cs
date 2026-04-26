@@ -2,7 +2,7 @@
 using Highpoint.Sage.Mathematics;
 using Highpoint.Sage.Core;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
 {
@@ -12,8 +12,8 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
     public class WaitingTime : IModelObject
     {
         private readonly IQueue _hostQueue;
-        private readonly ArrayList _data;
-        private readonly Hashtable _occupants;
+        private readonly List<TimeSpan> _data;
+        private readonly Dictionary<object, DateTime> _occupants;
         private readonly int _nBins;
         private Histogram1D_TimeSpan? _hist = null;
 
@@ -33,8 +33,8 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
             _hostQueue = hostQueue;
             _hostQueue.ObjectEnqueued += new QueueOccupancyEvent(hostQueue_ObjectEnqueued);
             _hostQueue.ObjectDequeued += new QueueOccupancyEvent(hostQueue_ObjectDequeued);
-            _data = new ArrayList();
-            _occupants = new Hashtable();
+            _data = new List<TimeSpan>();
+            _occupants = new Dictionary<object, DateTime>();
 
             IMOHelper.RegisterWithModel(this);
         }
@@ -99,7 +99,7 @@ namespace Highpoint.Sage.ItemBased.Queues.DataCollectors
             {
                 return;
             }
-            if (_occupants[serviceItem] is not DateTime entry)
+            if (!_occupants.TryGetValue(serviceItem, out DateTime entry))
             {
                 return;
             }

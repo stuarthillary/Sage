@@ -1,6 +1,5 @@
 /* This source code licensed under the GNU Affero General Public License */
 
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Highpoint.Sage.Resources
@@ -25,7 +24,7 @@ namespace Highpoint.Sage.Resources
 
         #region Private Fields
 
-        private readonly Hashtable _monitoredObjects;
+        private readonly Dictionary<IResource, Stack<IAccessRegulator>> _monitoredObjects;
         private readonly bool _autoDeleteEmptyStacks;
         private Stack<IAccessRegulator>? _defaultAccessRegulators;
 
@@ -46,7 +45,7 @@ namespace Highpoint.Sage.Resources
         public SimpleAccessManager(bool autoDeleteEmptyStacks)
         {
             _autoDeleteEmptyStacks = autoDeleteEmptyStacks;
-            _monitoredObjects = new Hashtable();
+            _monitoredObjects = new Dictionary<IResource, Stack<IAccessRegulator>>();
             _defaultAccessRegulators = new Stack<IAccessRegulator>();
         }
 
@@ -66,8 +65,7 @@ namespace Highpoint.Sage.Resources
             }
             else
             {
-                Stack<IAccessRegulator>? stack = (Stack<IAccessRegulator>?)_monitoredObjects[subject];
-                if (stack == null)
+                if (!_monitoredObjects.TryGetValue(subject, out Stack<IAccessRegulator>? stack))
                 {
                     stack = new Stack<IAccessRegulator>();
                     _monitoredObjects.Add(subject, stack);
@@ -93,8 +91,7 @@ namespace Highpoint.Sage.Resources
             }
             else
             {
-                Stack<IAccessRegulator>? stack = (Stack<IAccessRegulator>?)_monitoredObjects[subject];
-                if (stack != null)
+                if (_monitoredObjects.TryGetValue(subject, out Stack<IAccessRegulator>? stack))
                 {
                     retval = (IAccessRegulator)stack.Pop();
                     if (_autoDeleteEmptyStacks && stack.Count == 0)
@@ -112,7 +109,7 @@ namespace Highpoint.Sage.Resources
         /// <returns>True if the acquire will be allowed, false if not.</returns>
         public bool CanAcquire(object? subject, object? usingKey)
         {
-            Stack<IAccessRegulator>? myStack = (Stack<IAccessRegulator>?)_monitoredObjects[subject!];
+            Stack<IAccessRegulator>? myStack = subject is IResource res && _monitoredObjects.TryGetValue(res, out Stack<IAccessRegulator>? s) ? s : null;
             if (myStack != null)
             {
                 IAccessRegulator? iar = myStack.Peek();

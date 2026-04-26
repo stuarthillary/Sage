@@ -19,7 +19,7 @@ namespace Highpoint.Sage.Utility
         private static readonly List<ITreeNodeProxy> _empty_List = new List<ITreeNodeProxy>();
         private TreeNodeHelper? _parent;
         private List<ITreeNodeProxy>? _children;
-        private Hashtable? _childFinder;
+        private Dictionary<Guid, ITreeNodeProxy>? _childFinder;
         private readonly bool _autoIndex;
         #endregion
 
@@ -191,7 +191,7 @@ namespace Highpoint.Sage.Utility
                 node.Parent = this;
                 if (_autoIndex)
                 {
-                    _childFinder ??= new Hashtable();
+                    _childFinder ??= new Dictionary<Guid, ITreeNodeProxy>();
                     ITreeNodeProxy tnp = node;
                     Core.IHasIdentity ihi = (Core.IHasIdentity)tnp.Ward;
 
@@ -281,7 +281,7 @@ namespace Highpoint.Sage.Utility
         {
             if (_autoIndex)
             {
-                return _childFinder?[key] as ITreeNode;
+                return _childFinder?.GetValueOrDefault(key) as ITreeNode;
             }
             else
             {

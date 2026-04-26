@@ -2,7 +2,9 @@
 using Xunit;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Highpoint.Sage.Utility
 {
@@ -53,9 +55,8 @@ namespace Highpoint.Sage.Utility
         [Highpoint.Sage.Utility.FieldDescription("Simple test to aggregate three non-empty arraylists under one enumerator.")]
         public void TestBasicsOfEnumerator()
         {
-            MultiArrayListEnumerable male = new MultiArrayListEnumerable(new ArrayList[] { _al1, _al2, _al3 });
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            foreach (string s in male)
+            foreach (string s in Enumerate(_al1, _al2, _al3))
                 sb.Append(s);
 
             string result = sb.ToString();
@@ -76,13 +77,17 @@ namespace Highpoint.Sage.Utility
 
         private void Validate(ArrayList[] arraylists, string expected, string name, string description)
         {
-            MultiArrayListEnumerable male = new MultiArrayListEnumerable(new ArrayList[] { _al1, _al2, _al3 });
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            foreach (string s in male)
+            foreach (string s in Enumerate(arraylists))
                 sb.Append(s);
             string result = sb.ToString();
             Console.WriteLine(name + "\r\n\texpected = \"" + expected + "\",\r\n\tresult   = \"" + result + "\".\r\n\t\t" + (result.Equals(expected, StringComparison.Ordinal) ? "Passed.\r\n" : "Failed.\r\n"));
             Assert.True(result.Equals(expected, StringComparison.Ordinal), "Failed test");
+        }
+
+        private static IEnumerable<string> Enumerate(params ArrayList[] arraylists)
+        {
+            return arraylists.SelectMany(arraylist => arraylist.Cast<string>());
         }
     }
 }
