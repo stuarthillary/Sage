@@ -17,6 +17,10 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 - Thread-safety bug fix in ParticipantDirectory._knownMacros (static dictionary race condition)
 - PFC extraction to Sage.PFC standalone library (53 files + tests)
 - Materials extraction to Sage.Materials standalone library (66 files + tests)
+- 8 project renames completed: TestDriver→Sage.Scratch, SageBenchmarks→Sage.Benchmarks, Sage_SampleCode→Sage.Examples, SageTestLib→Sage.Tests
+- Phase 2 public API collection modernization across Core, PFC, and Materials modules
+- Phase 3 Batch 1 (`p3-interfaces`) graph interface signatures updated
+- Phase 2 graph algorithm internal collection modernization (PertAnalyst, CPMAnalyst, DagDeadlockChecker)
 
 ---
 

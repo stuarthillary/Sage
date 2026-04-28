@@ -149,4 +149,31 @@
 
 ---
 
+### 2026-04-28 — Phase 3 Resource Manager Opening — Regression / Compile Fallout Map ✅
+
+**Status:** Complete
+
+**Mandate:** Map the regression and compile fallout surface for the opening resource-manager batch (`p3-resource-manager`) around `ResourceManager`, `IResourceManager`, `IResourceManagerCollection`, and nearby public resource APIs.
+
+**Learning:** The first break is not centered on acquisition math; it is centered on the legacy collection/event seam. In-repo production fallout is concentrated in the `IResourceManager` consumers that enumerate `Resources` or subscribe to manager events, while concrete `ResourceManager`-only members (`Add`, `Remove`, `Clear`, indexer, `IEnumerable`) are mostly exercised by tests and samples.
+
+**Hotspots identified:**
+- **Direct production fallout:** `MaterialConduitManager.cs` (`Resources`, `ResourceRequested`, `ResourceAdded`, `ResourceRemoved`), `ResourceServer.cs` (`ResourceReleased`), `MaterialService.cs` (`Reserve`, `Unreserve`, `Acquire`)
+- **Supporting resource implementations that must stay aligned:** `SelfManagingResource.cs`, `MaterialResourceItem.cs`, `ResourceRequest.cs`, `MaterialResourceRequest.cs`, `ResourceManagerCollection.cs`
+- **Concrete `ResourceManager` compile fallout:** `TestResources.cs`, `TestServers.cs`, and `samples\Sage_SampleCode\6_Resources.cs` (subclassing plus `Resources` enumeration/casts)
+- **Not currently exercised in-repo:** `IResourceManagerCollection.GetResourceManagers()`, `ResourceManagerAdded`, and `ResourceManagerRemoved`
+
+**Coverage added:**
+- `TestResourceManagerCollectionLifecycleAndLookup`
+
+**Decision:** Do **not** add API-shape characterization tests for `IResourceManager.Resources` or `IResourceManagerCollection.GetResourceManagers()` in this mapping pass. Those are exactly the legacy collection seams most likely to change, so type-locking them now would freeze the wrong public surface. The one safe addition was a behavioral test for `ResourceManagerCollection` lookup/event semantics, because it protects stable behavior without asserting the collection type.
+
+**Quality gates for Batch 1:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~Highpoint.Sage.Resources.ResourceTester|FullyQualifiedName~Highpoint.Sage.Resources.ResourceTesterExt|FullyQualifiedName~Highpoint.Sage.ItemBased.Blocks.ServerTester"` ✅ (19/19 passing)
+
+**Verdict:** Batch 1 can move if it stays on collection/event surface modernization, updates the `IResourceManager` consumers listed above, and leaves acquisition ordering/selection semantics alone. No merge without keeping the resource/server regression slice green.
+
+---
+
 **Archived history:** Detailed entries from March 2026–April 26, 2026 preserved in `hudson-history-archive.md`.
