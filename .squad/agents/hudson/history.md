@@ -39,4 +39,24 @@
 
 ---
 
+### 2026-04-28 — Phase 3 Batch 1 Review (`p3-interfaces`) ✅
+
+**Status:** Complete
+
+**Mandate:** Review Parker's interface-only graph batch, add regression coverage if needed, and decide whether Batch 1 is shippable.
+
+**Learning:** The safe regression seam for this batch is the interface boundary itself. Tests must cast through `IEdge` / `IVertex` to prove the new signatures are usable, while avoiding over-locking the temporary concrete `Edge` / `Vertex` public shapes that Parker intentionally preserved with explicit interface implementations.
+
+**Coverage added:**
+- `TestVertexInterfaceEdgesTypedAsReadOnlyList`
+- `TestEdgeInterfaceExposesTypedEndpointsAndChildren`
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-build` → 290/290 passing ✅
+
+**Verdict:** Approve Batch 1. Parker stayed inside Ripley's scope gate, and the new regression tests now lock the intended interface behavior without freezing the later `p3-edge-vertex` follow-up work.
+
+---
+
 **Archived history:** Detailed entries from March 2026–April 26, 2026 preserved in `hudson-history-archive.md`.

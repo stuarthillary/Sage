@@ -96,6 +96,72 @@ Parker is authorized to change the following **interface signatures only**, with
 
 ---
 
+### 2026-04-28: Parker — Phase 3 Batch 1 (`p3-interfaces`) Implementation (COMPLETE ✅)
+
+**By:** Parker
+
+**Date:** 2026-04-28
+
+**Status:** Complete
+
+**Decision:** Land the Phase 3 interface break with explicit interface adapters in `Edge` and `Vertex`, rather than immediately changing the concrete public property types.
+
+**Why**
+
+Ripley's scope gate for Batch 1 named the interface contracts only and explicitly warned against widening into `p3-edge-vertex`. Explicit interface implementation lets the interface break happen now while keeping the concrete-class blast radius narrow.
+
+**Applied Shape**
+
+- `IEdge.PreVertex` / `PostVertex` → `IVertex?`
+- `IEdge.ChildEdges` → `IReadOnlyList<Edge>`
+- `IVertex.PredecessorEdges` / `SuccessorEdges` → `IReadOnlyList<Edge>`
+- `Edge` keeps its current public `Vertex?` / `IList` members for now
+- `Vertex` keeps its current public `IList` members for now
+
+**Consequence for Later Batches**
+
+Later `p3-edge-vertex` work can still choose to align the concrete `Edge`/`Vertex` public properties with the new interface shapes, but that is now a separate, deliberate step instead of accidental fallout from Batch 1.
+
+---
+
+### 2026-04-28: Hudson — Review of Phase 3 Batch 1 (`p3-interfaces`) (COMPLETE ✅)
+
+**By:** Hudson
+
+**Date:** 2026-04-28
+
+**Status:** Complete
+
+**Decision:** Approve Parker's Batch 1 implementation and lock the regression net at the interface boundary.
+
+**Why**
+
+Parker changed only the scoped interface signatures:
+- `IVertex.PredecessorEdges` / `SuccessorEdges` → `IReadOnlyList<Edge>`
+- `IEdge.PreVertex` / `PostVertex` → `IVertex?`
+- `IEdge.ChildEdges` → `IReadOnlyList<Edge>`
+
+The explicit interface implementations in `Edge` and `Vertex` keep the legacy concrete public properties alive for now, which matches the scope gate and avoids dragging Batch 2 work into Batch 1.
+
+**QA Action Taken**
+
+Added regression coverage in `tests\SageTestLib\TestGraphBranching.cs` that:
+- Casts through `IEdge` and `IVertex`
+- Verifies the new typed interface signatures are directly usable
+- Verifies the returned collections are read-only
+- Verifies interface endpoints still reference the same concrete vertex instances
+
+**Validation**
+
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-build` ✅ `290/290`
+
+**Consequence**
+
+Batch 1 is clear to merge. Any later work that changes the concrete `Edge` / `Vertex` public property types should happen in the separate follow-up batch, with this interface-focused regression coverage kept as the guardrail.
+
+---
+
 ### 2026-04-26: Phase 2 PortSet/Resources Scope Gate (COMPLETE ✅)
 
 **By:** Ripley
