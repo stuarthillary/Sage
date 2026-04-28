@@ -136,7 +136,10 @@ namespace Highpoint.Sage.Graphs
             }
         }
 
-        public IList PredecessorEdges
+        /// <summary>
+        /// Gets a read-only view of the predecessor edges attached to this vertex.
+        /// </summary>
+        public IReadOnlyList<Edge> PredecessorEdges
         {
             get
             {
@@ -144,7 +147,10 @@ namespace Highpoint.Sage.Graphs
             }
         }
 
-        public IList SuccessorEdges
+        /// <summary>
+        /// Gets a read-only view of the successor edges attached to this vertex.
+        /// </summary>
+        public IReadOnlyList<Edge> SuccessorEdges
         {
             get
             {

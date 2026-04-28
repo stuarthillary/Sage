@@ -90,8 +90,8 @@ namespace Highpoint.Sage.Graphs.Analysis {
 		/// <param name="edge">The edge whose start and finish vertices are to be the subject of this analyst's 
 		/// evaluation.</param>
 		public CpmAnalyst(Edge edge){
-			Start = edge.PreVertex!;
-			Finish = edge.PostVertex!;
+			Start = (Vertex)edge.PreVertex!;
+			Finish = (Vertex)edge.PostVertex!;
 			m_traceStack = new Stack<Vertex>();
 			Reset();
 		}
@@ -196,7 +196,7 @@ namespace Highpoint.Sage.Graphs.Analysis {
 					edgeData.NominalDuration = ((ISupportsCpmAnalysis)edge).GetNominalDuration().Ticks;
 				}
 				if ( s_diagnostics ) _Debug.WriteLine("From vertex " + vertex.Name + ", we look forward " + TimeSpan.FromTicks(edgeData.NominalDuration) + " to " + edge.PostVertex?.Name + ".");
-				ProbeForward(edge.PostVertex!,vertexData.Earliest+edgeData.NominalDuration);
+				ProbeForward((Vertex)edge.PostVertex!,vertexData.Earliest+edgeData.NominalDuration);
 			}
 			Debug.Assert(m_traceStack.Pop()==vertex);
 		}
@@ -248,7 +248,7 @@ if ( edgeData == null ) {
 				if ( edge is ISupportsCpmAnalysis ) {
 					edgeData.NominalDuration = ((ISupportsCpmAnalysis)edge).GetNominalDuration().Ticks;
 				}
-				ProbeBackward(edge.PreVertex!,vertexData.Latest-edgeData.NominalDuration);
+				ProbeBackward((Vertex)edge.PreVertex!,vertexData.Latest-edgeData.NominalDuration);
 			}
 			Debug.Assert(m_traceStack.Pop()==vertex);
 		}
@@ -286,7 +286,7 @@ if ( edgeData == null ) {
 			foreach ( SynchronizerData sd in Synchronizers.Values ) {
 				foreach ( Vertex pre in sd.Synchronizer.Members ) {
 					VertexData? preData = (VertexData?)Vertices[pre];
-					Vertex? post = pre.PrincipalEdge?.PostVertex;
+					Vertex? post = pre.PrincipalEdge?.PostVertex as Vertex;
 					VertexData? postData = post != null ? (VertexData?)Vertices[post] : null;
 					EdgeData? ed = (EdgeData?)Edges[pre.PrincipalEdge!];
 					if ( ed == null ) { 
@@ -376,7 +376,7 @@ if ( edgeData == null ) {
 							if ( s_diagnosticsValidation ) m_sb!.Append(edge.Name + "'s latest start (" + svdPreLatest + ") is later than its latest finish (" + svdPostLatest + ").\r\n");
 						}
 					}
-					_ValidateResults(edge.PostVertex!);
+					_ValidateResults((Vertex)edge.PostVertex!);
 				}
 			}
 		}
@@ -574,10 +574,10 @@ if ( edgeData == null ) {
 			if ( !seenVertices.Add(vertex) ) return;
 			vertices.Add(vertex);
 			foreach ( Edge pre in vertex.PredecessorEdges ) {
-				if ( pre is Ligature ) _GetContemporaneousVertices(pre.PreVertex!, vertices, seenVertices);
+				if ( pre is Ligature ) _GetContemporaneousVertices((Vertex)pre.PreVertex!, vertices, seenVertices);
 			}
 			foreach ( Edge post in vertex.SuccessorEdges ) {
-				if ( post is Ligature ) _GetContemporaneousVertices(post.PostVertex!, vertices, seenVertices);
+				if ( post is Ligature ) _GetContemporaneousVertices((Vertex)post.PostVertex!, vertices, seenVertices);
 			}
 		}
 		#endregion
@@ -630,13 +630,21 @@ if ( edgeData == null ) {
 			public IList GetNextEdgesForward(){
 				IList retval = s_emptylist;
 				m_nFwdVisits++;
-				if ( m_vertex.PredecessorEdges.Count == 0 || m_nFwdVisits == m_vertex.PredecessorEdges.Count ) retval = m_vertex.SuccessorEdges;
+				if ( m_vertex.PredecessorEdges.Count == 0 || m_nFwdVisits == m_vertex.PredecessorEdges.Count ) {
+					ArrayList nextEdges = new ArrayList(m_vertex.SuccessorEdges.Count);
+					foreach ( Edge edge in m_vertex.SuccessorEdges ) nextEdges.Add(edge);
+					retval = nextEdges;
+				}
 				return retval;
 			}
 			public IList GetNextEdgesReverse(){
 				IList retval = s_emptylist;
 				m_nRevVisits++;
-				if ( m_vertex.SuccessorEdges.Count == 0 || m_nRevVisits == m_vertex.SuccessorEdges.Count ) retval =  m_vertex.PredecessorEdges;
+				if ( m_vertex.SuccessorEdges.Count == 0 || m_nRevVisits == m_vertex.SuccessorEdges.Count ) {
+					ArrayList nextEdges = new ArrayList(m_vertex.PredecessorEdges.Count);
+					foreach ( Edge edge in m_vertex.PredecessorEdges ) nextEdges.Add(edge);
+					retval = nextEdges;
+				}
 				return retval;
 			}
 

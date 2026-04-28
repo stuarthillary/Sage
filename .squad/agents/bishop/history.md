@@ -12,6 +12,62 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-07-17 — Versioning Release Surfaces Inventory (`p3-version-bump`)
+
+**Inventory Summary:** The Sage library currently has **no explicit version metadata** in source — all version data comes from SDK defaults, with a critical mismatch between local build identity and published package history.
+
+**Current State:**
+
+1. **Assembly Version Sources:**
+   - **Assembly File:** All projects default to `Version=1.0.0.0` (SDK default, not explicitly set)
+   - **Location:** Generated automatically; no `.props` file or `AssemblyInfo.cs` defines it
+   - **Scope:** Affects `Sage.dll`, `Sage.Materials.dll`, `Sage.PFC.dll` equally
+
+2. **Project Version Metadata:**
+   - **No explicit `<Version>`:** Neither `Directory.Build.props` nor individual `.csproj` files set version
+   - **No `<PackageId>`:** Default would be `Sage`, `Sage.Materials`, `Sage.PFC`
+   - **No `<PackageVersion>`:** Falls back to `<Version>` default (1.0.0)
+   - **No assembly metadata:** No `<AssemblyVersion>`, `<FileVersion>`, `<InformationalVersion>` set
+
+3. **Release Artifacts:**
+   - **No `.nuspec` files:** No NuGet spec in repo
+   - **No NuGet.config:** No package source or publish configuration
+   - **Build Output:** `BuildOutput/` directory with platform subdirs (`win-x86`, `win-x64`, `linux-x64`) — no packaged artifacts
+
+4. **Release Automation:**
+   - **GitHub Actions:** `squad-release.yml` reads `version` from `package.json` (currently just Squad CLI config)
+   - **Not tied to .NET project version:** Release automation is Node-based, not NuGet-aware
+   - **No changelog:** No `CHANGELOG.md` exists in repo
+
+5. **Public Package History:**
+   - **Shipped under:** `Highpoint.Sage` 4.0.2 (external NuGet, not tied to current repo)
+   - **Breaking mismatch:** Local builds are `1.0.0.0`, but consumers reference `4.0.2`
+
+**For Version-Bump-Only Pass (No Publish):**
+
+Minimum surfaces that must change to version-bump locally:
+
+| Surface | Current | Action for Bump | Critical? |
+|---------|---------|-----------------|-----------|
+| `Directory.Build.props` | No `<Version>` | Add centralized `<Version>` property | **YES** |
+| `.csproj` `<AssemblyVersion>` | SDK default (1.0.0.0) | Set explicitly from `Direction.Build.props` | YES |
+| `.csproj` `<FileVersion>` | SDK default | Set explicitly from `Directory.Build.props` | YES |
+| `.csproj` `<PackageVersion>` | SDK default (1.0.0) | Set explicitly if projects packable | YES |
+| `.csproj` `<PackageId>` | SDK default | Set explicitly if projects packable | **NO** (skip unless package intent changes) |
+| `package.json` version | Current (if present) | Update if version string used externally | **NO** (only for release coordination) |
+| `CHANGELOG.md` | Does not exist | Create if release notes planned | **NO** (defer to release gate decision) |
+| GitHub Actions `squad-release.yml` | Reads `package.json` | No change needed for version bump | **NO** (skip) |
+
+**Key Constraints:**
+- Ripley's scope gate (`.squad/decisions/inbox/ripley-phase3-version-bump-gate.md`) requires product decision on: package family name (keep `Highpoint.Sage` or switch to `Sage*`), artifact split strategy, GA vs preview channel, support baseline (net10.0?), assembly version policy (fixed 5.0.0.0 or full increment)
+- This inventory assumes **no publishing**, so no NuGet metadata beyond identity is required
+- Phase 3 intentionally preserved XML persistence shape, so no schema version bumps needed
+
+**Decision Needed Before Implementation:**
+What version number should the bump target? Current gate suggests `5.0.0` as architectural recommendation for Phase 3.
+
+---
+
 ### 2026-07-17 — Phase 2 Collection Modernization Committed
 
 Committed all Phase 2 code/test changes to `feature/dotnet10` branch after validation.

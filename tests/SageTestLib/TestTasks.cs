@@ -148,9 +148,9 @@ namespace Highpoint.Sage.Graphs.Tasks
             TestGraph1 tg1 = new TestGraph1();
             TestGraph1 tg2 = new TestGraph1();
             // Synchronize tb and td
-            VertexSynchronizer vs1 = new VertexSynchronizer(tg1.Model.Executive, new Vertex[] { tg1.Tb.PreVertex, tg1.Td.PreVertex }, ExecEventType.Detachable);
+            VertexSynchronizer vs1 = new VertexSynchronizer(tg1.Model.Executive, new IVertex[] { tg1.Tb.PreVertex!, tg1.Td.PreVertex! }, ExecEventType.Detachable);
             // Synchronize tb and tc
-            VertexSynchronizer vs2 = new VertexSynchronizer(tg2.Model.Executive, new Vertex[] { tg2.Tb.PreVertex, tg2.Tc.PreVertex }, ExecEventType.Detachable);
+            VertexSynchronizer vs2 = new VertexSynchronizer(tg2.Model.Executive, new IVertex[] { tg2.Tb.PreVertex!, tg2.Tc.PreVertex! }, ExecEventType.Detachable);
 
             tg1.Model.Start();
             Debug.WriteLine("Test 2");

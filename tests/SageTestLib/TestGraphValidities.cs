@@ -626,12 +626,12 @@ namespace Highpoint.Sage.Tasks
 
         private void Synchronize(Task t1, Task t2)
         {
-            new VertexSynchronizer(_model.Executive, new Vertex[] { t1.PreVertex, t2.PreVertex }, ExecEventType.Synchronous);
+            new VertexSynchronizer(_model.Executive, new IVertex[] { t1.PreVertex!, t2.PreVertex! }, ExecEventType.Synchronous);
         }
 
         private void Synchronize(Task t1, Task t2, Task t3)
         {
-            new VertexSynchronizer(_model.Executive, new Vertex[] { t1.PreVertex, t2.PreVertex, t3.PreVertex }, ExecEventType.Synchronous);
+            new VertexSynchronizer(_model.Executive, new IVertex[] { t1.PreVertex!, t2.PreVertex!, t3.PreVertex! }, ExecEventType.Synchronous);
         }
 
         private void Validate(string testName)

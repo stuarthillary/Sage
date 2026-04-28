@@ -53,6 +53,20 @@ namespace Highpoint.Sage.Graphs
         /// <param name="vertices">An array of vertices to be synchronized.</param>
         /// <param name="vertexFiringType">The type of ExecEvent that successor edges to this vertex
         /// should be called with.</param>
+        public VertexSynchronizer(IExecutive exec, IVertex[] vertices, ExecEventType vertexFiringType)
+            : this(exec, Array.ConvertAll(vertices, vertex => vertex as Vertex ?? throw new ArgumentException("VertexSynchronizer requires concrete Vertex instances.", nameof(vertices))), vertexFiringType)
+        {
+        }
+
+        /// <summary>
+        /// Creates a synchronization between two or more vertices, where the vertices
+        /// are, once all are able to fire, fired in the order specified in the 'vertices'
+        /// array.
+        /// </summary>
+        /// <param name="exec">The executive in whose simulation this VS is currently running.</param>
+        /// <param name="vertices">An array of vertices to be synchronized.</param>
+        /// <param name="vertexFiringType">The type of ExecEvent that successor edges to this vertex
+        /// should be called with.</param>
         public VertexSynchronizer(IExecutive exec, Vertex[] vertices, ExecEventType vertexFiringType)
         {
 

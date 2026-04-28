@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Graphs.Analysis
             return spl == int.MaxValue ? spl : spl + 1;
         }
 
-        public static int ShortestPathLength(Vertex? from, Vertex? to)
+        public static int ShortestPathLength(IVertex? from, IVertex? to)
         {
             if (from == null || to == null)
                 return int.MaxValue;
@@ -35,7 +35,7 @@ namespace Highpoint.Sage.Graphs.Analysis
             return shortestPathLength(from, to, ref visitedNodes);
         }
 
-        private static int shortestPathLength(Vertex? from, Vertex? to, ref ArrayList visitedNodes)
+        private static int shortestPathLength(IVertex? from, IVertex? to, ref ArrayList visitedNodes)
         {
             if (from == null || to == null)
                 return int.MaxValue;

@@ -15,14 +15,20 @@ namespace Highpoint.Sage.DynamicConstruction {
 
 	public interface IBindsToCreationContext {
 		void AddBindableChild(IBindsToCreationContext iucc);
-		IList BindableChildren { get; }
+		/// <summary>
+		/// Gets the bindable child nodes in declaration order.
+		/// </summary>
+		IReadOnlyList<IBindsToCreationContext> BindableChildren { get; }
 		void Bind(CreationContext cc);
 		CreationContext CreationContext { get; }
 	}
 
 	public interface IHasSubRequirements {
 		//void AddSubRequirement(IRequirement iucc);
-		ArrayList SubRequirements { get; }
+		/// <summary>
+		/// Gets the direct sub-requirements for this node.
+		/// </summary>
+		IReadOnlyList<IRequirement> SubRequirements { get; }
 	}
 
 	
@@ -32,15 +38,15 @@ namespace Highpoint.Sage.DynamicConstruction {
 
 	public abstract class Settings : ISettings {
 #region Fields
-		private ArrayList m_bindableChildren = new ArrayList();
-		private ArrayList m_subRequirements = new ArrayList();
+		private readonly List<IBindsToCreationContext> m_bindableChildren = new List<IBindsToCreationContext>();
+		private readonly List<IRequirement> m_subRequirements = new List<IRequirement>();
 		protected CreationContext m_creationContext;
 #endregion
 		
 #region IBindsToCreationContext Members
 		public void AddBindableChild(IBindsToCreationContext iucc){
 			m_bindableChildren.Add(iucc);
-			if ( iucc is IRequirement ) m_subRequirements.Add(iucc);
+			if ( iucc is IRequirement requirement ) m_subRequirements.Add(requirement);
 		}
 		public virtual void Bind(CreationContext cc){
 			//Console.WriteLine("Binding " + this.GetType() + ".");
@@ -51,7 +57,10 @@ namespace Highpoint.Sage.DynamicConstruction {
 				}
 			}
 		}
-		public IList BindableChildren { get { return m_bindableChildren; } }
+		/// <summary>
+		/// Gets the bindable child nodes in declaration order.
+		/// </summary>
+		public IReadOnlyList<IBindsToCreationContext> BindableChildren { get { return m_bindableChildren.AsReadOnly(); } }
 		public CreationContext CreationContext { get { return m_creationContext; } }
 #endregion
 
@@ -61,7 +70,10 @@ namespace Highpoint.Sage.DynamicConstruction {
  
 #region IHasSubRequirements Members	
 		//public void AddSubRequirement(IRequirement iucc){ m_subRequirements.Add(iucc); }
-		public ArrayList SubRequirements { get { return m_subRequirements; } }
+		/// <summary>
+		/// Gets the direct sub-requirements for this node.
+		/// </summary>
+		public IReadOnlyList<IRequirement> SubRequirements { get { return m_subRequirements.AsReadOnly(); } }
 #endregion
 	}
 
@@ -83,8 +95,8 @@ namespace Highpoint.Sage.DynamicConstruction {
 	public abstract class Requirement : IRequirement {
 #region Fields
 		private CreationContext m_creationContext;
-		private ArrayList m_bindableChildren = new ArrayList();
-		private ArrayList m_subRequirements = new ArrayList();
+		private readonly List<IBindsToCreationContext> m_bindableChildren = new List<IBindsToCreationContext>();
+		private readonly List<IRequirement> m_subRequirements = new List<IRequirement>();
 		protected string m_name;
 		protected Guid m_guid;
 		private Guid m_factorySpecGuid;
@@ -101,7 +113,7 @@ namespace Highpoint.Sage.DynamicConstruction {
 #region IBindsToCreationContext Members
 		public void AddBindableChild(IBindsToCreationContext iucc){
 			m_bindableChildren.Add(iucc);
-			if ( iucc is IRequirement ) m_subRequirements.Add(iucc);
+			if ( iucc is IRequirement requirement ) m_subRequirements.Add(requirement);
 		}
 		public virtual void Bind(CreationContext cc){
 			//Console.WriteLine("Binding " + this.Name + ".");
@@ -112,7 +124,10 @@ namespace Highpoint.Sage.DynamicConstruction {
 				}
 			}
 		}
-		public IList BindableChildren { get { return m_bindableChildren; } }
+		/// <summary>
+		/// Gets the bindable child nodes in declaration order.
+		/// </summary>
+		public IReadOnlyList<IBindsToCreationContext> BindableChildren { get { return m_bindableChildren.AsReadOnly(); } }
 		public CreationContext CreationContext { get { return m_creationContext; } }
 #endregion
 		
@@ -163,7 +178,10 @@ namespace Highpoint.Sage.DynamicConstruction {
 
 #region IHasSubRequirements Members
 		//public void AddSubRequirement(IRequirement iucc){ m_subRequirements.Add(iucc); }
-		public ArrayList SubRequirements { get { return m_subRequirements; } }
+		/// <summary>
+		/// Gets the direct sub-requirements for this node.
+		/// </summary>
+		public IReadOnlyList<IRequirement> SubRequirements { get { return m_subRequirements.AsReadOnly(); } }
 #endregion
 
 	}
@@ -176,8 +194,14 @@ namespace Highpoint.Sage.DynamicConstruction {
 	public interface ISpecification : IHasIdentity, IBindsToCreationContext, IHasSubRequirements {
 		object Create(bool deep);
 		void Provision(IDictionary graphContext, object target);
-		ArrayList GetChildRequirements(bool deep);
-		ArrayList GetChildSpecifications(bool deep);
+		/// <summary>
+		/// Gets the child requirements for this specification.
+		/// </summary>
+		IReadOnlyList<IRequirement> GetChildRequirements(bool deep);
+		/// <summary>
+		/// Gets the child specifications for this specification.
+		/// </summary>
+		IReadOnlyList<ISpecification> GetChildSpecifications(bool deep);
 	}
 
 	
@@ -185,10 +209,10 @@ namespace Highpoint.Sage.DynamicConstruction {
 #region Fields
 		protected string m_name;
 		protected Guid m_guid;
-		protected ArrayList m_myDirectChildSpecifications = new ArrayList();
-		protected ArrayList m_myDirectChildRequirements = new ArrayList();
-		protected ArrayList m_bindableChildren = new ArrayList();
-		protected ArrayList m_subRequirements = new ArrayList();
+		protected readonly List<ISpecification> m_myDirectChildSpecifications = new List<ISpecification>();
+		protected readonly List<IRequirement> m_myDirectChildRequirements = new List<IRequirement>();
+		protected readonly List<IBindsToCreationContext> m_bindableChildren = new List<IBindsToCreationContext>();
+		protected readonly List<IRequirement> m_subRequirements = new List<IRequirement>();
 		protected CreationContext m_creationContext;
 #endregion
 
@@ -203,7 +227,7 @@ namespace Highpoint.Sage.DynamicConstruction {
 				//System.Diagnostics.Debugger.Break();
 			}
 			m_bindableChildren.Add(iucc);
-			if ( iucc is IRequirement ) m_subRequirements.Add(iucc);
+			if ( iucc is IRequirement requirement ) m_subRequirements.Add(requirement);
 			//Console.WriteLine((iucc is Requirement)?" - also a requirement":"");
 		}
 		public virtual void Bind(CreationContext cc){
@@ -216,13 +240,19 @@ namespace Highpoint.Sage.DynamicConstruction {
 				}
 			}
 		}
-		public IList BindableChildren { get { return m_bindableChildren; } }
+		/// <summary>
+		/// Gets the bindable child nodes in declaration order.
+		/// </summary>
+		public IReadOnlyList<IBindsToCreationContext> BindableChildren { get { return m_bindableChildren.AsReadOnly(); } }
 		public CreationContext CreationContext { get { return m_creationContext; } }
 #endregion
 
 #region IHasSubRequirements Members
 		//public void AddSubRequirement(IRequirement iucc){ m_subRequirements.Add(iucc); }
-		public ArrayList SubRequirements { get { return m_subRequirements; } }
+		/// <summary>
+		/// Gets the direct sub-requirements for this specification.
+		/// </summary>
+		public IReadOnlyList<IRequirement> SubRequirements { get { return m_subRequirements.AsReadOnly(); } }
 #endregion
 
 #region ISpecification Members
@@ -231,26 +261,32 @@ namespace Highpoint.Sage.DynamicConstruction {
 
 		public virtual void Provision(IDictionary graphContext, object target){}
 
-		public virtual ArrayList GetChildRequirements(bool deep) { 
+		/// <summary>
+		/// Gets the child requirements for this specification.
+		/// </summary>
+		public virtual IReadOnlyList<IRequirement> GetChildRequirements(bool deep) { 
 			if ( m_myDirectChildRequirements == null ) throw new ApplicationException("ChildRequirements not set - null is not permitted.");
-			if ( !deep ) return ArrayList.ReadOnly(m_myDirectChildRequirements);
-			ArrayList al = new ArrayList(m_myDirectChildRequirements);
+			if ( !deep ) return m_myDirectChildRequirements.AsReadOnly();
+			List<IRequirement> al = new List<IRequirement>(m_myDirectChildRequirements);
 			foreach ( IRequirement ireq in m_myDirectChildRequirements ) {
 				ISpecification ispec = ireq.FactorySpec;
 				if ( ispec == null ) continue;
 				al.AddRange(ispec.GetChildRequirements(true));
 			}
-			return ArrayList.ReadOnly(al);
+			return al.AsReadOnly();
 		}
 
-		public virtual ArrayList GetChildSpecifications(bool deep) { 
+		/// <summary>
+		/// Gets the child specifications for this specification.
+		/// </summary>
+		public virtual IReadOnlyList<ISpecification> GetChildSpecifications(bool deep) { 
 			if ( m_myDirectChildSpecifications == null ) throw new ApplicationException("ChildSpecifications not set - null is not permitted.");
-			if ( !deep ) return ArrayList.ReadOnly(m_myDirectChildSpecifications);
-			ArrayList al = new ArrayList(m_myDirectChildSpecifications);
+			if ( !deep ) return m_myDirectChildSpecifications.AsReadOnly();
+			List<ISpecification> al = new List<ISpecification>(m_myDirectChildSpecifications);
 			foreach ( ISpecification ispec in m_myDirectChildSpecifications ) {
 				al.AddRange(ispec.GetChildSpecifications(true));
 			}
-			return ArrayList.ReadOnly(al);
+			return al.AsReadOnly();
 		}
 
 #endregion

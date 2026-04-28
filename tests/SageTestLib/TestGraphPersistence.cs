@@ -107,9 +107,9 @@ namespace Highpoint.Sage.Graphs.Tasks {
 			TestGraph1 tg1 = new TestGraph1();
 			TestGraph1 tg2 = new TestGraph1();
 			// Synchronize tb and td
-			VertexSynchronizer vs1 = new VertexSynchronizer(tg1.model.Executive,new Vertex[]{tg1.tb.PreVertex,tg1.td.PreVertex},ExecEventType.Detachable);
+			VertexSynchronizer vs1 = new VertexSynchronizer(tg1.model.Executive,new IVertex[]{tg1.tb.PreVertex!,tg1.td.PreVertex!},ExecEventType.Detachable);
 			// Synchronize tb and tc
-			VertexSynchronizer vs2 = new VertexSynchronizer(tg2.model.Executive,new Vertex[]{tg2.tb.PreVertex,tg2.tc.PreVertex},ExecEventType.Detachable);
+			VertexSynchronizer vs2 = new VertexSynchronizer(tg2.model.Executive,new IVertex[]{tg2.tb.PreVertex!,tg2.tc.PreVertex!},ExecEventType.Detachable);
 
 			storeXML(tg1);
 			tg1 = null;
@@ -153,9 +153,9 @@ namespace Highpoint.Sage.Graphs.Tasks {
 			TestGraph1 tg1 = new TestGraph1();
 			TestGraph1 tg2 = new TestGraph1();
 			// Synchronize ta and tc
-			VertexSynchronizer vs1 = new VertexSynchronizer(tg1.model.Executive,new Vertex[]{tg1.ta.PostVertex,tg1.tc.PostVertex},ExecEventType.Detachable);
+			VertexSynchronizer vs1 = new VertexSynchronizer(tg1.model.Executive,new IVertex[]{tg1.ta.PostVertex!,tg1.tc.PostVertex!},ExecEventType.Detachable);
 			// Synchronize tc and ta
-			VertexSynchronizer vs2 = new VertexSynchronizer(tg2.model.Executive,new Vertex[]{tg2.tc.PostVertex,tg2.ta.PostVertex},ExecEventType.Detachable);
+			VertexSynchronizer vs2 = new VertexSynchronizer(tg2.model.Executive,new IVertex[]{tg2.tc.PostVertex!,tg2.ta.PostVertex!},ExecEventType.Detachable);
 
 			storeXML(tg1);
 			tg1 = null;

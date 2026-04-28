@@ -179,7 +179,7 @@ namespace Highpoint.Sage.Resources
         /// <summary>
         /// Returns a read-only list of the resources in this pool.
         /// </summary>
-        public IList Resources => ArrayList.ReadOnly(ArrayList.Adapter(_resources));
+        public IReadOnlyList<IResource> Resources => _resources.AsReadOnly();
 
         #region Implementation of IResourceManager
         /// <summary>

@@ -248,7 +248,8 @@ namespace Highpoint.Sage.Graphs
                 Vertex vertex = (Vertex)element;
                 if (vertex.SuccessorEdges != null && !vertex.Equals(_rootEdge.PostVertex))
                 {
-                    successors.AddRange(vertex.SuccessorEdges);
+                    foreach (Edge successor in vertex.SuccessorEdges)
+                        successors.Add(successor);
                 }
                 if (vertex.Synchronizer != null)
                 {

@@ -70,14 +70,14 @@ namespace Highpoint.Sage.Materials.Chemistry
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             for (int i = 0; i < _reaction.Reactants.Count; i++)
             {
-                sb.Append(((Reaction.ReactionParticipant)_reaction.Reactants[i]!).ToString(_fwdScale - _revScale)); // Reactants[i] is always ReactionParticipant
+                sb.Append(_reaction.Reactants[i].ToString(_fwdScale - _revScale));
                 if (i < _reaction.Reactants.Count - 1)
                     sb.Append(" + ");
             }
             sb.Append(" <==> ");
             for (int i = 0; i < _reaction.Products.Count; i++)
             {
-                sb.Append(((Reaction.ReactionParticipant)_reaction.Products[i]!).ToString(_fwdScale - _revScale)); // Products[i] is always ReactionParticipant
+                sb.Append(_reaction.Products[i].ToString(_fwdScale - _revScale));
                 if (i < _reaction.Products.Count - 1)
                     sb.Append(" + ");
             }

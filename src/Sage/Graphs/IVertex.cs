@@ -5,6 +5,7 @@ using Highpoint.Sage.Graphs.Validity;
 using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Core; // For executive.
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs
 {
@@ -18,11 +19,11 @@ namespace Highpoint.Sage.Graphs
         {
             get;
         }
-        IList PredecessorEdges
+        IReadOnlyList<Edge> PredecessorEdges
         {
             get;
         }
-        IList SuccessorEdges
+        IReadOnlyList<Edge> SuccessorEdges
         {
             get;
         }

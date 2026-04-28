@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 
 
 namespace Highpoint.Sage.Graphs
@@ -57,7 +58,7 @@ namespace Highpoint.Sage.Graphs
             Edge sub2 = new MyEdge("Sub2", _out);
             Edge sub3 = new MyEdge("Sub3", _out);
 
-            CreateLoopback(model, sub2.PostVertex, sub2.PreVertex, "LoopbackChannelMarker", 5);
+            CreateLoopback(model, (Vertex)sub2.PostVertex!, (Vertex)sub2.PreVertex!, "LoopbackChannelMarker", 5);
 
             ArrayList children = new ArrayList();
             children.Add(sub1);
@@ -86,17 +87,17 @@ namespace Highpoint.Sage.Graphs
             Edge sub2 = new MyEdge("Sub2", _out);
             Edge sub3 = new MyEdge("Sub3", _out);
 
-            Edge.Connect(root.PreVertex, sub1.PreVertex);
-            Edge.Connect(sub1.PostVertex, sub2.PreVertex).Channel = branchChannelMarker;
-            Edge.Connect(sub2.PostVertex, sub1.PreVertex).Channel = branchChannelMarker;
-            Edge.Connect(sub1.PostVertex, sub3.PreVertex); //Accept default channel marker.
-            Edge.Connect(sub3.PostVertex, root.PostVertex);
+            Edge.Connect(root.PreVertex!, sub1.PreVertex!);
+            Edge.Connect(sub1.PostVertex!, sub2.PreVertex!)!.Channel = branchChannelMarker;
+            Edge.Connect(sub2.PostVertex!, sub1.PreVertex!)!.Channel = branchChannelMarker;
+            Edge.Connect(sub1.PostVertex!, sub3.PreVertex!); //Accept default channel marker.
+            Edge.Connect(sub3.PostVertex!, root.PostVertex!);
 
             sub2.Channel = "AlternateChannelMarker";
-            sub1.PostVertex.EdgeFiringManager = new CountedBranchManager(model, new object[] { branchChannelMarker, Edge.NULL_CHANNEL_MARKER }, new int[] { 2, 1 });
-            sub1.PreVertex.EdgeReceiptManager = new MultiChannelEdgeReceiptManager(sub1.PreVertex);
-            sub2.PreVertex.EdgeReceiptManager = new MultiChannelEdgeReceiptManager(sub2.PreVertex);
-            sub3.PreVertex.EdgeReceiptManager = new MultiChannelEdgeReceiptManager(sub3.PreVertex);
+            ((Vertex)sub1.PostVertex!).EdgeFiringManager = new CountedBranchManager(model, new object[] { branchChannelMarker, Edge.NULL_CHANNEL_MARKER }, new int[] { 2, 1 });
+            ((Vertex)sub1.PreVertex!).EdgeReceiptManager = new MultiChannelEdgeReceiptManager((Vertex)sub1.PreVertex!);
+            ((Vertex)sub2.PreVertex!).EdgeReceiptManager = new MultiChannelEdgeReceiptManager((Vertex)sub2.PreVertex!);
+            ((Vertex)sub3.PreVertex!).EdgeReceiptManager = new MultiChannelEdgeReceiptManager((Vertex)sub3.PreVertex!);
 
             model.Start();
 
@@ -128,11 +129,11 @@ namespace Highpoint.Sage.Graphs
             e2.AddPredecessor(e1);
 
             // e1.PostVertex should have e2 in its successor edges (PostEdges)
-            IList e1PostSuccessors = e1.PostVertex.SuccessorEdges;
+            IReadOnlyList<Edge> e1PostSuccessors = e1.PostVertex!.SuccessorEdges;
             Assert.True(e1PostSuccessors.Count > 0, "E1.PostVertex should have at least one successor edge after connecting E2 as successor");
 
             // e2.PreVertex should have e1's post-vertex's outgoing edge in its predecessor edges (PreEdges)
-            IList e2PrePredecessors = e2.PreVertex.PredecessorEdges;
+            IReadOnlyList<Edge> e2PrePredecessors = e2.PreVertex!.PredecessorEdges;
             Assert.True(e2PrePredecessors.Count > 0, "E2.PreVertex should have at least one predecessor edge after connecting E1 as predecessor");
         }
 
@@ -141,7 +142,7 @@ namespace Highpoint.Sage.Graphs
         public void TestVertexAddAndRemoveEdges()
         {
             Edge principal = new Edge("Principal");
-            Vertex v = principal.PreVertex; // Use the auto-created pre-vertex
+            Vertex v = (Vertex)principal.PreVertex!; // Use the auto-created pre-vertex
 
             Edge extra1 = new Edge("Extra1");
             Edge extra2 = new Edge("Extra2");
@@ -154,18 +155,79 @@ namespace Highpoint.Sage.Graphs
 
             v.RemovePostEdge(extra1);
             Assert.Equal(initialPostCount + 1, v.SuccessorEdges.Count);
-            Assert.False(v.SuccessorEdges.Contains(extra1), "extra1 should no longer appear in SuccessorEdges");
-            Assert.True(v.SuccessorEdges.Contains(extra2),  "extra2 should still appear in SuccessorEdges");
+            Assert.DoesNotContain(extra1, v.SuccessorEdges);
+            Assert.Contains(extra2, v.SuccessorEdges);
         }
 
         [Fact]
-        [Highpoint.Sage.Utility.FieldDescription("Phase 2: Verifies that Vertex.PredecessorEdges and SuccessorEdges are typed as IReadOnlyList<Edge>.")]
-        public void TestVertexEdgesTypedAsList()
+        [Highpoint.Sage.Utility.FieldDescription("Phase 3: Verifies that IVertex exposes predecessor and successor edges as IReadOnlyList<Edge>.")]
+        public void TestVertexInterfaceEdgesTypedAsReadOnlyList()
         {
-            Edge e = new Edge("TypeCheck");
-            // After Phase 2 migration these must be IReadOnlyList<Edge>, not IList (ArrayList-backed).
-            Assert.IsAssignableFrom<IReadOnlyList<Edge>>(e.PreVertex.PredecessorEdges);
-            Assert.IsAssignableFrom<IReadOnlyList<Edge>>(e.PreVertex.SuccessorEdges);
+            Edge e1 = new Edge("TypeCheck1");
+            Edge e2 = new Edge("TypeCheck2");
+            e2.AddPredecessor(e1);
+
+            IVertex preVertex = ((IEdge)e2).PreVertex!;
+            IVertex postVertex = ((IEdge)e1).PostVertex!;
+
+            IReadOnlyList<Edge> predecessors = preVertex.PredecessorEdges;
+            IReadOnlyList<Edge> successors = postVertex.SuccessorEdges;
+
+            Assert.Single(predecessors);
+            Assert.Single(successors);
+            Assert.True(((ICollection<Edge>)predecessors).IsReadOnly);
+            Assert.True(((ICollection<Edge>)successors).IsReadOnly);
+            Assert.Same(e2.PreVertex, predecessors[0].PostVertex);
+            Assert.Same(e1.PostVertex, successors[0].PreVertex);
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 3: Verifies that Edge and IEdge expose IVertex endpoints and IReadOnlyList<Edge> child edges.")]
+        public void TestEdgeInterfaceExposesTypedEndpointsAndChildren()
+        {
+            Edge parent = new Edge("Parent");
+            Edge child = new Edge("Child");
+            parent.AddChildEdge(child);
+
+            IEdge edge = parent;
+
+            IVertex preVertex = edge.PreVertex!;
+            IVertex postVertex = edge.PostVertex!;
+            IReadOnlyList<Edge> childEdges = edge.ChildEdges;
+
+            Assert.Same(parent.PreVertex, preVertex);
+            Assert.Same(parent.PostVertex, postVertex);
+            Assert.Single(childEdges);
+            Assert.Same(child, childEdges[0]);
+            Assert.True(((ICollection<Edge>)childEdges).IsReadOnly);
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 3: Verifies that Vertex's concrete predecessor/successor collection properties align with the IReadOnlyList<Edge> public API break.")]
+        public void TestVertexConcreteEdgesAreTypedAsReadOnlyList()
+        {
+            PropertyInfo predecessorEdges = typeof(Vertex).GetProperty(nameof(Vertex.PredecessorEdges))!;
+            PropertyInfo successorEdges = typeof(Vertex).GetProperty(nameof(Vertex.SuccessorEdges))!;
+
+            Assert.Equal(typeof(IReadOnlyList<Edge>), predecessorEdges.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Edge>), successorEdges.PropertyType);
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 3: Verifies that Edge's concrete endpoints and child collection align with the interface-facing public API break.")]
+        public void TestEdgeConcreteApiMatchesInterfaceSurface()
+        {
+            PropertyInfo preVertex = typeof(Edge).GetProperty(nameof(Edge.PreVertex))!;
+            PropertyInfo postVertex = typeof(Edge).GetProperty(nameof(Edge.PostVertex))!;
+            PropertyInfo predecessorEdges = typeof(Edge).GetProperty(nameof(Edge.PredecessorEdges))!;
+            PropertyInfo successorEdges = typeof(Edge).GetProperty(nameof(Edge.SuccessorEdges))!;
+            PropertyInfo childEdges = typeof(Edge).GetProperty(nameof(Edge.ChildEdges))!;
+
+            Assert.Equal(typeof(IVertex), preVertex.PropertyType);
+            Assert.Equal(typeof(IVertex), postVertex.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Edge>), predecessorEdges.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Edge>), successorEdges.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Edge>), childEdges.PropertyType);
         }
 
         sealed class MyEdge : Edge

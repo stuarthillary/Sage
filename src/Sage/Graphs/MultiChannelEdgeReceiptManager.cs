@@ -1,5 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Graphs
 {
@@ -17,7 +18,7 @@ namespace Highpoint.Sage.Graphs
 
         public void OnPreEdgeSatisfied(IDictionary graphContext, Edge edge)
         {
-            IList preEdges = _vertex.PredecessorEdges;
+            IReadOnlyList<Edge> preEdges = _vertex.PredecessorEdges;
 
             if (preEdges.Count < 2)
             { // If there's only one pre-edge, it must be okay to fire the vertex.

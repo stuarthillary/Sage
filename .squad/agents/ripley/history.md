@@ -196,4 +196,54 @@ All changes are source and binary breaking but covariant-safe. No serialization 
 
 ---
 
+### 2026-04-28 — Phase 3 Version Bump Scope Gate (`p3-version-bump`) ✅
+
+**Status:** Gate set — implementation batch defined, product decisions pending
+
+**Learning:** The Phase 3 closeout is not a simple number change. The repo currently evaluates the three library projects as packable `Sage`, `Sage.Materials`, and `Sage.PFC` packages at version `1.0.0` with default assembly versions, while the public NuGet baseline is still `Highpoint.Sage` `4.0.2`. That means the release batch must explicitly set package identity, SemVer major, and migration messaging together or we will ship the wrong product shape.
+
+**Required batch contents:**
+- Set the public major release line for the Phase 3 API break (`5.0.0` baseline unless PM chooses a prerelease first)
+- Centralize version metadata for assemblies and packages instead of relying on SDK defaults
+- Decide and stamp final package IDs for core/materials/PFC artifacts
+- Add release-facing metadata (`README`, license/project URLs, release notes pointer, tags)
+- Publish a consumer migration guide enumerating all approved Phase 3 public-surface breaks
+- Explicitly state that XML/PFC serializer shape was not changed in Phase 3; no serializer version bump belongs in this batch
+
+**Open decisions for Stuart/product:**
+1. Preserve the historical `Highpoint.Sage` package identity or move to a new package family
+2. Ship one package or three (`Sage`, `Sage.Materials`, `Sage.PFC`)
+3. GA immediately as `5.0.0` or stage as `5.0.0-preview.*`
+4. Confirm the official runtime/support floor, because the repo currently targets `net10.0` while public docs are still much older
+5. Choose assembly-version policy for the 5.x line (fixed major vs full SemVer stamping)
+
+**Release caution:** Current baseline validation is red on CA1823 unused-field analyzer errors in `Sage`. That is not versioning scope, but it blocks a real release gate.
+
+---
+
+### 2026-04-28 — Phase 3 Version Gate Finalized for Non-Publishing Pass (`p3-version-bump`) ✅
+
+**Status:** Finalized — implementation may proceed as an internal version-coherence pass only
+
+**Learning:** With NuGet/GitHub publishing explicitly out of scope, the right move is to set the repo to the honest post-break major line now (`5.0.0`) and stop there. A preview suffix only has meaning when we are staging an external release, and deferring the visible bump would leave the source tree falsely advertising a pre-break `1.0.0` line after a deliberate Phase 3 breaking wave.
+
+**Decision:**
+- Use `5.0.0` now as the unreleased repo baseline
+- Do **not** use `5.0.0-preview.*` in this pass
+- Do **not** treat this batch as release-readiness or publication work
+
+**Exact Bishop boundary:**
+- Centralize explicit shared version metadata for the repo and shipping library projects
+- Stamp the 5.x line in code/build metadata only (`Version` / `PackageVersion`, `AssemblyVersion`, `FileVersion`, `InformationalVersion`)
+- Keep serializer/persistence versioning unchanged; Phase 3 did not revise XML/PFC payload shape
+- Do **not** choose or stamp final public package identity in this pass
+- Do **not** add release metadata, migration guide, README release prose, tags, or GitHub/NuGet publishing steps
+- Do **not** change target frameworks or support-policy statements as part of this batch
+
+**Why it matters:** This restores internal version coherence without pretending the repo is publication-ready. It also keeps determinism-adjacent and persistence-adjacent seams untouched; the version pass remains metadata-only.
+
+**Blocking decisions:** None for this reduced implementation. Package family, artifact split, support floor, and external release-channel choices remain blocked for a later real publication batch, but they do not block the internal 5.0.0 source-version alignment.
+
+---
+
 **Archived history:** Detailed entries from March 2026–April 26, 2026 preserved in `ripley-history-archive.md`.

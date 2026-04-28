@@ -2,7 +2,7 @@
 
 using Highpoint.Sage.Core;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 // ReSharper disable ClassWithVirtualMembersNeverInherited.Global
 
 namespace Highpoint.Sage.Resources
@@ -322,7 +322,7 @@ namespace Highpoint.Sage.Resources
         /// Gets the resources owned by this Resource Manager.
         /// </summary>
         /// <value>The resources.</value>
-        public IList Resources => _baseResourceManager.Resources;
+        public IReadOnlyList<IResource> Resources => _baseResourceManager.Resources;
 
         /// <summary>
         /// Fired when a resource request is received.

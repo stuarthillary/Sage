@@ -25,7 +25,7 @@ namespace Highpoint.Sage.Graphs
             longWork.AddSuccessor(finish);
             shortWork.AddSuccessor(finish);
 
-            TestableCpmAnalyst analyst = new TestableCpmAnalyst(setup, setup.PreVertex!, finish.PostVertex!);
+            TestableCpmAnalyst analyst = new TestableCpmAnalyst(setup, (Vertex)setup.PreVertex!, (Vertex)finish.PostVertex!);
 
             analyst.Analyze();
 
@@ -63,7 +63,7 @@ namespace Highpoint.Sage.Graphs
             longWork.AddSuccessor(finish);
             shortWork.AddSuccessor(finish);
 
-            TestablePertAnalyst analyst = new TestablePertAnalyst(setup, setup.PreVertex!, finish.PostVertex!);
+            TestablePertAnalyst analyst = new TestablePertAnalyst(setup, (Vertex)setup.PreVertex!, (Vertex)finish.PostVertex!);
 
             analyst.Analyze();
 

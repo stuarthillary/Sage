@@ -525,9 +525,12 @@ namespace Highpoint.Sage.Graphs.Tasks
         /// Gets the children (from a perspective of validity) of the implementer.
         /// </summary>
         /// <returns></returns>
-		public override IList GetChildren()
+ 		public override IList GetChildren()
         {
-            return ChildEdges;
+            ArrayList children = new ArrayList(ChildEdges.Count);
+            foreach (Edge child in ChildEdges)
+                children.Add(child);
+            return ArrayList.ReadOnly(children);
         }
 
         /// <summary>

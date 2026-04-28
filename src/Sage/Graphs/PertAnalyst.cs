@@ -66,7 +66,7 @@ namespace Highpoint.Sage.Graphs.Analysis
                     _criticalPath.Add(targetEdge!);
                     mean += ed.MeanDuration;
                     variance += ed.Variance2;
-                    return targetEdge!.PostVertex!;
+                    return (Vertex)targetEdge!.PostVertex!;
                 }
             }
 

@@ -243,7 +243,7 @@ protected string? _name = null; // Set in constructor
         /// <summary>
         /// The preVertex to this edge.
         /// </summary>
-        public Vertex? PreVertex
+        public IVertex? PreVertex
         {
             get
             {
@@ -254,7 +254,7 @@ protected string? _name = null; // Set in constructor
         /// <summary>
         /// The postVertes to this edge.
         /// </summary>
-        public Vertex? PostVertex
+        public IVertex? PostVertex
         {
             get
             {
@@ -432,7 +432,9 @@ protected string? _name = null; // Set in constructor
             // reference would result in changing the SuccessorEdges array. This would
             // cause an error, so we have to copy the collection and then iterate through
             // the copy.
-            ArrayList tmp = new ArrayList(PredecessorEdges);
+            ArrayList tmp = new ArrayList(PredecessorEdges.Count);
+            foreach (Edge predecessorEdge in PredecessorEdges)
+                tmp.Add(predecessorEdge);
             foreach (Edge e in tmp)
             {
                 if (!(e is Ligature))
@@ -445,7 +447,9 @@ protected string? _name = null; // Set in constructor
                     _vm!.Resume();
             }
 
-            tmp = new ArrayList(SuccessorEdges);
+            tmp = new ArrayList(SuccessorEdges.Count);
+            foreach (Edge successorEdge in SuccessorEdges)
+                tmp.Add(successorEdge);
             foreach (Edge e in tmp)
             {
                 if (!(e is Ligature))
@@ -555,7 +559,7 @@ protected string? _name = null; // Set in constructor
         /// Gets a list of predecessor edges attached to this edge's preVertex.
         /// </summary>
         /// <value>The predecessor edges.</value>
-		public IList PredecessorEdges
+		public IReadOnlyList<Edge> PredecessorEdges
         {
             get
             {
@@ -567,7 +571,7 @@ protected string? _name = null; // Set in constructor
         /// Gets a list of successor edges attached to this edge's postVertex.
         /// </summary>
         /// <value>The successor edges.</value>
-		public IList SuccessorEdges
+		public IReadOnlyList<Edge> SuccessorEdges
         {
             get
             {
@@ -590,7 +594,7 @@ protected string? _name = null; // Set in constructor
         /// <param name="graphContext">The graph context.</param>
 		public void Start(IDictionary graphContext)
         {
-            PreVertex!.FireVertex(graphContext); // PreVertex non-null after CreateVertices()
+            Pre!.FireVertex(graphContext); // Pre non-null after CreateVertices()
         }
 
         /// <summary>
@@ -632,14 +636,14 @@ protected string? _name = null; // Set in constructor
         /// in an order according to their vertices' relationships to each other and their parents.
         /// </summary>
         /// <value>The child edges.</value>
-        public IList ChildEdges
+        public IReadOnlyList<Edge> ChildEdges
         {
             get
             {
                 if (_childEdges != null)
-                    return ArrayList.ReadOnly(ArrayList.Adapter(_childEdges));
+                    return _childEdges.AsReadOnly();
                 else
-                    return _emptyCollection;
+                    return Array.Empty<Edge>();
             }
         }
 
@@ -787,8 +791,8 @@ protected string? _name = null; // Set in constructor
             ArrayList ligaturesToDisconnect = new ArrayList();
             foreach (Ligature childLigature in _childLigatures!)
             {
-                if (childLigature.PreVertex!.PrincipalEdge.Equals(child) ||
-                    childLigature.PostVertex!.PrincipalEdge.Equals(child))
+                if (childLigature.PreVertex!.PrincipalEdge!.Equals(child) ||
+                    childLigature.PostVertex!.PrincipalEdge!.Equals(child))
                 {
                     ligaturesToDisconnect.Add(childLigature);
                 }
@@ -837,7 +841,7 @@ protected string? _name = null; // Set in constructor
         {
             // If the child has only one predecessor and it's the ligature to parent, ignore this.
             if ((child.PredecessorEdges.Count == 1) &&
-                ((Edge)child.PredecessorEdges[0]!).PreVertex!.PrincipalEdge.Equals(this))
+                ((Edge)child.PredecessorEdges[0]!).PreVertex!.PrincipalEdge!.Equals(this))
                 return;
 
             bool hasVm = (_vm != null);
@@ -847,7 +851,7 @@ protected string? _name = null; // Set in constructor
             Ligature? lttc = null;
             foreach (Ligature childLigature in _childLigatures!) // non-null when children exist
             {
-                if (childLigature.PostVertex!.PrincipalEdge.Equals(child))
+                if (childLigature.PostVertex!.PrincipalEdge!.Equals(child))
                     lttc = childLigature;
             }
 
@@ -864,7 +868,7 @@ protected string? _name = null; // Set in constructor
             {
                 Edge edgePred = childPred;
                 while (edgePred is Ligature)
-                    edgePred = edgePred.PreVertex!.PrincipalEdge; // PreVertex non-null on established edges
+                    edgePred = edgePred.PreVertex!.PrincipalEdge!; // PreVertex non-null on established edges
                 if (edgePred.Parent == this)
                 {
                     _childLigatures.Remove(lttc);
@@ -880,7 +884,7 @@ protected string? _name = null; // Set in constructor
         {
             // If the child has only one successor and it's the ligature to parent, ignore this.
             if ((child.SuccessorEdges.Count == 1) &&
-                ((Edge)child.SuccessorEdges[0]!).PostVertex!.PrincipalEdge.Equals(this))
+                ((Edge)child.SuccessorEdges[0]!).PostVertex!.PrincipalEdge!.Equals(this))
                 return;
 
             bool hasVm = (_vm != null);
@@ -891,7 +895,7 @@ protected string? _name = null; // Set in constructor
             Ligature? lttc = null;
             foreach (Ligature childLigature in _childLigatures!) // non-null when children exist
             {
-                if (childLigature.PreVertex!.PrincipalEdge.Equals(child))
+                if (childLigature.PreVertex!.PrincipalEdge!.Equals(child))
                     lttc = childLigature;
             }
 
@@ -904,7 +908,7 @@ protected string? _name = null; // Set in constructor
                 {
                     Edge edgeSucc = childSucc;
                     while (edgeSucc is Ligature)
-                        edgeSucc = edgeSucc.PostVertex!.PrincipalEdge; // PostVertex non-null on established edges
+                        edgeSucc = edgeSucc.PostVertex!.PrincipalEdge!; // PostVertex non-null on established edges
                     if (edgeSucc.Parent == this)
                     {
                         _childLigatures.Remove(lttc);
@@ -1030,7 +1034,7 @@ protected string? _name = null; // Set in constructor
         /// Called when execution of this edge is complete.
         /// </summary>
         /// <param name="graphContext">The graph context.</param>
-		protected void OnExecutionComplete(IDictionary graphContext)
+        protected void OnExecutionComplete(IDictionary graphContext)
         {
             if (EdgeExecutionFinishingEvent != null)
                 EdgeExecutionFinishingEvent(graphContext, this);
@@ -1046,6 +1050,25 @@ protected string? _name = null; // Set in constructor
                 if (_diagnostics)
                     _Debug.WriteLine("Edge " + Name + " is signaling completion, but " + Name + " has a null postVertex.");
             }
+        }
+
+        private static Vertex ToVertex(IVertex vertex, string paramName)
+        {
+            if (vertex is Vertex concreteVertex)
+                return concreteVertex;
+
+            throw new ArgumentException("Graph APIs currently require concrete Vertex instances.", paramName);
+        }
+
+        /// <summary>
+        /// Creates a direct connection between the from vertex and the to vertex, if one does not already exist.
+        /// </summary>
+        /// <param name="from">The vertex that is to become the preVertex of the new edge.</param>
+        /// <param name="to">The vertex that is to become the postVertex of the new edge.</param>
+        /// <returns>The edge that joins the two vertices.</returns>
+        public static Edge? Connect(IVertex from, IVertex to)
+        {
+            return Connect(ToVertex(from, nameof(from)), ToVertex(to, nameof(to)));
         }
 
         /// <summary>
@@ -1074,6 +1097,19 @@ protected string? _name = null; // Set in constructor
         /// </summary>
         /// <param name="from">The fromVertex.</param>
         /// <param name="to">The toVertex.</param>
+        /// <param name="deleteAllSuchEdges">if set to <c>true</c> this method will delete all such edges.
+        /// If <c>false</c>, it will delete only the first one found.</param>
+        public static void Disconnect(IVertex from, IVertex to, bool deleteAllSuchEdges)
+        {
+            Disconnect(ToVertex(from, nameof(from)), ToVertex(to, nameof(to)), deleteAllSuchEdges);
+        }
+
+        /// <summary>
+        /// Removes one or more edges, if they exist, linking the fromVertex to the toVertex. The
+        /// edge will be outbound from the fromVertex, and inbound to the toVertex. 
+        /// </summary>
+        /// <param name="from">The fromVertex.</param>
+        /// <param name="to">The toVertex.</param>
         /// <param name="deleteAllSuchEdges">if set to <c>true</c> this method will delete all such edges. 
         /// If <c>false</c>, it will delete only the first one found.</param>
         public static void Disconnect(Vertex from, Vertex to, bool deleteAllSuchEdges)
@@ -1082,14 +1118,24 @@ protected string? _name = null; // Set in constructor
             {
                 if (e.PostVertex!.Equals(to))
                 {
-                    e.PostVertex!.RemovePreEdge(e);
-                    e.PreVertex!.RemovePostEdge(e);
+                    e.Post!.RemovePreEdge(e);
+                    e.Pre!.RemovePostEdge(e);
                     if (!deleteAllSuchEdges)
                         return;
                 }
             }
         }
 
+        /// <summary>
+        /// Adds a ligature between the from and the to vertices.
+        /// </summary>
+        /// <param name="from">The 'from' vertex</param>
+        /// <param name="to">The 'to' vertex</param>
+        /// <returns>The new ligature.</returns>
+        internal static Ligature? AddLigature(IVertex from, IVertex to)
+        {
+            return AddLigature(ToVertex(from, nameof(from)), ToVertex(to, nameof(to)));
+        }
 
         /// <summary>
         /// Adds a ligature between the from and the to vertices.
@@ -1118,6 +1164,16 @@ protected string? _name = null; // Set in constructor
         /// </summary>
         /// <param name="from">The 'from' vertex</param>
         /// <param name="to">The 'to' vertex</param>
+        protected static void RemoveLigature(IVertex from, IVertex to)
+        {
+            RemoveLigature(ToVertex(from, nameof(from)), ToVertex(to, nameof(to)));
+        }
+
+        /// <summary>
+        /// Removes the ligature between the from and the to vertices..
+        /// </summary>
+        /// <param name="from">The 'from' vertex</param>
+        /// <param name="to">The 'to' vertex</param>
         protected static void RemoveLigature(Vertex from, Vertex to)
         {
             //string name = Ligature.CreateName(from,to);
@@ -1139,7 +1195,7 @@ protected string? _name = null; // Set in constructor
         protected static void RemoveLigature(Edge from, Edge to)
         {
             //string name = Ligature.CreateName(from,to);
-            foreach (Edge e in from.PostVertex!.SuccessorEdges)
+            foreach (Edge e in ToVertex(from.PostVertex!, nameof(from)).SuccessorEdges)
             {
                 if (e is Ligature && e.PostVertex!.Equals(to.PreVertex))
                 {
@@ -1176,7 +1232,7 @@ protected string? _name = null; // Set in constructor
 
             UtilRef = clone;
 
-            ArrayList? tmpKids = (ChildEdges == _emptyCollection ? null : new ArrayList());
+            ArrayList? tmpKids = ChildEdges.Count == 0 ? null : new ArrayList();
             if (tmpKids != null)
             {
                 foreach (Edge origChild in ChildEdges)
@@ -1223,7 +1279,7 @@ protected string? _name = null; // Set in constructor
             {
                 if (originalLigature is Ligature)
                 {
-                    Edge originalTarget = originalLigature.PostVertex!.PrincipalEdge; // PostVertex non-null on ligatures
+                    Edge originalTarget = originalLigature.PostVertex!.PrincipalEdge!; // PostVertex non-null on ligatures
                     Edge? cloneTarget = (Edge?)originalTarget.UtilRef;
                     if (cloneTarget == null)
                         continue;

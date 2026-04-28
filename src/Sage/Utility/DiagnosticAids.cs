@@ -139,7 +139,7 @@ namespace Highpoint.Sage.Diagnostics
             sb.Append("Edge : " + parent.Name + " (" + parent.GetType() + ")\r\n");
             AddTabs(ref sb, tabDepth + 1);
             sb.Append("* * * * * PreVertex\r\n");
-            _ToString(parent.PreVertex!, ref sb, tabDepth + 2);
+            _ToString((Vertex)parent.PreVertex!, ref sb, tabDepth + 2);
             if (parent.ChildEdges.Count > 0)
             {
                 AddTabs(ref sb, tabDepth + 1);
@@ -159,7 +159,7 @@ namespace Highpoint.Sage.Diagnostics
 
             AddTabs(ref sb, tabDepth - 1);
             sb.Append("* * * * * PostVertex\r\n");
-            _ToString(parent.PostVertex!, ref sb, tabDepth + 2);
+            _ToString((Vertex)parent.PostVertex!, ref sb, tabDepth + 2);
 
 
         }

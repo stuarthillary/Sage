@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using Highpoint.Sage.Core;
-using System.Collections;
+using System.Collections.Generic;
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable EventNeverSubscribedTo.Global
 
@@ -48,7 +48,7 @@ namespace Highpoint.Sage.Resources
         /// Gets the resources owned by this Resource Manager.
         /// </summary>
         /// <value>The resources.</value>
-        IList Resources
+        IReadOnlyList<IResource> Resources
         {
             get;
         }

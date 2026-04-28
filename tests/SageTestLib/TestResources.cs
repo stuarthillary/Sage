@@ -5,6 +5,7 @@ using Highpoint.Sage.Materials;
 using Xunit;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 
@@ -433,9 +434,9 @@ namespace Highpoint.Sage.Resources
 
             rm.Remove(rsc2);
             Assert.Equal(2, rm.Resources.Count);
-            Assert.False(rm.Resources.Contains(rsc2), "Removed resource should not appear in Resources list");
-            Assert.True(rm.Resources.Contains(rsc1),  "Remaining resource rsc1 should still be in pool");
-            Assert.True(rm.Resources.Contains(rsc3),  "Remaining resource rsc3 should still be in pool");
+            Assert.DoesNotContain(rsc2, rm.Resources);
+            Assert.Contains(rsc1, rm.Resources);
+            Assert.Contains(rsc3, rm.Resources);
         }
 
         [Fact]
@@ -500,6 +501,126 @@ namespace Highpoint.Sage.Resources
             Assert.Empty(rm.Resources);
             Assert.Null(rsc2.Manager);
             Assert.Equal(2, removedCount);
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Phase 3: Verifies the resource-manager public collection surface is typed/read-only and still exposes the expected live members.")]
+        public void TestResourceManagerApiCollectionsAreTypedAndReadOnly()
+        {
+            Assert.Equal(typeof(IReadOnlyList<IResource>), typeof(IResourceManager).GetProperty(nameof(IResourceManager.Resources))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<IResource>), typeof(ResourceManager).GetProperty(nameof(ResourceManager.Resources))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<IResource>), typeof(SelfManagingResource).GetProperty(nameof(SelfManagingResource.Resources))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<IResource>), typeof(MaterialResourceItem).GetProperty(nameof(MaterialResourceItem.Resources))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyCollection<IResourceManager>), typeof(IResourceManagerCollection).GetMethod(nameof(IResourceManagerCollection.GetResourceManagers))!.ReturnType);
+            Assert.Equal(typeof(IReadOnlyCollection<IResourceManager>), typeof(ResourceManagerCollection).GetMethod(nameof(ResourceManagerCollection.GetResourceManagers))!.ReturnType);
+
+            Model model = new Model("RM API Shape Test Model");
+            ResourceManager manager = new ResourceManager(model, "TypedPool", Guid.NewGuid());
+            Resource resource = new Resource(model, "Resource A", Guid.NewGuid(), 1.0, 1.0, true, true, true);
+            manager.Add(resource);
+
+            IReadOnlyList<IResource> managerResources = manager.Resources;
+            Assert.Single(managerResources);
+            Assert.Same(resource, managerResources[0]);
+            Assert.True(((ICollection<IResource>)managerResources).IsReadOnly);
+
+            SelfManagingResource selfManaging = new SelfManagingResource(model, "SelfManaged", Guid.NewGuid(), 2.0, 2.0, true, true, true);
+            IReadOnlyList<IResource> selfManagedResources = selfManaging.Resources;
+            Assert.Single(selfManagedResources);
+            Assert.Equal(selfManaging.Guid, selfManagedResources[0].Guid);
+            Assert.True(((ICollection<IResource>)selfManagedResources).IsReadOnly);
+
+            MaterialType materialType = new MaterialType(model, "Water", Guid.NewGuid(), 1.0, 1.0, MaterialState.Liquid, 18.0);
+            MaterialResourceItem materialResource = new MaterialResourceItem(model, materialType, 5.0, 1.0, 10.0);
+            IReadOnlyList<IResource> materialResources = materialResource.Resources;
+            Assert.Single(materialResources);
+            Assert.Same(materialResource, materialResources[0]);
+            Assert.True(((ICollection<IResource>)materialResources).IsReadOnly);
+
+            ResourceManagerCollection collection = new ResourceManagerCollection();
+            collection.Add(manager);
+            collection.Add(selfManaging);
+
+            IReadOnlyCollection<IResourceManager> managers = collection.GetResourceManagers();
+            Assert.Equal(2, managers.Count);
+            Assert.Contains(manager, managers);
+            Assert.Contains(selfManaging, managers);
+            Assert.True(((ICollection<IResourceManager>)managers).IsReadOnly);
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("Verifies ResourceManagerCollection add/remove/lookup semantics and lifecycle events without locking its collection return shape.")]
+        public void TestResourceManagerCollectionLifecycleAndLookup()
+        {
+            Model model = new Model("RM Collection Test Model");
+            ResourceManagerCollection collection = new ResourceManagerCollection();
+            ResourceManager rm1 = new ResourceManager(model, "Pool A", Guid.NewGuid());
+            ResourceManager rm2 = new ResourceManager(model, "Pool B", Guid.NewGuid());
+            int addedCount = 0;
+            int removedCount = 0;
+            object addedSubject = null;
+            object removedSubject = null;
+            IResourceManager lastAdded = null;
+            IResourceManager lastRemoved = null;
+
+            collection.ResourceManagerAdded += delegate(object subject, IResourceManager manager)
+            {
+                addedCount++;
+                addedSubject = subject;
+                lastAdded = manager;
+            };
+            collection.ResourceManagerRemoved += delegate(object subject, IResourceManager manager)
+            {
+                removedCount++;
+                removedSubject = subject;
+                lastRemoved = manager;
+            };
+
+            collection.Add(rm1);
+            collection.Add(rm2);
+
+            Assert.Equal(2, addedCount);
+            Assert.Same(collection, addedSubject);
+            Assert.Same(rm2, lastAdded);
+            Assert.Same(rm1, collection.GetResourceManager(rm1.Guid));
+            Assert.Same(rm2, collection.GetResourceManager(rm2.Guid));
+            Assert.Null(collection.GetResourceManager(Guid.NewGuid()));
+
+            int managersSeen = 0;
+            bool sawRm1 = false;
+            bool sawRm2 = false;
+            foreach (IResourceManager manager in collection.GetResourceManagers())
+            {
+                managersSeen++;
+                sawRm1 |= ReferenceEquals(manager, rm1);
+                sawRm2 |= ReferenceEquals(manager, rm2);
+            }
+
+            Assert.Equal(2, managersSeen);
+            Assert.True(sawRm1);
+            Assert.True(sawRm2);
+
+            collection.Remove(rm1);
+
+            Assert.Equal(1, removedCount);
+            Assert.Same(collection, removedSubject);
+            Assert.Same(rm1, lastRemoved);
+            Assert.Null(collection.GetResourceManager(rm1.Guid));
+            Assert.Same(rm2, collection.GetResourceManager(rm2.Guid));
+
+            managersSeen = 0;
+            sawRm1 = false;
+            sawRm2 = false;
+            foreach (IResourceManager manager in collection.GetResourceManagers())
+            {
+                managersSeen++;
+                sawRm1 |= ReferenceEquals(manager, rm1);
+                sawRm2 |= ReferenceEquals(manager, rm2);
+            }
+
+            Assert.Equal(1, managersSeen);
+            Assert.False(sawRm1);
+            Assert.True(sawRm2);
         }
 
         [Fact]

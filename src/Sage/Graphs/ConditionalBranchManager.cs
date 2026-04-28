@@ -187,17 +187,19 @@ namespace Highpoint.Sage.Graphs
         /// <returns>The Conditional Branch Manager for a given task.</returns>
         public static ConditionalBranchManager For(Task task, bool force)
         {
-            if (!force && task.PostVertex!.EdgeFiringManager != null)
+            Vertex postVertex = (Vertex)task.PostVertex!;
+
+            if (!force && postVertex.EdgeFiringManager != null)
             {
                 throw new ApplicationException(string.Format(_cantForceOverride, task.Name));
             }
 
-            if (task.PostVertex!.EdgeFiringManager == null)
+            if (postVertex.EdgeFiringManager == null)
             {
-                task.PostVertex!.EdgeFiringManager = new ConditionalBranchManager((Model)task.Model);
+                postVertex.EdgeFiringManager = new ConditionalBranchManager((Model)task.Model);
             }
 
-            return (ConditionalBranchManager)task.PostVertex!.EdgeFiringManager;
+            return (ConditionalBranchManager)postVertex.EdgeFiringManager;
         }
 
         /// <summary>
@@ -223,7 +225,7 @@ namespace Highpoint.Sage.Graphs
         /// <param name="task">The task.</param>
         public static void ClearBranchesFor(Task task)
         {
-            task.PostVertex!.EdgeFiringManager = null;
+            ((Vertex)task.PostVertex!).EdgeFiringManager = null;
         }
 
         /// <summary>

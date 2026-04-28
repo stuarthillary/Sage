@@ -1,6 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 
 using System.Collections;
+using System.Collections.Generic;
 using Highpoint.Sage.Core; // For IExecutive and IDetachableEventController, used in Joining & Yielding.
 using Highpoint.Sage.Persistence;
 
@@ -15,12 +16,12 @@ namespace Highpoint.Sage.Graphs
         /// Gets the pre vertex of the object.
         /// </summary>
         /// <value>The pre vertex.</value>
-		Vertex? PreVertex { get; }
+		IVertex? PreVertex { get; }
         /// <summary>
         /// Gets the post vertex of the object.
         /// </summary>
         /// <value>The post vertex.</value>
-		Vertex? PostVertex { get; }
+		IVertex? PostVertex { get; }
         /// <summary>
         /// Gets the parent edge to this one. If the graph is not hierarchical, this will be null.
         /// </summary>
@@ -31,7 +32,7 @@ namespace Highpoint.Sage.Graphs
         /// in an order according to their vertices' relationships to each other and their parents.
         /// </summary>
         /// <value>The child edges.</value>
-		IList ChildEdges { get; }
+		IReadOnlyList<Edge> ChildEdges { get; }
         /// <summary>
         /// Gets or sets the channel with which this edge is associated. This identifies an edge as a part of a group
         /// of edges that are to be fired together by a <see cref="T:IEdgeFiringManager"/> when a preVertex is satisfied.

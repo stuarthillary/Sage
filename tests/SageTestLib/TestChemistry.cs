@@ -1,7 +1,7 @@
 /* This source code licensed under the GNU Affero General Public License */
 using Xunit;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace Highpoint.Sage.Materials.Chemistry
@@ -181,7 +181,8 @@ namespace Highpoint.Sage.Materials.Chemistry
             IMaterial m3 = brs.MyMaterialCatalog["Nitrous Acid"].CreateMass(2, 60);
 
             IMaterial resultA;
-            ArrayList observedReactions, observedReactionInstances;
+            IReadOnlyList<Reaction> observedReactions;
+            IReadOnlyList<ReactionInstance> observedReactionInstances;
 
             Debug.WriteLine("Part A : Reaction should happen...");
             bool reactionAHappened = brs.MyReactionProcessor.CombineMaterials(new IMaterial[] { m1.Clone(), m2.Clone(), m3.Clone() }, out resultA, out observedReactions, out observedReactionInstances);
@@ -203,6 +204,17 @@ namespace Highpoint.Sage.Materials.Chemistry
 
             Debug.WriteLine("\r\nMixture");
             Debug.WriteLine(resultA.ToString());
+
+            Assert.True(reactionAHappened, "Reaction A should have happened");
+            Assert.NotNull(resultA);
+            AssertReadOnlyList(observedReactions);
+            AssertReadOnlyList(observedReactionInstances);
+            Assert.True(observedReactions.Count > 0, "Reaction A should report at least one observed reaction");
+            Assert.Equal(observedReactions.Count, observedReactionInstances.Count);
+            for (int i = 0; i < observedReactionInstances.Count; i++)
+            {
+                Assert.Same(observedReactions[i], observedReactionInstances[i].Reaction);
+            }
 
 
             IMaterial resultB;
@@ -228,7 +240,51 @@ namespace Highpoint.Sage.Materials.Chemistry
             Debug.WriteLine(resultB.ToString());
 
             Assert.True(!reactionBHappened, "Reaction B should not have happened");
+            Assert.NotNull(resultB);
+            AssertReadOnlyList(observedReactions);
+            AssertReadOnlyList(observedReactionInstances);
+            Assert.Empty(observedReactions);
+            Assert.Empty(observedReactionInstances);
 
+        }
+
+        [Fact]
+        [Highpoint.Sage.Utility.FieldDescription("This test locks the typed read-only public reaction collection/query surface.")]
+        public void TestReactionApiCollectionsAreTypedAndReadOnly()
+        {
+            BasicReactionSupporter brs = new BasicReactionSupporter();
+            Initialize(brs);
+
+            Assert.Equal(typeof(IReadOnlyList<Reaction.ReactionParticipant>), typeof(Reaction).GetProperty(nameof(Reaction.Reactants))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Reaction.ReactionParticipant>), typeof(Reaction).GetProperty(nameof(Reaction.Products))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Reaction>), typeof(ReactionProcessor).GetProperty(nameof(ReactionProcessor.Reactions))!.PropertyType);
+            Assert.Equal(typeof(IReadOnlyList<Reaction>), typeof(ReactionProcessor).GetMethod(nameof(ReactionProcessor.GetReactionsByParticipant))!.ReturnType);
+            Assert.Equal(typeof(IReadOnlyList<Reaction>), typeof(ReactionProcessor).GetMethod(nameof(ReactionProcessor.GetReactionsByReactant))!.ReturnType);
+            Assert.Equal(typeof(IReadOnlyList<Reaction>), typeof(ReactionProcessor).GetMethod(nameof(ReactionProcessor.GetReactionsByProduct))!.ReturnType);
+
+            ReactionProcessor reactionProcessor = brs.MyReactionProcessor;
+            IReadOnlyList<Reaction> allReactions = reactionProcessor.Reactions;
+            Assert.Equal(5, allReactions.Count);
+            AssertReadOnlyList(allReactions);
+
+            Reaction hydrochloricAcidReaction = Assert.Single(reactionProcessor.GetReactionsByReactant(brs.MyMaterialCatalog["Hydrochloric Acid"]));
+            Assert.Equal("Reaction 1", hydrochloricAcidReaction.Name);
+
+            Reaction sodiumChlorideReaction = Assert.Single(reactionProcessor.GetReactionsByProduct(brs.MyMaterialCatalog["Sodium Chloride"]));
+            Assert.Equal("Reaction 1", sodiumChlorideReaction.Name);
+
+            IReadOnlyList<Reaction> waterReactions = reactionProcessor.GetReactionsByParticipant(brs.MyMaterialCatalog["Water"]);
+            Assert.Equal(4, waterReactions.Count);
+            AssertReadOnlyList(waterReactions);
+            foreach (Reaction reaction in waterReactions)
+            {
+                Assert.Contains(reaction.Products, participant => participant.MaterialType.Equals(brs.MyMaterialCatalog["Water"]));
+            }
+
+            Reaction.ReactionParticipant hydrochloricAcidParticipant = Assert.Single(hydrochloricAcidReaction.Reactants, participant => participant.MaterialType.Equals(brs.MyMaterialCatalog["Hydrochloric Acid"]));
+            Assert.Equal(brs.MyMaterialCatalog["Hydrochloric Acid"], hydrochloricAcidParticipant.MaterialType);
+            AssertReadOnlyList(hydrochloricAcidReaction.Reactants);
+            AssertReadOnlyList(hydrochloricAcidReaction.Products);
         }
 
         private void Initialize(BasicReactionSupporter brs)
@@ -311,6 +367,13 @@ namespace Highpoint.Sage.Materials.Chemistry
             {
                 Debug.WriteLine(rp.MaterialType.Name + " : " + rp.Mass + " kg.");
             }
+        }
+
+        private static void AssertReadOnlyList<T>(IReadOnlyList<T> list)
+        {
+            ICollection<T> collection = Assert.IsAssignableFrom<ICollection<T>>(list);
+            Assert.True(collection.IsReadOnly, "Expected a read-only collection.");
+            Assert.Throws<NotSupportedException>(() => collection.Clear());
         }
     }
 }

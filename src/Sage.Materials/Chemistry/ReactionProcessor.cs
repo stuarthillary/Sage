@@ -4,6 +4,7 @@ using Highpoint.Sage.Persistence;
 using Highpoint.Sage.Core;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using _Debug = System.Diagnostics.Debug;
 
@@ -59,7 +60,10 @@ namespace Highpoint.Sage.Materials.Chemistry
             }
         }
 
-        public ArrayList Reactions => ArrayList.ReadOnly(_reactions);
+        /// <summary>
+        /// Gets the reactions known to this processor as a typed read-only list.
+        /// </summary>
+        public IReadOnlyList<Reaction> Reactions => _reactions.Cast<Reaction>().ToList().AsReadOnly();
 
         public Reaction? GetReaction(Guid rxnGuid)
         {
@@ -69,26 +73,40 @@ namespace Highpoint.Sage.Materials.Chemistry
         public bool CombineMaterials(IMaterial[] materialsToCombine)
         {
             IMaterial result;
-            ArrayList observedReactions;
-            ArrayList observedReactionInstances;
+            IReadOnlyList<Reaction> observedReactions;
+            IReadOnlyList<ReactionInstance> observedReactionInstances;
             return CombineMaterials(materialsToCombine, out result, out observedReactions, out observedReactionInstances);
         }
 
         public bool CombineMaterials(IMaterial[] materialsToCombine, out IMaterial result)
         {
-            ArrayList observedReactions;
-            ArrayList observedReactionInstances;
+            IReadOnlyList<Reaction> observedReactions;
+            IReadOnlyList<ReactionInstance> observedReactionInstances;
             return CombineMaterials(materialsToCombine, out result, out observedReactions, out observedReactionInstances);
         }
 
-        public bool CombineMaterials(IMaterial[] materialsToCombine, out ArrayList observedReactions)
+        /// <summary>
+        /// Combines the supplied materials and reports the reactions that occurred.
+        /// </summary>
+        /// <param name="materialsToCombine">The materials to combine.</param>
+        /// <param name="observedReactions">The reactions that occurred while combining the materials.</param>
+        /// <returns><see langword="true"/> if at least one reaction occurred; otherwise, <see langword="false"/>.</returns>
+        public bool CombineMaterials(IMaterial[] materialsToCombine, out IReadOnlyList<Reaction> observedReactions)
         {
             IMaterial result;
-            ArrayList observedReactionInstances;
+            IReadOnlyList<ReactionInstance> observedReactionInstances;
             return CombineMaterials(materialsToCombine, out result, out observedReactions, out observedReactionInstances);
         }
 
-        public bool CombineMaterials(IMaterial[] materialsToCombine, out IMaterial result, out ArrayList observedReactions, out ArrayList observedReactionInstances)
+        /// <summary>
+        /// Combines the supplied materials and reports both the resulting material and the observed reactions.
+        /// </summary>
+        /// <param name="materialsToCombine">The materials to combine.</param>
+        /// <param name="result">The resulting combined material.</param>
+        /// <param name="observedReactions">The reactions that occurred while combining the materials.</param>
+        /// <param name="observedReactionInstances">The specific reaction instances that occurred while combining the materials.</param>
+        /// <returns><see langword="true"/> if at least one reaction occurred; otherwise, <see langword="false"/>.</returns>
+        public bool CombineMaterials(IMaterial[] materialsToCombine, out IMaterial result, out IReadOnlyList<Reaction> observedReactions, out IReadOnlyList<ReactionInstance> observedReactionInstances)
         {
             Mixture scratch = new Mixture(null, "scratch mixture");
             Watch(scratch);
@@ -114,22 +132,39 @@ namespace Highpoint.Sage.Materials.Chemistry
             material.MaterialChanged -= OnMaterialChanged;
         }
 
-        public IList GetReactionsByParticipant(MaterialType targetMt)
+        /// <summary>
+        /// Gets the reactions in which the specified material participates as either a reactant or a product.
+        /// </summary>
+        /// <param name="targetMt">The material type to search for.</param>
+        /// <returns>A typed read-only list of matching reactions.</returns>
+        public IReadOnlyList<Reaction> GetReactionsByParticipant(MaterialType targetMt)
         {
             return GetReactionsByFilter(targetMt, Reaction.MaterialRole.Either);
         }
-        public IList GetReactionsByReactant(MaterialType targetMt)
+
+        /// <summary>
+        /// Gets the reactions in which the specified material participates as a reactant.
+        /// </summary>
+        /// <param name="targetMt">The material type to search for.</param>
+        /// <returns>A typed read-only list of matching reactions.</returns>
+        public IReadOnlyList<Reaction> GetReactionsByReactant(MaterialType targetMt)
         {
             return GetReactionsByFilter(targetMt, Reaction.MaterialRole.Reactant);
         }
-        public IList GetReactionsByProduct(MaterialType targetMt)
+
+        /// <summary>
+        /// Gets the reactions in which the specified material participates as a product.
+        /// </summary>
+        /// <param name="targetMt">The material type to search for.</param>
+        /// <returns>A typed read-only list of matching reactions.</returns>
+        public IReadOnlyList<Reaction> GetReactionsByProduct(MaterialType targetMt)
         {
             return GetReactionsByFilter(targetMt, Reaction.MaterialRole.Product);
         }
 
-        private IList GetReactionsByFilter(MaterialType targetMt, Reaction.MaterialRole filter)
+        private IReadOnlyList<Reaction> GetReactionsByFilter(MaterialType targetMt, Reaction.MaterialRole filter)
         {
-            ArrayList reactions = new ArrayList();
+            List<Reaction> reactions = new List<Reaction>();
             foreach (Reaction reaction in Reactions)
             {
                 if (filter == Reaction.MaterialRole.Either || filter == Reaction.MaterialRole.Reactant)
@@ -149,7 +184,7 @@ namespace Highpoint.Sage.Materials.Chemistry
                     }
                 }
             }
-            return reactions;
+            return reactions.AsReadOnly();
         }
 
 
@@ -208,15 +243,15 @@ namespace Highpoint.Sage.Materials.Chemistry
 
         private class ReactionCollector
         {
-            private readonly ArrayList _reactions;
-            private readonly ArrayList _reactionInstances;
+            private readonly List<Reaction> _reactions;
+            private readonly List<ReactionInstance> _reactionInstances;
             private readonly Mixture _mixture;
             private readonly ReactionHappenedEvent _reactionHandler;
             public ReactionCollector(Mixture mixture)
             {
                 _mixture = mixture;
-                _reactions = new ArrayList();
-                _reactionInstances = new ArrayList();
+                _reactions = new List<Reaction>();
+                _reactionInstances = new List<ReactionInstance>();
                 _reactionHandler = OnReactionHappened;
                 _mixture.OnReactionHappened += _reactionHandler;
             }
@@ -230,8 +265,10 @@ namespace Highpoint.Sage.Materials.Chemistry
                 _reactions.Add(ri.Reaction);
                 _reactionInstances.Add(ri);
             }
-            public ArrayList Reactions => _reactions;
-            public ArrayList ReactionInstances => _reactionInstances;
+
+            public IReadOnlyList<Reaction> Reactions => _reactions.AsReadOnly();
+
+            public IReadOnlyList<ReactionInstance> ReactionInstances => _reactionInstances.AsReadOnly();
         }
 
         #region IXmlPersistable Members

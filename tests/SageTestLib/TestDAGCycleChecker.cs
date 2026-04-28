@@ -291,11 +291,11 @@ namespace Highpoint.Sage.Graphs
 
             while (tmp.PostVertex.SuccessorEdges.Count == 0)
                 tmp = (Edge)_edges[_random.Next(_edges.Count)];
-            Vertex to = tmp.PreVertex;
+            Vertex to = (Vertex)tmp.PreVertex!;
 
             foreach (Edge e in _edges)
             {
-                Vertex from = e.PostVertex;
+                Vertex from = (Vertex)e.PostVertex!;
                 if (IsV1PredecessorOfV2(to, from))
                 {
                     Ligature loopback = new Ligature(from, to, "Loopback");
@@ -309,7 +309,7 @@ namespace Highpoint.Sage.Graphs
             {
                 if (e.PreVertex.Equals(v1))
                     return true;
-                return IsV1PredecessorOfV2(v1, e.PreVertex);
+                return IsV1PredecessorOfV2(v1, (Vertex)e.PreVertex!);
             }
             return false;
         }

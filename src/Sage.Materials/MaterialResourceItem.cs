@@ -4,6 +4,7 @@ using Highpoint.Sage.Core;
 using Highpoint.Sage.Resources;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using GuidOps = Highpoint.Sage.Utility.GuidOps;
 // ReSharper disable RedundantDefaultMemberInitializer
@@ -590,12 +591,11 @@ namespace Highpoint.Sage.Materials
         /// Gets the resources owned by this Resource Manager.
         /// </summary>
         /// <value>The resources.</value>
-        public IList Resources
+        public IReadOnlyList<IResource> Resources
         {
             get
             {
-                ArrayList al = new ArrayList { this };
-                return al;
+                return Array.AsReadOnly(new IResource[] { this });
             }
         }
 

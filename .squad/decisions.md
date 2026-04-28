@@ -421,6 +421,94 @@ Batch 1 is clear to merge. Any later work that changes the concrete `Edge` / `Ve
 
 ---
 
+### 2026-04-28: Phase 3 Version Bump — Non-Publishing Closeout (`p3-version-bump`) (COMPLETE ✅)
+
+**By:** Copilot, Ripley, Bishop
+
+**Date:** 2026-04-28
+
+**Status:** Complete — Approved and implemented
+
+**Directive captured:** Do **not** publish anything to NuGet or GitHub in this phase. A version bump is allowed if needed.
+
+**Decision:** Close Phase 3 with an internal metadata-only major version alignment to **`5.0.0`**. Do not use a preview suffix, and do not expand this pass into package identity, release automation, migration-doc, or publication work.
+
+**Why:**
+- Phase 3 already introduced deliberate public API breaking changes
+- Leaving the repo on SDK-default `1.0.0` metadata would misrepresent the codebase state
+- A preview suffix has no value when nothing is being externally published
+
+**Implementation boundary:**
+- Centralize explicit version metadata for the shipping libraries only
+- Stamp:
+  - `Version` = `5.0.0`
+  - `PackageVersion` = `5.0.0`
+  - `AssemblyVersion` = `5.0.0.0`
+  - `FileVersion` = `5.0.0.0`
+  - `InformationalVersion` = `5.0.0`
+- Keep the change metadata-only:
+  - ❌ no serializer/XML/PFC format version change
+  - ❌ no TFM/runtime-floor change
+  - ❌ no package-ID/family decision
+  - ❌ no package split/release automation/publishing/docs batch
+
+**Implementation result:**
+- `Directory.Build.props` now centrally stamps `Sage`, `Sage.Materials`, and `Sage.PFC` to the 5.x line
+- Solution build/test remained green after the metadata update
+
+**Deferred to a future real release batch:**
+- final package identity/family
+- artifact split strategy
+- public support/runtime-floor messaging
+- external GA vs preview release-channel decision
+- release-facing migration/changelog documentation
+
+---
+
+### 2026-04-28: Phase 3 Version Bump — Non-Publishing Closeout (`p3-version-bump`) (COMPLETE ✅)
+
+**By:** Copilot, Ripley, Bishop
+
+**Date:** 2026-04-28
+
+**Status:** Complete — Approved and implemented
+
+**Directive captured:** Do **not** publish anything to NuGet or GitHub in this phase. A version bump is allowed if needed.
+
+**Decision:** Close Phase 3 with an internal metadata-only major version alignment to **`5.0.0`**. Do not use a preview suffix, and do not expand this pass into package identity, release automation, migration-doc, or publication work.
+
+**Why:**
+- Phase 3 already introduced deliberate public API breaking changes
+- Leaving the repo on SDK-default `1.0.0` metadata would misrepresent the codebase state
+- A preview suffix has no value when nothing is being externally published
+
+**Implementation boundary:**
+- Centralize explicit version metadata for the shipping libraries only
+- Stamp:
+  - `Version` = `5.0.0`
+  - `PackageVersion` = `5.0.0`
+  - `AssemblyVersion` = `5.0.0.0`
+  - `FileVersion` = `5.0.0.0`
+  - `InformationalVersion` = `5.0.0`
+- Keep the change metadata-only:
+  - ❌ no serializer/XML/PFC format version change
+  - ❌ no TFM/runtime-floor change
+  - ❌ no package-ID/family decision
+  - ❌ no package split/release automation/publishing/docs batch
+
+**Implementation result:**
+- `Directory.Build.props` now centrally stamps `Sage`, `Sage.Materials`, and `Sage.PFC` to the 5.x line
+- Solution build/test remained green after the metadata update
+
+**Deferred to a future real release batch:**
+- final package identity/family
+- artifact split strategy
+- public support/runtime-floor messaging
+- external GA vs preview release-channel decision
+- release-facing migration/changelog documentation
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus

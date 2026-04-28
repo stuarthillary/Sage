@@ -1,6 +1,6 @@
 /* This source code licensed under the GNU Affero General Public License */
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace Highpoint.Sage.Resources
 {
@@ -30,7 +30,7 @@ namespace Highpoint.Sage.Resources
         /// Returns a collection of all resource managers known to this collection.
         /// </summary>
         /// <returns></returns>
-        ICollection GetResourceManagers();
+        IReadOnlyCollection<IResourceManager> GetResourceManagers();
 
         /// <summary>
         /// Fired when a resource manager is added to the model.

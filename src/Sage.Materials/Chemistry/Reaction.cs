@@ -132,13 +132,13 @@ namespace Highpoint.Sage.Materials.Chemistry
         /// Gets the reactants of this reaction.
         /// </summary>
         /// <value>The reactants.</value>
-        public IList Reactants => ArrayList.ReadOnly(ArrayList.Adapter(_reactants));
+        public IReadOnlyList<ReactionParticipant> Reactants => _reactants.AsReadOnly();
 
         /// <summary>
         /// Gets the products of this reaction.
         /// </summary>
         /// <value>The products.</value>
-        public IList Products => ArrayList.ReadOnly(ArrayList.Adapter(_products));
+        public IReadOnlyList<ReactionParticipant> Products => _products.AsReadOnly();
 
         /// <summary>
         /// Gets or sets the expected percent completion of this reaction.
@@ -333,14 +333,14 @@ namespace Highpoint.Sage.Materials.Chemistry
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             for (int i = 0; i < Reactants.Count; i++)
             {
-                sb.Append(((ReactionParticipant)Reactants[i]!).ToString(1)); // Reactants[i] is always ReactionParticipant
+                sb.Append(Reactants[i].ToString(1));
                 if (i < Reactants.Count - 1)
                     sb.Append(" + ");
             }
             sb.Append(" ==> ");
             for (int i = 0; i < Products.Count; i++)
             {
-                sb.Append(((ReactionParticipant)Products[i]!).ToString(1)); // Products[i] is always ReactionParticipant
+                sb.Append(Products[i].ToString(1));
                 if (i < Products.Count - 1)
                     sb.Append(" + ");
             }
