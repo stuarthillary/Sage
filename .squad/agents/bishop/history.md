@@ -12,6 +12,37 @@
 
 <!-- Append new learnings below. Each entry is something lasting about the project. -->
 
+### 2026-07-17 — Phase 2 Collection Modernization Committed
+
+Committed all Phase 2 code/test changes to `feature/dotnet10` branch after validation.
+
+**Commit Details:**
+- **SHA:** `f6f08c0`
+- **Message:** "Complete Phase 2 collection modernization"
+- **Branch:** feature/dotnet10
+- **Status:** Pushed to origin ✅
+
+**Validation Performed:**
+- Build: `dotnet build .\src\Sage\Sage.csproj` → 0 errors, 0 warnings ✅
+- Test: `dotnet test .\tests\SageTestLib\Sage.Tests.csproj` → 290/290 passing ✅
+
+**Files Committed (16 total):**
+- **Modified (12 files):**
+  - src/Sage/Graphs/ (3): CPMAnalyst, DagDeadlockChecker, PertAnalyst
+  - src/Sage/ItemBased/ (1): PortSet
+  - src/Sage/Resources/ (2): MultiKeyAccessRegulator, ResourceManager
+  - src/Sage/Utility/ (4): HashtableOfLists, WeakHashTable, WeakList, WeakListEnumerator
+  - tests/SageTestLib/ (4): TestHashtableOfLists, TestPorts, TestResources, TestWeakRefHashtable
+- **Created (2 files):**
+  - tests/SageTestLib/TestGraphAlgorithmRegressions.cs (new regression test suite)
+  - tests/SageTestLib/TestWeakList.cs (new regression test suite)
+
+**Scope Gate Compliance:**
+- All changes within Phase 2 narrow scope as approved in decisions.md
+- No public API surface changes
+- No persistence/serialization behavior changes
+- All signature-preserving internal migrations complete
+
 ### 2026-03-06 — DetachableEvent.cs Debug Artifact Cleanup
 
 Inspected `Sage/Core/DetachableEvent.cs` for leftover debug artifacts from the .NET 10 investigation phase.

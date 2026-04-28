@@ -2,6 +2,100 @@
 
 ## Active Decisions
 
+### 2026-04-28: Phase 3 Graph API Opening — Regression / Compile Fallout Map (COMPLETE ✅)
+
+**By:** Hudson
+
+**Date:** 2026-04-28
+
+**Status:** Complete
+
+**Summary:** Mapped the current regression and compile fallout surface for the opening Phase 3 graph API batch focused on `IEdge`, `IVertex`, `Edge`, and `Vertex`.
+
+**Decision:** Do **not** add new characterization tests yet. The current graph interfaces are still tightly coupled to concrete `Edge`/`Vertex` types, so any low-level signature test would only handcuff the intended API break instead of protecting stable behavior.
+
+**Findings:**
+
+1. `IGraph` currently has no in-repo footprint — `src\Sage\Graphs\IGraph.cs` does not exist
+2. Interfaces are not abstract seams yet — `IEdge` exposes concrete `Vertex?` types; `IVertex` exposes concrete `Edge?`
+3. Production compile hotspots (12 files): `ChannelMonitor.cs`, `MultiChannelEdgeReceiptManager.cs`, `Ligature.cs`, `PathLength.cs`, `VertexSynchronizer.cs`, `DagCycleChecker.cs`, `DagDeadlockChecker.cs`, `DagStructureError.cs`, `CPMAnalyst.cs`, `PertAnalyst.cs`, `DiagnosticAids.cs`, `Task.cs`
+4. Test fallout hotspots (7 files): `TestDAGCycleChecker.cs`, `TestGraphBranching.cs`, `TestGraphAlgorithmRegressions.cs`, `TestGraphValidities.cs`, `TestGraphPersistence.cs`, `TestTasks.cs`, `TestTasks2.cs`
+
+**Validation:**
+- Baseline build: ✅ Clean
+- Baseline tests: ✅ Passing
+
+---
+
+### 2026-04-28: Phase 3 Graph Interfaces — Breaking API Batch 1 Scope Gate (ACTIVE ✅)
+
+**By:** Ripley
+
+**Date:** 2026-04-28
+
+**Status:** Active — First batch scoped, Parker ready to implement
+
+**Decision:** Split `p3-interfaces` and `p3-edge-vertex` into two separate batches:
+
+**Batch 1 (this scope gate): `p3-interfaces` — Interface signature changes ONLY**
+
+Parker is authorized to change the following **interface signatures only**, with no implementation/serialization changes:
+
+1. **`IVertex.PredecessorEdges` and `IVertex.SuccessorEdges`** → `IReadOnlyList<Edge>`
+   - Current: `IList`
+   - Breaking changes: Source/binary breaking for callers using mutating methods
+   - Implementation: Properties already return `PreEdges.AsReadOnly()` and `PostEdges.AsReadOnly()`
+   - No internal storage changes required
+
+2. **`IEdge.PreVertex` and `IEdge.PostVertex`** → `IVertex?`
+   - Current: `Vertex?`
+   - Breaking changes: Source/binary breaking for callers casting to concrete `Vertex`
+   - Implementation: Covariance-safe, properties can return as `IVertex?`
+   - No internal field type changes required
+
+3. **`IEdge.ChildEdges`** → `IReadOnlyList<Edge>`
+   - Current: `IList`
+   - Breaking changes: Source/binary breaking for callers using mutating methods
+   - Implementation: Replace `ArrayList.ReadOnly(ArrayList.Adapter(_childEdges))` with `.AsReadOnly()`
+   - No serialization changes required
+
+**Rationale for Split:**
+- Binary/source breaking scope isolation
+- Risk tiering: Interface vs implementation changes are different risk classes
+- XML serialization boundary: Don't change serialization shape and interface in same batch
+- Test/validation checkpoint: Validate interface changes before internal storage changes
+- Subclass exposure: `Task : Edge` and `Ligature : Edge` are in the wild
+
+**Explicitly Out of Scope for Batch 1:**
+- ❌ `IEdge.GetParent()` signature change
+- ❌ Internal storage modernization in `Vertex` or `Edge`
+- ❌ XML serialization shape changes
+- ❌ `IVertex.PrincipalEdge` return type change
+- ❌ `Vertex.AddPreEdge()` / `AddPostEdge()` parameter types
+
+**Migration Order:**
+1. Update `IVertex` interface
+2. Update `IEdge` interface
+3. Update `Vertex` class
+4. Update `Edge` class
+5. Fix consumer compilation errors
+6. Run targeted test suite
+
+**Success Criteria:**
+- ✅ All graph interface return types use `IReadOnlyList<T>` or covariant `IVertex`/`IEdge`
+- ✅ Zero changes to serialization shape
+- ✅ Zero changes to internal storage types
+- ✅ All graph tests pass
+- ✅ Subclasses compile and pass tests
+- ✅ PFC integration tests pass
+
+**Authorization:**
+- Parker: Proceed with Batch 1 (`p3-interfaces`) only
+- Hudson: Add regression tests before Parker starts
+- Coordinator: Do not approve Batch 2 until Batch 1 is validated
+
+---
+
 ### 2026-04-26: Phase 2 PortSet/Resources Scope Gate (COMPLETE ✅)
 
 **By:** Ripley

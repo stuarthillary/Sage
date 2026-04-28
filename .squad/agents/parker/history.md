@@ -338,6 +338,17 @@ amespace Highpoint.Sage.Scratch
 - **Scope:** Removed `#nullable disable` from Dependencies, Randoms, and SystemDynamics (incl. Design/Utility).
 - **Nullability fixes:** GraphSequencer/GraphCycleException annotations, Randoms buffering fields, StateBase Configure fields/collections and distro cache, RunProgram optional parameters.
 - **Build/Test:** `dotnet build Sage\Sage4.csproj` clean; `dotnet build Sage4-Everything.sln` blocked by permission prompt; `dotnet test SageTestLib` 319/319.
+
+---
+
+### 2026-07-17 — Phase 3 Batch 1 (`p3-interfaces`) Narrow Interface Cut ✅
+
+- **Scope:** Applied Ripley's Batch 1 graph contract break only: `IVertex.PredecessorEdges`/`SuccessorEdges` now `IReadOnlyList<Edge>`, and `IEdge.PreVertex`/`PostVertex`/`ChildEdges` now expose `IVertex?` and `IReadOnlyList<Edge>`.
+- **Compatibility adaptation:** Kept `Edge` and `Vertex` concrete public properties unchanged for now and satisfied the new interfaces with explicit interface implementations. That kept the batch inside `p3-interfaces` instead of spilling into `p3-edge-vertex`.
+- **Concrete-class changes:** `Edge` now explicitly maps `IEdge.PreVertex`, `IEdge.PostVertex`, and `IEdge.ChildEdges`; `Vertex` explicitly maps `IVertex.PredecessorEdges` and `IVertex.SuccessorEdges`.
+- **Fallout:** No broader graph/task source updates were required once the explicit adapters were in place; the only compile break encountered was a small `ReadOnlyCollection<Edge>`/`Array.Empty<Edge>()` coalescing mismatch while wiring `IEdge.ChildEdges`.
+- **Validation:** `dotnet build .\Sage.slnx --no-restore` ✅ and `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-build --filter "FullyQualifiedName~Graph|FullyQualifiedName~Task" -v minimal` ✅ (27/27).
+- **Still deferred to later Phase 3 work:** `Edge`/`Vertex` concrete public property shapes are still legacy (`Vertex?`/`IList`). Batch 2+ can decide whether to fully align those concrete APIs with the new interface surface.
 - **Remaining:** 370 files still `#nullable disable` (178 enabled total).
 
 ### 2026-03-07 — Nullable Phase 5 (ItemBased) ✅
