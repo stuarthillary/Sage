@@ -366,6 +366,61 @@ Batch 1 is clear to merge. Any later work that changes the concrete `Edge` / `Ve
 
 ---
 
+### 2026-07-17: Phase 3 Dynamic Construction — Typed Read-Only Child Traversal (`p3-dynamic-construction`) (COMPLETE ✅)
+
+**By:** Ripley (gate), Hudson (map, review), Parker (implement), Hudson (review & approval)
+
+**Date:** 2026-07-17
+
+**Status:** Complete — Approved for merge
+
+**Decision:** Implement the opening `p3-dynamic-construction` batch as a typed read-only child-traversal surface pass only.
+
+**Scope Gate (Ripley):** Narrow to typed read-only child-traversal surfaces in `src\Sage\Persistence\DynamicConstruction.cs`:
+
+- `IBindsToCreationContext.BindableChildren` → `IReadOnlyList<IBindsToCreationContext>`
+- `IHasSubRequirements.SubRequirements` → `IReadOnlyList<IRequirement>`
+- `ISpecification.GetChildRequirements(bool)` → `IReadOnlyList<IRequirement>`
+- `ISpecification.GetChildSpecifications(bool)` → `IReadOnlyList<ISpecification>`
+
+**Explicit Boundaries (do not change):**
+- ❌ Constructors and `CreationContext`
+- ❌ Activation flags and `CREATION_CONTEXTS` / `INCLUDE_WIP` gating
+- ❌ Persistence seams and XML shape changes
+- ❌ Object-typed factory contracts
+- ❌ SemVer coordination and versioning decisions
+
+**Fallout Map (Hudson):**
+- Key finding: There is no in-repo `IBindableChildren` symbol; the actual seam is `IBindsToCreationContext.BindableChildren`
+- The entire dynamic-construction stack is dormant behind `#if INCLUDE_WIP`
+- Direct production file: `src\Sage\Persistence\DynamicConstruction.cs`
+- Compile-time consumer: `src\Sage\Core\Model.cs` (gated hook only)
+- No current test coverage or external consumers
+- Decision: Do **not** add characterization tests — code is dormant and has no live consumer seam, so tests would lock implementation detail instead of protecting shipped behavior
+
+**Implementation (Parker):**
+- Replaced internal `ArrayList` child-tracking fields with typed `List<T>` storage
+- Exposed `.AsReadOnly()` at public boundaries
+- Kept constructors, `CreationContext`, activation, and factory contracts untouched
+- Did not widen into dormant `CREATION_CONTEXTS` / `INCLUDE_WIP` activation debt
+- Validation: `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅, `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --no-build` ✅ (296/296)
+
+**Review & Approval (Hudson):**
+- Confirmed scope adherence: no tests added, dormant code with no live seam
+- Validated baseline Sage build and Sage.Tests remain green
+- Confirmed known activation blockers (`ICreationContext.Model` mismatch, missing `AddCreationContext` seam, unrelated `TimeBasedSelection` debt) are not caused by Parker's changes
+- Verdict: Approved for merge. Dormant-feature activation debt remains deferred to later work.
+
+**Quality Metrics:**
+- Build: ✅ Clean
+- `Sage.Tests`: ✅ 296/296 passing
+- Scope adherence: ✅ 100%
+- Test additions: ✅ None (code is dormant)
+
+**Key Learning:** When working with dormant (#if-gated) code that has no live in-repo consumer, do not add characterization tests — they lock pre-activation implementation detail instead of protecting shipped behavior. Focus scope gates on keeping future activation unblocked.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus

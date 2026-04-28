@@ -12,6 +12,37 @@
 
 ## Learnings
 
+### 2026-04-28 — Phase 3 Dynamic Construction Opening — Regression / Compile Fallout Map ✅
+
+**Status:** Complete
+
+**Mandate:** Map the regression and compile fallout surface for `p3-dynamic-construction` around `DynamicConstruction` and the requested `IBindableChildren` seam.
+
+**Learning:** There is no in-repo `IBindableChildren` symbol to review. The actual seam is `IBindsToCreationContext.BindableChildren`, and the whole dynamic-construction stack is still parked behind `#if INCLUDE_WIP`, with the only external compile hook being the gated `Model` integration under `#if CREATION_CONTEXTS`.
+
+**Hotspots identified:**
+- **Direct production file:** `src\Sage\Persistence\DynamicConstruction.cs` owns the full public surface (`IBindsToCreationContext`, `ISettings`, `IRequirement`, `ISpecification`, `ICreationContext`, `CreationContext`)
+- **Compile-time consumer:** `src\Sage\Core\Model.cs` has the only out-of-file hook (`using Highpoint.Sage.DynamicConstruction;` plus gated `m_creationContexts = new WeakList();`)
+- **No current test coverage / consumers:** no tests reference `DynamicConstruction`, `CreationContext`, or `IBindsToCreationContext`
+
+**Concrete fallout:**
+- Turning on `CREATION_CONTEXTS` alone immediately fails because `Highpoint.Sage.DynamicConstruction` is absent unless `INCLUDE_WIP` is also enabled
+- Turning on `INCLUDE_WIP` alone fails in `DynamicConstruction.cs` because `CreationContext` exposes `IModel Model` while `ICreationContext.Model` requires concrete `Model`
+- The same `INCLUDE_WIP` build also trips unrelated WIP debt in `Utility\TimeBasedSelection.cs`, so dynamic-construction activation is not an isolated compile switch today
+- From inspection, `Model` is not ready for the final batch yet: `m_creationContexts` is assigned but never declared in `Model.cs`, and `CreationContext` calls `m_model.AddCreationContext(this)` even though no such method exists in-tree
+
+**Decision:** Do **not** add characterization tests in this mapping pass. There are zero live consumers and zero active tests on this WIP seam, so any new test would lock pre-activation implementation details instead of protecting stable shipped behavior.
+
+**Quality gates for final implementation batch:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --no-build` ✅ (296/296 passing)
+- Activation gate before version bump: a scoped build with dynamic-construction symbols enabled must compile cleanly without dragging in unrelated WIP failures
+- Final implementation batch must keep scope on `DynamicConstruction` + `Model` integration only; do not mix in opportunistic fixes outside the activation path except required WIP compile blockers
+
+**Verdict:** Not ready for characterization coverage yet. The real work is compile rehabilitation and scope control: make the dormant dynamic-construction seam buildable, wire `Model` cleanly, then add behavior tests once the public shape is actually live.
+
+---
+
 ### 2026-04-28 — Phase 3 Resource Manager Review (`p3-resource-manager`) ✅
 
 **Status:** Complete
@@ -193,6 +224,43 @@
 - `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~Highpoint.Sage.Resources.ResourceTester|FullyQualifiedName~Highpoint.Sage.Resources.ResourceTesterExt|FullyQualifiedName~Highpoint.Sage.ItemBased.Blocks.ServerTester"` ✅ (19/19 passing)
 
 **Verdict:** Batch 1 can move if it stays on collection/event surface modernization, updates the `IResourceManager` consumers listed above, and leaves acquisition ordering/selection semantics alone. No merge without keeping the resource/server regression slice green.
+
+---
+
+### 2026-07-17 — Phase 3 Dynamic Construction Review (`p3-dynamic-construction`) ✅
+
+**Status:** Approved
+
+**Mandate:** Review Parker's typed read-only child-traversal batch in `DynamicConstruction.cs`, add regression coverage only if needed, and decide whether the slice is shippable inside Ripley's scope gate.
+
+**Learning:** Parker stayed inside the gate. The only code changes are the approved collection-surface moves (`BindableChildren`, `SubRequirements`, `GetChildRequirements`, `GetChildSpecifications`) plus local storage modernization from `ArrayList` to typed `List<T>` with read-only wrappers. No constructor, `CreationContext`, activation flag, or factory-contract work leaked into the batch.
+
+**Coverage decision:** Added no new tests. This seam is still dark behind `#if INCLUDE_WIP`, there are still no active in-repo tests or consumers for it, and adding characterization tests now would freeze dormant implementation details instead of protecting shipped behavior.
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore` ✅ (296/296 passing)
+- `dotnet build .\src\Sage\Sage.csproj --no-restore -p:DefineConstants=INCLUDE_WIP` ❌ only on pre-existing blockers:
+  - `ICreationContext.Model` / `CreationContext.Model` return-type mismatch
+  - unrelated `TimeBasedSelection.CompareTo(object)` nullability debt
+
+**Verdict:** Approve. The batch lands the intended typed read-only public surface and does not create new activation fallout; the remaining WIP compile failures are the same deferred blockers already parked outside this slice.
+
+---
+
+### 2026-07-17 — Phase 3 Dynamic Construction Final Validation (`p3-dynamic-construction`) ✅
+
+**Status:** Review complete, approved for merge
+
+**Outcome:** Parker's implementation is sound. The batch stayed inside the scope gate, the baseline build remains clean, and no new activation fallout was introduced. The dormant-feature blockers (`ICreationContext.Model` mismatch, missing `AddCreationContext` seam) are pre-existing deferred work, not caused by this slice.
+
+**Final Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore` ✅ (296/296 passing)
+- No regression tests added (code is dormant, no live consumer seam)
+- No new test-blocking implementation details were created
+
+**Verdict:** ✅ **APPROVED FOR MERGE** — Scoped public-surface batch. Dormant-feature activation debt remains deferred to later work and should not block this review.
 
 ---
 

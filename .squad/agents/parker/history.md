@@ -28,6 +28,16 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 
 ## Learnings
 
+### 2026-07-17 — Phase 3 Dynamic Construction Slice: Typed Read-Only Child Traversal ✅
+
+- **Scope:** Landed the `p3-dynamic-construction` surface-only pass in `src\Sage\Persistence\DynamicConstruction.cs`, limited to child traversal APIs.
+- **Public shape changes:** `IBindsToCreationContext.BindableChildren` now returns `IReadOnlyList<IBindsToCreationContext>`, `IHasSubRequirements.SubRequirements` now returns `IReadOnlyList<IRequirement>`, and `ISpecification.GetChildRequirements/GetChildSpecifications` now return typed read-only lists.
+- **Implementation detail only:** Replaced the affected internal `ArrayList` child-tracking fields in `Settings`, `Requirement`, and `Specification` with typed `List<T>` storage and exposed `.AsReadOnly()` at the boundary.
+- **Deferrals honored:** Did not touch constructors, `CreationContext`, activation flags, persistence seams, or dormant `Model` integration debt (`ICreationContext.Model` mismatch / missing `AddCreationContext` seam).
+- **Validation:** Baseline `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and baseline `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --no-build` ✅ remained green. Dynamic-construction activation remains deferred work.
+
+---
+
 ### 2026-04-28 — Phase 3 Resource Manager Batch: Typed Read-Only Collection Surfaces (`p3-resource-manager`) ✅
 
 **Status:** Complete
@@ -822,3 +832,29 @@ Materials subsystem extraction has been successfully committed to git.
 - **Concrete adapters:** `ResourceManager` now returns `_resources.AsReadOnly()`, `SelfManagingResource` delegates the typed read-only list through its wrapped manager, and `MaterialResourceItem` exposes a one-item `Array.AsReadOnly(...)` wrapper to keep its singleton-manager semantics intact.
 - **Fallout fixed:** Updated resource tests off `IList.Contains(...)` to collection assertions that work against the new read-only typed boundary. No waiter behavior, event shapes, mutators, indexer behavior, or XML-facing construction seams were changed.
 - **Validation:** `dotnet build E:\source\Sage\src\Sage\Sage.csproj --no-restore` ✅, `dotnet build E:\source\Sage\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅, targeted `Sage.Tests` resource/server slice ✅ (19/19), `Sage.Examples` build ✅, and `Sage.Materials.Tests` ✅ (22/22).
+
+---
+
+### 2026-07-17 — Phase 3 Dynamic Construction Typed Read-Only Child Traversal ✅
+
+**Scope:** Implemented the `p3-dynamic-construction` surface-only pass in `src\Sage\Persistence\DynamicConstruction.cs`, limited to child traversal API modernization.
+
+**Public Shape Changes:**
+- `IBindsToCreationContext.BindableChildren` → `IReadOnlyList<IBindsToCreationContext>`
+- `IHasSubRequirements.SubRequirements` → `IReadOnlyList<IRequirement>`
+- `ISpecification.GetChildRequirements(bool)` → `IReadOnlyList<IRequirement>`
+- `ISpecification.GetChildSpecifications(bool)` → `IReadOnlyList<ISpecification>`
+
+**Implementation Pattern:**
+- Replaced the affected internal `ArrayList` child-tracking fields in `Settings`, `Requirement`, and `Specification` with typed `List<T>` storage
+- Exposed `.AsReadOnly()` at the boundary
+- Did not touch constructors, `CreationContext`, activation flags, persistence seams, or dormant `Model` integration debt
+
+**Scope Adherence:** 100% — stayed inside the approved child-traversal surface boundary, no activation debt, no test additions (code is dormant with no live consumer seam).
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --no-build` ✅ (296/296 passing)
+
+**Outcome:** Batch approved by Hudson. Ready for merge. Dormant-feature activation debt remains deferred to later work.
+
