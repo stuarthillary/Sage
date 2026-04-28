@@ -59,4 +59,44 @@
 
 ---
 
+### 2026-07-17 — Phase 3 Batch 2 Review (`p3-edge-vertex`) ❌
+
+**Status:** Rejected
+
+**Mandate:** Review the concrete `Edge`/`Vertex` API batch, add regression coverage for the public-surface break, and decide whether the batch is shippable.
+
+**Learning:** The concrete batch needs its own API-shape tripwires. Interface tests are not enough once `p3-edge-vertex` starts; we need reflection-based assertions on the declared public property types so the batch fails fast if `Edge`/`Vertex` stay on legacy `Vertex`/`IList` signatures.
+
+**Coverage added:**
+- `TestVertexConcreteEdgesAreTypedAsReadOnlyList`
+- `TestEdgeConcreteApiMatchesInterfaceSurface`
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --filter "FullyQualifiedName~GraphLoopingTester"` ❌
+  - `Vertex.PredecessorEdges` / `SuccessorEdges` are still declared as `IList`
+  - `Edge.PreVertex` / `PostVertex` are still declared as `Vertex`
+
+**Verdict:** Reject Batch 2 as currently staged. The new regression tests prove the concrete public API break has not been implemented yet, so this is still Batch 1 behavior with no shippable `p3-edge-vertex` surface.
+
+---
+
+### 2026-07-17 — Phase 3 Batch 2 Review (`p3-edge-vertex`) Revision Pass ✅
+
+**Status:** Complete
+
+**Mandate:** Re-review Ripley's replacement concrete `Edge`/`Vertex` API batch, add regression coverage only if still needed, and decide whether the batch is now shippable.
+
+**Learning:** The concrete public break is now actually in place without reopening the forbidden persistence/storage scope. The existing interface-behavior tests plus the concrete reflection tripwire now give the right coverage balance: they lock the public shape change while leaving `PrincipalEdge`, XML persistence, and `GetParent()` alone.
+
+**Coverage added:** None. Existing regression coverage was sufficient once `Edge.PredecessorEdges` / `SuccessorEdges` joined the concrete API assertions.
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore` ✅ (293/293 passing)
+
+**Verdict:** Approve the revised Batch 2. Ripley's replacement revision lands the intended concrete public API break, limits fallout repairs to genuine `Vertex`-only seams, and passes the full graph test project cleanly.
+
+---
+
 **Archived history:** Detailed entries from March 2026–April 26, 2026 preserved in `hudson-history-archive.md`.

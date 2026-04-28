@@ -275,6 +275,17 @@ amespace Highpoint.Sage.Scratch
 
 ## Learnings
 
+### 2026-04-28 — Phase 3 `p3-edge-vertex`: Concrete Graph API Alignment ✅
+
+- **Scope:** Aligned `Edge` and `Vertex` concrete public APIs with the already-approved Phase 3 interface contracts.
+- **API changes:** `Edge.PreVertex` / `PostVertex` now return `IVertex?`; `Edge.ChildEdges`, `Edge.PredecessorEdges`, `Edge.SuccessorEdges`, `Vertex.PredecessorEdges`, and `Vertex.SuccessorEdges` now return `IReadOnlyList<Edge>`.
+- **Compatibility pattern:** Added narrow bridge overloads where graph callers still naturally speak in terms of interfaces (`Edge.Connect`, `Edge.Disconnect`, `Edge.AddLigature`, `Edge.RemoveLigature`, `VertexSynchronizer`), but kept the implementation anchored on concrete `Vertex` instances internally.
+- **Immediate fallout fixed:** Updated graph analyzers, diagnostics, branch management, synchronizer call sites, and graph/task tests to cast only where a concrete `Vertex` is actually required (manager setters, synchronizer arrays, helper methods).
+- **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-build --filter "FullyQualifiedName~Graph|FullyQualifiedName~Task"` ✅ (30/30).
+- **Deferred / out-of-scope note:** A full `Sage.Tests` run still hit unrelated `ItemBased` connector failures (`ConnectorFactory.Connect` / `ManagementFacadeTester`) outside the graph slice.
+
+---
+
 ### 2026-07-17 — Sample Code `[Order]` Attribute for Intentional Run Order ✅
 
 - **Scope:** Added `OrderAttribute` to `samples\Sage_SampleCode` to restore the original intentional demo execution order after IExample + reflection-based discovery was introduced.

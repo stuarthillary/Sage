@@ -2,6 +2,48 @@
 
 ## Active Decisions
 
+### 2026-07-17: Phase 3 Batch 2 (`p3-edge-vertex`) — Concrete Graph API Alignment (COMPLETE ✅)
+
+**By:** Parker, Hudson, Ripley (multi-turn cycle)
+
+**Date:** 2026-07-17
+
+**Status:** Complete — Approved for merge
+
+**Decision:** Align concrete `Edge` and `Vertex` public API with interface break from `p3-interfaces` batch. Full public surface modernization with fallout remediation contained to direct consumers.
+
+**Scope Gate:**
+
+Concrete public API must expose:
+- `Vertex.PredecessorEdges` / `Vertex.SuccessorEdges` → `IReadOnlyList<Edge>`
+- `Edge.PreVertex` / `Edge.PostVertex` → `IVertex?`
+- `Edge.ChildEdges` → `IReadOnlyList<Edge>`
+- `Edge.PredecessorEdges` / `Edge.SuccessorEdges` → `IReadOnlyList<Edge>`
+
+**Explicit Boundaries (do not change):**
+- Internal storage fields and backing collection types
+- XML serialization payload/shape
+- `IEdge.GetParent()` signature
+- `Vertex.PrincipalEdge` concrete type
+- Existing add/remove mutator methods
+
+**Execution Timeline:**
+
+1. **Parker Initial Attempt:** Implemented scope but concrete public surface still exposed legacy `IList`/`Vertex` shapes
+2. **Hudson Rejection:** Added concrete API regression tests; found implementation incomplete. Locked Parker out; assigned to Ripley
+3. **Ripley Revision:** Re-scoped as public-surface-only pass; fully aligned concrete API to interface break; remediated fallout
+4. **Hudson Approval:** Validated concrete surface, fallout repairs, regression coverage. Approved for merge
+
+**Coverage Decision:** Did NOT add extra tests. Current suite (interface behavior, concrete reflection, end-to-end graph tests) is the right tripwire level. Adding low-level tests would over-lock out-of-scope seams.
+
+**Validation:**
+- Build: ✅ Clean
+- `Sage.Tests`: ✅ 293/293 passing
+
+**Result:** Batch approved and ready for merge.
+
+---
+
 ### 2026-04-28: Phase 3 Graph API Opening — Regression / Compile Fallout Map (COMPLETE ✅)
 
 **By:** Hudson
@@ -162,242 +204,6 @@ Batch 1 is clear to merge. Any later work that changes the concrete `Edge` / `Ve
 
 ---
 
-### 2026-04-26: Phase 2 PortSet/Resources Scope Gate (COMPLETE ✅)
-
-**By:** Ripley
-
-**Date:** 2026-04-26
-
-**Status:** Complete — Scope gate approved with hard exclusions
-
-**Decision:** Parker may proceed with a **narrow Phase 2 batch** limited to signature-preserving internal modernization in `ResourceManager`, `PortSet`, and `MultiKeyAccessRegulator` **only where behavior, serialized shape, and public collection types remain unchanged**.
-
-**Approved Changes:**
-- Private-field/internal helper cleanups that do **not** change any public/member signatures
-- `PortSet` private non-persisted helper/listener cleanups preserving GUID-backed storage, public constructors, `ICollection PortKeys`, indexer/event behavior, and XML payload under `"Ports"`
-- `ResourceManager` internal maintenance excluding changes to `public IList Resources`, constructors, XML field names, or waiter wake order / priority semantics
-- `MultiKeyAccessRegulator` internal cleanup keeping constructor signature `MultiKeyAccessRegulator(object subject, ArrayList keys)` and `.Equals(...)`-based membership semantics
-
-**Explicitly Rejected:**
-- ❌ `PortSet` key-semantics work: No constructor semantic correction, no switch from `Hashtable` to `Dictionary<,>`, no change to name lookup semantics or XML persistence format
-- ❌ Public collection/API shape changes: No `ArrayList`→`IList<T>` constructor/property changes, no change to `IResourceManager.Resources : IList`
-- ❌ `ResourceManager` persistence/waiter behavior changes: No change to serialized `"Resources"` payload, no change to deserialization assumptions, no change to waiter ordering/resumption policy
-
-**Rationale:** `PortSet` persists the raw `Hashtable`, and the serializer recreates it as a plain `Hashtable`; comparer/key-semantics changes can silently alter deserialized behavior. `ResourceManager.Resources` is an explicit public `IList` contract and waiter ordering is simulation-behavior-critical. These areas require dedicated characterization before broader refactors.
-
-**Result:**
-- Scope gate approved
-- Parker proceeded with implementation within boundary
-- Hudson added regression coverage
-- Build: 0 errors, 0 warnings ✅
-- All targeted tests passed ✅
-
----
-
-### 2026-04-26: PortSet/Resources Phase 2 Regression Map (COMPLETE ✅)
-
-**By:** Hudson
-
-**Date:** 2026-04-26
-
-**Status:** Complete
-
-**Decision:** Add only behavior-safe regression nets now, and leave ambiguous PortSet/resource semantics unpinned until Parker gets guidance.
-
-**Tests Added (5):**
-1. `PortSet_AddRemoveAndClear_UpdateLookupsAndTypedViews`
-2. `PortSet_DuplicateInstanceIsIgnored_ButDuplicateNameThrows`
-3. `PortSet_PortAddedAndRemovedEventsFireOncePerMutation`
-4. `TestResourceManagerManagerLinksAndLifecycleEvents`
-5. `TestMultiKeyAccessRegulatorMatchesOnKeyAndSymmetricSubjectEquality`
-
-**Why these were safe:** These assertions match explicit, local behavior in `PortSet`, `ResourceManager`, and `MultiKeyAccessRegulator` without choosing among conflicting higher-level interpretations. They give Parker a regression tripwire for collection-migration work while staying out of product-contract fights.
-
-**Coverage still needed before broader PortSet/resources refactors:**
-1. **PortSet case-sensitivity contract** — decide whether name lookup is supposed to be case-sensitive or case-insensitive; current constructor flag/docs and implementation disagree
-2. **PortSet ordering contract** — decide whether enumeration and integer indexing are allowed to be hashtable-order dependent or must be stable by insertion/index/sort key
-3. **Port event fan-out semantics** — clarify whether rejected-data listeners should be distinct from presented-data listeners before changing wiring
-4. **ResourceManager explicit-selection semantics** — decide what `ResourceSelectionStrategy` must do beyond returning a non-null choice
-5. **ResourceManager absent-remove semantics** — decide whether removing a resource not in the pool should be a no-op, warning, or lifecycle event
-
-**Validation:**
-- Targeted port/resource regression slice: 33 tests passed ✅
-- Full `tests\SageTestLib\Sage.Tests.csproj`: all tests passed ✅
-
----
-
-### 2026-04-26: Phase 2 PortSet/Resources Implementation — Signature-Preserving Internal Cleanup (COMPLETE ✅)
-
-**By:** Parker
-
-**Date:** 2026-04-26
-
-**Status:** Complete
-
-**Decision:** Treat this batch as internal collection cleanup only, honoring Ripley's scope boundary.
-
-**Applied Changes:**
-
-**PortSet (`src\Sage\ItemBased\PortSet.cs`)**
-- Private listener lists moved from `ArrayList` to typed `List<EventHandler<PortEventArgs>>`
-- Typed clear snapshots for safe event iteration
-- Preserved: GUID-backed storage behavior, current public constructor set, `ICollection PortKeys`, indexer/event behavior, XML payload under `"Ports"`
-
-**MultiKeyAccessRegulator (`src\Sage\Resources\MultiKeyAccessRegulator.cs`)**
-- Constructor keys copied into private generic `List<object>`
-- Internal key storage now strongly typed
-- Preserved: public `ArrayList` constructor signature, `.Equals(...)`-based membership semantics, null/subject behavior
-
-**ResourceManager (`src\Sage\Resources\ResourceManager.cs`)**
-- Internal snapshots use typed `List<IResource>` with pre-sized allocation
-- Deserialization list handling modernized
-- Preserved: `public IList Resources`, waiter ordering, priority semantics, serialized shape
-
-**Explicit Deferrals Honored:**
-- ❌ `PortSet` `Hashtable` storage: untouched (preserves key semantics and XML payload)
-- ❌ `ResourceManager.RscWaiterList` and `Resources`: untouched (preserves waiter ordering and public collection shape)
-- ❌ Public API shapes: unchanged
-
-**Validation:**
-- Build: 0 errors, 0 warnings ✅
-- Targeted PortSet/resources regression tests: 7/7 passed ✅
-- Full test suite: all tests passed ✅
-
-**Result:** Implementation complete and verified. Phase 2 batch shippable without persistence or scheduling behavior changes.
-
----
-
-### 2026-07-17: Collections Recovery Scope Reset (COMPLETE ✅)
-
-**By:** Ripley
-
-**Date:** 2026-07-17
-
-**Status:** Complete
-
-**Decision:** Keep the current collections recovery pass inside **Phase 1 only**:
-- Retain signature-preserving private/internal collection migrations already in progress
-- Revert Graph algorithm, PFC, Materials, and known wrapper/public-surface-adjacent changes from this pass
-- Treat ambiguous files as out-of-scope until separately coordinated
-
-**Files explicitly out-of-scope for this recovery:**
-- `src\Sage.Materials\**`
-- `src\Sage.PFC\PfcAnalyst.cs`
-- `src\Sage\Dependencies\GraphSequencer.cs`
-- `src\Sage\Graphs\**`
-- `src\Sage\ItemBased\PortSet.cs`
-- `src\Sage\Utility\WeakHashTable.cs`, `WeakList.cs`, `HashtableOfLists.cs`
-
-**Rationale:** The branch's active build breaks were coming from graph-analysis changes (Phase 2 bucket), not from Phase 1 recovery work. Constraining to internal/private conversions preserves forward progress while avoiding accidental public contract churn.
-
-**Result:**
-- Build: 0 errors, 0 warnings
-- Sage.Tests: 271/271 passing
-- Sage.Materials.Tests: 22/22 passing
-- Sage.PFC.Tests: 58/58 passing
-- Total: 351/351 ✅
-
----
-
-### 2026-07-17: Sample Code `[Order]` Attribute for Intentional Run Order (COMPLETE ✅)
-
-**By:** Parker
-
-**Date:** 2026-07-17
-
-**Status:** Complete
-
-**Context:** `samples\Sage_SampleCode` was refactored to use an `IExample` interface + reflection-based discovery. The runner (`Program.cs`) ordered examples alphabetically by `FullName`, which broke the original intentional progression from basic to advanced concepts.
-
-**Decision:** Introduce an `[Order(n)]` attribute to restore the original execution order without hard-coding the example list in `Program.cs`.
-
-**Implementation:**
-- **New file:** `samples\Sage_SampleCode\OrderAttribute.cs` — `internal sealed class OrderAttribute : Attribute` with `int Value` property
-- **31 classes annotated:** Orders 1–16 (Executive), 17–19 (StateManagement), 20–21 (RandomServer), 22–24 (StateMachine), 25–26 (Model), 27–29 (Resources), 30 (SequenceControl), 100 (DefaultModelWithSelfManagingModelObjects — auto-discovered extra)
-- **Program.cs:** `OrderBy(t => t.GetCustomAttribute<OrderAttribute>()?.Value ?? int.MaxValue).ThenBy(t => t.FullName)`
-- **Namespace resolution:** `OrderAttribute` lives in `Highpoint.Sage.Examples`; C# compiler resolves parent namespace types without explicit `using` directives
-
-**Result:**
-- Build: 0 errors, 0 warnings ✅
-- Examples execute in original intentional order
-
----
-
-### 2026-07-17: Materials Subsystem Extraction into Sage.Materials (COMPLETE ✅)
-
-**By:** Parker
-
-**Date:** 2026-07-17
-
-**Status:** Complete
-
-**Scope:** Extracted 66 source files from `src\Sage\Materials\` (Chemistry, Emissions, Thermodynamics, VaporPressure) into standalone class library `src\Sage.Materials\`. Moved 2 test files to `tests\Sage.Materials.Tests\`.
-
-**Blocker Resolutions:**
-
-1. **EmissionsServiceOptions** — Defined in `SageOptions.cs` in namespace `Highpoint.Sage.Materials.Chemistry.Emissions`, referenced `IEmissionModel` (Materials type). Moved to `src\Sage.Materials\Emissions\EmissionsServiceOptions.cs`. Removed from `SageOptions.cs`.
-
-2. **DiagnosticAids.DumpMaterial** — Contained `DumpMaterial(IMaterial)`, `Dump(Mixture)`, `Dump(Substance)` depending on Materials types. Removed from `DiagnosticAids.cs` along with Materials `using` directives. Created `MaterialDiagnosticAids` static class in `src\Sage.Materials\MaterialDiagnosticAids.cs` for future callers.
-
-**Project Reference Topology:**
-```
-Sage (core) ← Sage.Materials ← Sage.Materials.Tests ← Sage.Scratch
-```
-No circular references.
-
-**Result:**
-- Build: 0 errors, 0 warnings
-- Sage.Tests: 271/271 passing
-- Sage.PFC.Tests: 58/58 passing
-- Sage.Materials.Tests: 22/22 passing
-- Total: 351/351 ✅
-
----
-
-### 2026-07-17: IExample Interface for Sage_SampleCode (COMPLETE ✅)
-
-**By:** Parker
-
-**Date:** 2026-07-17
-
-**Status:** Complete
-
-**Context:** `samples\Sage_SampleCode` had ~30 example classes with `public static void Run()` methods. `Program.cs` registered them manually with hardcoded `Demonstrate(SomeClass.Run)` calls, requiring developer edit to `Main()` for each new example.
-
-**Decision:** Introduce `IExample` interface with `void Run()` instance method. All example classes implement it. `Program.cs` uses reflection to discover and run them automatically.
-
-**Changes:**
-- **New file:** `IExample.cs` — `internal interface IExample { void Run(); }`
-- **31 example classes:** Added `: IExample`, converted `public static void Run()` → `public void Run()`
-- **10 classes:** Removed `static` from class declaration (files 4–7 used `public static class`)
-- **Program.cs `Main()`:** Reflection-based discovery with alphabetical ordering
-- **`Demonstrate(Action)`** → **`Demonstrate(IExample)`**
-
-**Build Result:**
-- 0 errors, 0 warnings ✅
-- All 351 tests pass
-
----
-
-### 2026-07-17: Materials Extraction - Committed (COMPLETE ✅)
-
-**Status:** Complete
-
-**Commit SHA:** 9f9a4e8
-
-**Message:** Extract Materials subsystem to Sage.Materials class library
-- Move 65+ source files from src/Sage/Materials/ to new src/Sage.Materials/
-- Create Sage.Materials.csproj referencing core Sage library
-- Create tests/Sage.Materials.Tests/ with 22 test cases
-- Move EmissionsServiceOptions out of SageOptions.cs into new project
-- Remove DumpMaterial methods from DiagnosticAids.cs (moved to MaterialDiagnosticAids.cs)
-- Update Sage.slnx to include both new projects
-- All 351 tests pass (271 Sage + 58 PFC + 22 Materials)
-
-**Tests:** 351/351 passing ✅
-**Branch:** feature/dotnet10
-
----
 
 ### 2026-04-26: Phase 2 Graph Algorithms — Internal Modernization, Public Surface Preservation (COMPLETE ✅)
 
