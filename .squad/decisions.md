@@ -44,6 +44,55 @@ Concrete public API must expose:
 
 ---
 
+### 2026-04-28: Phase 3 Reactions — Typed Read-Only Public Surfaces (`p3-reactions`) (COMPLETE ✅)
+
+**By:** Ripley (gate), Hudson (map, review), Parker (implement)
+
+**Date:** 2026-04-28
+
+**Status:** Complete — Approved for merge
+
+**Scope Gate (by Ripley):** Narrow to typed read-only public surfaces only. Defer reaction math, sequencing, XML/persistence, construction seams, resource-manager, and versioning.
+
+**Decision:** Implement the opening reactions batch as a typed read-only public-surface pass only:
+- `Reaction.Reactants` / `Reaction.Products` → `IReadOnlyList<Reaction.ReactionParticipant>`
+- `ReactionProcessor.Reactions` → `IReadOnlyList<Reaction>`
+- `ReactionProcessor.GetReactionsByParticipant` / `GetReactionsByReactant` / `GetReactionsByProduct` → `IReadOnlyList<Reaction>`
+- `ReactionProcessor.CombineMaterials(... out observedReactions, out observedReactionInstances)` → typed read-only collections
+
+**Explicit Boundaries (do not change):**
+- ❌ Reaction math and catalyst handling
+- ❌ Event sequencing
+- ❌ XML field-name or payload-shape changes
+- ❌ Constructor/deserialization seams
+- ❌ Resource-manager/versioning work
+
+**Fallout Map (by Hudson):**
+- Production compile hotspots: `Reaction.cs`, `ReactionProcessor.cs`, `ReactionInstance.cs`
+- Test fallout: `TestChemistry.cs` and supporting regression hotspots
+- Pre-change gates: ✅ Green
+
+**Implementation (by Parker):**
+- `Reaction.Reactants`/`Products`: Changed to `IReadOnlyList<ReactionParticipant>`
+- `ReactionProcessor.Reactions`: Changed to `IReadOnlyList<Reaction>`
+- Query methods: All return `IReadOnlyList<Reaction>`
+- `CombineMaterials(...)`: Typed observable outputs
+- Fixed immediate fallout: `ReactionInstance` string rendering, `TestChemistry` off legacy `ArrayList`
+
+**Review & Approval (by Hudson):**
+- Added regression coverage: assertions locking API shape and observed reaction/result behavior
+- Tightened `TestChemistry` with typed/read-only reaction surface locks
+- Validation: `Sage.Materials` build ✅, `Sage.Materials.Tests` 22/22 ✅, chemistry slice 4/4 ✅
+- Verdict: Approve for merge
+
+**Quality Metrics:**
+- Build: ✅ Clean
+- `Sage.Materials.Tests`: ✅ 22/22 passing
+- Chemistry regression slice: ✅ 4/4 passing
+- Test suite status: Approved with explicit regression lock
+
+---
+
 ### 2026-04-28: Phase 3 Graph API Opening — Regression / Compile Fallout Map (COMPLETE ✅)
 
 **By:** Hudson

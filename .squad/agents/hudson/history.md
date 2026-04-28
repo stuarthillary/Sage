@@ -12,6 +12,31 @@
 
 ## Learnings
 
+### 2026-04-28 — Phase 3 Reactions Gate (`p3-reactions`) - Map & Review ✅
+
+**Status:** Complete
+
+**Mandate (Map Pass):** Map the compile and test fallout surface for the reactions batch scope gate. Identify hotspots and verify pre-change gates.
+
+**Mandate (Review Pass):** Review Parker's reaction collection API batch, add regression coverage only where the new public seam was still unguarded, and decide whether the batch is shippable.
+
+**Learning:** 
+- **Map:** Direct compile fallout was limited to `Reaction.cs`, `ReactionProcessor.cs`, and `ReactionInstance.cs`; test fallout centered on `TestChemistry.cs`. Pre-change gates were green.
+- **Review:** The changed seam was real, but the tests were too soft. Simply compiling `CombineMaterials(...)` against typed locals was not enough; this batch needed assertions that the public `Reaction` and `ReactionProcessor` surfaces are explicitly typed/read-only, and that the observed reaction outputs stay aligned with the emitted `ReactionInstance` objects.
+
+**Coverage added (Review):**
+- Strengthened `TestRP_CombineAPI` to assert observed reaction/result behavior for both reacting and non-reacting inputs
+- Added `TestReactionApiCollectionsAreTypedAndReadOnly` to lock `Reaction.Reactants` / `Products`, `ReactionProcessor.Reactions`, and `GetReactionsBy*` to typed read-only shapes
+
+**Validation:**
+- `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅
+- `dotnet test .\tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj --no-restore --no-build` ✅ (22/22 passing)
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~Highpoint.Sage.Materials.Chemistry.Chemistry101"` ✅ (4/4 passing)
+
+**Verdict:** Approve after adding the missing regression net. Parker's implementation stays inside the scoped typed collection/query break, and the new tests now make that contract loud enough to catch backsliding.
+
+---
+
 ### 2026-04-28 — Phase 3 Graph API Opening — Regression / Compile Fallout Map ✅
 
 **Status:** Complete
@@ -96,6 +121,31 @@
 - `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore` ✅ (293/293 passing)
 
 **Verdict:** Approve the revised Batch 2. Ripley's replacement revision lands the intended concrete public API break, limits fallout repairs to genuine `Vertex`-only seams, and passes the full graph test project cleanly.
+
+---
+
+### 2026-04-28 — Phase 3 Reactions Opening — Regression / Compile Fallout Map ✅
+
+**Status:** Complete
+
+**Mandate:** Map the regression and compile fallout surface for the opening reactions batch (`p3-reactions`) around `Reaction` and `ReactionProcessor`.
+
+**Learning:** The safe opening seam is the typed collection/query surface Ripley scoped, not the execution engine. In-repo fallout is concentrated in `Reaction.cs`, `ReactionProcessor.cs`, `ReactionInstance.cs`, and the chemistry-oriented tests that still declare `ArrayList` locals for `CombineMaterials(...)` observations.
+
+**Hotspots identified:**
+- **Direct production fallout:** `Reaction.cs`, `ReactionProcessor.cs`, `ReactionInstance.cs`
+- **Supporting production seams to keep compiling:** `BasicReactionSupporter.cs`, `ISupportsReactions.cs`, `MassVolumeTracker.cs`, `Mixture.cs`
+- **Test fallout:** `TestChemistry.cs` (definite `ArrayList observedReactions` / `observedReactionInstances` compile break), plus reaction coverage in `TestMaterials.cs`, `TestTransferSpecScaling.cs`, `TestTemperatureController.cs`, `TestXmlSerialization.cs`, and `TestCyclicalMVTTracker.cs`
+- **Not currently exercised in-repo:** `ReactionProcessor.Reactions`, `GetReaction(...)`, `GetReactionsBy*`, `RemoveReaction(...)`, `ReactionAddedEvent`, `ReactionRemovedEvent`
+
+**Decision:** Do **not** add new characterization tests in this mapping pass. The untested processor query/event members are exactly the legacy collection surface Ripley intends to retarget to typed read-only collections; locking them now would freeze the wrong public shape instead of protecting stable simulation behavior.
+
+**Quality gates for Batch 1:**
+- `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅
+- `dotnet test .\tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj --no-restore` ✅ (22/22 passing)
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~Highpoint.Sage.Materials.Chemistry.Chemistry101|FullyQualifiedName~Highpoint.Sage.Persistence.PersistenceTester|FullyQualifiedName~Highpoint.Sage.Materials.Chemistry.TransferSpecTester101|FullyQualifiedName~Highpoint.Sage.Thermodynamics.TemperatureControllerTester101|FullyQualifiedName~Highpoint.Sage.Tests.Scheduling.MVTTrackerTester"` ✅ (26/26 passing)
+
+**Verdict:** Batch 1 can move if it stays inside the typed return-surface changes and fixes the `TestChemistry` `ArrayList` fallout without touching reaction math, event order, or XML field names.
 
 ---
 

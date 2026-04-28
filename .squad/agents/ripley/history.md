@@ -21,6 +21,55 @@
 
 ## Learnings
 
+### 2026-04-28 — Phase 3 Reactions Scope Gate (`p3-reactions`) ✅
+
+**Status:** Complete — Scope gate set, batch approved for merge
+
+**Learning:** The narrow scope gate for the opening reactions batch is typed read-only public surfaces only. Defer reaction math, sequencing, XML/persistence, construction seams, resource-manager, and versioning.
+
+**Scope Gate Decision:**
+- `Reaction.Reactants` / `Reaction.Products` → `IReadOnlyList<Reaction.ReactionParticipant>`
+- `ReactionProcessor.Reactions` → `IReadOnlyList<Reaction>`
+- `ReactionProcessor.GetReactionsByParticipant` / `GetReactionsByReactant` / `GetReactionsByProduct` → `IReadOnlyList<Reaction>`
+- `ReactionProcessor.CombineMaterials(... out observedReactions, out observedReactionInstances)` → typed read-only collections
+
+**Explicit Boundaries (no changes):**
+- ❌ Reaction math and catalyst handling
+- ❌ Event sequencing
+- ❌ XML field names and payload shape
+- ❌ Constructor/deserialization seams
+- ❌ Resource-manager/versioning work
+
+**Why it matters:** Underlying reaction participant storage is already `List<ReactionParticipant>`, so exposing typed read-only views is a clean public-surface modernization with minimal behavioral risk. Keeping the existing overload set and legacy `_reactions` backing store keeps the batch about API typing instead of widening into storage, sequencing, or persistence work.
+
+**Quality Gates:**
+1. `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore`
+2. `dotnet test .\tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj --no-restore`
+3. Chemistry regression slice (4 tests)
+
+**Sign-off rule:** If Parker keeps the batch to typed read-only return surfaces and fixes only direct compile fallout, Ripley is satisfied. No changes to reaction math, catalyst handling, event order, or XML field names.
+
+**Documentation:**
+- Decision merged to `.squad/decisions.md`
+- Orchestration log: `.squad/orchestration-log/2026-04-28T22-31-29Z-ripley.md`
+- Session log: `.squad/log/2026-04-28T22-31-29Z-p3-reactions.md`
+
+**Outcome:** Scope gate set. Hudson assigned to map fallout. Parker authorized for implementation.
+
+---
+
+### 2026-04-28 — Phase 3 Resource Manager Scope Gate Approved (`p3-resource-manager`) ✅
+
+**Status:** Opening slice scoped
+
+**Learning:** The first `p3-resource-manager` break must stay on the already-read-only collection boundary, not on lifecycle or construction semantics.
+
+- `IResourceManager.Resources` / `ResourceManager.Resources` / `SelfManagingResource.Resources` / `MaterialResourceItem.Resources` should move from `IList` to `IReadOnlyList<IResource>`
+- `IResourceManagerCollection.GetResourceManagers()` / `ResourceManagerCollection.GetResourceManagers()` should move from `ICollection` to `IReadOnlyCollection<IResourceManager>`
+- Keep `Add` / `Remove` / `Clear`, waiter behavior, acquisition/reservation flow, event delegates, indexer-by-`Guid`, and XML payload shape unchanged in this slice
+
+**Why it matters:** `ResourceManager` already exposes a read-only adapter over an internal `List<IResource>`, tests only rely on read semantics (`Count`, `Contains`, `foreach`), and the one in-repo interface consumer (`MaterialConduitManager`) only enumerates. That makes typed read-only exposure the narrowest useful public break while avoiding determinism-sensitive work in request blocking, event dispatch, and persistence reconstitution.
+
 ### 2026-04-28 — Phase 3 Graph Interfaces Scope Gate Approved ✅
 
 **Status:** Batch 1 (`p3-interfaces`) scoped and approved

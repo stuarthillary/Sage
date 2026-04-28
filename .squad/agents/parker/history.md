@@ -22,6 +22,52 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 
 ## Learnings
 
+### 2026-04-28 — Phase 3 Reactions Batch: Typed Read-Only Public Surfaces (`p3-reactions`) ✅
+
+**Status:** Complete
+
+**Mandate:** Implement the opening reactions batch as a typed read-only public-surface pass only, staying within Ripley's scope gate.
+
+**Changes Applied:**
+
+**Reaction (`src\Sage.Materials\Chemistry\Reaction.cs`)**
+- `Reactants` property: Changed from untyped collection to `IReadOnlyList<Reaction.ReactionParticipant>`
+- `Products` property: Changed from untyped collection to `IReadOnlyList<Reaction.ReactionParticipant>`
+
+**ReactionProcessor (`src\Sage.Materials\Chemistry\ReactionProcessor.cs`)**
+- `Reactions` property: Changed to `IReadOnlyList<Reaction>`
+- `GetReactionsByParticipant()`: Now returns `IReadOnlyList<Reaction>`
+- `GetReactionsByReactant()`: Now returns `IReadOnlyList<Reaction>`
+- `GetReactionsByProduct()`: Now returns `IReadOnlyList<Reaction>`
+- `CombineMaterials(...)`: Typed observable outputs for `out observedReactions` and `out observedReactionInstances`
+
+**ReactionInstance (`src\Sage.Materials\Chemistry\ReactionInstance.cs`)**
+- String rendering: Removed casts/indexing through legacy non-generic lists; now uses typed read-only outputs
+
+**TestChemistry (`tests\SageTestLib\TestChemistry.cs`)**
+- Moved off `ArrayList observedReactions, observedReactionInstances` to typed read-only outputs from `CombineMaterials()`
+
+**Deferrals Honored:**
+- ❌ Reaction math and catalyst handling: unchanged
+- ❌ Event sequencing: unchanged
+- ❌ XML field-name or payload-shape: unchanged
+- ❌ Constructor/deserialization seams: unchanged
+- ❌ Resource-manager/versioning work: deferred
+
+**Validation:**
+- `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅
+- `dotnet test .\tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj --no-restore` ✅ (22/22)
+- Targeted regression slice ✅ (28/28)
+
+**Documentation:**
+- Decision merged to `.squad/decisions.md`
+- Orchestration log: `.squad/orchestration-log/2026-04-28T22-31-29Z-parker.md`
+- Session log: `.squad/log/2026-04-28T22-31-29Z-p3-reactions.md`
+
+**Outcome:** Opening reactions batch complete and staged for review. Implementation stays inside the scoped typed collection/query break with direct fallout fixes in place.
+
+---
+
 ### 2026-04-26 — Phase 2 PortSet/Resources Batch: Signature-Preserving Internal Cleanup ✅
 
 **Status:** Complete
@@ -388,6 +434,16 @@ amespace Highpoint.Sage.Scratch
   - TestPfcAnalyst.cs: `PFCDemoMaterial` → `Highpoint.Sage.Tests.Graphs.PFC`
   - TestEventedList.cs: `SageTestLib` → `Highpoint.Sage.Tests.Utility` (tests EventedList)
   - TestHeap.cs: `SageTestLib` → `Highpoint.Sage.Tests.Utility` (tests Heap)
+
+---
+
+### 2026-07-17 — Phase 3 Reactions Opening Batch: Typed Read-Only Surface Only ✅
+
+- **Scope:** Implemented Ripley's opening `p3-reactions` batch in `Reaction`, `ReactionProcessor`, `ReactionInstance`, and the direct chemistry test fallout only.
+- **Public API changes:** `Reaction.Reactants` / `Products` now return `IReadOnlyList<Reaction.ReactionParticipant>`. `ReactionProcessor.Reactions` and `GetReactionsByParticipant` / `GetReactionsByReactant` / `GetReactionsByProduct` now return `IReadOnlyList<Reaction>`. `CombineMaterials(... out observedReactions, out observedReactionInstances)` now reports typed read-only `Reaction` / `ReactionInstance` collections while keeping the existing overload set and `IMaterial[]` input shape.
+- **Implementation constraint honored:** Kept `ReactionProcessor`'s backing `_reactions` as `ArrayList` and left reaction math, event sequencing, XML field names, and construction/deserialization seams alone. The only internal fallout fix was removing obsolete casts in `Reaction` / `ReactionInstance` once the participant lists became typed.
+- **Test fallout fixed:** Updated `tests\SageTestLib\TestChemistry.cs` off `ArrayList observedReactions, observedReactionInstances` to the new typed read-only output variables.
+- **Validation:** `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅, `dotnet test .\tests\Sage.Materials.Tests\Sage.Materials.Tests.csproj --no-restore` ✅ `22/22`, and the scoped `Sage.Tests` chemistry/persistence/transfer-spec/temperature-controller/MVT slice ✅ `28/28`.
   - TestPfcRepository.cs: `SageTestLib` → `Highpoint.Sage.Tests.Graphs.PFC` (creates PFCs)
   - TestRationalizer.cs: `SageTestLib` → `Highpoint.Sage.Tests.Mathematics` (tests Rationalizer)
 - **Cross-references fixed:**
