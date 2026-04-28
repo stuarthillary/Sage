@@ -12,6 +12,26 @@
 
 ## Learnings
 
+### 2026-04-28 — Phase 3 Resource Manager Review (`p3-resource-manager`) ✅
+
+**Status:** Complete
+
+**Mandate:** Review Parker's resource-manager typed read-only batch, add regression coverage only where the new public seam was still unguarded, and decide whether the batch is shippable.
+
+**Learning:**
+- The implementation change itself was clean, but the regression net was too soft. Fixing `TestResources` compile fallout was not enough; this batch needed explicit tripwires on the public `Resources` / `GetResourceManagers()` signatures so a later backslide to legacy `IList` / `ICollection` shapes fails fast.
+- `SelfManagingResource.Resources` still exposes the wrapped base resource rather than the wrapper instance itself. That is existing behavior and should stay out of this batch's scope; coverage should only lock read-only typed shape plus stable membership semantics.
+
+**Coverage added (Review):**
+- Added `TestResourceManagerApiCollectionsAreTypedAndReadOnly` to assert `IResourceManager`, `ResourceManager`, `SelfManagingResource`, `MaterialResourceItem`, `IResourceManagerCollection`, and `ResourceManagerCollection` now expose typed read-only collection signatures and read-only runtime collections
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore --filter "FullyQualifiedName~Highpoint.Sage.Resources.ResourceTester|FullyQualifiedName~Highpoint.Sage.Resources.ResourceTesterExt|FullyQualifiedName~Highpoint.Sage.ItemBased.Blocks.ServerTester"` ✅ (20/20 passing)
+
+**Verdict:** Approve after adding the missing API-shape regression lock. Parker stayed inside the scoped public-surface break, and the resource/server slice is green with the new guardrail in place.
+
 ### 2026-04-28 — Phase 3 Reactions Gate (`p3-reactions`) - Map & Review ✅
 
 **Status:** Complete

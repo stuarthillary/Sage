@@ -153,4 +153,33 @@ All changes are source and binary breaking but covariant-safe. No serialization 
 
 ---
 
+### 2026-04-28 — Phase 3 Dynamic Construction Scope Gate Approved (`p3-dynamic-construction`) ✅
+
+**Status:** Opening slice scoped
+
+**Learning:** `DynamicConstruction.cs` is still dark code: the entire file is behind `#if INCLUDE_WIP`, the only in-repo integration point in `Model` is behind `#if CREATION_CONTEXTS`, neither symbol is defined in the current build, and there is no active test coverage or in-repo consumer footprint beyond that dormant hook. That means the safe Phase 3 batch is a public-surface typing pass only, not feature activation or construction redesign.
+
+**Scope Gate Decision:**
+- `IBindsToCreationContext.BindableChildren` plus `Settings` / `Requirement` / `Specification` implementations → `IReadOnlyList<IBindsToCreationContext>`
+- `IHasSubRequirements.SubRequirements` plus `Settings` / `Requirement` / `Specification` implementations → `IReadOnlyList<IRequirement>`
+- `ISpecification.GetChildRequirements(bool)` → `IReadOnlyList<IRequirement>`
+- `ISpecification.GetChildSpecifications(bool)` → `IReadOnlyList<ISpecification>`
+
+**Explicit Boundaries (no changes):**
+- ❌ `Bind(CreationContext cc)` parameter or `CreationContext` property typing
+- ❌ `ISettings.PerformSettings`, `IRequirement.Meet`, or `ISpecification.Create` object-typed construction contract
+- ❌ `ICreationContext` mutable ambient surfaces (`Model`, `ParentObjectStack`, `Whiteboard`, `Specifications`, `ProvisionAll`)
+- ❌ GUID generation, requirement satisfaction semantics, or model-registration sequencing
+- ❌ parameterless constructors, serializer/deserializer seams, or compile-symbol activation (`INCLUDE_WIP` / `CREATION_CONTEXTS`)
+
+**Why it matters:** The only clearly isolated modernization seam here is collection exposure. `BindableChildren`, `SubRequirements`, and the recursive child enumeration APIs already behave as read-mostly traversal surfaces, while the rest of the file is tightly coupled to dormant construction flow, ambient mutable state, and incomplete `Model` integration. If we mix constructor or activation work into this batch, we lose the ability to distinguish contract cleanup from feature resurrection.
+
+**Quality Gates:**
+1. `dotnet build .\src\Sage\Sage.csproj --no-restore`
+2. `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-build`
+
+**Sign-off rule:** If implementation stays confined to typed read-only child traversal surfaces and does not enable the dormant feature flags, Ripley is satisfied. Any attempt to turn on dynamic construction, reshape `CreationContext`, or redesign construction/persistence flow belongs in a later batch.
+
+---
+
 **Archived history:** Detailed entries from March 2026–April 26, 2026 preserved in `ripley-history-archive.md`.

@@ -21,10 +21,55 @@ From mid-Q2 onward, Parker completed major framework upgrades:
 - Phase 2 public API collection modernization across Core, PFC, and Materials modules
 - Phase 3 Batch 1 (`p3-interfaces`) graph interface signatures updated
 - Phase 2 graph algorithm internal collection modernization (PertAnalyst, CPMAnalyst, DagDeadlockChecker)
+- Phase 3 Resource Manager (`p3-resource-manager`) typed read-only collection surfaces
+- Phase 3 Reactions (`p3-reactions`) typed read-only public surfaces
 
 ---
 
 ## Learnings
+
+### 2026-04-28 — Phase 3 Resource Manager Batch: Typed Read-Only Collection Surfaces (`p3-resource-manager`) ✅
+
+**Status:** Complete
+
+**Mandate:** Implement the first `p3-resource-manager` slice as a direct public-surface break only, staying within Ripley's typed read-only scope gate.
+
+**Changes Applied:**
+
+**Resource Manager & Implementations**
+- `ResourceManager.Resources`: Changed from `IList` to `IReadOnlyList<IResource>`, exposing `_resources.AsReadOnly()` directly
+- `SelfManagingResource.Resources`: Changed to `IReadOnlyList<IResource>`, forwarding from wrapped ResourceManager
+- `MaterialResourceItem.Resources`: Changed to `IReadOnlyList<IResource>`, returning `Array.AsReadOnly(new IResource[] { this })`
+- `IResourceManager.Resources`: Interface updated to `IReadOnlyList<IResource>`
+- `IResourceManagerCollection.GetResourceManagers()` / `ResourceManagerCollection.GetResourceManagers()`: Changed from `ICollection` to `IReadOnlyCollection<IResourceManager>`
+
+**Test Updates**
+- `tests\SageTestLib\TestResources.cs`: Moved off `IList.Contains(...)` patterns to typed collection assertions
+
+**Deferrals Honored:**
+- ❌ `Reserve`, `Acquire`, `Unreserve`, `Release` behavior: unchanged
+- ❌ Waiter ordering and prioritized request semantics: unchanged
+- ❌ Event delegate shapes: unchanged
+- ❌ Add/Remove/Clear mutators: unchanged
+- ❌ Indexer semantics: unchanged
+- ❌ Constructor/serialization identity work: deferred
+- ❌ XML payload/shape: unchanged
+- ❌ Versioning: deferred
+
+**Validation:**
+- `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅
+- `dotnet build .\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅
+- `dotnet test .\tests\SageTestLib\Sage.Tests.csproj --no-restore` ✅
+- Targeted resource/server regression slice ✅
+
+**Documentation:**
+- Decision merged to `.squad/decisions.md`
+- Orchestration logs: `.squad/orchestration-log/2026-04-28T22-58-19Z-parker.md`
+- Session log: `.squad/log/2026-04-28T22-58-19Z-p3-resource-manager.md`
+
+**Outcome:** Opening resource-manager batch complete. Implementation stays inside the scoped typed read-only public surface break with direct fallout fixes in place. Staged for review and approval.
+
+---
 
 ### 2026-04-28 — Phase 3 Reactions Batch: Typed Read-Only Public Surfaces (`p3-reactions`) ✅
 
@@ -768,3 +813,12 @@ Materials subsystem extraction has been successfully committed to git.
 - **ResourceManager:** Kept `Resources`, XML persistence, and waiter machinery intact; only changed `Clear()` to iterate over a typed snapshot and pre-sized the deserialization list from the legacy `ArrayList` payload.
 - **Deferred on purpose:** `PortSet` still uses `Hashtable` storage because key semantics and XML shape are scope-locked, and `ResourceManager` waiter internals remain untouched because ordering changes are out of bounds for this phase.
 - **Validation:** `dotnet build .\src\Sage\Sage.csproj --no-restore` ✅ and targeted resource/port regressions in `tests\SageTestLib\Sage.Tests.csproj` ✅ (7/7).
+
+---
+
+### 2026-04-28 — Phase 3 Resource Manager Read-Only Surface Batch ✅
+
+- **Scope:** Landed only the first `p3-resource-manager` public-surface break: `IResourceManager.Resources` and concrete manager/resource implementers now expose `IReadOnlyList<IResource>`, and `IResourceManagerCollection.GetResourceManagers()` now returns `IReadOnlyCollection<IResourceManager>`.
+- **Concrete adapters:** `ResourceManager` now returns `_resources.AsReadOnly()`, `SelfManagingResource` delegates the typed read-only list through its wrapped manager, and `MaterialResourceItem` exposes a one-item `Array.AsReadOnly(...)` wrapper to keep its singleton-manager semantics intact.
+- **Fallout fixed:** Updated resource tests off `IList.Contains(...)` to collection assertions that work against the new read-only typed boundary. No waiter behavior, event shapes, mutators, indexer behavior, or XML-facing construction seams were changed.
+- **Validation:** `dotnet build E:\source\Sage\src\Sage\Sage.csproj --no-restore` ✅, `dotnet build E:\source\Sage\src\Sage.Materials\Sage.Materials.csproj --no-restore` ✅, targeted `Sage.Tests` resource/server slice ✅ (19/19), `Sage.Examples` build ✅, and `Sage.Materials.Tests` ✅ (22/22).

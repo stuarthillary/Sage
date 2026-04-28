@@ -2,6 +2,64 @@
 
 ## Active Decisions
 
+### 2026-04-28: Phase 3 Resource Manager — Typed Read-Only Public Surfaces (`p3-resource-manager`) (COMPLETE ✅)
+
+**By:** Ripley (gate), Hudson (map, review), Parker (implement), Hudson (review & approval)
+
+**Date:** 2026-04-28
+
+**Status:** Complete — Approved for merge
+
+**Decision:** Implement the first `p3-resource-manager` slice as a typed read-only collection exposure only, modernizing public surfaces where the implementation is already read-only today while deferring lifecycle, persistence, and versioning work.
+
+**Scope Gate (Ripley):** Narrow to typed read-only collection surfaces on the approved resource-manager boundaries.
+
+**Exact Breaking API Changes:**
+- `IResourceManager.Resources` → `IReadOnlyList<IResource>`
+- `ResourceManager.Resources` → `IReadOnlyList<IResource>`
+- `SelfManagingResource.Resources` → `IReadOnlyList<IResource>`
+- `MaterialResourceItem.Resources` → `IReadOnlyList<IResource>`
+- `IResourceManagerCollection.GetResourceManagers()` → `IReadOnlyCollection<IResourceManager>`
+- `ResourceManagerCollection.GetResourceManagers()` → `IReadOnlyCollection<IResourceManager>`
+
+**Explicit Boundaries (do not change):**
+- ❌ `Reserve`, `Acquire`, `Unreserve`, `Release` behavior
+- ❌ Waiter ordering and prioritized request semantics
+- ❌ Event delegate shapes
+- ❌ Add/Remove/Clear mutators
+- ❌ Indexer semantics
+- ❌ Constructor/serialization identity work
+- ❌ XML payload/shape changes
+- ❌ Versioning/release coordination
+
+**Fallout Map (Hudson):**
+- Production hotspots: `MaterialConduitManager.cs`, `ResourceServer.cs`, `MaterialService.cs`, resource implementations, test/sample files
+- Regression coverage added: `TestResourceManagerCollectionLifecycleAndLookup` (behavioral only, no type assertion)
+- Decision: Do not add public-shape tests during fallout map; those are the intended break seams
+
+**Implementation (Parker):**
+- Updated `ResourceManager` to expose `_resources.AsReadOnly()` directly
+- Updated `SelfManagingResource` to forward typed read-only list
+- Updated `MaterialResourceItem` to return singleton resource via `Array.AsReadOnly(...)`
+- Fixed `TestResources.cs` off `IList.Contains(...)` patterns
+- Scope adherence: Stayed within typed read-only public surface boundary; no behavioral changes
+
+**Review & Approval (Hudson):**
+- Added `TestResourceManagerApiCollectionsAreTypedAndReadOnly` with reflection-based API-shape assertions and read-only runtime verification
+- Provides explicit tripwires so future backsliding to `IList`/`ICollection` fails fast
+- Validation: Sage build ✅, Sage.Materials build ✅, resource/server slice 20/20 ✅
+- Verdict: Approved for merge. No revision handoff required.
+
+**Quality Metrics:**
+- Build: ✅ Clean
+- `Sage.Tests` resource/server slice: ✅ 20/20 passing
+- Regression coverage: ✅ Tripwire added for public-surface break
+- Scope adherence: ✅ 100%
+
+**Key Learning:** For public-surface breaks, simple compile-fallout fixes are not sufficient. Explicit tripwires (reflection-based API-shape assertions + read-only verification) are needed so later backsliding fails fast.
+
+---
+
 ### 2026-07-17: Phase 3 Batch 2 (`p3-edge-vertex`) — Concrete Graph API Alignment (COMPLETE ✅)
 
 **By:** Parker, Hudson, Ripley (multi-turn cycle)
